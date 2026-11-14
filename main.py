@@ -169,12 +169,6 @@ def main(argv):
             json.dump(ULTIMI["verifica"], f, ensure_ascii=False, separators=(",", ":"))
     log.info("Pagina creata: %s  |  registro: %s", out, REGISTRO)
     if site:
-        # LANDING PAGE (vetrina.py) con i numeri veri di questo giro. Isolata: se fallisce il terminale e' gia' salvo
-        try:
-            from cot_radar import vetrina
-            vetrina.crea(folder)
-        except Exception:
-            log.error("landing page non creata:\n%s", traceback.format_exc())
         # SCHEDA AZIONI: dati del ramo "azioni" (workflow azioni.yml) copiati in <sito>/azioni/.
         # Su GitHub dal ramo; sul PC da una cartella indicata in AZIONI_LOCALE (prova). Mai bloccante.
         try:
@@ -187,6 +181,12 @@ def main(argv):
                 pattern.copia_nel_sito(folder)
         except Exception:
             log.warning("dati azioni non copiati nel sito:\n%s", traceback.format_exc())
+        # LANDING PAGE (vetrina.py) con i numeri veri di questo giro (v7.69: DOPO le azioni, di cui mostra l'anteprima). Isolata: se fallisce il terminale e' gia' salvo
+        try:
+            from cot_radar import vetrina
+            vetrina.crea(folder)
+        except Exception:
+            log.error("landing page non creata:\n%s", traceback.format_exc())
     if not site and "--no-open" not in argv:
         webbrowser.open("file:///" + out.replace("\\", "/").lstrip("/"))
     return 0
