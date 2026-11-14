@@ -13,7 +13,8 @@
    - titolo scritto a macchina (effetto tastiera) con cursore lampeggiante;
    - numeri che contano fino al valore vero quando entrano nello schermo;
    - card che entrano una dopo l'altra durante lo scroll;
-   - terminale di anteprima che si inclina seguendo lo scroll e scorre i segnali;
+   - finestra del terminale in apertura che si inclina seguendo lo scroll (dati veri: economie, clima, conto alla rovescia);
+   - sezione "Dentro il terminale": finestre con i numeri veri di ogni scheda (v7.69, vedi lo script in fondo);
    - linea del tempo "una settimana con BoardEdge" che si riempie mentre scorri;
    - nastro dei mercati che scorre.
 -->
@@ -87,19 +88,8 @@ h1{font:800 clamp(38px,5.4vw,66px)/1.04 "Inter Display","Inter",system-ui,sans-s
 .barra{display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--mute)}
 .barra i{width:10px;height:10px;border-radius:50%;background:#1b3260}.barra i:first-child{background:#f2716b}.barra i:nth-child(2){background:#e9b44c}.barra i:nth-child(3){background:#1fc48c}
 .barra span{margin-left:auto;display:flex;align-items:center;gap:6px}.barra span::before{content:"";width:7px;height:7px;border-radius:50%;background:#1fc48c;box-shadow:0 0 8px #1fc48c}
-.grafico{height:118px;padding:12px 18px 0}.grafico svg{width:100%;height:100%}
-.linea{stroke-dasharray:900;stroke-dashoffset:900;animation:disegna 2.8s ease-out .6s forwards}
 @keyframes disegna{to{stroke-dashoffset:0}}
-.lista{padding:10px 18px 18px;display:grid;gap:8px;min-height:330px}
-.cat{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--mute);text-transform:uppercase;margin-top:8px;display:flex;justify-content:space-between}
-.cat em{font-style:normal;color:var(--acc)}
-.riga{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:12px;background:rgba(14,30,62,.75);border:1px solid rgba(27,50,96,.7);font-size:14px;
- animation:entra .5s ease both}
 @keyframes entra{from{opacity:0;transform:translateX(14px)}}
-.riga .nome{filter:blur(5px);user-select:none;flex:1}
-.riga .sett{font-size:11px;color:var(--mute);white-space:nowrap}
-.etic{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px}
-.etic.b{color:#06261a;background:var(--buy)}.etic.s{color:#2a0606;background:var(--sell)}
 .lucchetto{width:calc(100% - 36px);margin:0 18px 18px;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:14px;
  background:rgba(4,11,26,.85);border:1px solid rgba(46,196,182,.5);font:700 14px "Inter",system-ui;cursor:pointer;color:var(--ink)}
 .lucchetto:hover{border-color:var(--acc);box-shadow:0 0 24px rgba(46,196,182,.25)}
@@ -118,17 +108,6 @@ section{padding:110px 0}
 .titsez small{font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc)}
 .titsez h2{font:800 clamp(30px,3.8vw,48px)/1.1 "Inter Display","Inter",system-ui;letter-spacing:-1.4px;margin:12px 0 14px}
 .titsez p{color:var(--ink2);margin:0;font-size:18px}
-/* tre livelli del vantaggio */
-.livelli{display:grid;gap:22px}
-.livello{display:grid;grid-template-columns:120px 1fr 1fr;gap:34px;align-items:center;padding:34px 38px;border-radius:24px;
- background:linear-gradient(135deg,rgba(11,29,66,.75),rgba(7,20,49,.55));border:1px solid var(--line);position:relative;overflow:hidden}
-.livello::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 200px at var(--mx,20%) 0,rgba(46,196,182,.12),transparent 70%);opacity:0;transition:opacity .4s}
-.livello:hover::before{opacity:1}
-.livello .n{font:800 64px/1 "Inter Display","Inter",system-ui;letter-spacing:-3px;color:transparent;-webkit-text-stroke:1.5px rgba(91,155,255,.6)}
-.livello h3{font:750 23px/1.25 "Inter Display","Inter",system-ui;margin:0 0 8px;letter-spacing:-.4px}
-.livello .tag{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--acc)}
-.livello p{margin:0;color:var(--ink2);font-size:16px}
-@media (max-width:860px){.livello{grid-template-columns:1fr;gap:12px;padding:28px}.livello .n{font-size:44px}}
 /* settimana tipo: linea del tempo che si riempie con lo scroll */
 .tempo{position:relative;display:grid;gap:26px;padding-left:46px}
 .tempo .asse{position:absolute;left:14px;top:6px;bottom:6px;width:3px;border-radius:3px;background:var(--line)}
@@ -151,46 +130,17 @@ section{padding:110px 0}
 .finale p{color:var(--ink2);max-width:620px;margin:0 auto 32px;font-size:18px}
 .finale .cta{justify-content:center}
 /* il metodo: quattro fonti -> una direzione */
-.pilastri{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
-@media (max-width:1180px){.pilastri{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:600px){.pilastri{grid-template-columns:1fr}}
 /* CARD CHE SI GIRA: davanti icona, domanda e titolo; dietro la spiegazione. Gira al passaggio del mouse (PC)
    o al tocco (telefono, vedi script "carte"). Le due facce stanno nella stessa cella: altezza = la piu' alta. */
-.flip{perspective:1300px;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
-.flip .interno{display:grid;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.75,.2,1)}
-@media (hover:hover){.flip:hover .interno{transform:rotateY(180deg)}}
-.flip.girata .interno,.flip:focus-visible .interno{transform:rotateY(180deg)}
-.faccia{grid-area:1/1;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;
  padding:32px 28px 26px;border-radius:24px;border:1px solid var(--line);min-height:280px;
  background:linear-gradient(180deg,rgba(11,29,66,.8),rgba(7,20,49,.55));box-shadow:0 20px 50px rgba(0,0,0,.35)}
-.retro{transform:rotateY(180deg);border-color:rgba(46,196,182,.55);
  background:radial-gradient(420px 220px at 0 0,rgba(46,196,182,.2),transparent 70%),linear-gradient(180deg,#0c2149,#081633)}
-.faccia .ic{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;margin-bottom:26px;background:rgba(46,196,182,.12);border:1px solid rgba(46,196,182,.35);box-shadow:0 0 24px rgba(46,196,182,.12)}
-.faccia .ic svg{width:25px;height:25px;fill:none;stroke:#3ee0cf;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 /* etichetta su UNA riga (testi brevi) e titolo sempre alla stessa altezza in tutte le card */
-.faccia .dom{display:block;font:800 11.5px/1.4 "Inter",system-ui;letter-spacing:1.1px;text-transform:uppercase;color:var(--acc2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.faccia h3{font:780 24px/1.2 "Inter Display","Inter",system-ui;margin:10px 0 0;letter-spacing:-.5px}
-.faccia .breve{margin:14px 0 0;color:var(--ink2);font-size:15px}
-.faccia .gira{margin-top:auto;padding-top:22px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--mute)}
-.faccia .gira svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.retro h3{font-size:19px;margin:0 0 12px}.retro p{margin:0;color:var(--ink);font-size:15px;line-height:1.65}
-.retro .term{margin-top:auto;padding-top:18px;font-size:13px;color:#9ff3e9;font-weight:650}
 /* EVIDENZA AL PASSAGGIO del mouse per tutte le altre card: si alzano, bordo turchese, inclinazione 3D (script "inclina") */
-.livello,.dato,.tappa,.unione>div{transition:transform .45s cubic-bezier(.2,.7,.2,1),border-color .35s,box-shadow .35s}
 @media (hover:hover){
- .livello:hover,.dato:hover,.tappa:hover,.unione>div:hover{border-color:rgba(46,196,182,.6);box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(46,196,182,.12)}
+ .dato:hover,.tappa:hover{border-color:rgba(46,196,182,.6);box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(46,196,182,.12)}
  .dato:hover b{background:linear-gradient(100deg,#3ee0cf,#5b9bff);-webkit-background-clip:text;background-clip:text;color:transparent}
  .faq details:hover{border-color:rgba(46,196,182,.45)}}
-@media (prefers-reduced-motion:reduce){.flip .interno{transform:none!important}.flip .retro{display:none}}
-.unione{margin-top:34px;display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
-@media (max-width:900px){.unione{grid-template-columns:1fr}}
-.unione>div{padding:32px 34px;border-radius:24px;border:1px solid var(--line);background:rgba(10,22,48,.7)}
-.unione h3{margin:0 0 12px;font:750 22px/1.25 "Inter Display","Inter",system-ui;letter-spacing:-.3px}
-.unione p{margin:0 0 12px;color:var(--ink2)}.unione p:last-child{margin:0}
-.unione ul{margin:0;padding:0;list-style:none;display:grid;gap:14px}
-.unione li{display:grid;grid-template-columns:28px 1fr;gap:12px;color:var(--ink2)}
-.unione li b{color:var(--ink);display:block}
-.unione li i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:800 13px "Inter",system-ui;font-style:normal;color:#03141a;background:linear-gradient(135deg,#46e6d5,#5b9bff)}
-.unione .evid{border-color:rgba(46,196,182,.45);background:radial-gradient(500px 220px at 0 0,rgba(46,196,182,.14),transparent 70%),rgba(10,22,48,.75)}
 /* domande frequenti */
 .faq{display:grid;gap:12px;max-width:900px}
 .faq details{border:1px solid var(--line);border-radius:18px;background:rgba(10,22,48,.7);padding:0 26px;transition:border-color .2s}
@@ -221,11 +171,88 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 .piede h4{margin:0 0 14px;font:800 12px "Inter",system-ui;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink2)}
 .piede a{display:block;text-decoration:none;color:var(--mute);margin-bottom:10px;transition:color .2s}.piede a:hover{color:var(--ink)}
 .piede a.blogo{display:flex;margin:0;color:var(--ink)}
+.piede .scrivi a{display:inline;margin:0;color:var(--ink2);word-break:break-word}.piede .scrivi a:hover{color:var(--acc)}
 .firma{margin-top:44px;padding-top:24px;border-top:1px solid rgba(27,50,96,.6);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:12.5px}
 .avviso{margin-top:16px;font-size:12px;line-height:1.6;color:#6f84a6;max-width:980px}
 /* comparsa durante lo scroll: dal basso, una card dopo l'altra (ritardo in --d) */
 .appare{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
 .appare.vista{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.appare{opacity:1;transform:none;transition:none}.schermo{transform:none}}
+
+/* ===== v7.69 DENTRO IL TERMINALE =====
+   Per ogni pilastro una "scena": a sinistra cosa ti dice e quanto tempo serve, a destra una finestra con i NUMERI VERI
+   dell'ultimo aggiornamento (disegnata dal JavaScript in fondo con i dati di vetrina.dentro()). Niente immagini.
+   Classi: .quadro = scena | .fin = finestra | .mc = riquadro interno | .sfoca = testo coperto (segnaposto, non il nome vero) */
+:root{--su:#4fd6a3;--giu:#f2716b;--oro:#e9b44c}
+.su{color:var(--su)}.giu{color:var(--giu)}
+.viste{display:grid;gap:clamp(64px,8vw,104px)}
+.quadro{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(28px,5vw,72px);align-items:center}
+.quadro[hidden]{display:none}
+.quadro:nth-child(even) .vtesto{order:2}
+.tag{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--acc)}
+.vtesto h3{font:750 clamp(24px,2.7vw,33px)/1.16 "Inter Display","Inter",system-ui;letter-spacing:-.7px;margin:10px 0 20px}
+.pote{list-style:none;margin:0 0 24px;padding:0;display:grid;gap:13px}
+.pote li{position:relative;padding-left:24px;color:var(--ink2);font-size:16.5px;line-height:1.5}
+.pote li::before{content:"";position:absolute;left:0;top:.5em;width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,#3ee0cf,#5b9bff)}
+.pote b{color:var(--ink);font-weight:650}
+.tmp{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#9ff3e9;padding:7px 14px;border-radius:99px;border:1px solid rgba(46,196,182,.35);background:rgba(46,196,182,.08)}
+.tmp svg,.mnota svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fin{border-radius:22px;padding:1px;background:linear-gradient(140deg,rgba(70,230,213,.55),rgba(27,50,96,.5) 40%,rgba(91,155,255,.5));box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 60px rgba(46,196,182,.1);transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.fin>div{border-radius:21px;background:linear-gradient(180deg,#0a1835,#050d1f);overflow:hidden}
+@media (hover:hover){.fin:hover{transform:translateY(-6px);box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 70px rgba(46,196,182,.2)}}
+.fcorpo{padding:18px;display:grid;gap:12px}
+.barra b{color:var(--ink2);margin-left:8px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.barra span{white-space:nowrap}.barra span:empty{display:none}
+.mc{background:rgba(14,30,62,.7);border:1px solid rgba(27,50,96,.75);border-radius:14px;padding:14px;min-width:0}
+.mt{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.sfoca{filter:blur(6px);-webkit-user-select:none;user-select:none;pointer-events:none;white-space:nowrap}
+.mnota{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#9ff3e9}
+@keyframes lampo{50%{opacity:.3}}
+/* apertura: economie, clima, conto alla rovescia */
+.me{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.me .mc{display:grid;gap:7px;align-content:start}
+.men{display:flex;align-items:center;gap:7px;min-width:0}.men b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.men svg{width:22px;height:15px;border-radius:3px;flex:none}
+.mchip{justify-self:start;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:99px;color:var(--qc);background:color-mix(in srgb,var(--qc) 15%,transparent)}
+.mes{display:grid;gap:2px;font-size:11.5px;color:var(--ink2)}.mes i{font-style:normal;font-size:10px}
+.mes .up{color:var(--su)}.mes .down{color:var(--giu)}.mes .flat{color:var(--mute)}
+.m2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mclima{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mgauge{width:104px;flex:none}.mgauge svg{display:block;width:100%;overflow:visible}
+.mgauge div{display:flex;justify-content:space-between;font-size:9.5px;font-weight:800;letter-spacing:.5px;margin-top:4px}
+.mstato{font-size:22px;font-weight:800;letter-spacing:.3px}
+.mcd{display:flex;gap:6px}.mcd div{flex:1;padding:6px 2px 5px;border-radius:10px;text-align:center;background:rgba(4,11,26,.6);border:1px solid var(--line)}
+.mcd b{display:block;font-size:21px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}.mcd small{font-size:9.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+.mquando{font-size:12px;color:var(--ink2);margin-top:9px}.mquando b{color:var(--ink)}
+.apri{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;border-radius:14px;background:rgba(4,11,26,.85);border:1px solid rgba(46,196,182,.5);font:700 14px "Inter",system-ui;cursor:pointer;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+.apri:hover{border-color:var(--acc);box-shadow:0 0 24px rgba(46,196,182,.25)}
+.apri svg{width:17px;height:17px;fill:none;stroke:var(--acc);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* dashboard: posizionamento e settori */
+.mbig{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}.mbig b{font-size:34px;font-weight:800;line-height:1;letter-spacing:-1px}
+.mbig em{font-style:normal;font-size:26px;font-weight:800;color:var(--oro);line-height:1}.mbig span{font-size:12.5px;color:var(--mute)}
+.msplit{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:3px;margin-bottom:8px}.msplit i{display:block;height:100%;border-radius:99px}
+.msplit .a{background:linear-gradient(90deg,#2fbf8f,var(--su))}.msplit .b{background:linear-gradient(90deg,var(--giu),#ff8f6b)}
+.mleg{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2)}
+.msec{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.msec div{border-radius:12px;padding:10px 12px;min-width:0;background:color-mix(in srgb,var(--bc) 14%,#0a1630);border:1px solid color-mix(in srgb,var(--bc) 42%,transparent)}
+.msec>div>b{display:block;font-size:12px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msec span{display:block;font-size:20px;font-weight:800;color:var(--bc);line-height:1.25}.msec small{font-size:11px;color:var(--ink2);white-space:nowrap}
+/* portafogli: tre riquadri + composizione coperta */
+.mk3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mk3 .mc{display:grid;gap:4px;align-content:start}
+.mk-h{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.mk-f em{font-style:normal;display:inline-flex;align-items:center;gap:6px;color:var(--oro);font-weight:700}.mk-f em.bi{color:var(--ink)}
+.mk-f em::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 7px currentColor;animation:lampo 1.6s ease-in-out infinite}
+.mk-v{font-size:22px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.mk-f{font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mcomp{display:grid;gap:9px}.mcomp .mt{margin-bottom:2px}
+.mrig{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr) 50px;align-items:center;gap:10px;font-size:13.5px}
+.mrig .sfoca{overflow:hidden}
+.mrig i{display:block;height:8px;border-radius:99px;background:rgba(27,50,96,.6);overflow:hidden}.mrig s{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.mrig b{text-align:right;font-variant-numeric:tabular-nums}
+/* azionario: selezione di oggi (carosello) */
+.mchipv{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--acc)}
+.mchipv i{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);animation:lampo 1.8s ease-in-out infinite}
+.mslide{display:none;grid-template-columns:minmax(0,1fr) 140px;gap:14px 18px;align-items:center}.mslide.on{display:grid;animation:entra .5s ease both}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}.appare{opacity:1;transform:none;transition:none}.schermo{transform:none}.linea{stroke-dashoffset:0}}
 </style></head>
 <body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>
