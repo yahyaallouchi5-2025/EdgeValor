@@ -569,13 +569,48 @@ var V={{DENTRO_JSON}};
   $("b-port").textContent=p.nome;
   return '<div class="mk3">'+k("Drawdown","",pc(c.dd),"giu","dal punto più alto")+(c.attesa?k(M(c.mese),'<em class="bi">In apertura</em>',"&ndash;","",""):k(M(c.mese),c.live?"<em>In corso</em>":"",pc(c.r),cl(c.r),"da inizio mese"))+k("Anni positivi","",wr==null?"&ndash;":wr+"%",wr>=50?"su":"",s.pos+" "+c.mese+" su "+s.n)+'</div>'
    +'<div class="mc mcomp"><div class="mt">Composizione del mese</div>'+p.pesi.slice(0,5).map(function(w,i){return '<div class="mrig"><span class="sfoca" aria-hidden="true">'+seg[i]+'</span><i><s style="width:'+(w/mx*100)+'%"></s></i><b>'+n1(w)+'%</b></div>';}).join("")
-/* ===== ANTEPRIMA DEL TERMINALE: mostra 6 segnali alla volta e ogni 4 secondi passa alla categoria dopo ===== */
-(function(){var box=document.getElementById("lista"),k=0;if(!ANTEPRIMA.length){box.innerHTML='<div class="riga">Nessun segnale attivo questa settimana.</div>';return;}
- function mostra(){var gruppi=[ANTEPRIMA[k%ANTEPRIMA.length],ANTEPRIMA[(k+1)%ANTEPRIMA.length]].filter(function(g,i,a){return a.indexOf(g)==i;});
-  box.innerHTML=gruppi.map(function(g){return '<div class="cat">'+g.cat+'<em>'+g.n+' segnali</em></div>'+g.righe.map(function(r,i){
-   return '<div class="riga" style="animation-delay:'+(i*.08)+'s"><span class="nome">'+r.nome+'</span><span class="sett">'+(r.nuovo?'nuovo':'')+'</span><span class="etic '+(r.buy?'b':'s')+'">'+r.etichetta+'</span></div>';}).join("");}).join("");
-  k+=2;}
- mostra();if(!fermo&&ANTEPRIMA.length>2)setInterval(mostra,4200);})();
+   +'<div class="mnota">'+LUC+'<span>'+(p.pesi.length>5?'Altri '+(p.pesi.length-5)+' mercati'+(p.liq?' e '+n1(p.liq)+'% di liquidità. ':'. '):'')+'I nomi sono nel terminale.</span></div></div>';},V.port&&V.port.al);
+
+ /* --- AZIONARIO: la selezione di oggi, un titolo alla volta (nome coperto) --- */
+ var nAz=0;
+ if(scena("az",function(){var a=V.az;if(!a)return "";nAz=a.titoli.length;var mese=MESI[(a.mese||1)-1],C=2*Math.PI*30;
+  if(a.tot>=200)$("p-az").textContent="Oltre "+String(Math.floor(a.tot/100)*100).replace(/\B(?=(\d{3})+$)/g,".")+" aziende";
+  return '<span class="mchipv"><i></i>Selezione di oggi</span>'+a.titoli.map(function(t,i){var sp=t.sp||[],pts=sp.map(function(v,j){return (j/(sp.length-1)*220).toFixed(1)+","+(51-v/99*48).toFixed(1);}).join(" ");
+   var l=t.pt>=65?["var(--su)","Forte"]:t.pt>=35?["var(--acc)","Neutro"]:["var(--giu)","Debole"];
+   return '<div class="mslide'+(i?"":" on")+'"><div><span class="mpos2">#'+(i+1)+' di '+a.titoli.length+' &middot; '+t.s+'</span><br><span class="mnome sfoca" aria-hidden="true">Nome azienda</span><ul class="mok"><li><i></i><span>Ultimi 12 mesi <b class="'+cl(t.v1a)+'">'+pc(t.v1a)+'</b>, ultimi 3 mesi <b class="'+cl(t.v3m)+'">'+pc(t.v3m)+'</b></span></li><li><i></i><span>Sopra la media a 200 giorni del <b>'+num(t.t200,1)+'%</b></span></li><li><i></i><span>'+M(mese)+' positivo nel <b>'+t.pos+'%</b> degli anni ('+t.anni+' anni)</span></li></ul></div>'
+    +'<div><div class="mring" style="--fz:'+l[0]+'"><svg viewBox="0 0 76 76" aria-hidden="true"><circle cx="38" cy="38" r="30" class="f"/><circle cx="38" cy="38" r="30" class="a" stroke-dasharray="'+(C*t.pt/100).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 38 38)"/></svg><b>'+t.pt+'</b><small>'+l[1]+'</small></div>'+(sp.length>1?'<svg class="msp" viewBox="0 0 220 54" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'"/></svg>':'')+'</div></div>';}).join("")
+   +'<div class="mdots">'+a.titoli.map(function(_,i){return '<i'+(i?'':' class="on"')+'></i>';}).join("")+'</div>';},V.az&&V.az.al)&&nAz>1&&!fermo){
+  var kAz=0,bAz=$("f-az");setInterval(function(){if(bAz.matches(":hover"))return;kAz=(kAz+1)%nAz;   // col mouse sopra si ferma, per leggere
+   bAz.querySelectorAll(".mslide").forEach(function(x,i){x.classList.toggle("on",i==kAz);});bAz.querySelectorAll(".mdots i").forEach(function(x,i){x.classList.toggle("on",i==kAz);});},4500);}
+
+ /* --- STAGIONALITA': mappa 5 giorni x 24 ore (ora di Roma). La casella di ADESSO lampeggia; il suo numero e' coperto --- */
+ var GC=["Lun","Mar","Mer","Gio","Ven"],GL=["lunedì","martedì","mercoledì","giovedì","venerdì"];
+ function adesso(){var box=$("mora");if(!box)return;var p={};new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Rome",weekday:"short",hour:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).forEach(function(x){p[x.type]=x.value;});
+  var g=["Mon","Tue","Wed","Thu","Fri"].indexOf(p.weekday),o=+p.hour;
+  document.querySelectorAll(".mhm i.ora").forEach(function(x){x.classList.remove("ora");});
+  var c=g<0?null:document.querySelector('.mhm i[data-c="'+g+"-"+o+'"]');
+  if(!c||!c.style.background){box.innerHTML='<span>Adesso il mercato è chiuso.</span><span class="mnota">Riapre e la casella si accende</span>';return;}
+  c.classList.add("ora");
+  box.innerHTML='<span><b>Adesso</b> &middot; '+GL[g]+', ore '+o+'&ndash;'+(o+1)%24+'</span><span class="mnota">'+LUC+'<b class="sfoca" aria-hidden="true">&#9650; 54%</b>nel terminale</span>';}
+ if(scena("stag",function(){var s=V.stag;if(!s)return "";$("b-stag").textContent=s.nome||"";if(s.dal)$("v-stag").querySelector("[data-al]").textContent="storico dal "+s.dal;if(s.mercati)$("p-stag").textContent=s.mercati+" mercati";
+  var h='<div class="mhm"><span></span><span class="hh">00</span><span class="hh">06</span><span class="hh">12</span><span class="hh">18</span>';
+  s.righe.forEach(function(r,g){h+='<span>'+GC[g]+'</span>'+r.map(function(c,o){if(!c)return '<i></i>';var t=Math.min(1,Math.abs(c[0]-50)/8);
+    return '<i data-c="'+g+"-"+o+'"'+(c[1]?' class="af"':'')+' style="background:rgba('+(c[0]>=50?"79,214,163":"242,113,107")+','+(.1+.8*t).toFixed(2)+')" title="'+GL[g]+', ore '+o+'-'+(o+1)%24+': in rialzo nel '+c[0]+'% dei casi'+(c[1]?" (affidabile)":"")+'"></i>';}).join("");});
+  return h+'</div><div class="mleg2"><span>più ribassi</span><i></i><span>più rialzi</span></div><div class="mc mora" id="mora"></div>';})){adesso();setInterval(adesso,60000);}
+
+ /* --- PAESI EMERGENTI: i primi per crescita, economia e borsa sulla stessa riga --- */
+ scena("paesi",function(){var p=V.paesi;if(!p)return "";var R={calma:"Calma",normale:"Normale",agitata:"Agitata"};
+  if(p.tot)$("p-paesi").textContent=p.tot+" paesi emergenti";
+  return '<div><div class="mtr mth"><span>Paese</span><span>PIL'+(p.anno?" "+p.anno:"")+'</span><span>12 mesi</span><span class="tw">Tendenza</span><span>Regime</span></div>'+p.righe.map(function(r){return '<div class="mtr"><span>'+r.n+'</span><b class="'+cl(r.pil)+'">'+pc(r.pil)+'</b><b class="'+cl(r.a1)+'">'+pc(r.a1)+'</b><span class="tw '+(r.su?"su":"giu")+'">'+(r.su?"&#9650; Rialzo":"&#9660; Ribasso")+'</span><span>'+(R[r.reg]?'<em class="mreg '+r.reg+'">'+R[r.reg]+'</em>':"&ndash;")+'</span></div>';}).join("")+'</div>'
+   +(p.tot>p.righe.length?'<div class="mnota">'+LUC+'<span>Altri '+(p.tot-p.righe.length)+' paesi nel terminale, con volatilità breve e lunga.</span></div>':'');});
+
+ /* --- TELEGRAM: tre notifiche. Con i dati, le due frasi sono quelle vere di oggi (briefing.py e riepilogo.py) --- */
+ (function(){var t=V.tg||{},I='<span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.6.1 1.9l4.6 1.5 1.8 5.6c.3.8 1.3 1 1.9.4l2.6-2.5 4.7 3.5c.7.5 1.7.1 1.9-.7l3.1-15c.2-1.1-.9-1.9-2-1.4z"/></svg></span>';
+  var n=function(q,tit,txt,d){return '<div class="tgn appare" style="--d:'+d+'s">'+I+'<div><div class="t"><b>'+tit+'</b><span>'+q+'</span></div><p>'+txt+'</p></div></div>';};
+  $("f-tg").innerHTML=n("lunedì mattina","Briefing della settimana",t.briefing||"Cosa guardare nella settimana, dai dati del terminale.",0)
+   +n("prima e dopo i dati","Notizie in arrivo","Prima di un dato importante: giorno e ora. Dopo l'uscita: com'è andata.",.12)
+   +n("dopo ogni report","Nuovi dati COT",t.cot||"Il riepilogo dei mercati, appena esce il report.",.24);})();
+})();
 
 /* ===== NUMERI che contano fino al valore vero quando entrano nello schermo ===== */
 function conta(el){var fine=+el.dataset.conta||0,suf=el.dataset.suffisso||"",t0=null;if(fermo){el.textContent=fine+suf;return;}
@@ -594,18 +629,9 @@ function suScroll(){var y=window.scrollY,h=innerHeight;testata.classList.toggle(
  var r=tempo.getBoundingClientRect(),pr=Math.max(0,Math.min(1,(h*.6-r.top)/r.height));tempo.style.setProperty("--pr",(pr*100)+"%");
  tempo.querySelectorAll(".tappa").forEach(function(t){t.classList.toggle("accesa",t.getBoundingClientRect().top<h*.6);});}
 addEventListener("scroll",suScroll,{passive:true});suScroll();
-/* luce che segue il mouse sulle card dei tre livelli */
-document.querySelectorAll(".livello").forEach(function(c){c.addEventListener("mousemove",function(e){var r=c.getBoundingClientRect();c.style.setProperty("--mx",((e.clientX-r.left)/r.width*100)+"%");});});
-
-/* ===== CARTE DEL METODO: al tocco (telefono) o con Invio/Spazio (tastiera) si girano; sul PC girano al passaggio ===== */
-document.querySelectorAll(".flip").forEach(function(c){
- function gira(){c.classList.toggle("girata");}
- c.addEventListener("click",function(){if(!matchMedia("(hover:hover)").matches)gira();});
- c.addEventListener("keydown",function(e){if(e.key=="Enter"||e.key==" "){e.preventDefault();gira();}});});
-
 /* ===== INCLINAZIONE 3D: le card seguono il mouse (max 5 gradi) e si alzano; solo con mouse e senza "riduci movimento" ===== */
 if(!fermo&&matchMedia("(hover:hover)").matches){
- document.querySelectorAll(".livello,.dato,.tappa,.unione>div").forEach(function(c){
+ document.querySelectorAll(".dato,.tappa").forEach(function(c){
   c.addEventListener("mousemove",function(e){if(c.classList.contains("appare")&&!c.classList.contains("vista"))return;
    var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
    c.style.transitionDelay="0s";
