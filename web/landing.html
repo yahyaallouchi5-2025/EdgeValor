@@ -253,20 +253,74 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 .mchipv{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--acc)}
 .mchipv i{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);animation:lampo 1.8s ease-in-out infinite}
 .mslide{display:none;grid-template-columns:minmax(0,1fr) 140px;gap:14px 18px;align-items:center}.mslide.on{display:grid;animation:entra .5s ease both}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}.appare{opacity:1;transform:none;transition:none}.schermo{transform:none}.linea{stroke-dashoffset:0}}
+@keyframes entra{from{opacity:0;transform:translateX(14px)}}
+.mpos2{font-size:11.5px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+.mnome{font-size:21px;font-weight:800;margin:4px 0 12px;display:inline-block}
+.mok{list-style:none;margin:0;padding:0;display:grid;gap:8px}.mok li{display:flex;gap:9px;font-size:13.5px;color:var(--ink2);line-height:1.4}
+.mok i{flex:none;width:17px;height:17px;margin-top:1px;border-radius:50%;background:rgba(79,214,163,.2);position:relative}
+.mok i::after{content:"";position:absolute;left:6px;top:3px;width:4px;height:8px;border:solid var(--su);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.mok b{color:var(--ink)}.mok b.su{color:var(--su)}
+.mring{position:relative;width:76px;height:76px;margin:0 auto;--fz:var(--su)}.mring svg{width:100%;height:100%}
+.mring .f{fill:none;stroke:rgba(27,50,96,.7);stroke-width:7}.mring .a{fill:none;stroke:var(--fz);stroke-width:7;stroke-linecap:round}
+.mring b{position:absolute;inset:0;display:grid;place-items:center;font-size:22px;padding-bottom:10px}
+.mring small{position:absolute;left:0;right:0;bottom:17px;text-align:center;font-size:9.5px;color:var(--fz);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.msp{display:block;width:100%;height:54px;color:var(--su);margin-top:8px}.msp polyline{fill:none;stroke:currentColor;stroke-width:2;vector-effect:non-scaling-stroke}
+.mdots{display:flex;gap:6px;justify-content:center}.mdots i{width:18px;height:4px;border-radius:9px;background:rgba(27,50,96,.9);transition:background .3s}.mdots i.on{background:var(--acc)}
+/* stagionalita': mappa 5 giorni x 24 ore */
+.mhm{display:grid;grid-template-columns:30px repeat(24,minmax(0,1fr));gap:2px;align-items:center}
+.mhm span{font-size:10px;color:var(--mute)}.mhm .hh{grid-column:span 6;font-size:9.5px}
+.mhm i{display:block;aspect-ratio:1/1.3;border-radius:3px;background:rgba(27,50,96,.35)}
+.mhm i.af{box-shadow:inset 0 0 0 1.5px var(--oro)}
+.mhm i.ora{outline:2px solid #fff;outline-offset:1px;animation:lampo 1.6s ease-in-out infinite;position:relative;z-index:1}
+.mleg2{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mute)}
+.mleg2 i{flex:1;height:6px;border-radius:9px;background:linear-gradient(90deg,rgba(242,113,107,.9),rgba(242,113,107,.12) 48%,rgba(79,214,163,.12) 52%,rgba(79,214,163,.9))}
+.mora{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:var(--ink2)}.mora b{color:var(--ink)}
+.mora .sfoca{color:var(--su);font-size:15px}
+/* paesi: tabellina */
+.mtr{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(2,minmax(0,1fr)) minmax(0,1.15fr) 74px;align-items:center;gap:6px;padding:9px 2px;border-top:1px solid rgba(27,50,96,.6);font-size:13.5px}
+.mtr>*{text-align:right;white-space:nowrap}.mtr>:first-child{text-align:left;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.mtr.mth{border-top:0;padding-top:0;font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mute)}.mtr.mth>:first-child{font-weight:800}
+.mreg{font-style:normal;display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--ink2)}
+.mreg.calma{color:var(--su);border-color:rgba(79,214,163,.45);background:rgba(79,214,163,.1)}.mreg.agitata{color:var(--giu);border-color:rgba(242,113,107,.45);background:rgba(242,113,107,.1)}
+/* chiusura della sezione: il tempo in tutto + invito */
+.vfine{margin-top:clamp(48px,6vw,72px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;padding:24px 28px;border-radius:22px;border:1px solid rgba(46,196,182,.4);background:rgba(46,196,182,.06)}
+.vfine p{margin:0;font-size:17px;color:var(--ink2)}.vfine b{color:var(--ink)}
+/* ===== TELEGRAM: le notifiche che arrivano dal canale ===== */
+.tgbox{display:grid;gap:12px}
+.tgn{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:14px 16px;border-radius:18px;background:rgba(14,30,62,.85);border:1px solid rgba(27,50,96,.8);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.tgn .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#37aee2,#1e96c8)}.tgn .ic svg{width:21px;height:21px;fill:#fff}
+.tgn .t{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--mute)}.tgn .t b{color:var(--ink);font-size:14px}.tgn .t span{white-space:nowrap}
+.tgn p{margin:3px 0 0;font-size:14px;color:var(--ink2);line-height:1.45}
+.tgn:nth-child(2){margin-left:22px}.tgn:nth-child(3){margin-left:44px}
+/* ===== CHI C'E' DIETRO ===== */
+.chi{display:grid;grid-template-columns:150px minmax(0,1fr);gap:clamp(22px,4vw,44px);align-items:center;padding:clamp(26px,4vw,44px);border-radius:26px;background:linear-gradient(180deg,rgba(11,29,66,.7),rgba(7,20,49,.5));border:1px solid var(--line)}
+.chi .foto{width:150px;height:150px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#3ee0cf,#5b9bff);box-shadow:0 0 40px rgba(46,196,182,.25)}
+.chi .foto img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;background:#0a1835}
+.chi h3{font:750 24px/1.2 "Inter Display","Inter",system-ui;letter-spacing:-.4px;margin:6px 0 0}
+.chi p{margin:12px 0 0;color:var(--ink2);font-size:16.5px;max-width:760px}
+@media (max-width:900px){.quadro{grid-template-columns:minmax(0,1fr);gap:26px}.quadro:nth-child(even) .vtesto{order:0}.tgn:nth-child(n){margin-left:0}}
+@media (max-width:700px){.chi{grid-template-columns:1fr}.chi .foto{width:112px;height:112px}}
+@media (max-width:520px){.fcorpo{padding:13px;gap:10px}.mc{padding:11px}.barra{padding:11px 13px}
+ .mgauge{width:96px}.mstato{font-size:19px}.mcd b{font-size:18px}.mcd small{font-size:8.5px;letter-spacing:0}
+ .mes{font-size:11px}.men{flex-direction:column;align-items:flex-start;gap:5px}.men b{font-size:12.5px}.mchip{font-size:10.5px;padding:3px 7px}
+ .mk-f{display:none}.mk-f.st{display:block;font-size:10.5px}.mk-v{font-size:19px}.mk-h{font-size:9.5px;letter-spacing:.3px}
+ .mslide{grid-template-columns:1fr}.mslide>div:last-child{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:center}.msp{margin:0}
+ .mtr{grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr)) 22px 66px;font-size:12.5px;gap:4px}.mtr .tw{font-size:0}.mtr .tw::first-letter{font-size:12px}.mtr.mth .tw{visibility:hidden}
+ .mbig span{font-size:11.5px}.msec div{padding:9px 9px}.msec span{font-size:18px}.msec small{font-size:10px}
+ .mrig{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) 46px;font-size:12.5px}.vfine{padding:20px}.vfine .btn{width:100%}}
 </style></head>
 <body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>
 
 <header id="testata" data-pos="testata"><div class="box">
  <a class="blogo" href="#" aria-label="BoardEdge"><i></i><b>BOARD<br><span class="g">EDGE</span></b></a>
- <nav class="voci"><a href="#zero">Parti da zero</a><a href="#pilastri">I pilastri</a><a href="#metodo">Il metodo</a><a href="#accesso">Accesso</a><a href="#faq">Domande</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Telegram</a></nav>
+ <nav class="voci"><a href="#zero">Parti da zero</a><a href="#pilastri">Il terminale</a><a href="#metodo">Il metodo</a><a href="#accesso">Accesso</a><a href="#faq">Domande</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Telegram</a></nav>
  <button class="btn pri pic" data-entra><span data-etichetta>Entra gratis</span></button>
 </div></header>
 
 <main>
  <div class="box hero">
   <div>
-   <span class="eyebrow">Per chi parte da zero</span>
+   <span class="eyebrow">Analisi quantitativa</span>
    <!-- titolo scritto a macchina: il testo completo resta nell'aria-label per lettori di schermo e motori di ricerca -->
    <h1 id="titolo" aria-label="Investire con metodo, anche partendo da zero."><span id="tt"></span><span class="cursore"></span></h1>
    <p class="sub">BoardEdge è un terminale che trasforma dati pubblici in <b>portafogli modello</b>, clima dei mercati, analisi delle aziende e stagionalità. Niente opinioni: <b>solo numeri provati sullo storico</b>, spiegati in parole semplici.</p>
@@ -281,16 +335,11 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
     <div><b data-conta="{{ANNI_BT}}" data-suffisso=" anni">0</b><span>di storico</span></div>
    </div>
   </div>
-  <div class="scena"><div class="schermo" id="schermo"><div><div class="scan"></div>
-   <div class="barra"><i></i><i></i><i></i><b style="margin-left:8px;color:var(--ink2)">BoardEdge · terminale</b><span>live</span></div>
-   <div class="grafico"><svg viewBox="0 0 400 110" preserveAspectRatio="none" aria-hidden="true">
-    <defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#2ec4b6"/><stop offset="1" stop-color="#5b9bff"/></linearGradient>
-    <linearGradient id="la" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2ec4b6" stop-opacity=".28"/><stop offset="1" stop-color="#2ec4b6" stop-opacity="0"/></linearGradient></defs>
-    <path d="M0 92 L40 84 L80 88 L120 70 L160 74 L200 56 L240 62 L280 40 L320 46 L360 22 L400 14 L400 110 L0 110Z" fill="url(#la)"/>
-    <path class="linea" d="M0 92 L40 84 L80 88 L120 70 L160 74 L200 56 L240 62 L280 40 L320 46 L360 22 L400 14" fill="none" stroke="url(#lg)" stroke-width="3" stroke-linejoin="round"/>
-   </svg></div>
-   <div class="lista" id="lista"></div>
-   <button class="lucchetto" data-entra data-pos="anteprima"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Apri il terminale per vedere i mercati</button>
+  <div class="scena" id="scena"><div class="schermo" id="schermo"><div><div class="scan"></div>
+   <div class="barra"><i></i><i></i><i></i><b>BoardEdge · terminale</b><span>live</span></div>
+   <!-- riempita dal JavaScript con i dati veri: fase delle economie, clima del mercato, conto alla rovescia -->
+   <div class="fcorpo" id="f-hero"></div>
+   <div class="fcorpo" style="padding-top:0"><button class="apri" data-entra data-pos="anteprima"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Apri il terminale</span></button></div>
   </div></div></div>
  </div>
 
@@ -309,8 +358,38 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
   </div>
  </div></section>
 
- <!-- 2. I CINQUE PILASTRI: cosa offre il terminale, scheda per scheda -->
+ <!-- 2. DENTRO IL TERMINALE: una scena per pilastro. Le finestre sono riempite dal JavaScript in fondo con i numeri
+      veri (segnaposto DENTRO_JSON, creato da cot_radar/vetrina.py -> dentro()). Una scena senza dati resta nascosta. -->
  <section id="pilastri" data-ev-vista="pilastri"><div class="box">
+  <div class="titsez appare"><small>Dentro il terminale</small><h2>Guarda cosa c'è dentro, adesso.</h2>
+   <p>Sono i numeri veri dell'ultimo aggiornamento. Qui i nomi sono coperti: nel terminale li vedi tutti.</p></div>
+  <div class="viste">
+   <article class="quadro appare" id="v-dash">
+    <div class="vtesto"><span class="tag">Dashboard</span><h3>Che aria tira sui mercati oggi?</h3>
+     <ul class="pote"><li><b>Posizionamento</b>: quanti mercati i grandi operatori stanno comprando e quanti vendendo.</li><li><b>Settori</b>: dove si concentra la forza, dai metalli alle valute.</li><li><b>Clima ed economie</b>: paura o fiducia, crescita o frenata, in un colpo d'occhio.</li></ul>
+     <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 1 minuto</span></div>
+    <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Dashboard</b><span data-al></span></div><div class="fcorpo" id="f-dash"></div></div></div>
+   </article>
+   <article class="quadro appare" id="v-port">
+    <div class="vtesto"><span class="tag">Portafogli</span><h3>Come divido i miei soldi questo mese?</h3>
+     <ul class="pote"><li><b>Tre profili</b>: scegli quanto drawdown sei disposto ad accettare.</li><li><b>Il mese in corso</b> accanto a come è andato lo stesso mese negli anni passati.</li><li><b>Composizione e pesi</b> cambiano solo alla rotazione mensile.</li></ul>
+     <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>3 minuti, una volta al mese</span></div>
+    <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Portafogli · <em id="b-port" style="font-style:normal">Moderato</em></b><span data-al></span></div><div class="fcorpo" id="f-port"></div></div></div>
+   </article>
+   <article class="quadro appare" id="v-az">
+    <div class="vtesto"><span class="tag">Azionario</span><h3>Quali aziende hanno i numeri migliori?</h3>
+     <ul class="pote"><li><b id="p-az">Centinaia di aziende</b> ordinate per settore e per forza.</li><li><b>La selezione di oggi</b>: al massimo una per settore, solo se tendenza, forza e stagionalità sono tutte a favore.</li><li><b>La scheda di ogni azienda</b>: bilanci, dividendi e notizie.</li></ul>
+     <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 2 minuti</span></div>
+    <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Azionario</b><span data-al></span></div><div class="fcorpo" id="f-az"></div></div></div>
+   </article>
+   <article class="quadro appare" id="v-stag">
+    <div class="vtesto"><span class="tag">Stagionalità</span><h3>Come è andato questo periodo, negli anni?</h3>
+     <ul class="pote"><li><b>Ogni casella è un'ora</b>: verde se in passato è salita più spesso, rossa se è scesa.</li><li><b>Bordo oro</b>: il dato è statisticamente affidabile, non un caso.</li><li><b id="p-stag">Decine di mercati</b> in ora italiana: ore, giorni, settimane e mesi.</li></ul>
+     <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 2 minuti</span></div>
+    <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Stagionalità · <em id="b-stag" style="font-style:normal"></em></b><span data-al></span></div><div class="fcorpo" id="f-stag"></div></div></div>
+   </article>
+   <article class="quadro appare" id="v-paesi">
+    <div class="vtesto"><span class="tag">Economie e paesi</span><h3>Dove cresce l'economia e dove è agitata la borsa?</h3>
   <div class="titsez appare"><small>I pilastri</small><h2>Cinque strumenti. Un solo terminale.</h2>
    <p>Ogni scheda risponde a una domanda semplice.</p></div>
   <div class="livelli">
