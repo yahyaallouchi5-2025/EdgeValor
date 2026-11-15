@@ -166,6 +166,76 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 .piano li::before{content:"";position:absolute;left:2px;top:6px;width:13px;height:7px;border-left:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);transform:rotate(-45deg)}
 .piano.pro li::before{border-color:var(--acc2)}
 @media (max-width:800px){.piani{grid-template-columns:1fr}.piano{padding:26px 24px}}
+/* v7.70 PREZZI E OFFERTA DI FINE NOVEMBRE (Black Friday -> Cyber Monday). Compare e sparisce da sola, ogni anno.
+   .prezzi = prezzo di listino | .off = riga nel riquadro | .ochip = avviso in basso | .omod = finestra
+   Due vesti: html[data-off="bf"] Black Friday (viola-rosa-arancio), html[data-off="cm"] Cyber Monday (azzurro-viola).
+   Per cambiare veste basta cambiare i tre colori --o1 --o2 --o3. */
+:root{--o1:#8f5bff;--o2:#ff4d8d;--o3:#ffb23e}
+html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
+:root{--og:linear-gradient(100deg,var(--o1),var(--o2) 50%,var(--o3))}
+.prezzi{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin:0 0 18px;color:var(--ink2);font-size:15px}
+.prezzi b{font:800 28px/1 "Inter Display","Inter",system-ui;color:var(--ink);letter-spacing:-.6px}
+.off{position:relative;margin-top:22px;padding:16px 18px;border-radius:16px;background:#070b14;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 18px}
+.off::before,.omod>div::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:var(--og);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:2}
+.off p{margin:0;font-size:15px;color:var(--ink2);line-height:1.45}
+.off p b,.ochip b{background:var(--og);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn.bia{color:#05070c;background:#fff;box-shadow:0 10px 30px color-mix(in srgb,var(--o2) 30%,transparent)}
+.btn.bia:hover{transform:translateY(-2px);box-shadow:0 14px 44px color-mix(in srgb,var(--o2) 55%,transparent)}
+.ochip{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);z-index:60;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 24px);padding:8px 8px 8px 18px;border-radius:99px;background:rgba(7,9,14,.96);border:1px solid color-mix(in srgb,var(--o2) 55%,transparent);box-shadow:0 18px 50px rgba(0,0,0,.6);font-size:14px;color:var(--ink2);transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.ochip.su{transform:translate(-50%,0)}.ochip>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ochip .apri2{font:700 13.5px "Inter",system-ui;padding:8px 15px;border-radius:99px;border:0;cursor:pointer;color:#05070c;background:#fff;white-space:nowrap}
+.ochip .via{width:30px;height:30px;flex:none;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer;font-size:16px;line-height:1}.ochip .via:hover{color:var(--ink);border-color:var(--mute)}
+.omod{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.omod.su{display:flex}
+.omod>div{position:relative;isolation:isolate;width:min(860px,100%);max-height:calc(100vh - 32px);overflow:auto;border-radius:28px;background:#04050a;box-shadow:0 40px 120px rgba(0,0,0,.85),0 0 110px color-mix(in srgb,var(--o2) 22%,transparent);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+/* luci colorate che si muovono piano dietro al testo */
+.oluci{position:absolute;inset:0;overflow:hidden;border-radius:inherit;z-index:-1;pointer-events:none}
+.oluci i{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;filter:blur(70px);opacity:.55;animation:oluce 14s ease-in-out infinite alternate}
+.oluci i:nth-child(1){background:var(--o1);left:-18%;top:-30%}
+.oluci i:nth-child(2){background:var(--o2);left:14%;bottom:-46%;animation-delay:-5s}
+.oluci i:nth-child(3){background:var(--o3);left:-30%;bottom:-20%;opacity:.35;animation-delay:-9s}
+@keyframes oluce{to{transform:translate(12%,10%) scale(1.15)}}
+.omod .chiudi{position:absolute;top:14px;right:14px;z-index:3;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#c9d1e3;cursor:pointer;font-size:18px;transition:background .2s,color .2s}.omod .chiudi:hover{background:rgba(255,255,255,.2);color:#fff}
+.osx{padding:40px 34px;display:flex;flex-direction:column;justify-content:center;gap:0;min-width:0}
+.osx .et{font-size:12px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:#fff;opacity:.85}
+.osx .nome{font:900 clamp(38px,5.6vw,58px)/.95 "Inter Display","Inter",system-ui;letter-spacing:-2.2px;color:#fff;margin:10px 0 0;text-transform:uppercase}
+.osx .num{display:flex;align-items:baseline;gap:10px;margin:14px 0 6px;color:#fff}
+.osx .num small{font:700 15px "Inter",system-ui;letter-spacing:.4px;text-transform:uppercase;opacity:.85;white-space:nowrap}
+.osx .num b{font:900 clamp(74px,11vw,112px)/.9 "Inter Display","Inter",system-ui;letter-spacing:-5px}
+.osx h3{font:600 17px/1.4 "Inter",system-ui;letter-spacing:0;margin:8px 0 22px;color:#fff;opacity:.92;background:none;-webkit-text-fill-color:currentColor}
+.oconto{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:330px}
+.oconto div{padding:10px 0 8px;border-radius:14px;background:rgba(4,5,10,.55);border:1px solid rgba(255,255,255,.16);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);text-align:center}
+.oconto b{display:block;font:800 24px/1.1 "Inter Display","Inter",system-ui;color:#fff;font-variant-numeric:tabular-nums}
+.oconto small{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:#c9d1e3}
+.odx{padding:40px 30px 26px;background:rgba(4,5,10,.82);min-width:0;display:flex;flex-direction:column;justify-content:center}
+.oscelta{display:grid;gap:10px;margin:0 0 16px}
+.oscelta label{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 12px;padding:14px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
+.oscelta label:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.3)}
+.oscelta input{position:absolute;opacity:0;pointer-events:none}
+.oscelta label:has(input:checked){border-color:transparent;background:linear-gradient(#0b0d15,#0b0d15) padding-box,var(--og) border-box;border:1px solid transparent}
+.oscelta .pt{font:700 15px "Inter",system-ui;color:#fff;display:flex;align-items:center;gap:8px}
+.oscelta .pt em{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:#05070c;background:var(--og);padding:2px 8px;border-radius:99px;white-space:nowrap}
+.oscelta .pr{grid-row:span 2;text-align:right}
+.oscelta .pr b{display:block;font:800 24px/1.1 "Inter Display","Inter",system-ui;letter-spacing:-.6px;color:#fff;white-space:nowrap}
+.oscelta .pr s{font-size:13px;color:#7f8aa3}
+.oscelta .ps{font-size:13px;color:#4fd6a3;font-weight:600}
+.omod input[type=email]{width:100%;padding:14px 18px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;font:500 16px "Inter",system-ui;outline:0;transition:border-color .2s}
+.omod input[type=email]::placeholder{color:#7f8aa3}.omod input[type=email]:focus{border-color:var(--o2)}
+.osi{display:flex;gap:10px;align-items:flex-start;margin:12px 0 16px;font-size:13px;color:#8d98b0;line-height:1.45;cursor:pointer;text-align:left}
+.osi input{margin-top:2px;width:16px;height:16px;flex:none;accent-color:var(--o2)}.osi a{color:#c9d1e3}
+.omod .btn{width:100%;border-radius:99px;padding:15px 24px;font-size:16px}.omod .btn:disabled{opacity:.6;cursor:default}
+.oesito{min-height:18px;margin:10px 0 0;font-size:13.5px;color:var(--giu);text-align:center}.onota{margin:6px 0 0;font-size:13px;color:#8d98b0;text-align:center}
+.ook{text-align:center;padding:10px 0 4px}.ook b{display:block;font:750 24px "Inter Display","Inter",system-ui;color:#fff;margin-bottom:8px}.ook p{margin:0 0 20px;color:#c9d1e3}
+.trappola{position:absolute;left:-9999px}
+.off[hidden],.ochip[hidden]{display:none}
+@media (max-width:760px){.omod>div{grid-template-columns:1fr;width:min(440px,100%)}
+ .osx{padding:30px 22px 20px;text-align:center;align-items:center}.osx .num{justify-content:center;margin:8px 0 2px}.osx h3{margin:6px 0 16px;font-size:15.5px}
+ .osx .nome{font-size:36px;letter-spacing:-1.4px}.osx .num b{font-size:76px;letter-spacing:-3.5px}
+ .oconto{width:100%}.oconto div{padding:8px 0 6px}.oconto b{font-size:21px}
+ .odx{padding:18px 18px 20px}.oscelta{gap:8px;margin-bottom:12px}.oscelta label{padding:11px 14px}.oscelta .pr b{font-size:21px}
+ .oluci i{width:90%}.oluci i:nth-child(2){left:30%;bottom:auto;top:-10%}.oluci i:nth-child(3){display:none}
+ .ochip{font-size:13px;padding-left:14px;gap:8px}.ochip .lungo{display:none}.off .btn{width:100%}}
+@media (prefers-reduced-motion:reduce){.oluci i{animation:none}}
 @media (max-width:800px){.piede{grid-template-columns:1fr 1fr}.piede>div:first-child{grid-column:1/-1}}
 .piede p{margin:14px 0 0;max-width:360px;line-height:1.6}
 .piede h4{margin:0 0 14px;font:800 12px "Inter",system-ui;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink2)}
@@ -293,11 +363,17 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 .tgn p{margin:3px 0 0;font-size:14px;color:var(--ink2);line-height:1.45}
 .tgn:nth-child(2){margin-left:22px}.tgn:nth-child(3){margin-left:44px}
 /* ===== CHI C'E' DIETRO ===== */
-.chi{display:grid;grid-template-columns:150px minmax(0,1fr);gap:clamp(22px,4vw,44px);align-items:center;padding:clamp(26px,4vw,44px);border-radius:26px;background:linear-gradient(180deg,rgba(11,29,66,.7),rgba(7,20,49,.5));border:1px solid var(--line)}
+.chi{display:grid;grid-template-columns:150px minmax(0,1fr);gap:clamp(22px,4vw,44px);align-items:start;padding:clamp(26px,4vw,44px);border-radius:26px;background:linear-gradient(180deg,rgba(11,29,66,.7),rgba(7,20,49,.5));border:1px solid var(--line)}
 .chi .foto{width:150px;height:150px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#3ee0cf,#5b9bff);box-shadow:0 0 40px rgba(46,196,182,.25)}
 .chi .foto img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;background:#0a1835}
 .chi h3{font:750 24px/1.2 "Inter Display","Inter",system-ui;letter-spacing:-.4px;margin:6px 0 0}
 .chi p{margin:12px 0 0;color:var(--ink2);font-size:16.5px;max-width:760px}
+.chi p b{color:var(--ink);font-weight:650}
+.chialtro summary{display:inline-flex;align-items:center;gap:8px;margin-top:16px;cursor:pointer;list-style:none;font-weight:700;font-size:15px;color:var(--acc);transition:color .2s}
+.chialtro summary::-webkit-details-marker{display:none}
+.chialtro summary::after{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-3px);transition:transform .25s}
+.chialtro summary:hover{color:var(--ink)}
+.chialtro[open] summary{display:none}
 @media (max-width:900px){.quadro{grid-template-columns:minmax(0,1fr);gap:26px}.quadro:nth-child(even) .vtesto{order:0}.tgn:nth-child(n){margin-left:0}}
 @media (max-width:700px){.chi{grid-template-columns:1fr}.chi .foto{width:112px;height:112px}}
 @media (max-width:520px){.fcorpo{padding:13px;gap:10px}.mc{padding:11px}.barra{padding:11px 13px}
@@ -430,7 +506,10 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
    <div class="piano appare"><span class="ptag">Gratis, sempre</span><h3>Per capire i mercati</h3>
     <ul><li>Clima di mercato e fase delle grandi economie</li><li>Posizionamento dei grandi operatori (COT)</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Mappa della stagionalità</li><li>Settori e ricerca dei titoli</li><li>Canale Telegram</li></ul></div>
    <div class="piano pro appare" style="--d:.08s"><span class="ptag">Abbonamento · in arrivo</span><h3>Per costruire il portafoglio</h3>
-    <ul><li>Composizione e pesi dei portafogli</li><li>Rischio del mese e acquisto guidato</li><li>Selezione di oggi</li><li>Elenco e scheda di ogni azienda</li><li>Stagionalità di adesso e dettaglio per strumento</li><li>Tabella completa dei paesi emergenti</li></ul></div>
+    <p class="prezzi"><span><b>14,90 €</b> al mese</span><span>oppure <b>137 €</b> l'anno</span></p>
+    <ul><li>Composizione e pesi dei portafogli</li><li>Rischio del mese e acquisto guidato</li><li>Selezione di oggi</li><li>Elenco e scheda di ogni azienda</li><li>Stagionalità di adesso e dettaglio per strumento</li><li>Tabella completa dei paesi emergenti</li></ul>
+    <div class="off" data-off hidden><p><b data-off-nome>Black Friday</b>, fino a <span data-off-fine></span>:<br>9,90 € al mese o 89 € l'anno.</p>
+     <button class="btn bia" data-off-apri data-ev="offerta_apri_accesso">Blocca il prezzo</button></div></div>
   </div>
  </div></section>
 
