@@ -275,12 +275,14 @@ try{(function(){const el=$("azioni");if(!el)return;
    <div class="azbarra"><button class="azx" aria-label="Torna all'elenco dei titoli"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Indietro</button>
     <span class="azbt"><b>${esc(t.n)}</b><small>${esc(t.t)}</small></span></div>
    <div class="azwrap">
-   <div class="aztesta"><span class="small azsez">${esc(nomeSet(t.s))} &middot; ${t.l.map(nomeList).join(", ")} &middot; ${esc(borsa(t.t))}<span class="azisin"></span></span><h3>${esc(t.n)} <small>${esc(t.t)}</small>${ebLista.stella("az",t.t)}</h3>${forzaTesta(t)}${(()=>{const p=t.dq&&ST.dati.titoli.find(x=>x.t==t.dq);   // v7.24 seconda quotazione: rimando alla principale
+   <div class="aztesta"><span class="small azsez">${esc(nomeSet(t.s))} &middot; ${t.l.map(nomeList).join(", ")} &middot; ${esc(borsa(t.t))}<span class="azisin"></span></span><h3>${esc(t.n)} <small>${esc(t.t)}</small>${ebLista.stella("az",t.t)}</h3><div class="azfzr">${forzaTesta(t)}${window.ebPdf?ebPdf.bottone("azpdf"):""}</div>${(()=>{const p=t.dq&&ST.dati.titoli.find(x=>x.t==t.dq);   // v7.24 seconda quotazione: rimando alla principale
      return p?`<button type="button" class="azdqv" data-t="${esc(p.t)}">Seconda quotazione: la principale &egrave; <b>${esc(p.n)} &middot; ${esc(p.t)}</b><span aria-hidden="true">&rarr;</span></button>`:"";})()}${evAvviso(t)}
     <div class="azprz" data-lv="${esc(t.t)}" data-k="h">${testaPrezzo(t)}</div></div>
    <div class="azcorpo">${sk("100%",230,"border-radius:14px")}<div class="azmini">${Array(6).fill(`<div>${sk("60%",11)}${sk("70%",18)}</div>`).join("")}</div>${sk("100%",150,"border-radius:14px;margin-top:18px")}</div></div></div>`;
+  ST.tit=null;                                                                           // il PDF non deve mai usare i dati del titolo aperto prima
   ov.scrollTop=0;leggiLive();
   const dqv=ov.querySelector(".azdqv");if(dqv)dqv.onclick=()=>apri(dqv.dataset.t);
+  const pb=ov.querySelector(".azpdf");if(pb)pb.onclick=()=>ebPdf.avvia(pb,()=>pdfTit(t));
   requestAnimationFrame(()=>ov.classList.add("on"));ov.querySelector(".azx").focus({preventScroll:true});
   try{window.ebStat&&ebStat.ev("azione",{ticker:tk});}catch(e){}
   fetch(BASE+"titoli/"+encodeURIComponent(tk.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
@@ -301,8 +303,8 @@ try{(function(){const el=$("azioni");if(!el)return;
      <b class="${m&&m.media>=0?"up":"down"}">${m?(m.media>0?"+":"")+fx(m.media,1):"–"}</b><small>${m?m.pos+"%":""}</small><em>${MESI[i]}</em></div>`).join("")}</div>`;})():"";
   c.innerHTML=`<div class="azgrid"><div class="azsx"><div class="vfswitch azper">${PER.map(p=>`<button data-p="${p[0]}" class="${ST.per==p[0]?"on":""}">${p[1]}</button>`).join("")}</div>
    <div class="azgraf">${intra?`<div class="azgsk">${sk("100%",230,"border-radius:14px")}</div>`:grafico(serie(),ST.per=="max",t.val)}</div>
-   <div class="azmini"><div><span>1 mese</span>${pc(t.v1m)}</div><div><span>3 mesi</span>${pc(t.v3m)}</div><div><span>Da inizio anno</span>${pc(t.vytd)}</div>
-    <div><span>1 anno</span>${pc(t.v1a)}</div><div><span>Dal massimo 1 anno</span>${pc(t.dmax)}</div><div><span>Trend (media 200g)</span>${pc(t.t200)}</div></div>
+   <div class="azmini azrend"><div><span>1 mese</span>${pc(t.v1m)}</div><div><span>3 mesi</span>${pc(t.v3m)}</div><div><span>Da inizio anno</span>${pc(t.vytd)}</div>
+    <div><span>1 anno</span>${pc(t.v1a)}</div><div title="Distanza dal prezzo pi&ugrave; alto dell'ultimo anno"><span>Dal massimo</span>${pc(t.dmax)}</div><div title="Distanza dalla media dei prezzi degli ultimi 200 giorni: sopra = trend al rialzo"><span>Su media 200g</span>${pc(t.t200)}</div></div>
    ${tecBlocco(x,t)}
    <div class="azbil">${sk("40%",16)}${sk("100%",140,"border-radius:14px;margin-top:10px")}</div>
    <div class="aznews" hidden></div></div>
@@ -313,6 +315,73 @@ try{(function(){const el=$("azioni");if(!el)return;
   c.querySelectorAll(".azper button").forEach(b=>b.onclick=()=>{ST.per=b.dataset.p;corpo(ov,t,x);});
   bilancio(c.querySelector(".azbil"),t);profilo(c.querySelector(".azprof"),t);notizie(c.querySelector(".aznews"),t);dividendi(c.querySelector(".azdiv"),t);
   if(intra)disegnaIntra(c.querySelector(".azgraf"),t,ST.per);else tooltip(c.querySelector(".azgraf"),serie(),t.val,ST.per=="max");}
+
+ // --- v7.74 PDF DELLA SCHEDA DI UN TITOLO (generatore in 01b_pdf.js, come il PDF dei Portafogli).
+ //     Una pagina A4 verticale (due se servono) con gli STESSI numeri della pagina: prezzo e Forza, grafico dell'ultimo
+ //     anno, rendimenti, analisi tecnica, Smart Discount, bilancio (solo USA), dividendi, azienda, stagionalita' mensile.
+ //     Bilancio, dividendi e profilo si rileggono dai loro file (il browser li ha gia' in memoria: e' immediato).
+ //     DEBUG: se una sezione manca nel PDF, manca anche il suo file (es. bilanci/<T>.json solo per le aziende USA).
+ function pdfTit(t){const E=window.ebPdf,x=ST.tit;if(!E||!x||!x.d)return Promise.resolve();
+  const nf=encodeURIComponent(t.t.replace("^","_"))+".json",js=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
+  return Promise.all([js(BASE+"bilanci/"+nf),js(BASE+"dividendi/"+nf),js(BASE+"profili/"+nf)]).then(([bil,dv,pr])=>{
+   const C=E.C,d=E.Doc();d.pagina();const {M,PW}=d,LW=PW-2*M,T=`${t.n} (${t.t})`;
+   const SP={USD:"$",EUR:"€",GBP:"£",JPY:"¥",CHF:"CHF ",HKD:"HK$",CNY:"CNY ",INR:"INR ",CAD:"C$",AUD:"A$"};   // simboli che il PDF sa scrivere
+   const prz=v=>v==null?"n/d":(SP[t.val]||"")+Number(v).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2});
+   const pct=(v,n)=>v==null?"n/d":(v>0?"+":"")+fx(v,n==null?1:n)+"%",colV=v=>v==null?C.mute:v>0?C.up:v<0?C.down:C.mute;
+   const dl=v=>{if(v==null)return "n/d";const a=Math.abs(v),g=v<0?"-":"";return a>=1e9?g+fx(a/1e9,a>=1e11?0:1)+" mld $":a>=1e6?g+fx(a/1e6,0)+" mln $":g+fx(a,0)+" $";};
+   // riquadro "etichetta sopra, valore sotto" (come le caselle della pagina)
+   const casella=(x0,y0,w,h,et,val,col,sotto)=>{d.rett(x0,y0,w,h,{f:C.soft,r:6});d.testo(x0+8,y0+12,d.taglia(et.toUpperCase(),w-16,6.6,true),{s:6.6,b:true,c:C.mute});
+    d.testo(x0+8,y0+27,d.taglia(val,w-16,11.5,true),{s:11.5,b:true,c:col||C.ink});if(sotto)d.testo(x0+8,y0+38,d.taglia(sotto,w-16,7),{s:7,c:C.mute});};
+   let y=E.testata(d,t.n,`${t.t} · ${nomeSet(t.s)} · ${t.l.map(nomeList).join(", ")} · ${x.borsa||borsa(t.t)}${t.val?" · prezzi in "+t.val:""} · dati al ${gg(t.data)}`);
+   // --- prezzo e Forza
+   const l=lv(t),px=l?l.p:t.p,g1=l?l.g:t.v1g;
+   const wp=d.testo(M,y+14,prz(px),{s:22,b:true});d.testo(M+wp+10,y+14,pct(g1,2),{s:12,b:true,c:colV(g1)});
+   d.testo(M,y+28,l?"prezzo in ritardo di circa 15 minuti":"chiusura del "+gg(t.data),{s:8,c:C.mute});
+   const fl=forzaLiv(t.pt);
+   if(fl){const fc={f:C.up,n:C.acc,d:C.down}[fl[0]],bw=178,bx=PW-M-bw;d.rett(bx,y-4,bw,36,{s:fc,r:8,lw:1});
+    const we=d.larghezza(fl[1].toUpperCase(),8,true)+14;d.rett(bx+8,y+5,we,18,{f:fc,r:9});d.testo(bx+8+we/2,y+17.5,fl[1].toUpperCase(),{s:8,b:true,c:C.bianco,a:"c"});
+    d.testo(bx+we+16,y+13,`Forza ${t.pt}/100`,{s:10.5,b:true});
+    if(t.rk)d.testo(bx+we+16,y+25,`${t.rk.toLocaleString("it-IT")}º di ${ST.dati.titoli.length.toLocaleString("it-IT")} titoli`,{s:7.6,c:C.mute});}
+   y+=46;
+   // --- grafico dell'ultimo anno (chiusure giornaliere)
+   const lim=new Date(x.d[x.d.length-1][0]);lim.setFullYear(lim.getFullYear()-1);const S=x.d.filter(p=>p[0]>=lim.toISOString().slice(0,10));
+   if(S.length>2){y=E.sezione(d,y+8,"Ultimo anno",`dal ${gg(S[0][0])} al ${gg(S[S.length-1][0])}`);
+    const gh=140,gx=M,gw=LW-46,vs=S.map(p=>p[1]),lo0=Math.min(...vs),hi0=Math.max(...vs),pad=(hi0-lo0||hi0*.01)*.08,lo=lo0-pad,hi=hi0+pad;
+    const X=i=>gx+i/(S.length-1)*gw,Y=v=>y+6+(hi-v)/(hi-lo)*(gh-22),su=S[S.length-1][1]>=S[0][1],col=su?C.up:C.down;
+    [0,.25,.5,.75,1].forEach(k=>{const v=lo+(hi-lo)*k;d.linea(gx,Y(v),gx+gw,Y(v),{c:C.line,lw:.4});
+     d.testo(gx+gw+6,Y(v)+2.5,Number(v).toLocaleString("it-IT",{maximumFractionDigits:v<10?2:v<1000?1:0}),{s:7,c:C.mute});});
+    const pts=S.map((p,i)=>[X(i),Y(p[1])]);
+    d.poli(pts.concat([[X(S.length-1),Y(lo)],[gx,Y(lo)]]),{f:E.chiaro(col,.10)});d.poli(pts,{s:col,lw:1.3});
+    const MB=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];let pm="";
+    S.forEach((p,i)=>{const m=p[0].slice(0,7);if(m!=pm){pm=m;if(+p[0].slice(5,7)%3==1&&i>8&&i<S.length-8)d.testo(X(i),y+gh-4,MB[+p[0].slice(5,7)-1]+" "+p[0].slice(2,4),{s:7,c:C.mute,a:"c"});}});
+    y+=gh+4;}
+   // --- rendimenti
+   {const R=[["1 mese",t.v1m],["3 mesi",t.v3m],["Da inizio anno",t.vytd],["1 anno",t.v1a],["Dal massimo",t.dmax],["Su media 200g",t.t200]],cw=(LW-5*6)/6;
+    R.forEach((r,i)=>casella(M+i*(cw+6),y,cw,34,r[0],pct(r[1]),colV(r[1])));y+=34;}
+   // --- analisi tecnica (4 caselle)
+   const k=x.tec;
+   if(k){y=E.sezione(d,y+24,"Analisi tecnica","descrive il prezzo, non è un segnale");const cw=(LW-3*6)/4,TR={"1":["Rialzista",C.up],"0":["Laterale",C.mute],"-1":["Ribassista",C.down]}[k.tr]||["n/d",C.mute];
+    casella(M,y,cw,44,"Trend · SMA 50/200",TR[0],TR[1],`SMA 50 ${prz(k.sma50)} · SMA 200 ${prz(k.sma200)}`);
+    casella(M+cw+6,y,cw,44,"RSI 14",k.rsi==null?"n/d":fx(k.rsi,0),null,k.rsi==null?"":k.rsi>=70?"Ipercomprato (sopra 70)":k.rsi<=30?"Ipervenduto (sotto 30)":"Neutro (tra 30 e 70)");
+    casella(M+2*(cw+6),y,cw,44,"ATR 14",k.atr==null?"n/d":fx(k.atr,1)+"% al giorno",null,k.atr!=null&&t.p?`circa ${prz(t.p*k.atr/100)} per azione`:"");
+    casella(M+3*(cw+6),y,cw,44,"Range 52 settimane",k.pos52==null?"n/d":k.pos52+"%",null,`min ${prz(k.min52)} · max ${prz(k.max52)}`);y+=44;}
+   // --- Smart Discount
+   if(t.sd!=null){const g=SDG(t.sd),sc={m:C.up,s:C.up,n:C.mute,c:C.down}[g[0]];y=d.serve(y,96,T);y=E.sezione(d,y+24,"Smart Discount","0-100: quanto è raro lo sconto di oggi e come è andata in passato");
+    d.rett(M,y,LW,52,{f:C.soft,r:6});d.testo(M+34,y+27,String(t.sd),{s:22,b:true,c:sc,a:"c"});d.testo(M+34,y+40,g[1],{s:7.4,b:true,c:sc,a:"c"});
+    const bx=M+78,bl=120;[["Rarità dello sconto",t.sdr],["Qualità storica",t.sdq]].forEach((r,i)=>{const yy=y+18+i*18;d.testo(bx,yy,r[0],{s:8});
+     d.rett(bx+92,yy-6,bl,5,{f:"#e3e8ef",r:2.5});if(r[1]>0)d.rett(bx+92,yy-6,Math.max(2,bl*r[1]/100),5,{f:C.acc,r:2.5});d.testo(bx+92+bl+8,yy,String(r[1]==null?"n/d":r[1]),{s:8,b:true});});
+    const fr=t.sdo>-10?"Vicino al massimo dell'anno: nessuno sconto.":`${fx(t.sdo,1)}% dal massimo dell'anno. Comprando a questo sconto, dopo 12 mesi era positivo ${t.sdv}% delle volte (di solito ${t.sdb}%).`;
+    d.paragrafo(bx+92+bl+34,y+17,fr,LW-(78+92+bl+34)-10,{s:8,c:C.mute});y+=52;}
+   // --- bilancio (aziende USA, fonte SEC)
+   if(bil&&bil.anni&&bil.anni.length){const A=bil.anni.slice(-5),u=A[A.length-1],GC={"SOLIDA":C.up,"NELLA MEDIA":C.warn,"INDEBITATA":C.down}[bil.giudizio]||C.mute;
+    y=d.serve(y,60+24+A.length*15+50,T);y=E.sezione(d,y+24,"Bilancio",`${bil.anni.length} anni · fonte SEC`);
+    const wg=d.larghezza(String(bil.giudizio||""),8,true)+14;d.rett(M,y,wg,17,{f:GC,r:8.5});d.testo(M+wg/2,y+11.8,String(bil.giudizio||""),{s:8,b:true,c:C.bianco,a:"c"});
+    d.testo(M+wg+8,y+11.8,d.taglia((bil.motivo||"")+(bil.lynch?` · ${bil.lynch.tipo}: ${bil.lynch.motivo||""}`:""),LW-wg-8,8.5),{s:8.5,c:C.mute});y+=25;
+    const cw=(LW-3*6)/4;
+    casella(M,y,cw,44,"Ricavi "+u.a,dl(u.ricavi),null,bil.crescita!=null?`${pct(bil.crescita)} l'anno`:"");
+    casella(M+cw+6,y,cw,44,"Utile netto "+u.a,dl(u.utile),colV(u.utile),u.ricavi?`margine ${fx(u.utile/u.ricavi*100,1)}%`:"");
+    casella(M+2*(cw+6),y,cw,44,"Anni in perdita",`${bil.perdite} su ${bil.anni.length}`,bil.perdite?C.down:C.up);
+    casella(M+3*(cw+6),y,cw,44,u.dn!=null&&u.dn<0?"Liquidità netta":"Debito netto",u.dn==null?"n/d":dl(Math.abs(u.dn)),null,u.dn!=null&&u.utile>0&&u.dn>0?fx(u.dn/u.utile,1)+" anni di utile":"");y+=52;
 
  // --- v7.26 GRAFICI INTRADAY "Oggi" e "5 giorni" (cot_radar/intraday.py)
  //     5 giorni = barre a 5 minuti (../azioni/intraday/<T>.json, una volta al giorno); Oggi = un punto ogni 15 minuti dal
