@@ -242,3 +242,25 @@ class FlussoVenerdi(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FonteVuota(unittest.TestCase):
+    """v7.70 la fonte risponde ma con un elenco vuoto: vale come fonte giu' (bug visto il 15/11/2026)."""
+
+    def test_elenco_vuoto_usa_il_calendario_gratuito_e_non_tocca_la_copia(self):
+        import json
+        import os
+        import tempfile
+        from datetime import datetime
+        from cot_radar import agenda
+        with tempfile.TemporaryDirectory() as d:
+            copia = os.path.join(d, "agenda.json")
+            salvato = [{"codice": "us-cpi", "data": "2026-11-18", "titolo": "prova"}]
+            with open(copia, "w", encoding="utf-8") as f:
+                json.dump(salvato, f)
+            eventi, fonte = agenda.carica(datetime(2026, 11, 15, 12), scarica_fn=lambda: [], cache=copia,
+                                          fred_fn=lambda oggi: [])
+            self.assertNotEqual(fonte, "financecalendar")          # non si spaccia l'elenco vuoto per buono
+            self.assertTrue(eventi)                                # banche centrali / eventi principali / copia
+            with open(copia, encoding="utf-8") as f:
+                self.assertEqual(json.load(f), salvato)            # la copia salvata resta com'era

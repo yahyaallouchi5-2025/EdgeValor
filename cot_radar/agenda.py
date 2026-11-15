@@ -198,8 +198,13 @@ def interno():
 def carica(adesso=None, scarica_fn=scarica, cache=CACHE, fred_fn=None):
     """(eventi normalizzati, fonte): financecalendar (se torna a rispondere) -> calendario gratuito + copia salvata."""
     grezzi = scarica_fn()
-    if grezzi is not None:
-        eventi = [x for x in (normalizza(e) for e in grezzi) if x]
+    eventi = [x for x in (normalizza(e) for e in grezzi) if x] if grezzi is not None else []
+    # v7.70 la fonte puo' rispondere "tutto bene" con un elenco VUOTO (successo il 15/11/2026: agenda senza eventi sul
+    # sito e copia salvata azzerata). Un elenco vuoto vale come fonte giu': si passa al calendario gratuito e la
+    # copia salvata NON viene toccata.
+    if grezzi is not None and not eventi:
+        log.warning("calendario financecalendar: risposta senza eventi, uso il calendario gratuito")
+    if eventi:
         try:
             os.makedirs(os.path.dirname(cache), exist_ok=True)
             with open(cache, "w", encoding="utf-8") as f:
