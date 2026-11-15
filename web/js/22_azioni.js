@@ -382,6 +382,32 @@ try{(function(){const el=$("azioni");if(!el)return;
     casella(M+cw+6,y,cw,44,"Utile netto "+u.a,dl(u.utile),colV(u.utile),u.ricavi?`margine ${fx(u.utile/u.ricavi*100,1)}%`:"");
     casella(M+2*(cw+6),y,cw,44,"Anni in perdita",`${bil.perdite} su ${bil.anni.length}`,bil.perdite?C.down:C.up);
     casella(M+3*(cw+6),y,cw,44,u.dn!=null&&u.dn<0?"Liquidità netta":"Debito netto",u.dn==null?"n/d":dl(Math.abs(u.dn)),null,u.dn!=null&&u.utile>0&&u.dn>0?fx(u.dn/u.utile,1)+" anni di utile":"");y+=52;
+    d.rett(M,y,LW,16,{f:C.navy,r:4});[["Anno",M+8,"l"],["Ricavi",M+LW*.4,"r"],["Utile netto",M+LW*.7,"r"],["Margine",M+LW-8,"r"]].forEach(h=>d.testo(h[1],y+11,h[0],{s:7.4,b:true,c:C.bianco,a:h[2]}));y+=16;
+    A.forEach((a,j)=>{if(j%2)d.rett(M,y,LW,15,{f:C.soft});d.testo(M+8,y+10.5,String(a.a),{s:8.2});d.testo(M+LW*.4,y+10.5,dl(a.ricavi),{s:8.2,a:"r"});
+     d.testo(M+LW*.7,y+10.5,dl(a.utile),{s:8.2,b:true,c:colV(a.utile),a:"r"});d.testo(M+LW-8,y+10.5,a.ricavi?fx(a.utile/a.ricavi*100,1)+"%":"n/d",{s:8.2,a:"r"});y+=15;});}
+   // --- dividendi
+   if(dv&&(dv.u12||dv.anni)){y=d.serve(y,80,T);y=E.sezione(d,y+24,"Dividendi","importi rettificati per i frazionamenti");const cw=(LW-3*6)/4,u0=(dv.ultimi||[])[0];
+    const FQ={1:"Annuale",2:"Semestrale",4:"Trimestrale",12:"Mensile"};
+    casella(M,y,cw,44,"Rendimento 12 mesi",dv.u12&&px?fx(dv.u12/px*100,2)+"%":"n/d",null,dv.u12?`${prz(dv.u12)} per azione`:"");
+    casella(M+cw+6,y,cw,44,"Ultimo stacco",u0?gg(u0.d):"n/d",null,u0?prz(u0.v):"");
+    casella(M+2*(cw+6),y,cw,44,"Frequenza",FQ[dv.freq]||(dv.freq?dv.freq+" volte l'anno":"n/d"),null,dv.cagr5!=null?`crescita 5 anni ${pct(dv.cagr5)} l'anno`:"");
+    casella(M+3*(cw+6),y,cw,44,"Anni di aumenti",dv.aumenti==null?"n/d":String(dv.aumenti),null,`con dividendo da ${dv.anni||0} ${dv.anni==1?"anno":"anni"}`);y+=44;}
+   // --- stagionalita' mensile
+   if(x.stag&&x.stag.mesi){const v=x.stag.mesi,MB=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"],mc=oggiRoma().m,cw=(LW-11*4)/12;
+    y=d.serve(y,84,T);y=E.sezione(d,y+24,"Stagionalità mensile",`dal ${x.stag.dal} · sopra il rendimento medio, sotto in quanti anni il mese è stato positivo`);
+    v.forEach((m,i)=>{const x0=M+i*(cw+4);d.rett(x0,y,cw,44,{f:i==mc?E.chiaro(C.acc,.14):C.soft,s:i==mc?C.acc:null,r:5});
+     d.testo(x0+cw/2,y+12,MB[i],{s:7.2,b:true,c:C.mute,a:"c"});d.testo(x0+cw/2,y+26,m?(m.media>0?"+":"")+fx(m.media,1)+"%":"n/d",{s:8.6,b:true,c:m?colV(m.media):C.mute,a:"c"});
+     d.testo(x0+cw/2,y+37,m?m.pos+"% anni":"",{s:6.6,c:C.mute,a:"c"});});y+=44;}
+   // --- l'azienda
+   {const desc=pr&&pr.desc&&pr.desc.testo?String(pr.desc.testo):"",fatti=[];
+    if(pr&&!pr.vuoto){if(pr.fondata)fatti.push("Fondata: "+pr.fondata);const sede=[pr.sede,pr.paese].filter(Boolean).join(", ");if(sede)fatti.push("Sede: "+sede);
+     if((pr.ceo||[]).length)fatti.push("Amministratore delegato: "+pr.ceo.join(", "));if(pr.dipendenti)fatti.push("Dipendenti: "+Number(pr.dipendenti.n).toLocaleString("it-IT")+(pr.dipendenti.anno?` (${pr.dipendenti.anno})`:""));}
+    if(desc||fatti.length){const testo=desc.length>700?desc.slice(0,700).replace(/\s+\S*$/,"")+"…":desc,rg=testo?d.righe(testo,LW,8.6).length:0;
+     y=d.serve(y,40+rg*11.9+(fatti.length?14:0),T);y=E.sezione(d,y+24,"L'azienda",pr&&pr.desc?"fonte: Wikidata e Wikipedia":"");
+     if(testo)y+=d.paragrafo(M,y+2,testo,LW,{s:8.6,c:C.ink})+4;
+     if(fatti.length)y+=d.paragrafo(M,y+4,fatti.join("  ·  "),LW,{s:8.2,c:C.mute});}}
+   d.salva(E.nomeFile(t.t.replace(/[^A-Za-z0-9]+/g,"-")),T,(n,tot)=>E.piede(d,n,tot));
+   try{window.ebStat&&ebStat.ev("pdf",{scheda:"titolo",ticker:t.t});}catch(e){}});}
 
  // --- v7.26 GRAFICI INTRADAY "Oggi" e "5 giorni" (cot_radar/intraday.py)
  //     5 giorni = barre a 5 minuti (../azioni/intraday/<T>.json, una volta al giorno); Oggi = un punto ogni 15 minuti dal
