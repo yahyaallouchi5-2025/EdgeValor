@@ -2730,6 +2730,17 @@ html.ridotta #status{display:none}
 .peth .pen:not(.pegr){padding-left:32px}
 .per.levid{background:color-mix(in srgb,var(--warn) 14%,transparent)}
 .lcorpo{padding-top:6px}
+/* v7.72 ricerca universale nel pannello: campo fisso in alto, risultati con etichetta del tipo e stellina */
+.lcerca{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent);transition:border-color .2s}
+.lcerca:focus-within{border-color:var(--acc)}
+.lcerca svg{width:17px;height:17px;flex:none;fill:none;stroke:var(--mute);stroke-width:2;stroke-linecap:round}
+.lcerca input{flex:1;min-width:0;padding:13px 0;border:0;background:none;color:var(--ink);font:500 16px system-ui;outline:0}
+.lris{display:grid;gap:6px;padding-top:4px}
+.lres{display:grid;grid-template-columns:74px minmax(0,1fr) 28px;align-items:center;gap:10px;padding:10px 10px 10px 12px;border-radius:12px;border:1px solid transparent;cursor:pointer;transition:background .15s,border-color .15s}
+.lres:hover,.lres:focus-visible{background:var(--soft);border-color:var(--line);outline:0}
+.lres.on{border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 7%,transparent)}
+.le{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;text-align:center;padding:3px 0;border-radius:99px;color:var(--acc);background:color-mix(in srgb,var(--acc) 13%,transparent)}
+.le-pa{color:#b9a3ff;background:rgba(150,120,255,.14)}.le-fx{color:#7fb4ff;background:rgba(91,155,255,.14)}.le-me{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent)}
 .lt{display:flex;align-items:center;gap:8px;margin:20px 0 10px;font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--mute)}
 .lt small{font-size:11px;padding:1px 7px;border-radius:99px;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
 .lgr{display:grid;gap:8px}

@@ -28,7 +28,8 @@ window.addEventListener("scroll",chiudiMenu,{passive:true});window.addEventListe
 $("nav").addEventListener("scroll",posiziona,{passive:true});      // la barra che scorre di lato riallinea il menu
 document.querySelectorAll("#nav button[data-t]").forEach(b=>b.onclick=()=>{document.querySelectorAll("#nav button[data-t],section").forEach(x=>x.classList.remove("on"));
  b.classList.add("on");const sez=$(b.dataset.t);if(sez)sez.classList.add("on");chiudiMenu();segnaGruppi();window.scrollTo({top:0});});
-var go=t=>document.querySelector(`#nav button[data-t=${t}]`).click();
+// v7.72 se la scheda non esiste non succede niente (prima: errore rosso in pagina, visto il 15/11/2026)
+var go=t=>{const b=/^[a-z]+$/.test(t||"")&&document.querySelector(`#nav button[data-t=${t}]`);if(b)b.click();return !!b;};
 document.addEventListener("click",ev=>{const a=ev.target.closest("[data-vai]");if(!a)return;ev.preventDefault();
  try{if(!$("tvmodal").hidden)chiudiGrafico();}catch(e){}go(a.dataset.vai);});
 // LINK DIRETTO a una scheda (es. .../#registro dai messaggi Telegram): si apre dopo che tutte le schede sono pronte
