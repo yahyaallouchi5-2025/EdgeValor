@@ -29,6 +29,7 @@ try{(function(){
  function cambia(tp,id){const a=L[tp],i=a.indexOf(id);
   if(i>=0)a.splice(i,1);else{if(a.length>=MAX)return false;a.push(id);}
   salva();conta();
+  try{document.dispatchEvent(new Event("eblista"));}catch(e){}          // 36_account.js salva la lista sul profilo
   // tutte le stelline della stessa voce (tabella, scheda, pannello) cambiano insieme
   document.querySelectorAll(".stl").forEach(b=>{if(b.dataset.stl!=tp+":"+id)return;const on=i<0;
    b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.title=on?"Togli dalla mia lista":"Aggiungi alla mia lista";b.setAttribute("aria-label",b.title);});
@@ -138,5 +139,12 @@ try{(function(){
  let aperta=false;try{aperta=localStorage.getItem("ebListaAperta")=="1";}catch(e){}
  mostra(aperta,false);
  conta();
- window.ebLista={ha,stella,cambia,apri};
+ /* v7.76 per l'ACCOUNT (36_account.js): esporta() = copia della lista; importa(o) = la sostituisce con quella del profilo
+    e ridisegna stelline, contatore e riquadro (senza rilanciare l'evento "eblista": arriva gia' dal profilo). */
+ const esporta=()=>({az:[...L.az],pa:[...L.pa],fx:[...L.fx],me:[...L.me]});
+ function importa(o){TIPI.forEach(t=>{if(Array.isArray(o&&o[t]))L[t]=o[t].slice(0,MAX);});salva();conta();
+  document.querySelectorAll(".stl").forEach(b=>{const [tp,...r]=b.dataset.stl.split(":"),on=ha(tp,r.join(":"));
+   b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.title=on?"Togli dalla mia lista":"Aggiungi alla mia lista";b.setAttribute("aria-label",b.title);});
+  if(!pan.hidden){disegna();if(L.az.length&&!titoli)caricaTitoli().then(()=>{if(!pan.hidden)disegna();});}}
+ window.ebLista={ha,stella,cambia,apri,esporta,importa};
 })();}catch(e){console.error("[BoardEdge] la mia lista:",e);window.ebLista=window.ebLista||{ha:()=>false,stella:()=>"",cambia:()=>false,apri:()=>{}};}
