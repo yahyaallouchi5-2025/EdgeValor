@@ -241,60 +241,12 @@ function piede(x,nota){const t=[];
 /* "Nuovo" accanto all'etichetta: il segnale e' cambiato questa settimana (prima = etichetta della settimana scorsa) */
 const nuovo=(x,prima)=>x.new?`<span class="nuovo" title="La settimana scorsa era: ${eti(prima)}">Nuovo</span>`:"";
 function card(p){return `<div class="card clic" data-tv="p:${p.pair}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair">${p.pair}</span><div class="sotto">${badge(p.label)}${nuovo(p,p.prev)}</div></div>${anello(p.score)}</div>
-function sideRow(k){const a=D.assets[k]||{score:0};const v=verb(a.score);return `<div class="r"><span>${k} <span class="small">${nm(k)}</span></span><span class="${v[1]}">${v[2]} ${v[0]} (${fmt(a.score)})</span></div>`;}
-function why(p){const b=verb(D.assets[p.base].score)[0],q=verb(D.assets[p.quote].score)[0];
- const dir=p.score>=M.normal?"tende a SALIRE":p.score<=-M.normal?"tende a SCENDERE":"non ha una direzione chiara";
- if(p.div)return `Speculatori: ${b} ${p.base} e ${q} ${p.quote}. Spingono in direzioni opposte, quindi ${p.pair} ${dir}.`;
- const st=x=>x=="neutri"?"sono neutri":x.toLowerCase();   // "vendono"/"comprano"/"sono neutri"
- return `Su ${p.base} gli speculatori ${st(b)}, su ${p.quote} ${st(q)}: nessuna divergenza netta, ${p.pair} ${dir} (segnale meno forte).`;}
-/* TAG DI CONFERMA (vedi cot_radar/conferme.py):
-   ctag = i Commercials (hedger) agli estremi confermano o contrastano il segnale
-   (v6.16: tolto il tag "storico %" e ogni voto di AFFIDABILITA': il backtest ha mostrato che non ordina i
-   risultati, BASSA andava meglio di MEDIA. Il dato grezzo "Storico" resta solo nel pannello sotto il grafico.) */
-function ctag(acc){return acc?`<span class="tag ${acc=="conferma"?"ok":"ko"}" title="Commercials (hedger) agli estremi">Commercials: ${acc}</span>`:"";}
-/* stagtag = stagionalita' delle prossime 4 settimane: verde se va nel verso del segnale, arancio se contro */
-function stagtag(st,score){if(!st||!st.robusto)return "";const su=st.score>0;
- return `<span class="tag ${Math.sign(st.score)==Math.sign(score)?"ok":"ko"}" title="Stagionalita': ${su?"salito":"sceso"} ${su?st.su:st.n-st.su} anni su ${st.n} nelle prossime 4 settimane">stagione ${su?"&uarr;":"&darr;"} ${su?st.su:st.n-st.su}/${st.n}</span>`;}
-/* CARD A 3 RIGHE: Smart money (COT) / Macro (modello di mercato) / Notizie (motore notizie).
-   Verde = spinge la coppia su, rosso = giu', grigio = neutro. Il dettaglio resta nel pannello sotto il grafico. */
-function riga(nome,txt,v,breve){const c=v>0?"up":v<0?"down":"flat";
- return `<div class="r3 ${c}"><span><i></i>${nome}</span><b class="${c}">${txt}</b><small>${breve||"&nbsp;"}</small></div>`;}
-function flussi3(p){const fb=new Map((D.assets[p.base]||{}).flussi||[]),fq=new Map((D.assets[p.quote]||{}).flussi||[]);
- const d=[...fb.keys()].filter(x=>fq.has(x)).sort().slice(-3).map(x=>fb.get(x)-fq.get(x));
- if(d.length<3)return "";const su=d.filter(x=>x>0).length;return su==3?"flussi 3/3 in acquisto":su==0?"flussi 3/3 in vendita":`flussi ${Math.max(su,3-su)}/3`;}
-/* TRE RIQUADRI affiancati (Smart money / Macro / Notizie): etichetta, verdetto, valore breve.
-   Le spiegazioni lunghe vanno nella riga "det" sotto, cosi' i riquadri restano leggibili anche stretti. */
-function trio(p){const n=p.news,cot=p.cot,mac=p.macro,det=[];
- const sm=riga("Smart money",cot>=M.normal?"LONG":cot<=-M.normal?"SHORT":"NEUTRO",cot>=M.normal?1:cot<=-M.normal?-1:0,`COT ${fmt(cot)}`);
- const f3=flussi3(p);if(f3)det.push(f3);
- const mtop=((D.assets[p.base]||{}).mkt||{}).top;
- const ma=mac==null?riga("Macro","n/d",0,"non disponibile"):riga("Macro",Math.abs(mac)<25?"SCONTATO":mac>0?"LONG":"SHORT",Math.abs(mac)<25?0:mac,fmt(mac));
- if(mac!=null&&mtop&&mtop[0])det.push("driver macro: "+esc(mtop[0].name));
- let ne;
- if(!n)ne=riga("Notizie","&mdash;",0,"nessun evento");
- else{const ultimo=(n.eventi||[]).filter(e=>e.z!=null).slice(-1)[0];
-  const txt=n.oggi.length?"&#9889; OGGI":ultimo?n.effetto.toUpperCase():"&mdash;";
-  const breve=ultimo?`${ultimo.z>=0?"+":""}${fx(ultimo.z,1)}&sigma; &middot; ${n.adj>=0?"+":""}${fx(n.adj,0)}`:"";
-  if(ultimo)det.push(`${esc(ultimo.nome.split(" ").slice(0,-2).join(" ")||ultimo.nome)}: punteggio corretto ${fmt(n.score)}`);
-  if(n.oggi.length)det.push(`${esc(n.oggi[0])}: valuta l'ingresso dopo il dato`);
-  ne=riga("Notizie",txt,n.oggi.length?0:n.effetto=="rafforza"?Math.sign(p.score):n.effetto=="penalizza"?-Math.sign(p.score):0,breve||"nessun evento");}
- const st=p.stag;let sa;                                   // STAGIONALITA' (prossime 4 settimane, vedi stagionalita.py)
- if(!st)sa=riga("Stagionalit&agrave;","n/d",0,"storico corto");
- else if(!st.robusto)sa=riga("Stagionalit&agrave;","NEUTRA",0,"non affidabile");
- else{sa=riga("Stagionalit&agrave;",st.score>0?"RIALZO":"RIBASSO",st.score,`${st.score>0?st.su:st.n-st.su}/${st.n} anni`);
-  det.push(`stagionalit&agrave;: ${st.score>0?"salito":"sceso"} ${st.score>0?st.su:st.n-st.su} anni su ${st.n} nelle prossime 4 settimane (mediana ${st.med>=0?"+":""}${fx(st.med)}%)`);}
- if(p.corretto!=null&&Math.round(p.corretto)!=Math.round(p.score))det.push(`<b>punteggio corretto ${fmt(p.score)} &rarr; ${fmt(p.corretto)}</b>`);
- return `<div class="trio">${sm}${ma}${ne}${sa}</div>${det.length?`<div class="det">${det.join(" &middot; ")}</div>`:""}`;}
-function card(p){return `<div class="card clic" data-tv="p:${p.pair}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair">${p.pair}</span><div class="sotto">${badge(p.label)}</div></div>${anello(p.score)}</div>${trio(p)}
- <div class="rows">${sideRow(p.base)}${sideRow(p.quote)}</div>
- <div class="tags">${p.div?'<span class="tag div">Divergenza</span>':''}${mtag(p.cot,p.macro)}${p.new?`<span class="tag new">Nuovo (prima ${eti(p.prev)})</span>`:''}${ctag(p.comm_acc)}</div>
- <div class="why">${why(p)}</div></div>`;}
+ <div class="segni">${sgSpecP(p)}${sgMerc(p.macro,(D.assets[p.base]||{}).mkt)}${sgStag(p.stag)}${sgNews([p.base,p.quote],p.news)}</div>${piede(p)}</div>`;}
 var act=D.pairs.filter(p=>p.label!="NEUTRO");
 $("cards").innerHTML=act.length?act.map(card).join(""):`<div class="card">Nessun segnale attivo sulle valute questa settimana.</div>`;
-function acard(a){const v=verb(a.score),m=a.mkt;return `<div class="card clic" data-tv="a:${a.key}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair" style="font-size:19px" title="${esc(a.name)}">${a.name}</span><div class="sotto">${badge(a.label)}</div></div>${anello(a.score)}</div>
- <div class="small" style="margin-top:8px">${a.it?esc(a.it)+" &middot; ":""}${a.group} &middot; ${a.key} &middot; COT Index ${a.idx}/100</div>${split(a.cot,a.macro)}
- <div class="tags">${mtag(a.cot,a.macro)}${a.new?`<span class="tag new">Nuovo (prima ${eti(a.prev_label)})</span>`:''}${a.crowded?'<span class="tag ko">affollato</span>':''}${ctag(a.comm_acc)}${stagtag(a.stag,a.score)}</div>
- <div class="why">Speculatori: <b class="${v[1]}">${v[0]}</b>, ${fmt(a.d_net)} contratti in settimana, ${fmt(a.d_net4)} in 4 settimane.${m?` Mercato: ${m.status.toLowerCase()}.`:''}${NOTE[a.key]||NOTE[a.group]?' '+(NOTE[a.key]||NOTE[a.group]):''}</div></div>`;}
+function acard(a){const it=accenti(a.it||a.name);return `<div class="card clic" data-tv="a:${a.key}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair" style="font-size:19px" title="${esc(it)}">${esc(it)}</span><div class="sotto">${badge(a.label)}${nuovo(a,a.prev_label)}</div></div>${anello(a.score)}</div>
+ <div class="small sottot">${a.it&&a.it!=a.name?esc(a.name)+" &middot; ":""}${a.group}</div>
+ <div class="segni">${sgSpec(a)}${sgMerc(a.macro,a.mkt)}${sgStag(a.stag)}${sgNews(["USD"])}</div>${piede(a,NOTE[a.key])}</div>`;}
 var oth=Object.values(D.assets).filter(a=>a.group!="Valute"&&a.label!="NEUTRO").sort((x,y)=>Math.abs(y.score)-Math.abs(x.score));
 // v6.72: una griglia per famiglia (stesso ordine dei titoli in pagina); famiglia senza segnali = riga breve
 const FAM=[["ac-mp",["Energia","Metalli","Cereali","Soft","Bestiame"]],["ac-ind",["Indici azionari"]],["ac-tas",["Tassi USA"]],["ac-cry",["Crypto"]]];
