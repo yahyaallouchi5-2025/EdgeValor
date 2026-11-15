@@ -76,11 +76,10 @@ h3{margin:0;font-size:13px;font-weight:750;color:var(--ink2);text-transform:uppe
 .card.clic .pair{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* nome su una riga: badge e anello allineati */
 .card.clic .anello{width:62px;height:62px;min-width:62px}
 /* materie prime, indici, tassi, crypto: ogni scheda usa le righe della griglia (subgrid), cosi' titolo, descrizione,
-   riquadri COT/Mercato, etichette e "Speculatori" partono alla stessa altezza in tutte le schede della stessa fila */
+   righe-segnale ed etichette partono alla stessa altezza in tutte le schede della stessa fila */
 @supports (grid-template-rows:subgrid){
- .agrid>.card.clic{container-type:normal;display:grid;grid-row:span 5;grid-template-rows:subgrid;row-gap:0;align-content:start}
- .agrid>.card.clic>.small,.agrid>.card.clic>.tags{align-self:start}
- .agrid>.card.clic>.why{margin-top:0;align-self:end}}
+ .agrid>.card.clic{container-type:normal;display:grid;grid-row:span 4;grid-template-rows:subgrid;row-gap:0;align-content:start}
+ .agrid>.card.clic>.small,.agrid>.card.clic>.segni{align-self:start}}
 .sectors{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
 .sec{border-radius:14px;padding:14px 16px;color:var(--ink);cursor:pointer;transition:transform .12s;background:color-mix(in srgb,var(--bc) 15%,var(--card));border:1px solid color-mix(in srgb,var(--bc) 45%,transparent)}.sec span{color:var(--bc)}.sec:hover{transform:translateY(-2px)}
 .sec b{display:block;font-size:13px;font-weight:650;opacity:.95}.sec span{display:block;font-size:24px;font-weight:800;margin:4px 0 2px}.sec small{font-size:12px;opacity:.92}
@@ -2755,3 +2754,32 @@ html.ridotta #status{display:none}
 .lvuota b{font-size:17px}.lvuota span{color:var(--mute);font-size:14px;max-width:320px}.lvuota div{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
 .lavv{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;padding:10px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:13.5px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
 @media (max-width:520px){.lrig{grid-template-columns:minmax(0,1fr) 54px 66px 28px;gap:8px;padding:11px 10px 11px 14px}.lv3{display:none}}
+/* v7.73 SCHEDA A SEGNALI (04_dashboard.js): una riga per domanda, con freccia colorata + una parola.
+   --c e' il colore della riga: verde su, rosso giu', grigio neutro, giallo attenzione (notizia in arrivo). */
+.card.clic>.sottot{margin-top:8px}
+.segni{display:grid;gap:8px;margin-top:14px;align-content:start}
+.sg{--c:var(--n);display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:11px;padding:10px 12px;border-radius:13px;background:var(--soft);transition:background .18s}
+.sg.up{--c:var(--b)}.sg.down{--c:var(--s)}.sg.av{--c:var(--warn)}
+.card.clic:hover .sg{background:color-mix(in srgb,var(--soft) 82%,var(--line))}
+.sgi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.sgi svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.sg small{display:block;white-space:nowrap;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mute)}
+.sg b{display:block;margin-top:1px;font-size:15px;font-weight:700;line-height:1.25;color:var(--c)}
+.sg.flat b{color:var(--ink2)}
+.sg em{font-style:normal;font-weight:500;font-size:12px;line-height:1.4;color:var(--mute);text-align:right}
+/* riga Notizie: si tocca per aprire l'elenco dei dati (freccina a destra che ruota) */
+.sg.nw{grid-template-columns:34px minmax(0,1fr) auto 14px;cursor:pointer}
+.sg.nw:hover,.sg.nw:focus-visible{background:color-mix(in srgb,var(--soft) 70%,var(--line));outline:none}
+.sgv{width:14px;height:14px;fill:none;stroke:var(--mute);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.sg.nw.aperta .sgv{transform:rotate(180deg)}
+.sgd{display:none;grid-column:1/-1;list-style:none;margin:2px 0 0;padding:9px 0 0;border-top:1px dashed var(--line)}
+.sg.nw.aperta .sgd{display:grid;gap:6px}
+.sgd li{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;font-weight:500;color:var(--mute)}
+.sgd li b{display:inline;margin:0;font-size:12.5px;font-weight:600;color:var(--ink2)}.sgd li span{white-space:nowrap}
+/* "Nuovo" accanto all'etichetta e "Approfondisci" in fondo (la scheda intera apre il grafico) */
+.nuovo{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#ffd866}
+.piede{display:flex;flex-direction:column;gap:10px;margin-top:12px}.card.clic>.piede{flex:1}.piede .tags{margin:0}.piede .small{margin:0}
+.appr{margin-top:auto;align-self:flex-end;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--acc);transition:gap .18s}
+.appr svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.card.clic:hover .appr{gap:10px}
+@media (max-width:600px){.sg{gap:10px;padding:9px 10px}.sg b{font-size:14.5px}.sg em{font-size:11.5px}}
