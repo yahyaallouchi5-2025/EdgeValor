@@ -24,7 +24,7 @@ try{(function(){
   ["reg","Regime",r=>({calma:0,normale:1,agitata:2})[B(r).reg],r=>{const g=REG[B(r).reg];return g?`<span class="pereg ${g[1]}">${g[0]}</span>`:"&ndash;";},"Regime"]];
  const PRIMI=10;let tutti=false;                            // all'inizio i primi 10: il resto con "Mostra tutti"
  let sel="Tutti",ord="pil",giu=true;                        // si apre ordinata per PIL, dal piu' alto
- const riga=r=>`<div class="per" data-iso="${r.iso}"><div class="pen"><b>${esc(r.nome)}</b><span>${esc(r.area)}${r.etf?" &middot; "+esc(r.etf):""}</span></div>${
+ const riga=r=>`<div class="per" data-iso="${r.iso}"><div class="pen">${ebLista.stella("pa",r.iso)}<b>${esc(r.nome)}</b><span>${esc(r.area)}${r.etf?" &middot; "+esc(r.etf):""}</span></div>${
    COL.map(c=>`<div class="pec pec-${c[0]}" data-l="${c[4]}">${c[3](r)}</div>`).join("")}</div>`;
  const testa=()=>`<div class="per peth"><div class="pen pegr"><span></span><em>Economia</em><em>Borsa</em><em>Volatilit&agrave;</em></div><div class="pen">Paese</div>${
    COL.map(c=>`<button class="pec pec-${c[0]}${ord==c[0]?" on":""}" data-o="${c[0]}" title="Ordina">${c[1]}<i>${ord==c[0]?(giu?"&#9662;":"&#9652;"):""}</i></button>`).join("")}</div>`;
