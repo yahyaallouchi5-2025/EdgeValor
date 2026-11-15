@@ -47,7 +47,9 @@
    <i id="sdot"></i><span class="sdtx"><b id="sdtit">Dati aggiornati</b><span id="updated"></span></span>
    <svg class="sfreccia" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
   <div id="status" class="sstato" hidden></div>
-  <button id="pfapri" class="sitem" title="Accedi o registrati con la tua email"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Profilo <small id="pfeti" class="pfeti">Accedi</small></span></button></div>
+  <!-- PROFILO: il riquadro #pfbox (36_account.js) si apre qui sopra la voce e cresce verso l'alto -->
+  <div id="pfbox" class="pfbox2" hidden></div>
+  <button id="pfapri" class="sitem" aria-expanded="false" aria-controls="pfbox" title="Il tuo profilo"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Profilo <small id="pfeti" class="pfeti" hidden></small></span><svg class="sfreccia pfsu" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></div>
 </aside>
 <div id="sombra" class="sombra" hidden></div>
 <div class="wrap">

@@ -2822,16 +2822,29 @@ table.vfcol{table-layout:fixed;width:100%;min-width:700px}
 table.vfcol.vfcolp{min-width:980px}
 table.vfcol th{white-space:normal;line-height:1.3;vertical-align:bottom}
 table.vfcol td:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* v7.76 ACCOUNT (36_account.js): etichetta accanto a "Profilo" e finestra di accesso/profilo */
+/* v7.77 ACCOUNT (36_account.js): riquadro del profilo dentro la barra laterale, sopra la voce "Profilo".
+   .pfbox2 = riquadro | .pfchi = email + stato | .pfvoce = funzione (Gestisci abbonamento, Esci) | .pfform = accesso */
+.sitem small.pfeti[hidden]{display:none}
 .sitem small.pfeti.ok{color:var(--b);border-color:color-mix(in srgb,var(--b) 45%,transparent)}
 .sitem small.pfeti.prova{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
-.pfbox{width:min(440px,100%)}
-.pfstato{display:grid;gap:4px;padding:14px 16px;border-radius:14px;background:var(--soft);border:1px solid var(--line)}
-.pfstato b{font-size:17px}.pfstato span{font-size:14px;color:var(--ink2)}
-.pfstato.ok{border-color:color-mix(in srgb,var(--b) 45%,transparent)}.pfstato.ok b{color:var(--b)}
-.pfstato.prova{border-color:color-mix(in srgb,var(--warn) 45%,transparent)}.pfstato.prova b{color:var(--warn)}
-.pfok,.pfko{margin:0;padding:10px 12px;border-radius:11px;font-size:14px}
-.pfok{color:var(--b);background:color-mix(in srgb,var(--b) 12%,transparent)}
-.pfko{color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
-.pfnota{margin:0;color:var(--mute)}
-@media (max-width:900px){.pfbox .fbcampo input{font-size:16px}}
+.pfbox2{display:grid;gap:4px;margin:0 0 6px;padding:10px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 70%,transparent);animation:pfsu .2s ease}
+.pfbox2[hidden]{display:none}
+@keyframes pfsu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+html.ridotta .pfbox2{display:none}
+@media (max-width:900px){html.ridotta .pfbox2:not([hidden]){display:grid}}
+.pfchi{display:grid;gap:3px;padding:4px 6px 8px}
+.pfchi b{font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pfst{font-size:12px;line-height:1.45;color:var(--mute)}.pfst.ok{color:var(--b)}.pfst.prova{color:var(--warn)}
+.pfvoce{padding:9px 8px;font-size:13.5px}
+.pfvoce.pfesci:hover{color:var(--s)}
+.pfform{display:grid;gap:8px}
+.pfform input{width:100%;min-width:0;font:500 14px system-ui;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:11px;padding:10px 12px;transition:border-color .15s,box-shadow .15s}
+.pfform input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.pfform .csi{width:100%;height:40px;border:0;border-radius:11px;background:var(--acc);color:#04211e;font:700 14px system-ui;cursor:pointer;transition:filter .15s,transform .15s}
+.pfform .csi:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}.pfform .csi:disabled{opacity:.6;cursor:progress}
+.pfform .fbesito{font-size:12.5px}
+.pfko{margin:0;padding:8px 10px;border-radius:10px;font-size:12.5px;color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.pfpriv{margin:0;font-size:11.5px;color:var(--mute)}.pfpriv a{color:var(--acc)}
+#pfapri .pfsu{transition:transform .25s}#pfapri[aria-expanded="true"] .pfsu{transform:rotate(180deg)}
+html.ridotta #pfapri .pfsu{display:none}
+@media (max-width:900px){.pfform input{font-size:16px}html.ridotta #pfapri .pfsu{display:revert}}
