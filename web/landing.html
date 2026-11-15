@@ -675,6 +675,18 @@ document.querySelectorAll("[data-entra]").forEach(function(b){b.addEventListener
  form.addEventListener("submit",function(e){e.preventDefault();
   var mail=form.email.value.trim(),pn=form.piano.value,nome=ora()>=F.cm?"Cyber Monday":"Black Friday";esito.style.color="";
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){esito.textContent="Controlla l'email: non sembra valida.";form.email.focus();return;}
+  if(!form.consenso.checked){esito.textContent="Serve il tuo consenso per scriverti.";return;}
+  invia.disabled=true;invia.textContent="Invio…";esito.textContent="";
+  fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
+   body:JSON.stringify({access_key:CHIAVE,subject:"BoardEdge · Offerta "+nome+" "+F.anno+" ("+pn+")",from_name:"BoardEdge offerta "+nome,
+    email:mail,piano:pn,prezzo:PIANI[pn],consenso:"si, "+new Date().toISOString(),botcheck:form.botcheck.checked})})
+  .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.success===false)throw new Error(j.message||("HTTP "+r.status));});})
+  .then(function(){ricorda("si");try{window.ebStat&&ebStat.ev("offerta_iscritto",{piano:pn});}catch(e){}
+   chip.hidden=true;form.innerHTML='<div class="ook"><b>Prezzo bloccato.</b><p>'+PIANI[pn]+', finché resti abbonato. Ti scriviamo quando aprono gli abbonamenti.</p><button type="button" class="btn bia" id="obene">Chiudi</button></div>';
+   el("obene").addEventListener("click",chiudi);})
+  .catch(function(err){console.warn("[BoardEdge] offerta:",err);invia.disabled=false;invia.textContent="Blocca il prezzo";
+   esito.textContent="Invio non riuscito. Riprova tra poco.";});});
+}catch(e){console.error("[BoardEdge] offerta:",e);}})();
 if(haPass())document.querySelectorAll("[data-etichetta]").forEach(function(s){s.textContent="Apri il terminale";});
 
 /* ===== EFFETTO TASTIERA sul titolo: scrive lettera per lettera; "con metodo" in gradiente ===== */
