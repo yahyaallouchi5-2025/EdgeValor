@@ -1,6 +1,6 @@
 /* ---------- segnali ----------
    Riepilogo in alto, settori, schede delle coppie (card) e degli altri strumenti (acard).
-   mtag() decide l'etichetta "Mercato conferma / contro / gia' scontato" confrontando i segni di COT e Mercato. */
+   Le schede sono fatte di righe-segnale (sg): speculatori, mercato, stagionalita', notizie. */
 try{
 
 /* RIQUADRI IN ALTO (v6.40): ognuno risponde a UNA domanda semplice con un disegno che si capisce a colpo d'occhio:
@@ -171,6 +171,76 @@ $("sectors").innerHTML=SEC.filter(g=>byS[g]).map(g=>{const l=byS[g],avg=l.reduce
 document.querySelectorAll(".sec").forEach(x=>x.onclick=()=>{go("assets");selS(x.dataset.g);});
 var L5=["STRONG BUY","BUY","NEUTRO","SELL","STRONG SELL"];
 $("summary").innerHTML=L5.map(l=>`<div class="sum" style="--bc:${COL[l]}"><b>${D.pairs.filter(p=>p.label==l).length}</b><small>${eti(l)}</small></div>`).join("");
+/* v7.73 SCHEDA A SEGNALI: ogni scheda (coppia o strumento) e' una pila di righe, una per domanda:
+     Grandi speculatori -> cosa stanno facendo (freccia su = comprano, giu' = vendono)
+     Mercato            -> solo dove il modello macro esiste (niente piu' "n/d")
+     Stagionalita'      -> cosa ha fatto di solito il prezzo nelle prossime 4 settimane (grigia se il dato non e' solido)
+     Notizie            -> IN ATTESA prima del dato; dopo, l'esito misurato (solo forex). Vedi sgNews
+   Colori: verde = su, rosso = giu', grigio = neutro, giallo = attenzione.
+   DEBUG: sg("up","Prova","Testo","dettaglio") restituisce l'HTML di una riga. */
+const SGI={up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',flat:'<path d="M5 12h14"/>',av:'<path d="M13 3L5 14h6l-1 7 8-11h-6z"/>'};
+function sg(c,nome,txt,dx,tip){return `<div class="sg ${c}"${tip?` title="${tip}"`:""}><span class="sgi"><svg viewBox="0 0 24 24" aria-hidden="true">${SGI[c]}</svg></span><div><small>${nome}</small><b>${txt}</b></div><em>${dx}</em></div>`;}
+// numero con segno e punto delle migliaia sempre (toLocaleString in italiano non lo mette sotto 10.000)
+const mig=n=>n==null||isNaN(n)?"n/d":(n>0?"+":n<0?"&minus;":"")+String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+$)/g,".");
+const accenti=t=>String(t).replace(/([aeiou])'(?=\)|$)/g,(m,v)=>({a:"à",e:"è",i:"ì",o:"ò",u:"ù"}[v]));   // "Caffe'" -> "Caffè"
+/* riga SPECULATORI di uno strumento: verso dal punteggio COT, a destra i contratti netti comprati/venduti */
+function sgSpec(a){const c=verb(a.cot)[1];
+ return sg(c,"Grandi speculatori",c=="up"?"Comprano":c=="down"?"Vendono":"Neutri",`${mig(a.d_net)} &middot; 1 sett.<br>${mig(a.d_net4)} &middot; 4 sett.`,
+  `Contratti netti comprati (+) o venduti (&minus;) in 1 e in 4 settimane. COT Index ${a.idx}/100: quanto sono carichi rispetto agli ultimi 3 anni (0 = minimo, 100 = massimo)`);}
+/* riga SPECULATORI di una coppia: verso della coppia, a destra cosa fanno sulle due valute */
+function sgSpecP(p){const c=p.cot>=M.normal?"up":p.cot<=-M.normal?"down":"flat";
+ const t=k=>{const v=verb((D.assets[k]||{score:0}).score)[1];return (v=="up"?"comprano ":v=="down"?"vendono ":"neutri su ")+k;};
+ return sg(c,"Grandi speculatori",c=="up"?"Puntano al rialzo":c=="down"?"Puntano al ribasso":"Neutri",`${t(p.base)}<br>${t(p.quote)}`);}
+/* riga MERCATO: compare solo se il modello macro esiste e spiega lo strumento. Sotto 25 punti = mossa gia' fatta. */
+function sgMerc(mac,mkt){if(mac==null||(mkt&&/spiega poco/.test(mkt.status||"")))return "";
+ if(Math.abs(mac)<25)return sg("flat","Mercato","Gi&agrave; scontato","il prezzo ha gi&agrave; fatto<br>la sua mossa");
+ const top=mkt&&mkt.top&&mkt.top[0]?`pesa di pi&ugrave;:<br>${esc(mkt.top[0].name)}`:"tassi e dati macro<br>davanti al prezzo";
+ return sg(mac>0?"up":"down","Mercato",mac>0?"Spinge al rialzo":"Spinge al ribasso",top,"Tassi, dollaro e dati macro indicano un prezzo diverso da quello di oggi");}
+/* riga STAGIONALITA' (prossime 4 settimane, vedi stagionalita.py): colorata solo se il dato storico e' solido */
+function sgStag(st){if(!st)return "";
+ if(!st.robusto)return sg("flat","Stagionalit&agrave;","Neutra","nessuna tendenza<br>nel prossimo mese");
+ const su=st.score>0,k=su?st.su:st.n-st.su;
+ return sg(su?"up":"down","Stagionalit&agrave;",su?"Tende a salire":"Tende a scendere",`${k} anni su ${st.n}<br>nel prossimo mese`,`Mediana delle prossime 4 settimane: ${st.med>=0?"+":""}${fx(st.med)}%`);}
+/* riga NOTIZIE (v7.73): due soli stati, il resto non compare.
+   1) IN ATTESA: c'e' un dato ad alto impatto entro 7 giorni sulle valute dello strumento (lampo giallo, giorno e ora di Roma)
+   2) ESITO (solo coppie forex): dopo l'uscita, la reazione MISURATA dal motore notizie (notizie.py: movimento del tasso
+      a 2 anni della valuta, che si dimezza ogni giorno) diventa FORTE RIALZO / RIALZO / NEUTRO / RIBASSO / FORTE RIBASSO.
+      Soglie sul correttivo "adj" della coppia: sotto 5 punti = reazione nella norma, da 10 = molto marcata.
+      Per materie prime, indici, tassi e crypto l'esito NON c'e': il legame dato -> prezzo non e' mai stato provato.
+   Quali dati sono: solo al passaggio del mouse o toccando la riga (elenco .sgd), come chiesto.
+   valute = ["USD"] per gli strumenti in dollari, [base, quotata] per una coppia; news = p.news della coppia (o niente). */
+const AGE=((D.agenda||{}).eventi||[]).filter(e=>e.impatto=="high");
+const fGiorno=new Intl.DateTimeFormat("it-IT",{timeZone:"Europe/Rome",weekday:"short",day:"numeric",month:"short"}),
+      fOra=new Intl.DateTimeFormat("it-IT",{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"}),
+      fYmd=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome"});
+const SGFRECCIA='<svg class="sgv" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+function sgNews(valute,news){const ora=Date.now(),G=864e5,tm=e=>Date.parse(e.utc||e.data+"T22:59Z"),nome=e=>esc(e.nome.replace(/\s*\(.*\)$/,""));
+ const ev=AGE.filter(e=>valute.includes(e.valuta)&&!isNaN(tm(e))).sort((x,y)=>tm(x)-tm(y));
+ const att=ev.filter(e=>!e.uscito&&tm(e)>ora-36e5&&tm(e)-ora<=7*G),usc=ev.filter(e=>e.uscito&&ora-tm(e)<=7*G);
+ const quando=e=>`${fGiorno.format(tm(e))}${e.utc?" &middot; "+fOra.format(tm(e)):""}`;
+ const elenco=`<ul class="sgd">${att.map(e=>`<li><b>${nome(e)}</b><span>${quando(e)}</span></li>`).join("")}${usc.map(e=>`<li><b>${nome(e)}</b><span>uscito ${fGiorno.format(tm(e))}</span></li>`).join("")}</ul>`;
+ const riga=(c,txt,dx)=>`<div class="sg nw ${c}" title="Tocca per vedere quali dati" role="button" tabindex="0" aria-expanded="false"><span class="sgi"><svg viewBox="0 0 24 24" aria-hidden="true">${SGI[c]}</svg></span><div><small>Notizie</small><b>${txt}</b></div><em>${dx}</em>${SGFRECCIA}${elenco}</div>`;
+ if(att.length){const t=tm(att[0]),d=Math.round((Date.parse(fYmd.format(t))-Date.parse(fYmd.format(ora)))/G);
+  return riga("av","In attesa",`${quando(att[0])}<br>${d<=0?"oggi":d==1?"domani":"tra "+d+" giorni"}`);}
+ if(news&&(news.eventi||[]).some(e=>e.z!=null)&&usc.length){const a=news.adj||0,f=Math.abs(a)>=10,c=Math.abs(a)<5?"flat":a>0?"up":"down";
+  return riga(c,c=="flat"?"Neutro":(f?"Forte ":"")+(f?(a>0?"rialzo":"ribasso"):(a>0?"Rialzo":"Ribasso")),`dopo il dato<br>${Math.abs(a)<5?"reazione nella norma":f?"reazione molto forte":"reazione marcata"}`);}
+ return "";}
+/* un tocco sulla riga Notizie apre/chiude l'elenco dei dati SENZA aprire il grafico (fase di cattura: arriva prima del clic sulla scheda) */
+document.addEventListener("click",e=>{const r=e.target.closest&&e.target.closest(".sg.nw");if(!r)return;
+ e.stopPropagation();e.preventDefault();r.setAttribute("aria-expanded",r.classList.toggle("aperta"));},true);
+document.addEventListener("keydown",e=>{const r=(e.key=="Enter"||e.key==" ")&&e.target.closest&&e.target.closest(".sg.nw");if(!r)return;
+ e.stopPropagation();e.preventDefault();r.setAttribute("aria-expanded",r.classList.toggle("aperta"));},true);
+/* PIEDE: etichette brevi (solo quelle vere), per il VIX la nota su cosa vuol dire comprare, e "Approfondisci":
+   tutta la scheda apre gia' il grafico al clic, ma senza una scritta visibile nessuno lo scopriva.
+   (per i tassi la nota e' gia' nella (i) del titolo "Tassi": qui sarebbe un doppione su ogni scheda) */
+function piede(x,nota){const t=[];
+ if(x.div)t.push(`<span class="tag div" title="Una valuta comprata, l'altra venduta">Divergenza</span>`);
+ if(x.crowded)t.push(`<span class="tag ko" title="Posizioni agli estremi: rischio di inversione">Affollato</span>`);
+ if(x.comm_acc)t.push(`<span class="tag ${x.comm_acc=="conferma"?"ok":"ko"}" title="Chi usa la materia prima per lavoro (hedger), quando &egrave; agli estremi">Operatori commerciali ${x.comm_acc=="conferma"?"a favore":"in contrasto"}</span>`);
+ return `<div class="piede">${t.length?`<div class="tags">${t.join("")}</div>`:""}${nota?`<p class="small">${nota}</p>`:""}<span class="appr">Approfondisci<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>`;}
+/* "Nuovo" accanto all'etichetta: il segnale e' cambiato questa settimana (prima = etichetta della settimana scorsa) */
+const nuovo=(x,prima)=>x.new?`<span class="nuovo" title="La settimana scorsa era: ${eti(prima)}">Nuovo</span>`:"";
+function card(p){return `<div class="card clic" data-tv="p:${p.pair}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair">${p.pair}</span><div class="sotto">${badge(p.label)}${nuovo(p,p.prev)}</div></div>${anello(p.score)}</div>
 function sideRow(k){const a=D.assets[k]||{score:0};const v=verb(a.score);return `<div class="r"><span>${k} <span class="small">${nm(k)}</span></span><span class="${v[1]}">${v[2]} ${v[0]} (${fmt(a.score)})</span></div>`;}
 function why(p){const b=verb(D.assets[p.base].score)[0],q=verb(D.assets[p.quote].score)[0];
  const dir=p.score>=M.normal?"tende a SALIRE":p.score<=-M.normal?"tende a SCENDERE":"non ha una direzione chiara";
