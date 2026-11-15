@@ -17,7 +17,7 @@ from datetime import datetime
 from html import escape, unescape
 
 from . import pagina, riepilogo
-from .config import CONTATTO_EMAIL, NORMAL, SECTORS, STRONG, TELEGRAM_CANALE, TITOLARE, WEB_DIR
+from .config import CONTATTO_EMAIL, FEEDBACK_CHIAVE, NORMAL, SECTORS, STRONG, TELEGRAM_CANALE, TITOLARE, WEB_DIR
 from .log import log
 
 # favicon: barra luminosa + BO/ED (logo v3 "BOARD EDGE" in miniatura)
@@ -212,6 +212,9 @@ def html(ultimi, cartella=None):
     dal = (ultimi.get("bt_dal") or "")[:4]
     valori = {
         "{{TELEGRAM}}": TELEGRAM_CANALE,
+        # offerta di lancio (email): stessa "Access Key" pubblica di Web3Forms del modulo Feedback (Secret WEB3FORMS_KEY)
+        "{{MODULO_KEY}}": "".join(c for c in (os.environ.get("WEB3FORMS_KEY") or FEEDBACK_CHIAVE)
+                                  if c.isalnum() or c == "-"),
         "{{STATISTICHE}}": pagina.statistiche(),     # statistiche anonime senza cookie (web/statistiche.js)
         "{{FAVICON}}": FAVICON,
         "{{N_SEGNALI}}": str(sum(len(v) for v in attivi.values())),
