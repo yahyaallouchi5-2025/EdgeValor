@@ -3,11 +3,11 @@
    Il pallino e il titolo riassumono la fonte messa peggio: verde = tutto aggiornato, giallo = dati salvati,
    rosso = una fonte in ritardo. Col rosso l'elenco si apre da solo: l'utente lo vede quando serve.
    ASSISTENZA: raggruppa Feedback e Guida (i due pulsanti restano gli stessi, con gli stessi id).
-   Le scelte aperto/chiuso restano nel browser (localStorage "ebSide"). */
+   Le scelte aperto/chiuso restano nel browser (localStorage "ebSideBox": "ebSide" e' gia' usato da 11_guida.js per barra larga/ridotta e le due cose si cancellavano a vicenda). */
 (function(){try{
  const btn=$("sdati"),box=$("status"),tit=$("sdtit"),ass=$("sassist"),sub=$("sassbox");
- let mem={};try{mem=JSON.parse(localStorage.getItem("ebSide")||"{}");}catch(e){}
- const salva=()=>{try{localStorage.setItem("ebSide",JSON.stringify(mem));}catch(e){}};
+ let mem={};try{mem=JSON.parse(localStorage.getItem("ebSideBox")||"{}");}catch(e){}
+ const salva=()=>{try{localStorage.setItem("ebSideBox",JSON.stringify(mem));}catch(e){}};
  const apri=(b,p,si)=>{p.hidden=!si;b.setAttribute("aria-expanded",si?"true":"false");};
  // riassunto dello stato: guarda il colore dei pallini delle righe (li scrive 02_stato.js e ebRigaStato)
  let forzato=false;
