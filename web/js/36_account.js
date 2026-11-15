@@ -100,7 +100,48 @@
  /* --- finestra Profilo / Accedi (stessa grafica della finestra Feedback) --- */
  const ICO='<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
  let ultimoInvio=0;
- function finestra(msg){return ()=>{};}                         // finestra completa: arriva con il passo successivo
+ function finestra(msg){const v=document.querySelector(".pfmodal");if(v)v.remove();
+  const box=document.createElement("div");box.className="cmodal pfmodal";document.body.appendChild(box);
+  const chiudi=()=>{box.classList.remove("on");setTimeout(()=>box.remove(),220);document.removeEventListener("keydown",tasto);};
+  const tasto=e=>{if(e.key=="Escape")chiudi();};document.addEventListener("keydown",tasto);
+  box.addEventListener("mousedown",e=>{if(e.target==box)chiudi();});
+  const testa=(t,s)=>`<div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true">${ICO}</span><div><h3 id="pft">${t}</h3><p>${s}</p></div><button type="button" class="fbx" aria-label="Chiudi">&#x2715;</button></div>`;
+  function disegna(){const u=S&&chi();
+   if(u){const pn=piano();
+    box.innerHTML=`<div class="cmodal-box fbbox pfbox" role="dialog" aria-modal="true" aria-labelledby="pft">${testa("Il tuo profilo",esc(u.email))}
+      ${msg?`<p class="pfok">${msg}</p>`:""}
+      <div class="pfstato ${pn[2]}"><b>${pn[0]?esc(pn[0].split(" · ")[0]):"…"}</b><span>${pn[1]||"Sto leggendo il tuo profilo…"}</span></div>
+      <p class="small pfnota">La tua lista è salvata sul profilo: la ritrovi su telefono e PC accedendo con la stessa email.</p>
+      <div class="cmodal-btn"><button type="button" class="cno pfesci">Esci</button><button type="button" class="csi pfchiudi">Chiudi</button></div></div>`;
+    box.querySelector(".pfchiudi").onclick=chiudi;
+    box.querySelector(".pfesci").onclick=async()=>{const t=S&&S.a;S=null;P=null;pronto=false;salva();aggiorna();chiudi();
+     if(t)fetch(API+"/auth/v1/logout?scope=local",{method:"POST",headers:intest(t)}).catch(()=>{});};}
+   else{
+    box.innerHTML=`<form class="cmodal-box fbbox pfbox" role="dialog" aria-modal="true" aria-labelledby="pft" novalidate>${testa("Accedi a BoardEdge","Niente password: ti mandiamo un link via email.")}
+      ${msg?`<p class="pfko">${msg}</p>`:""}
+      <label class="fbcampo"><span>La tua email</span><input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nome@esempio.it" required></label>
+      <div class="fbesito" role="status" aria-live="polite"></div>
+      <div class="cmodal-btn"><button type="button" class="cno pfchiudi">Annulla</button><button type="submit" class="csi pfinvia">Mandami il link</button></div>
+      <p class="small fbpriv">La prima volta crea il tuo profilo, con 14 giorni di prova gratuita. Usiamo l'email solo per farti accedere. <a href="../legale/#privacy" target="_blank" rel="noopener">Privacy</a></p></form>`;
+    const f=box.querySelector("form"),es=f.querySelector(".fbesito"),inv=f.querySelector(".pfinvia");
+    f.querySelector(".pfchiudi").onclick=chiudi;setTimeout(()=>f.email.focus(),60);
+    f.onsubmit=async e=>{e.preventDefault();const mail=f.email.value.trim().toLowerCase();
+     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){es.className="fbesito ko";es.textContent="L'email non sembra valida.";f.email.focus();return;}
+     if(Date.now()-ultimoInvio<60000){es.className="fbesito ko";es.textContent="Ti ho appena mandato un link: aspetta un minuto prima di chiederne un altro.";return;}
+     inv.disabled=true;inv.textContent="Invio…";es.className="fbesito";es.textContent="";
+     let inv_c="";try{inv_c=localStorage.getItem("ebInvito")||"";}catch(_){}
+     try{const torna=location.origin+location.pathname;
+      const r=await fetch(API+"/auth/v1/otp?redirect_to="+encodeURIComponent(torna),{method:"POST",headers:intest(),
+       body:JSON.stringify({email:mail,create_user:true,data:inv_c?{codice_invito:inv_c}:{}})});
+      if(!r.ok){const j=await r.json().catch(()=>({}));throw Object.assign(new Error(j.msg||j.error_description||("HTTP "+r.status)),{st:r.status});}
+      ultimoInvio=Date.now();try{window.ebStat&&ebStat.ev("accesso",{passo:"link_inviato"});}catch(_){}
+      f.innerHTML=`<div class="fbgrazie"><span class="cmodal-ico ok" aria-hidden="true">&#10003;</span><h3>Controlla la posta</h3><p>Ho mandato un link a <b>${esc(mail)}</b>.<br>Aprilo da questo dispositivo per entrare. Se non lo vedi, guarda nello spam.</p><button type="button" class="csi">Ho capito</button></div>`;
+      f.querySelector(".csi").onclick=chiudi;f.querySelector(".csi").focus();}
+     catch(err){console.warn("[BoardEdge] account: invio link",err);inv.disabled=false;inv.textContent="Mandami il link";es.className="fbesito ko";
+      es.textContent=err.st==429?"Troppe richieste in poco tempo: riprova tra qualche minuto.":"Invio non riuscito (connessione o servizio). Riprova tra poco.";}};}
+   const x=box.querySelector(".fbx");if(x)x.onclick=chiudi;}
+  disegna();requestAnimationFrame(()=>box.classList.add("on"));
+  return disegna;}
  btn.onclick=()=>{document.documentElement.classList.remove("sideon");const o=$("sombra");if(o)o.hidden=true;   // telefono: chiude il menu
   const ridisegna=finestra("");if(S&&!P)carica().then(()=>{if(document.querySelector(".pfmodal"))ridisegna();});};
 
