@@ -19,9 +19,9 @@
 // v7.59 NOME DEL SITO AUTOMATICO: sul sito vero e' la prima cartella dell'indirizzo (utente.github.io/<nome>/...),
 //   cosi' rinominare il repository non rompe i dati in tempo reale. In locale (prove) si usa il nome attuale.
 // v7.82 DOMINIO PROPRIO: con edgevalor.com l'indirizzo non contiene piu' il nome del repository,
-//   quindi fuori da github.io si usa il nome fisso "boardedge" (dati live) e la home del dominio (landing).
+//   quindi fuori da github.io si usa il nome fisso del repository "EdgeValor" (dati live) e la home del dominio.
 const EB_GH=(()=>{try{return location.hostname.endsWith("github.io");}catch(e){return false;}})();
-const EB_REPO=(()=>{try{return EB_GH&&location.pathname.split("/")[1]||"boardedge";}catch(e){return "boardedge";}})();
+const EB_REPO=(()=>{try{return EB_GH&&location.pathname.split("/")[1]||"EdgeValor";}catch(e){return "EdgeValor";}})();
 const EB_RAW="https://raw.githubusercontent.com/yahyaallouchi5-2025/"+EB_REPO+"/";   // file dei rami live e pattern
 const EB_SITO=EB_GH?"https://yahyaallouchi5-2025.github.io/"+EB_REPO+"/":"https://edgevalor.com/";   // pagina di presentazione
 // v7.63 ORA DI ROMA per tutto il sito: data, mese, giorno della settimana e ora di Roma, qualunque sia il fuso del

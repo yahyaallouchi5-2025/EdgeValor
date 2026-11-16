@@ -206,6 +206,9 @@ WEB_DIR = os.path.join(ROOT, "web")                                    # templat
 CACHE = os.path.join(ROOT, "dati", "cache.json")                       # ultima copia dei dati scaricati
 # CANALE TELEGRAM pubblico (gratuito): link nella sidebar del terminale e nella landing page (vetrina.py)
 TELEGRAM_CANALE = "https://t.me/edgeboard"
+# v7.84 INDIRIZZO PUBBLICO: i link nei messaggi Telegram portano sempre al dominio proprio, non a github.io
+#   (i workflow passano ancora l'indirizzo github.io: serve solo per SCARICARE i dati del sito).
+SITO_PUBBLICO = "https://edgevalor.com/"
 # SITO: la landing page sta nella radice, il terminale nella sottocartella TERMINALE (vedi main.py e vetrina.py)
 TERMINALE = "terminale"
 # STATISTICHE DI VISITA anonime e senza cookie (Umami, cloud.umami.is), vedi web/statistiche.js.

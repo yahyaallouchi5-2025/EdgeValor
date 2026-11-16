@@ -50,7 +50,7 @@ from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 from html import escape as _escape
 
-from .config import ASSETS
+from .config import ASSETS, SITO_PUBBLICO
 from .log import log
 from . import avvisi
 from .registro import leggi, verifica
@@ -141,6 +141,11 @@ def righe_eventi(nuovi, aperture):
         blocchi.append("✓ Confermati dal nuovo COT: " + ", ".join(conferme))
     return blocchi
 
+
+def _link(sito):
+    """v7.84: i dati si scaricano da 'sito' (github.io, passato dai workflow), ma i link nei messaggi Telegram
+    portano sempre al dominio pubblico (SITO_PUBBLICO = edgevalor.com). Altri indirizzi (prove) restano uguali."""
+    return SITO_PUBBLICO if "github.io" in (sito or "") else sito
 
 def componi(blocchi, nuovi, sito):
     """Messaggi completi (lista: si divide solo se supera il limite di Telegram)."""
@@ -298,14 +303,14 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
     if cot_sito and not gia_cot:
         gia_cot = cot_sito             # cursore di una versione precedente: il primo riepilogo sara' il prossimo
     if settimanale:
-        testi = riepilogo.testi(dati, sito, verifica=riepilogo.scarica_verifica(sito, dati))
+        testi = riepilogo.testi(dati, _link(sito), verifica=riepilogo.scarica_verifica(sito, dati))
         log.info("notifiche: nuovo report COT online (%s): riepilogo settimanale", cot_sito)
     else:
         nuovi, vecchi = da_avvisare(eventi, cursore, adesso)
         if vecchi:
             log.warning("notifiche: %d eventi troppo vecchi (> %d ore) non inviati", len(vecchi), MAX_ETA_ORE)
         aperture = {e["id"]: e for e in eventi if e["tipo"] == "apertura"}
-        testi = componi(righe_eventi(nuovi, aperture), nuovi, sito)
+        testi = componi(righe_eventi(nuovi, aperture), nuovi, _link(sito))
     # NOTIZIE MACRO (avvisi.py): "in arrivo" e "esito", ognuno una sola volta; stato nel cursore
     stato_ag = cursore.get("agenda")
     if stato_ag is None and agenda_sito:                  # cursore di una versione precedente: niente arretrati
@@ -328,7 +333,7 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
         if cursore.get("briefing") != lun.isoformat() and adesso_utc.weekday() in (0, 1) and \
                 (adesso_utc.hour, adesso_utc.minute) >= (5, 30):
             from . import briefing as _br
-            briefing = _br.testi(dati, sito, adesso_utc)
+            briefing = _br.testi(dati, _link(sito), adesso_utc)
             lun_brief = lun.isoformat()
     testi_notizie = settimana + [avvisi.testo_arrivo(arrivo[i:i + 5], credito) for i in range(0, len(arrivo), 5)] + \
                     [avvisi.testo_esito(gruppi[i:i + 4], credito) for i in range(0, len(gruppi), 4)]
@@ -390,8 +395,8 @@ def prova_notizie(sito, env=None, dati_sito=None, adesso=None):
     testi = []
     if dati and dati.get("assets"):                       # esempi del riepilogo del venerdi' e del briefing del lunedi'
         from . import briefing as _br
-        testi += riepilogo.testi(dati, sito, test=True, verifica=riepilogo.scarica_verifica(sito, dati))
-        testi += _br.testi(dati, sito, adesso, test=True)
+        testi += riepilogo.testi(dati, _link(sito), test=True, verifica=riepilogo.scarica_verifica(sito, dati))
+        testi += _br.testi(dati, _link(sito), adesso, test=True)
     agenda = (dati or {}).get("agenda")
     if not agenda or not agenda.get("eventi"):
         if not testi:
@@ -427,11 +432,11 @@ def prova(sito, env=None, dati_sito=None):
     token, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_CHAT_ID")
     dati = dati_sito if dati_sito is not None else riepilogo.scarica(sito)
     if dati and dati.get("assets"):
-        testi = riepilogo.testi(dati, sito, test=True)
+        testi = riepilogo.testi(dati, _link(sito), test=True)
     else:
         testi = ["<b>EdgeValor · messaggio di prova</b>\n\nIl canale è collegato: qui arriveranno il riepilogo "
                  "settimanale dei segnali e gli aggiornamenti." +
-                 (f'\n\n<a href="{_escape(sito.rstrip("/"))}/">Apri il terminale</a>' if sito else "")]
+                 (f'\n\n<a href="{_escape(_link(sito).rstrip("/"))}/">Apri il terminale</a>' if sito else "")]
     if not (token and chat):
         log.error("mancano i Secrets TELEGRAM_BOT_TOKEN e/o TELEGRAM_CHAT_ID")
         return {"telegram": None, "email": invia_email(testi, env), "messaggi": len(testi)}
