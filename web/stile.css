@@ -264,7 +264,7 @@ html.guidaon,html.guidaon body{overflow:hidden}
  transition:width .22s ease,transform .22s ease;z-index:40}
 .side svg,.sbtn svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .sbrand{display:flex;align-items:center;gap:10px}
-/* MARCHIO BoardEdge (logo v3): barra luminosa turchese/blu + BOARD sopra EDGE */
+/* MARCHIO EdgeValor (logo v3): barra luminosa turchese/blu + EDGE sopra VALOR */
 .blogo{display:flex;align-items:stretch;gap:9px;flex:1;min-width:0;text-decoration:none}
 .blogo i{width:5px;border-radius:3px;background:linear-gradient(180deg,#3ee0cf,#5b9bff);box-shadow:0 0 12px rgba(46,196,182,.55)}
 .blogo b{font:900 17px/0.92 "Inter Display","Inter",system-ui,sans-serif;letter-spacing:-.6px;color:#eef5ff}
@@ -1238,7 +1238,7 @@ html.cbloccato,html.cbloccato body{overflow:hidden}
 .srow>i{animation:srespira 3.2s ease-in-out infinite}
 @keyframes srespira{0%,100%{box-shadow:0 0 0 0 transparent;opacity:1}50%{box-shadow:0 0 10px 2px currentColor;opacity:.55}}
 @media (prefers-reduced-motion:reduce){.srow>i{animation:none}}
-/* v6.49: titolo con i colori del marchio (Board bianco, Edge sfumato turchese/blu come nella barra laterale) */
+/* v6.49: titolo con i colori del marchio (Edge bianco, Valor sfumato turchese/blu come nella barra laterale) */
 h1.tmarchio em{font-style:normal;background:linear-gradient(100deg,#3ee0cf,#5b9bff);-webkit-background-clip:text;background-clip:text;color:transparent}
 h1.tmarchio em{text-shadow:none;filter:drop-shadow(0 0 10px rgba(46,196,182,.35))}
 
@@ -1594,7 +1594,7 @@ html.ridotta .sagg{display:none}
 @media (max-width:600px){.pegrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pecard{padding:13px 12px}
  .pepil{font-size:23px}.petesta{flex-direction:column;gap:0}.petesta .small{text-align:left}}
 
-/* --- v6.72 PC: niente marchio doppione nella barra laterale (il titolo BoardEdge e' gia' accanto) e pulsante
+/* --- v6.72 PC: niente marchio doppione nella barra laterale (il titolo EdgeValor e' gia' accanto) e pulsante
    riduci/espandi centrato sull'altezza del titolo: centro titolo = 36px + 35/2 ~ 53,5px dall'alto della pagina,
    pulsante alto 32px -> parte a 37,5px; la barra ha 20px di margine sopra, quindi 17,5px in piu'.
    Su telefono (<=900px) la barra e' un cassetto sopra la pagina: li' il marchio resta. */
