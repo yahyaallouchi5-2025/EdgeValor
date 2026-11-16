@@ -21,7 +21,7 @@
 
    DEBUG (F12 -> Console): ebAccount.stato() dice se c'e' una sessione e cosa ha letto; gli errori iniziano con "[BoardEdge] account". */
 (function(){try{
- const API="https://ucsfdpbnrboazxxcbduv.supabase.co",CHIAVE="sb_publishable_7GTNuVHrNDQvU2pBZcnbsQ_8ZQdEbVg";
+ const API="https://cwwmqujccwzmqougtedh.supabase.co",CHIAVE="sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X";
  const KS="ebSess",KB="ebListaSync",TIPI=["az","pa","fx","me"];
  const btn=$("pfapri"),eti=$("pfeti");if(!btn||!$("pfbox"))return;
  const intest=t=>Object.assign({apikey:CHIAVE,"Content-Type":"application/json"},t?{Authorization:"Bearer "+t}:{});
