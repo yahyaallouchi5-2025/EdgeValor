@@ -34,7 +34,7 @@ try{(function(){
   box=document.createElement("div");box.className="tginv";box.setAttribute("role","dialog");box.setAttribute("aria-label","Iscriviti al canale Telegram");
   box.innerHTML=`<button class="tgx" aria-label="Chiudi">&times;</button>
    <div class="tgt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.6.1 1.9l4.6 1.5 1.8 5.6c.3.8 1.3 1 1.9.4l2.6-2.5 4.7 3.5c.7.5 1.7.1 1.9-.7l3.1-15c.2-1.1-.9-1.9-2-1.4z"/><path d="M8 14l10-7.5"/></svg>
-    <div><b>Ti piace BoardEdge?</b><span>Ricevi l'analisi gratis su Telegram: il riepilogo ogni venerdì e il briefing del lunedì.</span></div></div>
+    <div><b>Ti piace EdgeValor?</b><span>Ricevi l'analisi gratis su Telegram: il riepilogo ogni venerdì e il briefing del lunedì.</span></div></div>
    <div class="tgb"><a class="tgp" href="${link()}" target="_blank" rel="noopener">Iscriviti su Telegram</a><button class="tgd" type="button">Dove lo trovo?</button><button class="tgn" type="button">Non ora</button></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box&&box.classList.add("on"));
   const o=leggi();o.inviti=(o.inviti||0)+1;o.rinvio=Date.now()+RINVIO_GIORNI*864e5;salva(o);stat("mostrato");

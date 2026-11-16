@@ -38,7 +38,7 @@
   let voto=0;
   const box=document.createElement("section");box.className="ebvoto";box.setAttribute("role","dialog");box.setAttribute("aria-labelledby","evt");
   box.innerHTML=`<button type="button" class="evx" aria-label="Chiudi">&#x2715;</button>
-   <h3 id="evt">Ti sta piacendo BoardEdge?</h3><p class="evsub">Un voto da 1 a 5 stelle: ci vogliono 5 secondi e ci aiuta molto.</p>
+   <h3 id="evt">Ti sta piacendo EdgeValor?</h3><p class="evsub">Un voto da 1 a 5 stelle: ci vogliono 5 secondi e ci aiuta molto.</p>
    <div class="evstelle" role="radiogroup" aria-label="Voto da 1 a 5 stelle">${ETICHETTE.map((t,i)=>`<button type="button" role="radio" aria-checked="false" aria-label="${i+1} stell${i?"e":"a"}: ${t}" data-v="${i+1}" tabindex="${i?-1:0}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg></button>`).join("")}</div>
    <div class="evetic" aria-live="polite">&nbsp;</div>
    <div class="evaltro" hidden><textarea rows="3" maxlength="1000" aria-label="Commento facoltativo"></textarea>
@@ -68,7 +68,7 @@
    invia.disabled=true;invia.textContent="Invio…";esito.textContent="";esito.className="evesito";
    const b=document.querySelector("#nav button.on");
    try{const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
-     body:JSON.stringify({access_key:CHIAVE,subject:`BoardEdge · Voto ${"★".repeat(voto)}${"☆".repeat(5-voto)} (${voto}/5)`,from_name:"BoardEdge voto",
+     body:JSON.stringify({access_key:CHIAVE,subject:`EdgeValor · Voto ${"★".repeat(voto)}${"☆".repeat(5-voto)} (${voto}/5)`,from_name:"EdgeValor voto",
       stelle:voto,giudizio:ETICHETTE[voto-1],commento:ta.value.trim()||"(nessun commento)",scheda:b?b.textContent.trim():"",
       versione:(typeof D!="undefined"&&D.meta&&D.meta.version)||"",botcheck:false})});
     const j=await r.json().catch(()=>({}));if(!r.ok||j.success===false)throw new Error(j.message||("HTTP "+r.status));
@@ -77,7 +77,7 @@
     box.classList.add("fatto");
     box.innerHTML=`<div class="evgrazie"><span aria-hidden="true">&#10003;</span><div><b>Grazie del voto!</b><small>${voto>=4?"Ci fa piacere: continueremo così.":"Lo useremo per migliorare."}</small></div></div>`;
     setTimeout(()=>chiudi(false),2600);}
-   catch(err){console.warn("[BoardEdge] voto:",err);invia.disabled=false;invia.textContent="Invia voto";
+   catch(err){console.warn("[EdgeValor] voto:",err);invia.disabled=false;invia.textContent="Invia voto";
     esito.className="evesito ko";esito.textContent="Invio non riuscito, riprova tra poco.";}};
   }
-}catch(e){console.error("[BoardEdge] voto:",e);}})();
+}catch(e){console.error("[EdgeValor] voto:",e);}})();

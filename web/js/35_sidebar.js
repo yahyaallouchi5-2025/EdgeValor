@@ -23,4 +23,4 @@
  btn.onclick=()=>{mem.dati=box.hidden;apri(btn,box,mem.dati);salva();};
  // v7.80: il gruppo "Assistenza" non c'e' piu' (Feedback e Guida sono nel riquadro del Profilo): si collega solo se esiste
  if(ass&&sub){apri(ass,sub,!!mem.ass);ass.onclick=()=>{mem.ass=sub.hidden;apri(ass,sub,mem.ass);salva();};}
-}catch(e){console.error("[BoardEdge] sidebar:",e);}})();
+}catch(e){console.error("[EdgeValor] sidebar:",e);}})();

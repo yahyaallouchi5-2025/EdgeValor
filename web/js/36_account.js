@@ -19,7 +19,7 @@
      locale = lista di adesso in questo browser        remoto = lista salvata sul profilo
      risultato = remoto + (aggiunte fatte qui dopo la base) - (tolte qui dopo la base)
 
-   DEBUG (F12 -> Console): ebAccount.stato() dice se c'e' una sessione e cosa ha letto; gli errori iniziano con "[BoardEdge] account". */
+   DEBUG (F12 -> Console): ebAccount.stato() dice se c'e' una sessione e cosa ha letto; gli errori iniziano con "[EdgeValor] account". */
 (function(){try{
  const API="https://cwwmqujccwzmqougtedh.supabase.co",CHIAVE="sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X";
  const KS="ebSess",KB="ebListaSync",TIPI=["az","pa","fx","me"];
@@ -52,7 +52,7 @@
    .then(x=>{if(x.ok&&x.j.access_token){S={a:x.j.access_token,r:x.j.refresh_token,s:Date.now()+(x.j.expires_in||3600)*1000};salva();return S.a;}
     if(x.st==400||x.st==401||x.st==403){S=null;P=null;salva();aggiorna();}                 // sessione finita: si torna a "Accedi"
     return null;})
-   .catch(e=>{console.warn("[BoardEdge] account: rinnovo non riuscito",e);return S&&S.s>Date.now()?S.a:null;})
+   .catch(e=>{console.warn("[EdgeValor] account: rinnovo non riuscito",e);return S&&S.s>Date.now()?S.a:null;})
    .finally(()=>{rinnovo=null;});
   return rinnovo;}
  async function db(percorso,opz){const t=await codice();if(!t)throw new Error("senza sessione");
@@ -89,13 +89,13 @@
   try{const u=chi(),l=norm(ebLista.esporta());if(!u)return;
    await db("liste?utente=eq."+u.id,{method:"PATCH",h:{Prefer:"return=minimal"},body:JSON.stringify({dati:{lista:l}})});
    localStorage.setItem(KB,JSON.stringify({u:u.id,l}));}
-  catch(e){console.warn("[BoardEdge] account: lista non salvata, riprovo alla prossima modifica",e);}},1200);});
+  catch(e){console.warn("[EdgeValor] account: lista non salvata, riprovo alla prossima modifica",e);}},1200);});
 
  async function carica(){if(!S)return aggiorna();aggiorna();
   try{const r=await db("profili?select=prova_fino,premium_fino,sempre_premium,codice_invito");P=(r&&r[0])||null;}
-  catch(e){console.warn("[BoardEdge] account: profilo non letto",e);}
+  catch(e){console.warn("[EdgeValor] account: profilo non letto",e);}
   aggiorna();
-  try{await sincronizza();}catch(e){console.warn("[BoardEdge] account: lista non sincronizzata",e);}}
+  try{await sincronizza();}catch(e){console.warn("[EdgeValor] account: lista non sincronizzata",e);}}
 
  /* --- RIQUADRO PROFILO (v7.77): si apre DENTRO la barra laterale, appena sopra la voce "Profilo", e cresce verso l'alto
         (il gruppo in fondo alla barra e' ancorato in basso). Niente finestre al centro dello schermo.
@@ -137,7 +137,7 @@
     if(!r.ok){const j=await r.json().catch(()=>({}));throw Object.assign(new Error(j.msg||j.error_description||("HTTP "+r.status)),{st:r.status});}
     ultimoInvio=Date.now();inviato=mail;try{window.ebStat&&ebStat.ev("accesso",{passo:"link_inviato"});}catch(_){}
     disegna();}
-   catch(err){console.warn("[BoardEdge] account: invio link",err);inv.disabled=false;inv.textContent="Mandami il link";es.className="fbesito ko";
+   catch(err){console.warn("[EdgeValor] account: invio link",err);inv.disabled=false;inv.textContent="Mandami il link";es.className="fbesito ko";
     es.textContent=err.st==429?"Troppe richieste in poco tempo: riprova tra qualche minuto.":"Invio non riuscito (connessione o servizio). Riprova tra poco.";}};}
  function mostra(si,msg){box.hidden=!si;btn.setAttribute("aria-expanded",si?"true":"false");if(!si)return;
   disegna(msg);const c=box.querySelector("input[type=email]");if(c&&!mob())setTimeout(()=>c.focus(),60);
@@ -154,4 +154,4 @@
   if(esito=="ok"){try{window.ebStat&&ebStat.ev("accesso",{passo:"entrato"});}catch(_){}avviso("Accesso riuscito. Benvenuto!");if(!mob())mostra(true);}
   else if(esito){const m=esito=="scaduto"?"Il link è scaduto o è già stato usato: chiedine uno nuovo.":"Accesso non riuscito: chiedi un nuovo link.";
    avviso(m);if(!mob())mostra(true,m);}});
-}catch(e){console.error("[BoardEdge] account:",e);}})();
+}catch(e){console.error("[EdgeValor] account:",e);}})();
