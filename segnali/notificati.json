@@ -21,7 +21,8 @@
    "bank-of-england-mpc-rate-decision-november-2026": "2026-11-05",
    "us-employment-situation-non-farm-payrolls-november-2026": "2026-11-06",
    "us-cpi-report-november-2026": "2026-11-10",
-   "us-ppi-2026-11-13": "2026-11-13"
+   "us-ppi-2026-11-13": "2026-11-13",
+   "us-retail-sales-2026-11-17": "2026-11-17"
   },
   "esito": {
    "CAD-2026-10-19": "2026-10-19",
@@ -43,6 +44,6 @@
   },
   "settimana": "2026-11-16"
  },
- "briefing": "2026-11-09",
- "aggiornato": "2026-11-13T18:21Z"
+ "briefing": "2026-11-16",
+ "aggiornato": "2026-11-16T10:09Z"
 }
