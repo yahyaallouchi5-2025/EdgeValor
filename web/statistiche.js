@@ -19,7 +19,7 @@
  var ID="__STAT_ID__";                                   // sostituito da Python (stringa vuota = statistiche spente)
  var DOMINIO="yahyaallouchi5-2025.github.io";            // si conta solo il sito vero, mai le prove in locale
  var debug=/[?&]statdebug/.test(location.search);
- var attivo=!!ID&&location.hostname==DOMINIO;
+ var attivo=!!ID&&(location.hostname==DOMINIO||/(^|\.)edgevalor\.com$/.test(location.hostname));   // v7.82: anche sul dominio proprio
  var coda=[];                                            // eventi arrivati prima che lo script di Umami sia pronto
 
  function invia(nome,dati){

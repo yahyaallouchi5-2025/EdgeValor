@@ -18,9 +18,12 @@
    ========================================================================== */
 // v7.59 NOME DEL SITO AUTOMATICO: sul sito vero e' la prima cartella dell'indirizzo (utente.github.io/<nome>/...),
 //   cosi' rinominare il repository non rompe i dati in tempo reale. In locale (prove) si usa il nome attuale.
-const EB_REPO=(()=>{try{return location.hostname.endsWith("github.io")&&location.pathname.split("/")[1]||"cot-radar";}catch(e){return "cot-radar";}})();
+// v7.82 DOMINIO PROPRIO: con edgevalor.com l'indirizzo non contiene piu' il nome del repository,
+//   quindi fuori da github.io si usa il nome fisso "boardedge" (dati live) e la home del dominio (landing).
+const EB_GH=(()=>{try{return location.hostname.endsWith("github.io");}catch(e){return false;}})();
+const EB_REPO=(()=>{try{return EB_GH&&location.pathname.split("/")[1]||"boardedge";}catch(e){return "boardedge";}})();
 const EB_RAW="https://raw.githubusercontent.com/yahyaallouchi5-2025/"+EB_REPO+"/";   // file dei rami live e pattern
-const EB_SITO="https://yahyaallouchi5-2025.github.io/"+EB_REPO+"/";                 // pagina di presentazione
+const EB_SITO=EB_GH?"https://yahyaallouchi5-2025.github.io/"+EB_REPO+"/":"https://edgevalor.com/";   // pagina di presentazione
 // v7.63 ORA DI ROMA per tutto il sito: data, mese, giorno della settimana e ora di Roma, qualunque sia il fuso del
 // dispositivo (un utente all'estero vede comunque il "mese corrente" italiano). L'ora legale e' gestita da Intl.
 // Restituisce {a: anno, m: mese 0-11, g: giorno, wd: giorno della settimana 0=lunedi', h: ora 0-23}.
