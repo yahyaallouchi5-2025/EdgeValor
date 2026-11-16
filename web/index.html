@@ -14,7 +14,9 @@
    serve solo a far passare i visitatori dalla landing. Il login vero (Supabase) arrivera' dopo.
    Vale solo sul sito (cartella /terminale/); in locale il file si apre sempre. */
 (function(){if(!/\/terminale\//.test(location.pathname))return;
- try{if(!localStorage.getItem("eb_pass"))location.replace("../?vai="+encodeURIComponent(location.hash||""));}catch(e){}})();
+ // ritorno dal link di accesso ricevuto per email: chi entra cosi' ha gia' il pass (anche in un browser nuovo)
+ try{if(/(^#|&)(access_token|error_description)=/.test(location.hash)){localStorage.setItem("eb_pass",new Date().toISOString());return;}
+  if(!localStorage.getItem("eb_pass"))location.replace("../?vai="+encodeURIComponent(location.hash||""));}catch(e){}})();
 </script>
 <style>
 {{CSS}}

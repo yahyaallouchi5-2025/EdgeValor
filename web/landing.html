@@ -613,6 +613,8 @@ var fermo=matchMedia("(prefers-reduced-motion:reduce)").matches;
    Se si arriva qui da un link al terminale (es. .../terminale/#verifica dal canale Telegram) si torna li'.
    Il login vero (Supabase) sostituira' questa funzione. ===== */
 var vai=new URLSearchParams(location.search).get("vai")||"";
+// link di accesso finito qui per sbaglio (pagina vecchia in memoria): si rimanda subito al terminale
+if(/(^#|&)(access_token|error_description)=/.test(vai)){location.replace("terminale/"+vai);}
 function haPass(){try{return !!localStorage.getItem("eb_pass");}catch(e){return true;}}
 function entra(){try{localStorage.setItem("eb_pass",new Date().toISOString());}catch(e){}
  // con le statistiche attive si aspettano 250 ms: il tempo di registrare il click "pass" (vedi statistiche.js)
