@@ -197,7 +197,7 @@ def telegram(testo, env):
     if not tok or not chat:
         return
     _prova(lambda: _json("https://api.telegram.org/bot%s/sendMessage" % tok, metodo="POST",
-                         corpo={"chat_id": chat, "text": "BoardEdge - sorveglianza\n\n" + testo,
+                         corpo={"chat_id": chat, "text": "EdgeValor - sorveglianza\n\n" + testo,
                                 "disable_web_page_preview": True}))
 
 

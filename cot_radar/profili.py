@@ -6,7 +6,7 @@ Cosa contiene (solo il necessario, in italiano dove possibile):
   - borse dove e' quotata;
   - se negli ultimi 10 anni e' stata acquistata, da chi e in che anno.
 Fonti libere e gratuite: Wikidata (dati strutturati, interrogazione SPARQL) e Wikipedia (riassunto della voce).
-Il settore e il listino arrivano gia' dai dati di BoardEdge (azioni.py).
+Il settore e il listino arrivano gia' dai dati di EdgeValor (azioni.py).
 
 Come lavora (dentro il workflow Azioni, mai bloccante):
   - il ticker di Yahoo viene tradotto nel ticker di borsa di Wikidata (es. 0700.HK -> 700 su Hong Kong) e la borsa
@@ -50,7 +50,7 @@ BORSE = {"": ("nasdaq", "new york stock exchange", "nyse"), "MI": ("borsa italia
 
 def _ua():
     c = os.environ.get("SEC_CONTATTO", "").strip()
-    return "BoardEdge/1.0 (https://github.com/" + (os.environ.get("GITHUB_REPOSITORY") or "yahyaallouchi5-2025/cot-radar") + (f"; {c}" if "@" in c else "") + ")"
+    return "EdgeValor/1.0 (https://github.com/" + (os.environ.get("GITHUB_REPOSITORY") or "yahyaallouchi5-2025/cot-radar") + (f"; {c}" if "@" in c else "") + ")"
 
 
 def _get(url, timeout=40):

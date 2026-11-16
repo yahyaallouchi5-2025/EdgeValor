@@ -5,10 +5,10 @@
   con web/stile.css, web/js/*.js e i dati in formato JSON. Ogni id (es. id="kpis") viene riempito da web/js.
 -->
 <html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BoardEdge</title>
+<title>EdgeValor</title>
 <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0a1628">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="BoardEdge">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1628'/%3E%3Crect x='10' y='12' width='6' height='40' rx='3' fill='%232ec4b6'/%3E%3Ctext x='22' y='31' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%23eef5ff'%3EBO%3C/text%3E%3Ctext x='22' y='51' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%235b9bff'%3EED%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="EdgeValor">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1628'/%3E%3Crect x='10' y='12' width='6' height='40' rx='3' fill='%232ec4b6'/%3E%3Ctext x='22' y='31' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%23eef5ff'%3EED%3C/text%3E%3Ctext x='22' y='51' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%235b9bff'%3EVA%3C/text%3E%3C/svg%3E">
 <script>
 /* ACCESSO (provvisorio, v6.17): pass gratuito salvato nel browser dalla landing page. Non e' un vero login:
    serve solo a far passare i visitatori dalla landing. Il login vero (Supabase) arrivera' dopo.
@@ -25,7 +25,7 @@
      Su PC: freccia per ridurla a una colonna di icone (la scelta resta salvata nel browser).
      Su telefono: si apre dal pulsante con le tre linee e si chiude toccando fuori. Vedi web/js, sezione "sidebar". -->
 <aside id="side" class="side">
- <div class="sbrand"><a class="blogo blhome" href="#sig" aria-label="BoardEdge: torna alla Dashboard" title="Torna alla Dashboard"><i></i><b>BOARD<br><em>EDGE</em></b></a><span class="snome"></span>
+ <div class="sbrand"><a class="blogo blhome" href="#sig" aria-label="EdgeValor: torna alla Dashboard" title="Torna alla Dashboard"><i></i><b>EDGE<br><em>VALOR</em></b></a><span class="snome"></span>
   <button id="scomprimi" class="sbtn" title="Riduci / espandi la barra laterale" aria-label="Riduci o espandi"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
  <!-- CANALE TELEGRAM (gratuito): posto strategico, subito sotto il marchio e prima di tutto il resto.
       Il link viene da config.TELEGRAM_CANALE (segnaposto sostituito da pagina.py). Da barra ridotta resta l'icona. -->
@@ -37,7 +37,7 @@
  <div class="sgruppo"><button id="lapri" class="sitem" aria-expanded="false" aria-controls="lbox" title="Cerca e salva aziende, paesi, valute e crypto"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg><span>La mia lista <i class="sdett">(watchlist)</i></span><em id="lnum" class="snum" hidden></em><svg class="sfreccia" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
   <div id="lbox" class="lbox" hidden></div></div>
  <!-- INVITA AMICI. (v7.80: Feedback, Guida e stato dei dati sono dentro il riquadro del Profilo, in fondo) -->
- <div class="sgruppo"> <button id="invita" class="sitem" title="Condividi BoardEdge con un amico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.6 3.4-5.5 6.5-5.5s5.5 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/></svg><span>Invita amici</span></button></div>
+ <div class="sgruppo"> <button id="invita" class="sitem" title="Condividi EdgeValor con un amico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.6 3.4-5.5 6.5-5.5s5.5 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/></svg><span>Invita amici</span></button></div>
  <!-- v7.80 IN FONDO RESTA SOLO "PROFILO". Tutto il resto si apre da li' (riquadro #pfbox, che cresce verso l'alto):
       #pfconto = chi sei e il tuo stato (lo scrive 36_account.js)   .pfaltro = Feedback, Guida e stato dei dati
       #pfcoda  = "Esci" (solo con l'accesso fatto). In alto nella barra resta l'essenziale: Telegram, lista, invita. -->
@@ -58,7 +58,7 @@
 </aside>
 <div id="sombra" class="sombra" hidden></div>
 <div class="wrap">
-<div class="top"><div class="toptit"><button id="smenu" class="sbtn smenu" title="Menu" aria-label="Apri il menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div><h1 class="ghiaccio tmarchio"><a class="blhome" href="#sig" title="Torna alla Dashboard">Board<em>Edge</em></a></h1><p class="lead">Terminale di analisi dei mercati</p></div></div>
+<div class="top"><div class="toptit"><button id="smenu" class="sbtn smenu" title="Menu" aria-label="Apri il menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div><h1 class="ghiaccio tmarchio"><a class="blhome" href="#sig" title="Torna alla Dashboard">Edge<em>Valor</em></a></h1><p class="lead">Terminale di analisi dei mercati</p></div></div>
 <div class="topdx"><a class="tgtop" data-pos="barra_alta" href="{{TELEGRAM}}" target="_blank" rel="noopener" title="Segnali gratis su Telegram"><svg viewBox="0 0 24 24"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.6.1 1.9l4.6 1.5 1.8 5.6c.3.8 1.3 1 1.9.4l2.6-2.5 4.7 3.5c.7.5 1.7.1 1.9-.7l3.1-15c.2-1.1-.9-1.9-2-1.4z"/></svg>Telegram</a></div></div>
 <div class="alerts" id="alerts"></div>
 <nav id="nav">

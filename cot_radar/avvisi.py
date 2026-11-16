@@ -89,7 +89,7 @@ def scenario(e):
 
 def _testa(titolo, prova):
     """Intestazione del messaggio; con prova=True aggiunge l'etichetta TEST (workflow "Prova notifiche")."""
-    return f"<b>BoardEdge · {titolo}</b>" + (" <i>[TEST · esempio]</i>" if prova else "")
+    return f"<b>EdgeValor · {titolo}</b>" + (" <i>[TEST · esempio]</i>" if prova else "")
 
 
 def testo_arrivo(eventi, credito, prova=False):

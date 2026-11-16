@@ -51,7 +51,7 @@ class Briefing(unittest.TestCase):
 
     def test_dato_mancante_nessun_crash(self):
         t = briefing.testi({"assets": {}}, "", datetime(2026, 10, 26, 6, 0))
-        self.assertTrue(t and "BoardEdge" in t[0])
+        self.assertTrue(t and "EdgeValor" in t[0])
 
 
 class Cursore(unittest.TestCase):

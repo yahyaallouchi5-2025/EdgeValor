@@ -33,7 +33,7 @@ VALUTE = [("USD", "🇺🇸", "DOLLARO USA", None), ("EUR", "🇪🇺", "EURO", 
           ("NZD", "🇳🇿", "DOLLARO NEOZELANDESE", "NZDUSD")]
 GRUPPI_ALTRI = [("Indici azionari", "📈", "Azioni"), ("Metalli", "🥇", "Metalli"), ("Energia", "🛢️", "Energia"),
                 ("Crypto", "₿", "Crypto")]
-AVVERTENZA = ("Analisi di scenario costruita dai dati di BoardEdge (COT CFTC, FRED, BCE, Yahoo Finance), "
+AVVERTENZA = ("Analisi di scenario costruita dai dati di EdgeValor (COT CFTC, FRED, BCE, Yahoo Finance), "
               "non consulenza finanziaria.")
 
 
@@ -256,10 +256,10 @@ def testi(dati, sito, oggi=None, test=False):
     """Lista di messaggi HTML per Telegram (divisi tra una sezione e l'altra se superano il limite)."""
     from .notifiche import _escape, impagina
     oggi = oggi or datetime.now(timezone.utc).replace(tzinfo=None)
-    testa = (("[TEST] " if test else "") + f"<b>BoardEdge · briefing del {GIORNI[oggi.weekday()]} "
+    testa = (("[TEST] " if test else "") + f"<b>EdgeValor · briefing del {GIORNI[oggi.weekday()]} "
              f"{oggi.day} {MESI[oggi.month - 1]}</b>\n<i>Cosa guardare questa settimana, dai dati del terminale</i>\n\n")
     sezioni = [s for s in (sezione_portafoglio(dati), messaggio_chiave(dati, oggi), sezione_forex(dati),
                            sezione_eventi(dati, oggi), sezione_altri(dati)) if s]
-    piede = "\n\n" + (f'<a href="{_escape(sito.rstrip("/"))}/terminale/">Apri il terminale BoardEdge</a>\n' if sito else "") + \
+    piede = "\n\n" + (f'<a href="{_escape(sito.rstrip("/"))}/terminale/">Apri il terminale EdgeValor</a>\n' if sito else "") + \
         f"<i>{AVVERTENZA}</i>"
     return impagina(testa, sezioni, piede)

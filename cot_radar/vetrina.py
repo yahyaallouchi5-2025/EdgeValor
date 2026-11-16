@@ -20,11 +20,11 @@ from . import pagina, riepilogo
 from .config import CONTATTO_EMAIL, FEEDBACK_CHIAVE, NORMAL, SECTORS, STRONG, TELEGRAM_CANALE, TITOLARE, WEB_DIR
 from .log import log
 
-# favicon: barra luminosa + BO/ED (logo v3 "BOARD EDGE" in miniatura)
+# favicon: barra luminosa + ED/VA (logo "EDGE VALOR" in miniatura)
 FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' "
            "rx='14' fill='%230a1628'/%3E%3Crect x='10' y='12' width='6' height='40' rx='3' fill='%232ec4b6'/%3E%3Ctext x='22' "
-           "y='31' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%23eef5ff'%3EBO%3C/text%3E"
-           "%3Ctext x='22' y='51' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%235b9bff'%3EED"
+           "y='31' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%23eef5ff'%3EED%3C/text%3E"
+           "%3Ctext x='22' y='51' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%235b9bff'%3EVA"
            "%3C/text%3E%3C/svg%3E")
 
 
@@ -244,7 +244,7 @@ def legale():
                     f'<a href="mailto:{escape(CONTATTO_EMAIL)}">{escape(CONTATTO_EMAIL)}</a>.')
     else:
         contatti = (f'Per segnalazioni, richieste di autorizzazione e comunicazioni scrivi tramite il canale Telegram '
-                    f'<a href="{escape(TELEGRAM_CANALE)}" target="_blank" rel="noopener">BoardEdge</a>.')
+                    f'<a href="{escape(TELEGRAM_CANALE)}" target="_blank" rel="noopener">EdgeValor</a>.')
     valori = {"{{FAVICON}}": FAVICON, "{{TELEGRAM}}": TELEGRAM_CANALE, "{{STATISTICHE}}": pagina.statistiche(),
               "{{DATA}}": datetime.now().strftime("%d/%m/%Y"), "{{ANNO}}": str(datetime.now().year),
               "{{TITOLARE}}": titolare, "{{CONTATTI}}": contatti}

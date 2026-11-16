@@ -71,7 +71,7 @@ FINESTRA_CONTI = 21             # giorni dopo la data stimata dei conti in cui i
 
 def _ua():
     c = os.environ.get("SEC_CONTATTO", "").strip()
-    return f"BoardEdge (analisi di mercato) {c}" if "@" in c else None
+    return f"EdgeValor (analisi di mercato) {c}" if "@" in c else None
 
 
 def _get(url, ua, timeout=40, tentativi=2):
