@@ -99,24 +99,27 @@
 
  /* --- RIQUADRO PROFILO (v7.77): si apre DENTRO la barra laterale, appena sopra la voce "Profilo", e cresce verso l'alto
         (il gruppo in fondo alla barra e' ancorato in basso). Niente finestre al centro dello schermo.
-        Senza accesso: campo email + "Mandami il link".   Con accesso: email, stato, Gestisci abbonamento, Esci. --- */
- const box=$("pfbox"),mob=()=>matchMedia("(max-width:900px)").matches;
+        Senza accesso: campo email + "Mandami il link".   Con accesso: email, stato, Gestisci abbonamento, Esci.
+        v7.80: nello stesso riquadro (parte fissa in index.html) ci sono anche Feedback, Guida e lo stato dei dati. --- */
+ const box=$("pfbox"),conto=$("pfconto")||box,coda=$("pfcoda"),mob=()=>matchMedia("(max-width:900px)").matches;
  const I={carta:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/></svg>',
           esci:'<svg viewBox="0 0 24 24"><path d="M10 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19H10"/><path d="M15 8l4 4-4 4M19 12H10"/></svg>'};
  let ultimoInvio=0,inviato="";                                  // inviato = email a cui e' appena partito il link
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.setAttribute("role","status");a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3800);}
- function disegna(msg){const u=S&&chi();
+ function disegna(msg){const u=S&&chi();if(coda&&!u)coda.innerHTML="";
   if(u){const pn=piano();
-   box.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b><span class="pfst ${pn[2]}">${pn[1]||"Sto leggendo il tuo profilo…"}</span></div>
+   conto.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b><span class="pfst ${pn[2]}">${pn[1]||"Sto leggendo il tuo profilo…"}</span></div>
     <button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>
-    <button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>`;
+`;
+   // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati
+   if(coda)coda.innerHTML=`<button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>`;
    box.querySelector(".pfesci").onclick=()=>{const t=S&&S.a;S=null;P=null;pronto=false;inviato="";salva();aggiorna();mostra(false);avviso("Sei uscito dal profilo");
     if(t)fetch(API+"/auth/v1/logout?scope=local",{method:"POST",headers:intest(t)}).catch(()=>{});};
    return;}
-  if(inviato){box.innerHTML=`<div class="pfchi"><b>Controlla la posta</b><span class="pfst">Ho mandato un link a ${esc(inviato)}. Aprilo da questo dispositivo. Se non lo vedi, guarda nello spam.</span></div>
+  if(inviato){conto.innerHTML=`<div class="pfchi"><b>Controlla la posta</b><span class="pfst">Ho mandato un link a ${esc(inviato)}. Aprilo da questo dispositivo. Se non lo vedi, guarda nello spam.</span></div>
     <button type="button" class="sitem pfvoce pfaltra"><span>Usa un'altra email</span></button>`;
    box.querySelector(".pfaltra").onclick=()=>{inviato="";disegna();};return;}
-  box.innerHTML=`<form class="pfform" novalidate><div class="pfchi"><b>Entra con la tua email</b><span class="pfst">Niente password: ti mando un link. La prima volta parte la prova gratuita di 14 giorni.</span></div>
+  conto.innerHTML=`<form class="pfform" novalidate><div class="pfchi"><b>Entra con la tua email</b><span class="pfst">Niente password: ti mando un link. La prima volta parte la prova gratuita di 14 giorni.</span></div>
     ${msg?`<p class="pfko">${msg}</p>`:""}
     <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nome@esempio.it" aria-label="La tua email" required>
     <div class="fbesito" role="status" aria-live="polite"></div>

@@ -15,10 +15,12 @@
   const rit=col.filter(c=>/--s\)/.test(c)).length,avv=col.some(c=>/--warn/.test(c));
   btn.classList.toggle("rit",rit>0);btn.classList.toggle("avv",!rit&&avv);
   tit.textContent=rit?(rit==1?"1 dato in ritardo":rit+" dati in ritardo"):avv?"Dati salvati":"Dati aggiornati";
-  if(rit&&!forzato){forzato=true;apri(btn,box,true);}}                 // col rosso si apre da solo (una volta)
+  if(rit&&!forzato){forzato=true;apri(btn,box,true);}
+  // lo stato dei dati ora sta dentro il Profilo: se una fonte e' in ritardo, un puntino rosso sulla voce "Profilo" lo segnala
+  const pf=$("pfapri");if(pf)pf.classList.toggle("pfrit",rit>0);}                 // col rosso si apre da solo (una volta)
  apri(btn,box,!!mem.dati);riassunto();
  new MutationObserver(riassunto).observe(box,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});
  btn.onclick=()=>{mem.dati=box.hidden;apri(btn,box,mem.dati);salva();};
- apri(ass,sub,!!mem.ass);
- ass.onclick=()=>{mem.ass=sub.hidden;apri(ass,sub,mem.ass);salva();};
+ // v7.80: il gruppo "Assistenza" non c'e' piu' (Feedback e Guida sono nel riquadro del Profilo): si collega solo se esiste
+ if(ass&&sub){apri(ass,sub,!!mem.ass);ass.onclick=()=>{mem.ass=sub.hidden;apri(ass,sub,mem.ass);salva();};}
 }catch(e){console.error("[BoardEdge] sidebar:",e);}})();
