@@ -633,6 +633,10 @@ document.querySelectorAll("[data-entra]").forEach(function(b){b.addEventListener
    "eb_off" nel browser ricorda, per quell'anno, se l'avviso e' stato chiuso ("no") o se ci si e' gia' iscritti ("si").
    PROVA: aggiungere all'indirizzo ?offerta=2026-11-27 (o un'altra data) mostra la pagina come in quel giorno. ===== */
 (function(){try{
+ // v7.85 INTERRUTTORE: offerta SPENTA (non ci sono ancora pagamenti attivi). Il codice resta qui intero, pronto:
+ //   per riaccenderla basta mettere ACCESA=true. Con ?offerta=AAAA-MM-GG nell'indirizzo si vede comunque l'anteprima.
+ var ACCESA=false;
+ if(!ACCESA&&!/[?&]offerta=/.test(location.search))return;
  var CHIAVE="{{MODULO_KEY}}",ROMA=3600e3;                                   // a novembre Roma e' sempre un'ora avanti su UTC
  var PIANI={annuale:"89 € l'anno",mensile:"9,90 € al mese"};
  var MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
