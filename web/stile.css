@@ -2879,3 +2879,43 @@ html.ridotta #pfapri .pfsu{display:none}
 #pfconto:empty{display:none}
 #pfapri{position:relative}
 #pfapri.pfrit::after{content:"";position:absolute;left:22px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--s);box-shadow:0 0 0 2px var(--bg)}
+
+/* ===== v7.86 PORTA D'INGRESSO (web/js/37_porta.js): Accedi / Registrati a tutto schermo, sopra ogni altra finestra ===== */
+html.senzaccesso,html.senzaccesso body{overflow:hidden}
+html.senzaccesso body>*:not(#porta){visibility:hidden}
+#porta{position:fixed;inset:0;z-index:100000;overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;padding:max(28px,6vh) 16px 28px;
+ font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#f1f5fb;visibility:visible}
+.ptcielo{position:fixed;inset:0;z-index:-1;background:radial-gradient(560px 560px at 0% 0%,rgba(46,196,182,.28),transparent 65%),
+ radial-gradient(620px 620px at 100% 100%,rgba(91,155,255,.24),transparent 65%),linear-gradient(180deg,#040b1a,#061331 45%,#040b1a)}
+.ptbox{width:100%;max-width:410px;margin:auto 0}
+.ptlogo{display:flex;justify-content:center;gap:10px;margin-bottom:26px}
+.ptlogo i{width:5px;border-radius:3px;background:linear-gradient(180deg,#3ee0cf,#5b9bff);box-shadow:0 0 14px rgba(46,196,182,.6)}
+.ptlogo b{font:900 22px/.9 "Inter Display","Inter",system-ui,sans-serif;letter-spacing:-.8px;color:#eef5ff}
+.ptlogo em{font-style:normal;background:linear-gradient(100deg,#3ee0cf,#5b9bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ptcard{background:rgba(10,22,48,.82);border:1px solid #1b3260;border-radius:22px;padding:26px 24px 22px;
+ -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.ptcard h1{margin:0 0 4px;font:800 22px/1.2 "Inter",system-ui;letter-spacing:-.4px;text-align:center;color:#f1f5fb}
+.ptsub{margin:0 0 20px;color:#8ea3c4;text-align:center;font-size:14px;line-height:1.5}.ptsub b{color:#c3d1e6}
+.ptprova{display:flex;justify-content:center;gap:8px;margin:0 0 16px;font-size:13px;color:#c3d1e6}.ptprova b{color:#2ec4b6}
+.pttab{display:grid;grid-template-columns:1fr 1fr;background:#071431;border:1px solid #1b3260;border-radius:12px;padding:4px;margin-bottom:18px}
+.pttab button{border:0;background:none;color:#8ea3c4;font:700 14px "Inter",system-ui;padding:9px;border-radius:9px;cursor:pointer;transition:background .2s,color .2s}
+.pttab button.on{background:#13284f;color:#f1f5fb}.pttab button:hover{color:#f1f5fb}
+.ptgoo{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:12px;border:1px solid #1b3260;
+ background:#f7f9fc;color:#1f2937;font:600 15px "Inter",system-ui;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.ptgoo:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.35)}.ptgoo svg{width:18px;height:18px}
+.pto{display:flex;align-items:center;gap:12px;color:#8ea3c4;font-size:12px;margin:16px 0}.pto::before,.pto::after{content:"";flex:1;height:1px;background:#1b3260}
+.ptc{display:block;position:relative;margin-bottom:14px}
+.ptc span{display:block;font-size:13px;color:#c3d1e6;margin:0 0 6px;font-weight:600}
+.ptc input{width:100%;box-sizing:border-box;padding:12px 42px 12px 14px;border-radius:12px;border:1px solid #1b3260;background:#06112a;color:#f1f5fb;
+ font:15px "Inter",system-ui;outline:none;transition:border-color .2s,box-shadow .2s}
+.ptc input:focus{border-color:#2ec4b6;box-shadow:0 0 0 3px rgba(46,196,182,.18)}
+.ptocchio{position:absolute;right:8px;bottom:8px;background:none;border:0;color:#8ea3c4;cursor:pointer;padding:5px;border-radius:8px}
+.ptocchio:hover{color:#f1f5fb}.ptocchio svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;display:block}
+.ptriga{display:flex;justify-content:flex-end;margin:-6px 0 14px}.ptc2{justify-content:center;margin:14px 0 0}
+.ptlink{background:none;border:0;padding:0;color:#2ec4b6;font:600 13px "Inter",system-ui;cursor:pointer}.ptlink:hover{text-decoration:underline}
+.ptvai{width:100%;padding:13px;border:0;border-radius:12px;font:800 15px "Inter",system-ui;color:#03141a;cursor:pointer;
+ background:linear-gradient(135deg,#46e6d5,#2ec4b6 45%,#5b9bff);box-shadow:0 10px 30px rgba(46,196,182,.32);transition:transform .2s,box-shadow .2s,opacity .2s}
+.ptvai:hover{transform:translateY(-1px);box-shadow:0 14px 40px rgba(46,196,182,.5)}.ptvai:disabled{opacity:.6;cursor:wait;transform:none}
+.ptko{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(242,113,107,.12);border:1px solid rgba(242,113,107,.35);color:#ffb4ae;font-size:13px;line-height:1.45}
+.ptnota{margin:14px 0 0;color:#8ea3c4;font-size:12px;text-align:center;line-height:1.5}.ptnota a{color:#c3d1e6}
+.ptsito{display:block;text-align:center;margin-top:18px;color:#8ea3c4;font-size:13px;text-decoration:none}.ptsito:hover{color:#f1f5fb}
