@@ -19,7 +19,7 @@
   const box=document.createElement("div");box.className="cmodal fbmodal";
   box.innerHTML=`<form class="cmodal-box fbbox" role="dialog" aria-modal="true" aria-labelledby="fbt" novalidate>
     <div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg></span>
-     <div><h3 id="fbt">Aiutaci a migliorare</h3><p>Idee, errori, domande: leggiamo tutto. Il messaggio arriva solo al team BoardEdge.</p></div>
+     <div><h3 id="fbt">Aiutaci a migliorare</h3><p>Idee, errori, domande: leggiamo tutto. Il messaggio arriva solo al team EdgeValor.</p></div>
      <button type="button" class="fbx" aria-label="Chiudi">&#x2715;</button></div>
     <div class="fbtipi" role="radiogroup" aria-label="Tipo di messaggio">${TIPI.map(t=>`<button type="button" role="radio" aria-checked="${t[0]==tipo}" class="${t[0]==tipo?"on":""}" data-t="${t[0]}">${t[1]}</button>`).join("")}</div>
     <label class="fbcampo"><span>Messaggio</span><textarea name="messaggio" rows="5" maxlength="2000" required placeholder="Scrivi qui (almeno 10 caratteri)"></textarea><small class="fbconta">0 / 2000</small></label>
@@ -45,14 +45,14 @@
    if(Date.now()-ultimo<60000){esito.className="fbesito ko";esito.textContent="Hai appena inviato un messaggio: riprova tra un minuto.";return;}
    invia.disabled=true;invia.textContent="Invio…";esito.className="fbesito";esito.textContent="";
    try{const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
-     body:JSON.stringify({access_key:CHIAVE,subject:`BoardEdge · ${TIPI.find(t=>t[0]==tipo)[1]}`,from_name:"BoardEdge feedback",
+     body:JSON.stringify({access_key:CHIAVE,subject:`EdgeValor · ${TIPI.find(t=>t[0]==tipo)[1]}`,from_name:"EdgeValor feedback",
       tipo,messaggio:msg,email:mail||undefined,scheda:scheda(),versione:(D.meta&&D.meta.version)||"",botcheck:f.botcheck.checked})});
     const j=await r.json().catch(()=>({}));
     if(!r.ok||j.success===false)throw new Error(j.message||("HTTP "+r.status));
     ultimo=Date.now();try{window.ebStat&&ebStat.ev("feedback",{tipo});}catch(_){}
     f.innerHTML=`<div class="fbgrazie"><span class="cmodal-ico ok" aria-hidden="true">&#10003;</span><h3>Grazie!</h3><p>Messaggio ricevuto.${mail?" Se serve, ti rispondiamo all'email indicata.":""}</p><button type="button" class="csi">Chiudi</button></div>`;
     f.querySelector(".csi").onclick=chiudi;f.querySelector(".csi").focus();}
-   catch(err){console.warn("[BoardEdge] feedback:",err);invia.disabled=false;invia.textContent="Invia";
+   catch(err){console.warn("[EdgeValor] feedback:",err);invia.disabled=false;invia.textContent="Invia";
     esito.className="fbesito ko";esito.textContent="Invio non riuscito (connessione o servizio). Riprova tra poco.";}};}
  apri.onclick=mostra;
-}catch(e){console.error("[BoardEdge] feedback:",e);}})();
+}catch(e){console.error("[EdgeValor] feedback:",e);}})();
