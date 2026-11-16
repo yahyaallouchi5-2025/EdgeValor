@@ -2848,3 +2848,24 @@ html.ridotta .pfbox2{display:none}
 #pfapri .pfsu{transition:transform .25s}#pfapri[aria-expanded="true"] .pfsu{transform:rotate(180deg)}
 html.ridotta #pfapri .pfsu{display:none}
 @media (max-width:900px){.pfform input{font-size:16px}html.ridotta #pfapri .pfsu{display:revert}}
+/* v7.79 SCONTO DAL MASSIMO (22_azioni.js sdBlocco/sdCella): tre barre al posto del cerchio con il punteggio.
+   .sdr = una riga (etichetta, valore, barra, nota) | .cal = barra di calore | .su/.giu/.ne = meglio/peggio/come il solito
+   .sdmk = trattino bianco del valore normale | .sdpc = cella della tabella (percentuale + barretta) */
+.sdbox.sdx{border-left-width:1px;border-left-color:var(--line);color:var(--ink);padding:16px 18px 14px}
+.sdr{margin-top:14px}
+.sdrt{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sdrt span{font-size:13px;font-weight:600;color:var(--ink2)}.sdrt b{font-size:15.5px;font-variant-numeric:tabular-nums}
+.sdbar{position:relative;height:8px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:7px}
+.sdbar>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:#7d8ba5;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.sdr.cal .sdbar>i{background:linear-gradient(90deg,#2b6cb0,#2ec4b6 35%,#e9b44c 70%,#f2716b);background-repeat:no-repeat}
+.sdr.su .sdbar>i{background:var(--b)}.sdr.su .sdrt b{color:var(--b)}
+.sdr.giu .sdbar>i{background:var(--s)}.sdr.giu .sdrt b{color:var(--s)}
+.sdmk{position:absolute;top:-4px;width:2px;height:16px;margin-left:-1px;border-radius:2px;background:#fff;opacity:.9}
+.sdr small{display:block;margin-top:6px;font-size:12px;line-height:1.4;color:var(--mute)}
+.sdbox.sdx p.sdnota{margin:14px 0 0;padding:11px 13px;border-radius:12px;background:color-mix(in srgb,var(--card) 60%,transparent);font-size:13px;color:var(--ink2)}
+.sdpc{display:inline-grid;justify-items:end;gap:4px;min-width:62px}
+.sdpc b{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.sdpc i{display:block;width:56px;height:4px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.sdpc em{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#2ec4b6,#e9b44c 60%,#f2716b)}
+/* scheda del titolo su PC (due colonne): la colonna di destra parte all'altezza del GRAFICO, non dei pulsanti 1 anno / 2 anni */
+@media (min-width:1101px){.azgrid>.azdx{margin-top:var(--azper,55px)}}

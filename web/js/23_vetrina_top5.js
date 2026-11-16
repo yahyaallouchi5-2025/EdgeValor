@@ -8,7 +8,7 @@
    - frecce, pallini, tastiera (frecce sinistra/destra) e scorrimento col dito sul telefono;
    - "Apri grafico" porta alla scheda Azionario con il dettaglio del titolo (window.ebApriTitolo);
    - con "riduci movimento" attivo nel sistema non scorre da sola.
-   v7.22d: tolto il riquadro "In sconto" (v6.66): lo stesso dato e' nell'Azionario, ordinando per Smart Discount.
+   v7.22d: tolto il riquadro "In sconto" (v6.66): lo stesso dato e' nell'Azionario, ordinando per la colonna "Dal massimo".
    DEBUG: F12 -> Console -> window.__top */
 try{(function(){const el=$("topaz");if(!el)return;
  const DUR=6000,SIMB={USD:"$",EUR:"€",GBP:"£",CHF:"CHF ",JPY:"¥",HKD:"HK$",CNY:"CN¥",INR:"₹",CAD:"C$",AUD:"A$"};
