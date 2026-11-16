@@ -50,7 +50,7 @@ try{(function(){
  let titoli=null,attesa=null;                                   // elenco delle aziende (azioni/indice.json), letto una volta
  function caricaTitoli(){if(titoli||attesa)return attesa||Promise.resolve();
   return attesa=fetch("../azioni/indice.json",{cache:"no-cache"}).then(r=>r.ok?r.json():Promise.reject(r.status))
-   .then(d=>{titoli=d.titoli||[];}).catch(e=>{console.warn("[BoardEdge] lista: elenco aziende non letto",e);titoli=[];}).finally(()=>{attesa=null;});}
+   .then(d=>{titoli=d.titoli||[];}).catch(e=>{console.warn("[EdgeValor] lista: elenco aziende non letto",e);titoli=[];}).finally(()=>{attesa=null;});}
  const pct=v=>v==null?"n/d":(v>0?"+":"")+fx(v,1)+"%",cl=v=>v>0?"up":v<0?"down":"flat";
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3200);}
  function rigaAz(tk){const t=(titoli||[]).find(x=>x.t==tk);
@@ -147,4 +147,4 @@ try{(function(){
    b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.title=on?"Togli dalla mia lista":"Aggiungi alla mia lista";b.setAttribute("aria-label",b.title);});
   if(!pan.hidden){disegna();if(L.az.length&&!titoli)caricaTitoli().then(()=>{if(!pan.hidden)disegna();});}}
  window.ebLista={ha,stella,cambia,apri,esporta,importa};
-})();}catch(e){console.error("[BoardEdge] la mia lista:",e);window.ebLista=window.ebLista||{ha:()=>false,stella:()=>"",cambia:()=>false,apri:()=>{}};}
+})();}catch(e){console.error("[EdgeValor] la mia lista:",e);window.ebLista=window.ebLista||{ha:()=>false,stella:()=>"",cambia:()=>false,apri:()=>{}};}

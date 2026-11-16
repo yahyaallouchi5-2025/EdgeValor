@@ -127,7 +127,7 @@ try{(function(){const el=$("stag");if(!el)return;
   box.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{R.gsel=b.dataset.g;disegna();});
   box.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{R.sotto=b.dataset.s;salva();disegna();});}
  function carica(){disegna();if(R.dati[R.sel])return;
-  fetch(BASE+encodeURIComponent(R.sel)+".json").then(r=>r.ok?r.json():null).then(j=>{if(j){R.dati[R.sel]=j;disegna();}}).catch(e=>console.error("[BoardEdge] stagionalita oraria:",e));}
+  fetch(BASE+encodeURIComponent(R.sel)+".json").then(r=>r.ok?r.json():null).then(j=>{if(j){R.dati[R.sel]=j;disegna();}}).catch(e=>console.error("[EdgeValor] stagionalita oraria:",e));}
  // l'indice si scarica solo quando si apre la scheda (il terminale resta leggero)
  let avviato=false;const avvia=()=>{if(avviato)return;avviato=true;
   fetch(BASE+"indice.json").then(r=>r.ok?r.json():null).then(j=>{R.idx=j;if(j&&j.simboli&&j.simboli.length){if(!j.simboli.some(x=>x.s==R.sel))R.sel=j.simboli[0].s;carica();}else disegna();}).catch(()=>{R.idx=null;disegna();});};

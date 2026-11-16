@@ -26,4 +26,4 @@ window.ebManutenzione=function(o){try{
   h?h.after(box):el.prepend(box);};
  metti();new MutationObserver(metti).observe(el,{childList:true});
  if(!window.__ebAvvStat){window.__ebAvvStat=1;try{window.ebStat&&ebStat.ev("avviso",{scheda:o.scheda});}catch(e){}}
-}catch(e){console.error("[BoardEdge] avviso di manutenzione:",e);}};
+}catch(e){console.error("[EdgeValor] avviso di manutenzione:",e);}};

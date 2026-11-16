@@ -26,7 +26,7 @@ function disegnaTV(){const info=tvInfo(TV.spec),box=$("tvchart");box.innerHTML="
    ...({"60":{range:"3M"},"D":{range:"12M"},"W":{range:"60M"}}[TV.iv]||{}),
    timezone:"Europe/Rome",theme:scuro?"dark":"light",style:"1",locale:"it",allow_symbol_change:true,withdateranges:true,hide_side_toolbar:false,save_image:true,
    /* telefono: niente barra in alto di TradingView (timeframe doppi), grafico piu' alto */ hide_top_toolbar:matchMedia("(max-width:600px)").matches});})
- .catch(e=>{box.innerHTML=`<div class="tvmsg">${esc(e.message)}. <a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(info.sym)}" target="_blank" rel="noopener">Apri il grafico su TradingView</a></div>`;console.error("[BoardEdge] grafico:",e);});}
+ .catch(e=>{box.innerHTML=`<div class="tvmsg">${esc(e.message)}. <a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(info.sym)}" target="_blank" rel="noopener">Apri il grafico su TradingView</a></div>`;console.error("[EdgeValor] grafico:",e);});}
 /* Pannello COT sotto il grafico: per ogni settimana la variazione del netto Non Commercial (% open interest).
    Coppia = flusso della valuta base MENO quello della quotata: verde = flussi a favore della coppia in SALITA.
    Strumento quotato al contrario (es. JPY -> grafico USDJPY): il segno viene girato per seguire il grafico.
@@ -183,7 +183,7 @@ function disegnaCOT(spec){const box=$("tvcot");try{
  $("cotinfo").onclick=()=>{const c=pan.classList.toggle("infochiuse");try{localStorage.setItem("cotInfo",c?"chiuse":"aperte");}catch(e){}};
  /* i link [data-vai] (es. "Approfondisci nella scheda Stagionalita'") sono gestiti da un unico ascoltatore globale (vedi navigazione) */
  $("cotsint").onclick=()=>{const c=pan.classList.toggle("barrechiuse");try{localStorage.setItem("cotBarre",c?"chiuse":"aperte");}catch(e){}};
- }catch(e){box.innerHTML="";console.error("[BoardEdge] pannello COT:",e);}}   // se si rompe sparisce il pannello, non il grafico
+ }catch(e){box.innerHTML="";console.error("[EdgeValor] pannello COT:",e);}}   // se si rompe sparisce il pannello, non il grafico
 /* MANIGLIA: trascinando la barretta tra grafico e pannello COT si allarga o si schiaccia il pannello.
    Doppio clic = misura iniziale. La misura scelta resta salvata in questo browser (se il browser lo permette). */
 (function(){const man=$("tvmaniglia"),pan=$("tvpannello");if(!man||!pan)return;

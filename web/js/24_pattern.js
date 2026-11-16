@@ -47,7 +47,7 @@ try{(function(){const el=$("pattern");if(!el)return;
   return carico=scarica().then(d=>{ST.d=d;window.__pattern=d;disegna();
     if(d.anomalia)ebManutenzione({scheda:"pattern",codice:d.anomalia.codice,quando:d.anomalia.quando});
     clearInterval(timer);timer=setInterval(()=>{if(el.classList.contains("on")&&!document.hidden)scarica().then(n=>{if(n.generato_utc!=(ST.d||{}).generato_utc){ST.d=n;disegna();}}).catch(()=>{});},600000);})
-   .catch(e=>{console.error("[BoardEdge] pattern non caricati:",e);carico=null;
+   .catch(e=>{console.error("[EdgeValor] pattern non caricati:",e);carico=null;
     el.innerHTML=`<h2>Pattern Detector</h2><div class="card azvuoto"><span class="pav-i grande" aria-hidden="true">!</span><h3>Segnali momentaneamente non disponibili</h3><p class="small">La scheda torna appena il servizio &egrave; di nuovo regolare.</p></div>`;
     const n=new Date();ebManutenzione({scheda:"pattern",codice:"503",quando:`${n.getFullYear()}-${z(n.getMonth()+1)}-${z(n.getDate())} ${z(n.getHours())}:${z(n.getMinutes())}`});});}
  const nb=document.querySelector('#nav button[data-t=pattern]');if(nb)nb.addEventListener("click",()=>setTimeout(carica,0));

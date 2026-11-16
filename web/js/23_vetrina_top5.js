@@ -25,7 +25,7 @@ try{(function(){const el=$("topaz");if(!el)return;
    {const eta=d.aggiornato?(Date.now()-new Date(d.aggiornato+"T22:00:00Z").getTime())/864e5:99;
     window.ebRigaStato&&ebRigaStato("srow-az","Azionario",d.aggiornato?"Dati al "+gg(d.aggiornato):"n/d",(d.anomalia||eta>4)?"late":"ok","ogni sera dopo la chiusura USA");}
    if(d.anomalia)ebManutenzione({scheda:"sig",codice:d.anomalia.codice,quando:d.anomalia.quando,dal:d.aggiornato});})
-  .catch(e=>{console.error("[BoardEdge] vetrina azioni non caricata:",e);el.innerHTML="";});
+  .catch(e=>{console.error("[EdgeValor] vetrina azioni non caricata:",e);el.innerHTML="";});
 
  function spark(sp){if(!sp||sp.length<2)return "";const W=220,H=60;
   const p=sp.map((v,i)=>`${(i/(sp.length-1)*W).toFixed(1)},${(H-3-v/99*(H-6)).toFixed(1)}`).join(" ");

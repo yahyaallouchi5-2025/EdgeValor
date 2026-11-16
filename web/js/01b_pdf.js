@@ -81,7 +81,7 @@ try{(function(){
     pg.forEach((p,i)=>{const s=p.join("\n");add(5+2*i,`<< /Length ${s.length} >>\nstream\n${s}\nendstream`);
      add(6+2*i,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n2(PW)} ${n2(PH)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${5+2*i} 0 R >>`);});
     const z=x=>String(x).padStart(2,"0"),t=new Date();
-    add(info,`<< /Title (${escP(codici(titolo))}) /Creator (BoardEdge) /Producer (BoardEdge) /CreationDate (D:${t.getFullYear()}${z(t.getMonth()+1)}${z(t.getDate())}${z(t.getHours())}${z(t.getMinutes())}${z(t.getSeconds())}) >>`);
+    add(info,`<< /Title (${escP(codici(titolo))}) /Creator (EdgeValor) /Producer (EdgeValor) /CreationDate (D:${t.getFullYear()}${z(t.getMonth()+1)}${z(t.getDate())}${z(t.getHours())}${z(t.getMinutes())}${z(t.getSeconds())}) >>`);
     const x0=out.length;out+=`xref\n0 ${info+1}\n0000000000 65535 f \n`;
     for(let i=1;i<=info;i++)out+=String(off[i]).padStart(10,"0")+" 00000 n \n";
     out+=`trailer\n<< /Size ${info+1} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${x0}\n%%EOF\n`;
@@ -94,11 +94,11 @@ try{(function(){
   document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u);},4000);}
 
  const ora=()=>{const t=new Date(),z=x=>String(x).padStart(2,"0");return `${z(t.getDate())}/${z(t.getMonth()+1)}/${t.getFullYear()} ${z(t.getHours())}:${z(t.getMinutes())}`;};
- // nome del file: BoardEdge-<parte>-AAAA-MM-GG.pdf (senza spazi e accenti)
+ // nome del file: EdgeValor-<parte>-AAAA-MM-GG.pdf (senza spazi e accenti)
  const nomeFile=parte=>{const t=new Date(),z=x=>String(x).padStart(2,"0");
-  return `BoardEdge-${String(parte).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")}-${t.getFullYear()}-${z(t.getMonth()+1)}-${z(t.getDate())}.pdf`;};
- // marchio: quadratino turchese + "BoardEdge" (stesso nome e colore della pagina)
- function marchio(d,x,y,sz,col){d.rett(x,y-sz*.78,sz*.78,sz*.78,{f:C.acc,r:sz*.18});return d.testo(x+sz,y,"BoardEdge",{s:sz,b:true,c:col});}
+  return `EdgeValor-${String(parte).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")}-${t.getFullYear()}-${z(t.getMonth()+1)}-${z(t.getDate())}.pdf`;};
+ // marchio: quadratino turchese + "EdgeValor" (stesso nome e colore della pagina)
+ function marchio(d,x,y,sz,col){d.rett(x,y-sz*.78,sz*.78,sz*.78,{f:C.acc,r:sz*.18});return d.testo(x+sz,y,"EdgeValor",{s:sz,b:true,c:col});}
  // testata della prima pagina: fascia blu notte, titolo e sottotitolo; ritorna la y da cui partire
  function testata(d,titolo,sotto){const {PW,M}=d;d.rett(0,0,PW,50,{f:C.navy});marchio(d,M,31,15,C.bianco);
   d.testo(PW-M,30,"Creato il "+ora(),{s:8.5,c:"#a9b8d0",a:"r"});
@@ -121,8 +121,8 @@ try{(function(){
  const bottone=(cls)=>`<button type="button" class="pdfbtn${cls?" "+cls:""}" title="Scarica in PDF quello che vedi">${ICONA}<span>Scarica PDF</span></button>`;
  // esegue la funzione che crea il PDF con il pulsante in stato "occupato" (niente doppi clic)
  function avvia(btn,fn){if(btn.disabled)return;const t=btn.querySelector("span"),orig=t.textContent;btn.disabled=true;t.textContent="Creo il PDF…";
-  setTimeout(()=>{Promise.resolve().then(fn).catch(e=>{console.error("[BoardEdge] pdf:",e);alert("PDF non creato: riprova tra poco.");})
+  setTimeout(()=>{Promise.resolve().then(fn).catch(e=>{console.error("[EdgeValor] pdf:",e);alert("PDF non creato: riprova tra poco.");})
    .finally(()=>{btn.disabled=false;t.textContent=orig;});},30);}
 
  window.ebPdf={Doc,C,chiaro,testata,testataMini,piede,sezione,ora,scarica,nomeFile,bottone,avvia};
-})();}catch(e){console.error("[BoardEdge] pdf:",e);}
+})();}catch(e){console.error("[EdgeValor] pdf:",e);}

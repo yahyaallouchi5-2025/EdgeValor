@@ -53,7 +53,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   return caricato=fetch(BASE+"indice.json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
    .then(d=>{ST.dati=d;window.__azioni=d;disegna();leggiLive();
     if(d.anomalia)ebManutenzione({scheda:"azioni",codice:d.anomalia.codice,quando:d.anomalia.quando,dal:d.aggiornato});})
-   .catch(e=>{console.error("[BoardEdge] azioni non caricate:",e);
+   .catch(e=>{console.error("[EdgeValor] azioni non caricate:",e);
     el.innerHTML=`<h2>Azionario per settore</h2><div class="card azvuoto"><span class="pav-i grande" aria-hidden="true">!</span><h3>Dati azionari momentaneamente non disponibili</h3><p class="small">La scheda torna appena il servizio &egrave; di nuovo regolare.</p></div>`;
     if(/^https?:/.test(location.protocol)){const n=new Date(),z=x=>String(x).padStart(2,"0");
      ebManutenzione({scheda:"azioni",codice:"503",quando:`${n.getFullYear()}-${z(n.getMonth()+1)}-${z(n.getDate())} ${z(n.getHours())}:${z(n.getMinutes())}`});}});}
@@ -186,7 +186,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    y+=RH;});
   if(!righe.length)d.testo(M+LW/2,y+20,"Nessun titolo con questi filtri.",{s:9,c:C.mute,a:"c"});
   y=d.serve(y,40,T);y+=d.paragrafo(M,y+16,`Forza 0-100 ricalcolata ogni sera: rendimento degli ultimi 12 e 3 mesi, posizione rispetto alla media a 200 giorni e stagionalità di ${mese}. Forte da 65, Debole sotto 35, Neutro in mezzo. Smart Discount 0-100: quanto il titolo è scontato rispetto alla sua storia. Colonna ${Mz}: anni positivi e rendimento medio del mese.`,LW,{s:7.6,c:C.mute});
-  d.salva(E.nomeFile("Azionario"+(ST.list!="tutti"?" "+nomeList(ST.list):"")+(ST.set!="tutti"?" "+nomeSet(ST.set):"")),T+" - BoardEdge",(n,tot)=>E.piede(d,n,tot,"Azionario BoardEdge"));}
+  d.salva(E.nomeFile("Azionario"+(ST.list!="tutti"?" "+nomeList(ST.list):"")+(ST.set!="tutti"?" "+nomeSet(ST.set):"")),T+" - EdgeValor",(n,tot)=>E.piede(d,n,tot,"Azionario EdgeValor"));}
 
  function disegna(){const d=ST.dati,base=filtrati(false),righe=filtrati(true),mese=MESI[oggiRoma().m];
   const COL=[["rk","#",1],["n","Titolo",0],["pt","Forza",0],["sdo","Dal massimo",1],["p","Prezzo",1],["v1g","1G",1],["v1m","1M",1],["v3m","3M",1,"azh"],["vytd","Da gennaio",1,"azh azh4"],["v1a","1 anno",1],["dy","Div.",1,"azh"],["st_pos",mese[0].toUpperCase()+mese.slice(1),1,"azh"],["t200","Trend",1,"azh azh3"],["sp","Ultimo anno",0,"azh2"]];
@@ -287,7 +287,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   try{window.ebStat&&ebStat.ev("azione",{ticker:tk});}catch(e){}
   fetch(BASE+"titoli/"+encodeURIComponent(tk.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
    .then(x=>{if(!ov.querySelector(".azcorpo"))return;ST.tit=x;corpo(ov,t,x);})
-   .catch(e=>{console.error("[BoardEdge] scheda titolo:",e);const c=ov.querySelector(".azcorpo");if(c)c.innerHTML=`<div class="card azvuoto"><h3>Dettaglio non disponibile</h3><p class="small">Riprova tra qualche minuto.</p></div>`;});}
+   .catch(e=>{console.error("[EdgeValor] scheda titolo:",e);const c=ov.querySelector(".azcorpo");if(c)c.innerHTML=`<div class="card azvuoto"><h3>Dettaglio non disponibile</h3><p class="small">Riprova tra qualche minuto.</p></div>`;});}
 
  function corpo(ov,t,x){const c=ov.querySelector(".azcorpo");
   const PER=(haIntra(t)?[["oggi","Oggi"],["5g","5 giorni"]]:[]).concat([["1a","1 anno"],["2a","2 anni"],["max","Storico"]]);

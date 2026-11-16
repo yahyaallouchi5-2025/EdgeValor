@@ -768,7 +768,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
     y=d.serve(y,h,T);d.testo(M,y+10,gg(r.data),{s:8.5,b:true});righe.forEach((q,i)=>d.testo(M+70,y+10+i*11,q[0],{s:8,c:q[1]}));
     d.testo(PW-M,y+10,ris,{s:7.6,c:mm?(mm.r>=0?C.up:C.down):C.mute,a:"r",b:!!mm});if(r.liquidita)d.testo(PW-M,y+21,`liquidità ${r.liquidita}%`,{s:7,c:C.mute,a:"r"});
     y+=h;d.linea(M,y-4,PW-M,y-4,{c:C.line,lw:.4});});}
-  d.salva(E.nomeFile("Portafoglio "+p.nome),T+" - BoardEdge",(n,tot)=>E.piede(d,n,tot,"Portafogli modello BoardEdge"));}
+  d.salva(E.nomeFile("Portafoglio "+p.nome),T+" - EdgeValor",(n,tot)=>E.piede(d,n,tot,"Portafogli modello EdgeValor"));}
 
  // ridisegna mantenendo la posizione della pagina (v6.52: prima ogni tocco riportava in cima)
  // v6.58: la pagina NON deve muoversi al clic. Due cause del "salto": (1) mentre si riscrive la scheda l'altezza
