@@ -25,7 +25,7 @@
  const KS="ebSess",KB="ebListaSync",TIPI=["az","pa","fx","me"];
  const btn=$("pfapri"),eti=$("pfeti");if(!btn||!$("pfbox"))return;
  const intest=t=>Object.assign({apikey:CHIAVE,"Content-Type":"application/json"},t?{Authorization:"Bearer "+t}:{});
- let S=null,P=null,esito="";                                   // sessione, profilo letto, messaggio dopo il ritorno dal link
+ let S=null,P=null,esito="",tipo="";                                   // sessione, profilo letto, messaggio dopo il ritorno dal link
  try{S=JSON.parse(localStorage.getItem(KS)||"null");}catch(e){}
  const salva=()=>{try{S?localStorage.setItem(KS,JSON.stringify(S)):localStorage.removeItem(KS);}catch(e){}};
 
@@ -37,6 +37,7 @@
   const q=new URLSearchParams(h);
   if(q.get("access_token")){S={a:q.get("access_token"),r:q.get("refresh_token"),s:Date.now()+(+q.get("expires_in")||3600)*1000};salva();esito="ok";}
   else esito=/expired|invalid/i.test(q.get("error_description")||"")?"scaduto":"errore";
+  tipo=q.get("type")||"";                                       // v7.86: "recovery" = link per scegliere una nuova password
   // i codici non devono restare nell'indirizzo (cronologia, copia-incolla): si toglie tutto quello che segue "#"
   try{history.replaceState(null,"",location.href.split("#")[0]);}catch(e){try{location.hash="";}catch(_){}}})();
 
@@ -50,7 +51,8 @@
   if(!rinnovo)rinnovo=fetch(API+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:intest(),body:JSON.stringify({refresh_token:S.r})})
    .then(r=>r.json().then(j=>({ok:r.ok,st:r.status,j})))
    .then(x=>{if(x.ok&&x.j.access_token){S={a:x.j.access_token,r:x.j.refresh_token,s:Date.now()+(x.j.expires_in||3600)*1000};salva();return S.a;}
-    if(x.st==400||x.st==401||x.st==403){S=null;P=null;salva();aggiorna();}                 // sessione finita: si torna a "Accedi"
+    if(x.st==400||x.st==401||x.st==403){S=null;P=null;salva();aggiorna();                 // sessione finita: si torna alla porta d'ingresso
+     try{window.ebPorta&&ebPorta.apri("acc","La sessione è scaduta: accedi di nuovo.");}catch(_){}}
     return null;})
    .catch(e=>{console.warn("[EdgeValor] account: rinnovo non riuscito",e);return S&&S.s>Date.now()?S.a:null;})
    .finally(()=>{rinnovo=null;});
@@ -114,7 +116,8 @@
    // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati
    if(coda)coda.innerHTML=`<button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>`;
    box.querySelector(".pfesci").onclick=()=>{const t=S&&S.a;S=null;P=null;pronto=false;inviato="";salva();aggiorna();mostra(false);avviso("Sei uscito dal profilo");
-    if(t)fetch(API+"/auth/v1/logout?scope=local",{method:"POST",headers:intest(t)}).catch(()=>{});};
+    // v7.86: dopo l'uscita la pagina si ricarica e mostra la porta d'ingresso
+    (t?fetch(API+"/auth/v1/logout?scope=local",{method:"POST",headers:intest(t)}).catch(()=>{}):Promise.resolve()).finally(()=>location.reload());};
    return;}
   if(inviato){conto.innerHTML=`<div class="pfchi"><b>Controlla la posta</b><span class="pfst">Ho mandato un link a ${esc(inviato)}. Aprilo da questo dispositivo. Se non lo vedi, guarda nello spam.</span></div>
     <button type="button" class="sitem pfvoce pfaltra"><span>Usa un'altra email</span></button>`;
@@ -147,11 +150,11 @@
   if(!mob()&&h.classList.contains("ridotta")){h.classList.remove("ridotta");try{localStorage.setItem("ebSide","aperta");}catch(e){}return mostra(true);}
   mostra(box.hidden);};
 
- window.ebAccount={stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";}};
+ window.ebAccount={ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";}};
  aggiorna();
  carica().then(()=>{if(!box.hidden)disegna();
   // ritorno dal link dell'email: un avviso breve; su PC si apre anche il riquadro del profilo
-  if(esito=="ok"){try{window.ebStat&&ebStat.ev("accesso",{passo:"entrato"});}catch(_){}avviso("Accesso riuscito. Benvenuto!");if(!mob())mostra(true);}
+  if(esito=="ok"&&tipo!="recovery"){try{window.ebStat&&ebStat.ev("accesso",{passo:"entrato"});}catch(_){}avviso("Accesso riuscito. Benvenuto!");if(!mob())mostra(true);}
   else if(esito){const m=esito=="scaduto"?"Il link è scaduto o è già stato usato: chiedine uno nuovo.":"Accesso non riuscito: chiedi un nuovo link.";
    avviso(m);if(!mob())mostra(true,m);}});
 }catch(e){console.error("[EdgeValor] account:",e);}})();

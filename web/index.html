@@ -10,13 +10,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="EdgeValor">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1628'/%3E%3Crect x='10' y='12' width='6' height='40' rx='3' fill='%232ec4b6'/%3E%3Ctext x='22' y='31' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%23eef5ff'%3EED%3C/text%3E%3Ctext x='22' y='51' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%235b9bff'%3EVA%3C/text%3E%3C/svg%3E">
 <script>
-/* ACCESSO (provvisorio, v6.17): pass gratuito salvato nel browser dalla landing page. Non e' un vero login:
-   serve solo a far passare i visitatori dalla landing. Il login vero (Supabase) arrivera' dopo.
+/* PORTA D'INGRESSO (v7.86): chi apre il terminale senza account vede solo "Accedi / Registrati" (web/js/37_porta.js).
+   Qui si nasconde subito il terminale, prima che si disegni, per non mostrarlo un attimo e poi coprirlo.
    Vale solo sul sito (cartella /terminale/); in locale il file si apre sempre. */
 (function(){if(!/\/terminale\//.test(location.pathname))return;
- // ritorno dal link di accesso ricevuto per email: chi entra cosi' ha gia' il pass (anche in un browser nuovo)
- try{if(/(^#|&)(access_token|error_description)=/.test(location.hash)){localStorage.setItem("eb_pass",new Date().toISOString());return;}
-  if(!localStorage.getItem("eb_pass"))location.replace("../?vai="+encodeURIComponent(location.hash||""));}catch(e){}})();
+ try{if(!localStorage.getItem("ebSess")&&!/(^#|&)(access_token|error_description)=/.test(location.hash))
+  document.documentElement.classList.add("senzaccesso");}catch(e){}})();
 </script>
 <style>
 {{CSS}}
