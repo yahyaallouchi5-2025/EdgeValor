@@ -13,7 +13,7 @@ const NOME_CARD={cstap:"Prima necessità"};
 try{(function(){const el=$("azioni");if(!el)return;
  const BASE="../azioni/",PAG=50;                       // titoli per pagina della tabella
  const ST={dati:null,list:"tutti",set:"tutti",ord:"pt",dir:-1,cerca:"",pag:1,per:"1a",tit:null};
- try{const s=JSON.parse(localStorage.getItem("ebAzioni2")||"{}");if(s.list)ST.list=s.list;if(s.ord){ST.ord=s.ord;ST.dir=s.dir||-1;}ST.soloSu=!!s.soloSu;}catch(e){}
+ try{const s=JSON.parse(localStorage.getItem("ebAzioni2")||"{}");if(s.list)ST.list=s.list;if(s.ord){ST.ord=s.ord=="sd"?"sdo":s.ord;ST.dir=s.ord=="sd"?1:(s.dir||-1);}ST.soloSu=!!s.soloSu;}catch(e){}
  const salva=()=>{try{localStorage.setItem("ebAzioni2",JSON.stringify({list:ST.list,ord:ST.ord,dir:ST.dir,soloSu:ST.soloSu}));}catch(e){}};
  const gg=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
  // v7.27 STATO DEL TITOLO (cot_radar/eventi_titoli.py): tolto dalla borsa, prezzi fermi, frazionamento recente
@@ -130,13 +130,13 @@ try{(function(){const el=$("azioni");if(!el)return;
 
  // --- v6.78 PDF DELL'AZIONARIO (generatore in 01b_pdf.js): quello che si vede con i filtri attivi (listino, settore,
  //     ricerca) e lo stesso ordinamento della tabella, ma con TUTTI i titoli filtrati (non solo la pagina aperta).
- //     A4 orizzontale: indici, settori, poi la classifica con punteggio, Smart Discount, prezzo, rendimenti,
+ //     A4 orizzontale: indici, settori, poi la classifica con punteggio, sconto dal massimo, prezzo, rendimenti,
  //     stagionalita' del mese, distanza dalla media a 200 giorni e mini grafico dell'ultimo anno.
  function ordinati(righe){return [...righe].sort((a,b)=>{const k=ST.ord;if(k=="n")return ST.dir*String(a.n).localeCompare(String(b.n));
   const x=a[k],y=b[k];if(x==null)return 1;if(y==null)return -1;return ST.dir*(x-y);});}
  function pdfAz(){const E=window.ebPdf,d0=ST.dati;if(!E||!d0)return;const C=E.C,mese=MESI[oggiRoma().m],Mz=mese[0].toUpperCase()+mese.slice(1);
   const base=filtrati(false),righe=ordinati(filtrati(true)),T="Azionario per settore";
-  const NOMI_ORD={rk:"posizione",n:"nome",pt:"forza",sd:"Smart Discount",p:"prezzo",v1g:"1 giorno",v1m:"1 mese",v3m:"3 mesi",vytd:"da gennaio",v1a:"1 anno",st_pos:"stagionalità",t200:"media 200 giorni"};
+  const NOMI_ORD={rk:"posizione",n:"nome",pt:"forza",sdo:"sconto dal massimo",p:"prezzo",v1g:"1 giorno",v1m:"1 mese",v3m:"3 mesi",vytd:"da gennaio",v1a:"1 anno",st_pos:"stagionalità",t200:"media 200 giorni"};
   const filtri=[ST.list!="tutti"?"Listino: "+nomeList(ST.list):"Tutti i listini",ST.set!="tutti"?"Settore: "+nomeSet(ST.set):"Tutti i settori",
    ST.cerca?`Ricerca: «${ST.cerca.trim()}»`:"",`ordinati per ${NOMI_ORD[ST.ord]||ST.ord} (${ST.dir>0?"crescente":"decrescente"})`].filter(Boolean).join(" · ");
   const d=E.Doc({land:true});d.pagina();const {M,PW}=d,LW=PW-2*M;
@@ -165,7 +165,7 @@ try{(function(){const el=$("azioni");if(!el)return;
      d.testo(x+cw-8,yy+11.5,q.sopra+"%",{s:8,a:"r"});yy+=rh;});});
    y+=17+meta*rh;}
   // classifica: tutte le righe filtrate, intestazione ripetuta a ogni pagina
-  const COL=[["#",22,"r"],["Titolo",150,"l"],["Ticker",58,"l"],["Forza",66,"l"],["Smart Disc.",50,"r"],["Prezzo",64,"r"],["1G",40,"r"],["1M",40,"r"],["3M",40,"r"],
+  const COL=[["#",22,"r"],["Titolo",150,"l"],["Ticker",58,"l"],["Forza",66,"l"],["Dal massimo",50,"r"],["Prezzo",64,"r"],["1G",40,"r"],["1M",40,"r"],["3M",40,"r"],
    ["Da gen.",44,"r"],["1 anno",44,"r"],[Mz,58,"r"],["vs 200g",46,"r"],["12 mesi",0,"l"]];
   const fisso=COL.reduce((u,c)=>u+c[1],0);COL[COL.length-1][1]=LW-fisso;const xs=[];let xx=M;COL.forEach(c=>{xs.push(xx);xx+=c[1];});
   const ax=(i)=>COL[i][2]=="r"?xs[i]+COL[i][1]-5:xs[i]+5;
@@ -177,7 +177,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    d.testo(ax(2),b,d.taglia(t.t,COL[2][1]-8,7.4),{s:7.4,c:C.mute});
    if(t.pt!=null){const bx=xs[3]+5,bl=COL[3][1]-30,cc=t.pt>=FORZA_SOGLIE[0]?C.up:t.pt<FORZA_SOGLIE[1]?C.down:C.acc;d.rett(bx,y+5.5,bl,4.5,{f:"#e3e8ef",r:2});d.rett(bx,y+5.5,Math.max(1,bl*t.pt/100),4.5,{f:cc,r:2});
     d.testo(xs[3]+COL[3][1]-5,b,String(t.pt),{s:7.8,b:true,a:"r"});}else d.testo(ax(3),b,"n/d",{s:7.6,c:C.mute});
-   d.testo(ax(4),b,t.sd==null?"n/d":String(t.sd),{s:7.8,a:"r",c:t.sd==null?C.mute:t.sd>=60?C.up:t.sd<40?C.down:C.ink,b:t.sd!=null&&t.sd>=80});
+   d.testo(ax(4),b,t.sdo==null?"n/d":fx(Math.min(0,t.sdo),1)+"%",{s:7.8,a:"r",c:t.sdo==null?C.mute:C.ink});
    d.testo(ax(5),b,prz(t.p,t.val),{s:7.8,a:"r"});
    [["v1g",6],["v1m",7],["v3m",8],["vytd",9],["v1a",10],["t200",12]].forEach(q=>d.testo(ax(q[1]),b,pct(t[q[0]]),{s:7.8,a:"r",c:colV(t[q[0]])}));
    d.testo(ax(11),b,t.st_pos==null?"n/d":`${t.st_pos}%  ${pct(t.st_media)}`,{s:7.4,a:"r",c:t.st_pos==null?C.mute:C.ink});
@@ -189,7 +189,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   d.salva(E.nomeFile("Azionario"+(ST.list!="tutti"?" "+nomeList(ST.list):"")+(ST.set!="tutti"?" "+nomeSet(ST.set):"")),T+" - BoardEdge",(n,tot)=>E.piede(d,n,tot,"Azionario BoardEdge"));}
 
  function disegna(){const d=ST.dati,base=filtrati(false),righe=filtrati(true),mese=MESI[oggiRoma().m];
-  const COL=[["rk","#",1],["n","Titolo",0],["pt","Forza",0],["sd","Smart Discount",1],["p","Prezzo",1],["v1g","1G",1],["v1m","1M",1],["v3m","3M",1,"azh"],["vytd","Da gennaio",1,"azh azh4"],["v1a","1 anno",1],["dy","Div.",1,"azh"],["st_pos",mese[0].toUpperCase()+mese.slice(1),1,"azh"],["t200","Trend",1,"azh azh3"],["sp","Ultimo anno",0,"azh2"]];
+  const COL=[["rk","#",1],["n","Titolo",0],["pt","Forza",0],["sdo","Dal massimo",1],["p","Prezzo",1],["v1g","1G",1],["v1m","1M",1],["v3m","3M",1,"azh"],["vytd","Da gennaio",1,"azh azh4"],["v1a","1 anno",1],["dy","Div.",1,"azh"],["st_pos",mese[0].toUpperCase()+mese.slice(1),1,"azh"],["t200","Trend",1,"azh azh3"],["sp","Ultimo anno",0,"azh2"]];
   const ord=ordinati(righe);
   const np=Math.max(1,Math.ceil(ord.length/PAG));if(ST.pag>np)ST.pag=np;
   const vis=ord.slice((ST.pag-1)*PAG,ST.pag*PAG);
@@ -208,7 +208,7 @@ try{(function(){const el=$("azioni");if(!el)return;
       <em>1 mese ${m==null?"n/d":(m>0?"+":"")+fx(m,1)+"%"}</em><span class="azbr" title="${sopra}% dei titoli sopra la media a 200 giorni"><i style="width:${sopra}%"></i></span><small class="azbrt">${sopra}% in trend rialzista</small></button>`;}).join("")}</div>
    <div class="azclt"><h3 class="vft azcl">${ST.set=="tutti"?"Classifica":esc(nomeSet(ST.set))} <span class="small">${righe.length} titoli${ST.cerca?" per &laquo;"+esc(ST.cerca)+"&raquo;":""}</span></h3>
     <button type="button" class="aztrf${ST.soloSu?" on":""}" aria-pressed="${!!ST.soloSu}" title="Mostra solo i titoli in trend rialzista">${trIcon(1)}Solo trend rialzista</button>${window.ebPdf?ebPdf.bottone():""}</div>
-   <div class="tablewrap"><table class="aztab"><tr>${COL.map(c=>`<th class="${c[2]?"num":""} ${c[3]||""}${c[0]!="sp"?" azo":""}${ST.ord==c[0]?" on":""}" ${c[0]!="sp"?`data-o="${c[0]}"`:""}${c[0]=="sd"?` title="SMART DISCOUNT 0-100: quanto il titolo e' scontato oggi rispetto alla sua storia e se in passato comprare a quello sconto e' andato meglio che comprare a caso"`:""}${c[0]=="st_pos"?` title="Stagionalit&agrave; di ${mese}: quota di anni positivi e rendimento medio del mese"`:""}${c[0]=="t200"?` title="Distanza dalla media a 200 giorni: positivo = trend rialzista"`:""}${c[0]=="pt"?` title="Punteggio 0-100: forza 12 e 3 mesi, trend e stagionalit&agrave; del mese"`:""}>${c[1]}${ST.ord==c[0]?(ST.dir>0?" &uarr;":" &darr;"):""}</th>`).join("")}</tr>
+   <div class="tablewrap"><table class="aztab"><tr>${COL.map(c=>`<th class="${c[2]?"num":""} ${c[3]||""}${c[0]!="sp"?" azo":""}${ST.ord==c[0]?" on":""}" ${c[0]!="sp"?`data-o="${c[0]}"`:""}${c[0]=="sdo"?` title="Quanto il prezzo &egrave; sotto il massimo dell'ultimo anno. &Egrave; un'informazione, non un segnale: nei nostri dati lo sconto da solo non ha fatto rendere di pi&ugrave;."`:""}${c[0]=="st_pos"?` title="Stagionalit&agrave; di ${mese}: quota di anni positivi e rendimento medio del mese"`:""}${c[0]=="t200"?` title="Distanza dalla media a 200 giorni: positivo = trend rialzista"`:""}${c[0]=="pt"?` title="Punteggio 0-100: forza 12 e 3 mesi, trend e stagionalit&agrave; del mese"`:""}>${c[1]}${ST.ord==c[0]?(ST.dir>0?" &uarr;":" &darr;"):""}</th>`).join("")}</tr>
     ${vis.map(t=>`<tr class="clic" data-t="${esc(t.t)}" tabindex="0"><td class="num azrk">${t.rk}</td><td class="aznome">${ebLista.stella("az",t.t)}<b>${esc(t.n)}${trIcon(t.tr)}</b><span>${esc(t.t)} &middot; ${t.l.map(nomeList).join(", ")}${t.dq?` <em class="azdq" title="Seconda quotazione della stessa societ&agrave; (principale: ${esc(t.dq)})">2&ordf; quot.</em>`:""}${evChip(t)}</span></td>
      <td>${forza(t.pt)}</td><td class="num">${sdCella(t)}</td><td class="num" data-lv="${esc(t.t)}">${prezzoCella(t)}</td><td class="num" data-lv="${esc(t.t)}" data-k="g">${varCella(t)}</td><td class="num">${pc(t.v1m)}</td><td class="num azh">${pc(t.v3m)}</td><td class="num azh azh4">${pc(t.vytd)}</td>
      <td class="num">${pc(t.v1a)}</td><td class="num azh">${t.dy?`<b class="azdy">${fx(t.dy,1)}%</b>`:'<span class="flat">&ndash;</span>'}</td><td class="num azh azst">${t.st_pos==null?'<span class="flat">n/d</span>':`<b>${t.st_pos}%</b> ${pc(t.st_media)}`}</td><td class="num azh azh3">${pc(t.t200)}</td><td class="azh2">${spark(t.sp,(t.v1a||0)>=0?"su":"giu")}</td></tr>`).join("")}
@@ -249,7 +249,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   el.querySelectorAll(".azlist button,.azi").forEach(b=>{const f=()=>{ST.list=ST.list==b.dataset.l&&b.classList.contains("azi")?"tutti":b.dataset.l;ST.pag=1;salva();disegna();};b.onclick=f;b.onkeydown=e=>{if(e.key=="Enter")f();};});
   const tf=el.querySelector(".aztrf");if(tf)tf.onclick=()=>{ST.soloSu=!ST.soloSu;ST.pag=1;salva();disegna();el.querySelector(".azcl").scrollIntoView({behavior:"smooth",block:"start"});};
   el.querySelectorAll(".azsc").forEach(b=>b.onclick=()=>{ST.set=b.dataset.s;ST.pag=1;disegna();el.querySelector(".azcl").scrollIntoView({behavior:"smooth",block:"start"});});
-  el.querySelectorAll("th.azo").forEach(h=>h.onclick=()=>{const k=h.dataset.o;if(ST.ord==k)ST.dir=-ST.dir;else{ST.ord=k;ST.dir=(k=="n"||k=="rk")?1:-1;}ST.pag=1;salva();disegna();});
+  el.querySelectorAll("th.azo").forEach(h=>h.onclick=()=>{const k=h.dataset.o;if(ST.ord==k)ST.dir=-ST.dir;else{ST.ord=k;ST.dir=(k=="n"||k=="rk"||k=="sdo")?1:-1;}ST.pag=1;salva();disegna();});
   el.querySelectorAll(".aztab tr[data-t]").forEach(r=>{r.onclick=()=>apri(r.dataset.t);r.onkeydown=e=>{if(e.key=="Enter")apri(r.dataset.t);};});
   // v6.78 "Scarica PDF": tutti i titoli filtrati, stesso ordinamento della tabella (01b_pdf.js)
   const pb=el.querySelector(".azclt .pdfbtn");if(pb)pb.onclick=()=>ebPdf.avvia(pb,pdfAz);
@@ -318,7 +318,7 @@ try{(function(){const el=$("azioni");if(!el)return;
 
  // --- v7.74 PDF DELLA SCHEDA DI UN TITOLO (generatore in 01b_pdf.js, come il PDF dei Portafogli).
  //     Una pagina A4 verticale (due se servono) con gli STESSI numeri della pagina: prezzo e Forza, grafico dell'ultimo
- //     anno, rendimenti, analisi tecnica, Smart Discount, bilancio (solo USA), dividendi, azienda, stagionalita' mensile.
+ //     anno, rendimenti, analisi tecnica, sconto dal massimo, bilancio (solo USA), dividendi, azienda, stagionalita' mensile.
  //     Bilancio, dividendi e profilo si rileggono dai loro file (il browser li ha gia' in memoria: e' immediato).
  //     DEBUG: se una sezione manca nel PDF, manca anche il suo file (es. bilanci/<T>.json solo per le aziende USA).
  function pdfTit(t){const E=window.ebPdf,x=ST.tit;if(!E||!x||!x.d)return Promise.resolve();
@@ -365,13 +365,19 @@ try{(function(){const el=$("azioni");if(!el)return;
     casella(M+cw+6,y,cw,44,"RSI 14",k.rsi==null?"n/d":fx(k.rsi,0),null,k.rsi==null?"":k.rsi>=70?"Ipercomprato (sopra 70)":k.rsi<=30?"Ipervenduto (sotto 30)":"Neutro (tra 30 e 70)");
     casella(M+2*(cw+6),y,cw,44,"ATR 14",k.atr==null?"n/d":fx(k.atr,1)+"% al giorno",null,k.atr!=null&&t.p?`circa ${prz(t.p*k.atr/100)} per azione`:"");
     casella(M+3*(cw+6),y,cw,44,"Range 52 settimane",k.pos52==null?"n/d":k.pos52+"%",null,`min ${prz(k.min52)} · max ${prz(k.max52)}`);y+=44;}
-   // --- Smart Discount
-   if(t.sd!=null){const g=SDG(t.sd),sc={m:C.up,s:C.up,n:C.mute,c:C.down}[g[0]];y=d.serve(y,96,T);y=E.sezione(d,y+24,"Smart Discount","0-100: quanto è raro lo sconto di oggi e come è andata in passato");
-    d.rett(M,y,LW,52,{f:C.soft,r:6});d.testo(M+34,y+27,String(t.sd),{s:22,b:true,c:sc,a:"c"});d.testo(M+34,y+40,g[1],{s:7.4,b:true,c:sc,a:"c"});
-    const bx=M+78,bl=120;[["Rarità dello sconto",t.sdr],["Qualità storica",t.sdq]].forEach((r,i)=>{const yy=y+18+i*18;d.testo(bx,yy,r[0],{s:8});
-     d.rett(bx+92,yy-6,bl,5,{f:"#e3e8ef",r:2.5});if(r[1]>0)d.rett(bx+92,yy-6,Math.max(2,bl*r[1]/100),5,{f:C.acc,r:2.5});d.testo(bx+92+bl+8,yy,String(r[1]==null?"n/d":r[1]),{s:8,b:true});});
-    const fr=t.sdo>-10?"Vicino al massimo dell'anno: nessuno sconto.":`${fx(t.sdo,1)}% dal massimo dell'anno. Comprando a questo sconto, dopo 12 mesi era positivo ${t.sdv}% delle volte (di solito ${t.sdb}%).`;
-    d.paragrafo(bx+92+bl+34,y+17,fr,LW-(78+92+bl+34)-10,{s:8,c:C.mute});y+=52;}
+   // --- Sconto dal massimo: gli stessi tre fatti della scheda (niente punteggio: vedi sdBlocco)
+   if(t.sdo!=null){const v=Math.min(0,t.sdo),a=Math.abs(v),tre=a>=0.5&&v<=-10,due=a>=0.5,nr=tre?3:due?2:1,alt=12+nr*27+(tre?0:16);
+    y=d.serve(y,alt+40,T);y=E.sezione(d,y+24,"Sconto dal massimo","dove si trova il prezzo rispetto al massimo dell'anno: un'informazione, non un segnale");
+    d.rett(M,y,LW,alt,{f:C.soft,r:6});const bx=M+262,bl=LW-262-58;let yy=y+19;
+    // una riga: a sinistra etichetta e, sotto, la nota; a destra la barra (con l'eventuale trattino della norma) e il valore
+    const riga=(et,val,larg,col,nota,segno)=>{d.testo(M+12,yy,et,{s:8.8,b:true});if(nota)d.testo(M+12,yy+10,d.taglia(nota,240,7.4),{s:7.4,c:C.mute});
+     d.rett(bx,yy-3,bl,5,{f:"#e3e8ef",r:2.5});if(larg>0)d.rett(bx,yy-3,Math.max(2,bl*Math.min(100,larg)/100),5,{f:col,r:2.5});
+     if(segno!=null)d.rett(bx+bl*segno/100-.6,yy-6,1.2,11,{f:C.ink});d.testo(M+LW-12,yy+2.5,val,{s:9.5,b:true,c:col==C.acc?C.ink:col,a:"r"});yy+=27;};
+    riga("Sotto il massimo dell'anno",(a>=0.05?"-"+fx(a,1):"0")+"%",a*2,C.acc,a>=0.05?"scala da 0 a -50%":"");
+    if(due)riga("Quanto è raro per questo titolo",t.sdr+"%",t.sdr,C.acc,`più profondo del ${t.sdr}% dei mesi della sua storia`);
+    if(tre){const dd=t.sdv-t.sdb,col=dd>=5?C.up:dd<=-5?C.down:C.mute;riga("Dopo 12 mesi era in guadagno",t.sdv+"%",t.sdv,col,`${dd>=5?"meglio del":dd<=-5?"peggio del":"come al"} solito: di norma ${t.sdb}% (trattino) · ${t.sdn||0} casi${t.sdx?" del settore":""}`,t.sdb);}
+    else d.testo(M+12,yy-2,a<0.5?"È al massimo dell'anno: oggi non c'è nessuno sconto da valutare.":"Sotto il 10% è un movimento normale: nessun confronto con il passato.",{s:8,c:C.mute});
+    y+=alt;}
    // --- bilancio (aziende USA, fonte SEC)
    if(bil&&bil.anni&&bil.anni.length){const A=bil.anni.slice(-5),u=A[A.length-1],GC={"SOLIDA":C.up,"NELLA MEDIA":C.warn,"INDEBITATA":C.down}[bil.giudizio]||C.mute;
     y=d.serve(y,60+24+A.length*15+50,T);y=E.sezione(d,y+24,"Bilancio",`${bil.anni.length} anni · fonte SEC`);
@@ -476,6 +482,14 @@ try{(function(){const el=$("azioni");if(!el)return;
     <div class="aztec-c"><span>Range 52 settimane</span><b>${k.pos52}%</b><i class="aztec-bar"><em style="left:${k.pos52}%"></em></i><small class="aztec-sc2"><span>${prezzo(k.min52,val)}</span><span>${prezzo(k.max52,val)}</span></small></div>
    </div></div>`;}
 
+ // --- SCONTO DAL MASSIMO (v7.79; i numeri arrivano da cot_radar/sconto.py). Prima era lo "Smart Discount" con un
+ //     punteggio 0-100 e le etichette Caro/Scontato. Lo studio studi/studio_smart_discount.py (892 titoli dal 2004,
+ //     punteggio ricalcolato mese per mese senza dati del futuro, 12 mesi dopo) ha mostrato che NON da' vantaggio:
+ //     i titoli "Scontati" hanno reso meno dei "Cari", e rarita' e qualita' storica non distinguono nulla.
+ //     Quindi via punteggio ed etichette: restano TRE FATTI, ognuno con la sua barra.
+ //       1) sdo = quanto e' sotto il massimo dell'anno (barra di calore, scala 0 / -50%; il colore dipende da DOVE
+ //          arriva la barra sulla scala intera: per questo "background-size" allarga la sfumatura a tutta la pista)
+ //       2) sdr = quanto e' raro per quel titolo (% dei mesi della sua storia con uno sconto meno profondo)
  // --- SMART DISCOUNT (v6.55, cot_radar/sconto.py): 0-100 = 60% rarita' dello sconto di oggi nella storia del titolo
  //     + 40% qualita' (comprare a quello sconto, in passato, e' andato meglio o peggio che comprare a caso?)
  const SDG=v=>v>=80?["m","Molto scontato"]:v>=60?["s","Scontato"]:v>=40?["n","Neutro"]:["c","Caro"];
