@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  landing.html - LANDING PAGE di BoardEdge (radice del sito). Il terminale sta in /terminale/.
+  landing.html - LANDING PAGE di EdgeValor (radice del sito). Il terminale sta in /terminale/.
   cot_radar/vetrina.py sostituisce i segnaposto tra doppie graffe con i numeri VERI dell'ultimo aggiornamento
   (segnali attivi, mercati seguiti, coppie, inizio del backtest, anteprima dei segnali): niente numeri inventati.
   v7.68 ORDINE DELLA PAGINA (per chi parte da zero, sui pilastri del terminale):
@@ -15,14 +15,14 @@
    - card che entrano una dopo l'altra durante lo scroll;
    - finestra del terminale in apertura che si inclina seguendo lo scroll (dati veri: economie, clima, conto alla rovescia);
    - sezione "Dentro il terminale": finestre con i numeri veri di ogni scheda (v7.69, vedi lo script in fondo);
-   - linea del tempo "una settimana con BoardEdge" che si riempie mentre scorri;
+   - linea del tempo "una settimana con EdgeValor" che si riempie mentre scorri;
    - nastro dei mercati che scorre.
 -->
 <html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BoardEdge · Investire con metodo, anche partendo da zero</title>
+<title>EdgeValor · Investire con metodo, anche partendo da zero</title>
 <meta name="description" content="Un terminale che trasforma dati pubblici in portafogli modello, clima dei mercati, analisi delle aziende e stagionalità. Dati provati sullo storico, non opinioni. Adatto a chi parte da zero.">
 <meta name="theme-color" content="#050c1d">
-<meta property="og:title" content="BoardEdge · Investire con metodo, anche partendo da zero">
+<meta property="og:title" content="EdgeValor · Investire con metodo, anche partendo da zero">
 <meta property="og:description" content="Tre portafogli modello, il clima dei mercati, le aziende e la stagionalità in un solo terminale. Dati, non opinioni.">
 <link rel="icon" href="{{FAVICON}}">
 <style>
@@ -388,7 +388,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
 <body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>
 
 <header id="testata" data-pos="testata"><div class="box">
- <a class="blogo" href="#" aria-label="BoardEdge"><i></i><b>BOARD<br><span class="g">EDGE</span></b></a>
+ <a class="blogo" href="#" aria-label="EdgeValor"><i></i><b>EDGE<br><span class="g">VALOR</span></b></a>
  <nav class="voci"><a href="#zero">Parti da zero</a><a href="#pilastri">Il terminale</a><a href="#metodo">Il metodo</a><a href="#accesso">Accesso</a><a href="#faq">Domande</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Telegram</a></nav>
  <button class="btn pri pic" data-entra><span data-etichetta>Entra gratis</span></button>
 </div></header>
@@ -399,7 +399,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <span class="eyebrow">Analisi quantitativa</span>
    <!-- titolo scritto a macchina: il testo completo resta nell'aria-label per lettori di schermo e motori di ricerca -->
    <h1 id="titolo" aria-label="Investire con metodo, anche partendo da zero."><span id="tt"></span><span class="cursore"></span></h1>
-   <p class="sub">BoardEdge è un terminale che trasforma dati pubblici in <b>portafogli modello</b>, clima dei mercati, analisi delle aziende e stagionalità. Niente opinioni: <b>solo numeri provati sullo storico</b>, spiegati in parole semplici.</p>
+   <p class="sub">EdgeValor è un terminale che trasforma dati pubblici in <b>portafogli modello</b>, clima dei mercati, analisi delle aziende e stagionalità. Niente opinioni: <b>solo numeri provati sullo storico</b>, spiegati in parole semplici.</p>
    <div class="cta" data-pos="hero">
     <button class="btn pri" data-entra><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Entra gratis</span></button>
     <a class="btn sec" href="{{TELEGRAM}}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.6.1 1.9l4.6 1.5 1.8 5.6c.3.8 1.3 1 1.9.4l2.6-2.5 4.7 3.5c.7.5 1.7.1 1.9-.7l3.1-15c.2-1.1-.9-1.9-2-1.4z"/></svg>Canale Telegram</a>
@@ -412,7 +412,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    </div>
   </div>
   <div class="scena" id="scena"><div class="schermo" id="schermo"><div><div class="scan"></div>
-   <div class="barra"><i></i><i></i><i></i><b>BoardEdge · terminale</b><span>live</span></div>
+   <div class="barra"><i></i><i></i><i></i><b>EdgeValor · terminale</b><span>live</span></div>
    <!-- riempita dal JavaScript con i dati veri: fase delle economie, clima del mercato, conto alla rovescia -->
    <div class="fcorpo" id="f-hero"></div>
    <div class="fcorpo" style="padding-top:0"><button class="apri" data-entra data-pos="anteprima"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Apri il terminale</span></button></div>
@@ -490,7 +490,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
  <!-- 3. IL METODO: fatti precisi, in prima persona (storico dal 2006, registro live da novembre 2026, idee tolte) -->
  <section id="metodo" data-ev-vista="metodo"><div class="box">
   <div class="titsez appare"><small>Il metodo</small><h2>Dati, non opinioni.</h2>
-   <p>Gli algoritmi di BoardEdge filtrano i dati e lasciano passare solo ciò che ha una probabilità statistica a favore: l'edge. Il resto resta fuori dal terminale.</p></div>
+   <p>Gli algoritmi di EdgeValor filtrano i dati e lasciano passare solo ciò che ha una probabilità statistica a favore: l'edge. Il resto resta fuori dal terminale.</p></div>
   <div class="per">
    <div class="dato appare"><b>Dal 2006</b><p>I portafogli sono provati su vent'anni di storico e messi sotto stress nelle crisi del 2008 e del 2020. Gli anni dal 2016 servono solo da verifica, con altri test di robustezza.</p></div>
    <div class="dato appare" style="--d:.08s"><b>Andamento live</b><p>Il mese in corso si segue mentre accade. Alla chiusura il suo risultato resta scritto, anche quando è negativo.</p></div>
@@ -518,16 +518,16 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
   <div class="chi appare">
    <div class="foto"><img src="data:image/webp;base64,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" alt="Yahya Allouchi" width="150" height="150"></div>
    <!-- presentazione: i primi tre paragrafi si vedono subito, il resto si apre con "Continua a leggere" -->
-   <div><span class="tag">Chi c'è dietro BoardEdge</span><h3>Yahya Allouchi</h3>
+   <div><span class="tag">Chi c'è dietro EdgeValor</span><h3>Yahya Allouchi</h3>
     <p>Studio i mercati finanziari dal 2019. Il mio percorso è nato dall'esperienza diretta: trading, investimenti e, soprattutto, dagli errori che mi hanno spinto a comprendere meglio il funzionamento dei mercati e l'importanza della gestione del rischio.</p>
     <p>Negli anni ho progressivamente ampliato il mio approccio, passando dall'operatività di breve periodo a una visione più ampia, basata sull'analisi quantitativa, sui dati macroeconomici, sui cicli economici e sulla diversificazione del capitale.</p>
     <p>Ho approfondito principi di investimento e gestione patrimoniale attraverso lo studio di investitori come Ray Dalio e Warren Buffett, sviluppando un interesse particolare per la comprensione delle dinamiche economiche globali e dei comportamenti dei mercati nelle diverse fasi del ciclo.</p>
     <details class="chialtro"><summary data-ev="chi_continua">Continua a leggere</summary>
-     <p><b>Da un'esigenza personale è nato BoardEdge.</b></p>
+     <p><b>Da un'esigenza personale è nato EdgeValor.</b></p>
      <p>Conciliare il lavoro e gli investimenti richiedeva sempre più tempo: ore dedicate alla raccolta dei dati, all'analisi degli indicatori e alla valutazione degli scenari economici.</p>
      <p>Ho quindi deciso di trasformare anni di studio ed esperienza in un progetto tecnologico: un terminale quantitativo progettato per raccogliere, elaborare e organizzare dati finanziari e macroeconomici, offrendo una visione d'insieme dei mercati e strumenti di analisi strutturati.</p>
      <p>L'obiettivo è semplice: ridurre la dipendenza dalle opinioni e favorire decisioni più consapevoli attraverso i dati, il metodo e la gestione del rischio.</p>
-     <p>BoardEdge non nasce per prevedere il futuro dei mercati, ma per comprenderne meglio le dinamiche.</p>
+     <p>EdgeValor non nasce per prevedere il futuro dei mercati, ma per comprenderne meglio le dinamiche.</p>
      <p>Non sono un consulente finanziario.</p></details></div>
   </div>
  </div></section>
@@ -538,7 +538,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
   <div class="faq appare">
    <details><summary>Devo avere esperienza?</summary><p>No. Ogni scheda ha testi brevi e una (i) che spiega come leggerla. Si parte dal profilo e dal portafoglio del mese.</p></details>
    <details><summary>Quanto tempo richiede?</summary><p>Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito. Tutto il resto è lì quando vuoi capire cosa succede sui mercati.</p></details>
-   <details><summary>È una consulenza finanziaria?</summary><p>No. BoardEdge pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Non fornisce raccomandazioni personalizzate: ogni decisione resta tua. Trovi i dettagli nelle <a href="legale/#rischi">avvertenze sui rischi</a>.</p></details>
+   <details><summary>È una consulenza finanziaria?</summary><p>No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Non fornisce raccomandazioni personalizzate: ogni decisione resta tua. Trovi i dettagli nelle <a href="legale/#rischi">avvertenze sui rischi</a>.</p></details>
    <details><summary>Posso perdere denaro?</summary><p>Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento. I risultati passati non garantiscono quelli futuri.</p></details>
    <details><summary>Quanto costa?</summary><p>Oggi l'accesso al terminale e il canale Telegram sono gratuiti. L'abbonamento arriverà dopo una prova gratuita di 14 giorni; ciò che è indicato come gratuito resterà gratuito.</p></details>
    <details><summary>Da dove provengono i dati?</summary><p>Da fonti pubbliche e da un fornitore di dati di mercato: CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale e prezzi di borsa. L'elenco completo è nelle <a href="legale/#fonti">fonti dei dati</a>.</p></details>
@@ -569,7 +569,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
  <div class="oluci" aria-hidden="true"><i></i><i></i><i></i></div>
  <button class="chiudi" id="ochiudi" aria-label="Chiudi">&times;</button>
  <div class="osx">
-  <span class="et">BoardEdge</span>
+  <span class="et">EdgeValor</span>
   <div class="nome" id="otit" data-off-nome>Black Friday</div>
   <div class="num"><small>fino al</small><b>−35%</b></div>
   <h3>Blocca il prezzo scontato:<br>resta tuo finché resti abbonato.</h3>
@@ -590,7 +590,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
 </div></div>
 <footer><div class="box">
  <div class="piede">
-  <div><a class="blogo" href="#" aria-label="BoardEdge"><i></i><b>BOARD<br><span class="g">EDGE</span></b></a>
+  <div><a class="blogo" href="#" aria-label="EdgeValor"><i></i><b>EDGE<br><span class="g">VALOR</span></b></a>
    <p>Un terminale per investire con metodo: portafogli modello, mercati, aziende e stagionalità. Dati, non opinioni.</p>
    <!-- contatto diretto: discreto, in fondo alla pagina -->
    <p class="scrivi">Vuoi scrivermi direttamente?<br><a href="https://t.me/Yahya_1294" target="_blank" rel="noopener" data-ev="footer_tg_diretto">Telegram @Yahya_1294</a></p></div>
@@ -598,8 +598,8 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
   <div><h4>Aiuto</h4><a href="#faq">Domande frequenti</a><a href="legale/#contatti">Contatti</a><a href="legale/#fonti">Fonti dei dati</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Canale Telegram</a></div>
   <div><h4>Note legali</h4><a href="legale/#termini">Termini di utilizzo</a><a href="legale/#rischi">Avvertenze sui rischi</a><a href="legale/#privacy">Privacy e statistiche</a><a href="legale/#diritti">Diritto d'autore</a></div>
  </div>
- <div class="firma"><span>© {{ANNO}} BoardEdge · Tutti i diritti riservati.</span><span>Aggiornato il {{AGGIORNATO}}</span></div>
- <div class="avviso"><b>Solo a scopo educativo.</b> BoardEdge pubblica analisi statistiche di dati pubblici con finalità esclusivamente informative, didattiche e di studio: non costituiscono consulenza finanziaria, consulenza in materia di investimenti né raccomandazioni personalizzate (D.Lgs. 58/1998 – TUF, direttiva MiFID II). BoardEdge non è un intermediario, non gestisce denaro e non esegue ordini. <b>Ogni investimento può perdere in parte o del tutto il capitale, anche comprando a contanti (spot) senza leva</b>; con leva, futures, forex e CFD la perdita può superare il capitale investito. Portafogli modello, selezioni di azioni e backtest sono esempi didattici: i risultati passati e simulati non garantiscono quelli futuri. Ogni decisione resta tua: prima di investire rivolgiti a un consulente abilitato. <a href="legale/#rischi" style="display:inline;margin:0">Avvertenze sui rischi</a></div>
+ <div class="firma"><span>© {{ANNO}} EdgeValor · Tutti i diritti riservati.</span><span>Aggiornato il {{AGGIORNATO}}</span></div>
+ <div class="avviso"><b>Solo a scopo educativo.</b> EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente informative, didattiche e di studio: non costituiscono consulenza finanziaria, consulenza in materia di investimenti né raccomandazioni personalizzate (D.Lgs. 58/1998 – TUF, direttiva MiFID II). EdgeValor non è un intermediario, non gestisce denaro e non esegue ordini. <b>Ogni investimento può perdere in parte o del tutto il capitale, anche comprando a contanti (spot) senza leva</b>; con leva, futures, forex e CFD la perdita può superare il capitale investito. Portafogli modello, selezioni di azioni e backtest sono esempi didattici: i risultati passati e simulati non garantiscono quelli futuri. Ogni decisione resta tua: prima di investire rivolgiti a un consulente abilitato. <a href="legale/#rischi" style="display:inline;margin:0">Avvertenze sui rischi</a></div>
 </div></footer>
 
 <!-- statistiche anonime senza cookie: prima degli script della pagina (vedi web/statistiche.js) -->
@@ -629,7 +629,7 @@ document.querySelectorAll("[data-entra]").forEach(function(b){b.addEventListener
    COSA SI VEDE: fino alla domenica la veste "Black Friday", il lunedi' finale la veste "Cyber Monday".
      Fuori da quei giorni non compare NIENTE (ne' avviso, ne' riga, ne' finestra): restano solo i prezzi pieni.
      Il conto alla rovescia arriva a zero e la finestra si chiude da sola.
-   EMAIL: parte con Web3Forms (stessa chiave pubblica del modulo Feedback) e arriva solo alla casella di BoardEdge.
+   EMAIL: parte con Web3Forms (stessa chiave pubblica del modulo Feedback) e arriva solo alla casella di EdgeValor.
    "eb_off" nel browser ricorda, per quell'anno, se l'avviso e' stato chiuso ("no") o se ci si e' gia' iscritti ("si").
    PROVA: aggiungere all'indirizzo ?offerta=2026-11-27 (o un'altra data) mostra la pagina come in quel giorno. ===== */
 (function(){try{
@@ -680,15 +680,15 @@ document.querySelectorAll("[data-entra]").forEach(function(b){b.addEventListener
   if(!form.consenso.checked){esito.textContent="Serve il tuo consenso per scriverti.";return;}
   invia.disabled=true;invia.textContent="Invio…";esito.textContent="";
   fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
-   body:JSON.stringify({access_key:CHIAVE,subject:"BoardEdge · Offerta "+nome+" "+F.anno+" ("+pn+")",from_name:"BoardEdge offerta "+nome,
+   body:JSON.stringify({access_key:CHIAVE,subject:"EdgeValor · Offerta "+nome+" "+F.anno+" ("+pn+")",from_name:"EdgeValor offerta "+nome,
     email:mail,piano:pn,prezzo:PIANI[pn],consenso:"si, "+new Date().toISOString(),botcheck:form.botcheck.checked})})
   .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.success===false)throw new Error(j.message||("HTTP "+r.status));});})
   .then(function(){ricorda("si");try{window.ebStat&&ebStat.ev("offerta_iscritto",{piano:pn});}catch(e){}
    chip.hidden=true;form.innerHTML='<div class="ook"><b>Prezzo bloccato.</b><p>'+PIANI[pn]+', finché resti abbonato. Ti scriviamo quando aprono gli abbonamenti.</p><button type="button" class="btn bia" id="obene">Chiudi</button></div>';
    el("obene").addEventListener("click",chiudi);})
-  .catch(function(err){console.warn("[BoardEdge] offerta:",err);invia.disabled=false;invia.textContent="Blocca il prezzo";
+  .catch(function(err){console.warn("[EdgeValor] offerta:",err);invia.disabled=false;invia.textContent="Blocca il prezzo";
    esito.textContent="Invio non riuscito. Riprova tra poco.";});});
-}catch(e){console.error("[BoardEdge] offerta:",e);}})();
+}catch(e){console.error("[EdgeValor] offerta:",e);}})();
 if(haPass())document.querySelectorAll("[data-etichetta]").forEach(function(s){s.textContent="Apri il terminale";});
 
 /* ===== EFFETTO TASTIERA sul titolo: scrive lettera per lettera; "con metodo" in gradiente ===== */
@@ -718,7 +718,7 @@ var V={{DENTRO_JSON}};
  var LUC='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
  // scrive una finestra; senza contenuto nasconde tutta la scena. quando = data dei dati (AAAA-MM-GG) nella barra
  function scena(id,fn,quando){var f=$("f-"+id),s=$("v-"+id),html="";
-  try{html=fn()||"";}catch(e){console.error("[BoardEdge] anteprima "+id+":",e);}
+  try{html=fn()||"";}catch(e){console.error("[EdgeValor] anteprima "+id+":",e);}
   if(!f)return false;if(!html){if(s)s.hidden=true;return false;}
   f.innerHTML=html;var q=s&&s.querySelector("[data-al]");if(q&&quando)q.textContent="dati al "+gg(quando);return true;}
  // ora di Roma di una data "AAAA-MM-GG" alle h in punto (ora legale compresa): come nel terminale
@@ -737,7 +737,7 @@ var V={{DENTRO_JSON}};
  function rotazione(r){var a=roma(r.a,9);return '<div class="mc"><div class="mt">Prossima rotazione</div><div class="mcd" id="mcd"></div><div class="mquando"><b>'+GS[a.getDay()]+' '+a.getDate()+' '+MESI[a.getMonth()]+'</b> &middot; ore 9:00</div></div>';}
  function conto(){var box=$("mcd");if(!box||!D.rot)return;var ms=Math.max(0,roma(D.rot.a,9)-Date.now()),z=function(n){return (n<10?"0":"")+n;};
   box.innerHTML=[[Math.floor(ms/864e5),"giorni"],[Math.floor(ms/36e5)%24,"ore"],[Math.floor(ms/6e4)%60,"min"]].map(function(x){return '<div><b>'+z(x[0])+'</b><small>'+x[1]+'</small></div>';}).join("");}
- (function(){var h="";try{h=(D.eco?economie(D.eco):"")+((D.clima!=null||D.rot)?'<div class="m2">'+(D.clima!=null?clima(D.clima):"")+(D.rot?rotazione(D.rot):"")+'</div>':"");}catch(e){console.error("[BoardEdge] apertura:",e);}
+ (function(){var h="";try{h=(D.eco?economie(D.eco):"")+((D.clima!=null||D.rot)?'<div class="m2">'+(D.clima!=null?clima(D.clima):"")+(D.rot?rotazione(D.rot):"")+'</div>':"");}catch(e){console.error("[EdgeValor] apertura:",e);}
   if(h){$("f-hero").innerHTML=h;conto();setInterval(conto,30000);}else $("scena").hidden=true;})();
 
  /* --- DASHBOARD: posizionamento e settori (stessi conti dei riquadri del terminale) --- */
