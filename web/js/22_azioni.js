@@ -490,21 +490,21 @@ try{(function(){const el=$("azioni");if(!el)return;
  //       1) sdo = quanto e' sotto il massimo dell'anno (barra di calore, scala 0 / -50%; il colore dipende da DOVE
  //          arriva la barra sulla scala intera: per questo "background-size" allarga la sfumatura a tutta la pista)
  //       2) sdr = quanto e' raro per quel titolo (% dei mesi della sua storia con uno sconto meno profondo)
- // --- SMART DISCOUNT (v6.55, cot_radar/sconto.py): 0-100 = 60% rarita' dello sconto di oggi nella storia del titolo
- //     + 40% qualita' (comprare a quello sconto, in passato, e' andato meglio o peggio che comprare a caso?)
- const SDG=v=>v>=80?["m","Molto scontato"]:v>=60?["s","Scontato"]:v>=40?["n","Neutro"]:["c","Caro"];
- function sdCella(t){if(t.sd==null)return '<span class="flat">n/d</span>';const g=SDG(t.sd);
-  return `<span class="sdp sd${g[0]}" title="${g[1]} &middot; sconto dal massimo 12 mesi ${fx(t.sdo,1)}%">${t.sd}<small>${g[1]}</small></span>`;}
- function sdBlocco(t){if(t.sd==null)return "";const g=SDG(t.sd);
-  const frase=t.sdo>-10?`Vicino al massimo dell'anno: nessuno sconto.`
-   :`&minus;${fx(Math.abs(t.sdo),1)}% dal massimo dell'anno. Comprando a questo sconto, dopo 12 mesi era positivo <b>${t.sdv}%</b> delle volte (di solito ${t.sdb}%).`;
-  const caso=t.sdo>-10?"":` Casi storici: ${t.sdn||"n/d"}${t.sdx?" del suo settore":" di questo titolo"}; lo sconto di oggi &egrave; pi&ugrave; profondo del ${t.sdr}% dei mesi della sua storia.`;
-  return `<div class="sdbox sd${g[0]}"><div class="sdtesta"><span class="sdlab">SMART DISCOUNT</span>
-    <details class="info"><summary title="Come si calcola" aria-label="Informazioni">i</summary><div>Punteggio 0-100: 60% <b>rarit&agrave;</b> (quanti mesi della storia del titolo avevano uno sconto meno profondo di oggi, dal massimo delle ultime 12 chiusure mensili) + 40% <b>qualit&agrave;</b> (quanto comprare a questo livello di sconto &egrave; andato meglio di comprare a caso; 50 = uguale). Backtest su ~1.000 mercati e 40.000 occasioni di sconto dal 1962. Attenzione: i titoli falliti non sono nei dati, quindi la qualit&agrave; &egrave; un po' ottimista. ${caso} Statistica del passato, non un consiglio di investimento.</div></details></div>
-   <div class="sdcorpo"><div class="sdnum"><b>${t.sd}</b><span>${g[1]}</span></div>
-    <div class="sdbarre"><div><span>Rarit&agrave; dello sconto</span><i><em style="width:${t.sdr}%"></em></i><b>${t.sdr}</b></div>
-     <div><span>Qualit&agrave; storica</span><i><em style="width:${t.sdq}%"></em></i><b>${t.sdq}</b></div></div></div>
-   <p class="small">${frase}</p></div>`;}
+ //       3) sdv = dopo 12 mesi era in guadagno nel X% dei casi, contro sdb = di norma (trattino bianco).
+ //          Verde se almeno 5 punti sopra la norma, rossa se almeno 5 sotto, grigia in mezzo. Solo da -10% in giu'.
+ function sdCella(t){if(t.sdo==null)return '<span class="flat">n/d</span>';const v=Math.min(0,t.sdo);
+  return `<span class="sdpc" title="Sotto il massimo dell'ultimo anno"><b>${v<=-0.05?"&minus;"+fx(Math.abs(v),1):"0"}%</b><i><em style="width:${Math.min(100,Math.abs(v)*2).toFixed(0)}%"></em></i></span>`;}
+ function sdBlocco(t){if(t.sdo==null)return "";const v=Math.min(0,t.sdo),a=Math.abs(v);
+  const riga=(cls,et,val,larg,sotto,segno)=>`<div class="sdr ${cls}"><div class="sdrt"><span>${et}</span><b>${val}</b></div>
+    <div class="sdbar"><i style="width:${Math.max(0,Math.min(100,larg)).toFixed(1)}%${cls=="cal"?`;background-size:${(10000/Math.max(1,Math.min(100,larg))).toFixed(0)}% 100%`:""}"></i>${segno!=null?`<span class="sdmk" style="left:${segno}%"></span>`:""}</div>${sotto?`<small>${sotto}</small>`:""}</div>`;
+  let corpo=riga("cal","Sotto il massimo dell'anno",(a>=0.05?"&minus;"+fx(a,1):"0")+"%",a*2,a>=0.05?"scala da 0 a &minus;50%":"");
+  if(a<0.5)corpo+=`<p class="sdnota">&Egrave; al massimo dell'anno: oggi non c'&egrave; nessuno sconto da valutare.</p>`;
+  else{corpo+=riga("cal","Quanto &egrave; raro per questo titolo",t.sdr+"%",t.sdr,`pi&ugrave; profondo del ${t.sdr}% dei mesi della sua storia`);
+   if(v>-10)corpo+=`<p class="sdnota">Sotto il 10% &egrave; un movimento normale: nessun confronto con il passato.</p>`;
+   else{const d=t.sdv-t.sdb,c=d>=5?"su":d<=-5?"giu":"ne";
+    corpo+=riga(c,"Dopo 12 mesi era in guadagno",t.sdv+"%",t.sdv,`${c=="su"?"meglio del solito":c=="giu"?"peggio del solito":"come al solito"}: di norma ${t.sdb}% (trattino bianco) &middot; ${t.sdn||0} casi${t.sdx?" del suo settore":""}`,t.sdb);}}
+  return `<div class="sdbox sdx"><div class="sdtesta"><span class="sdlab">SCONTO DAL MASSIMO</span>
+    <details class="info"><summary title="Come leggerlo" aria-label="Informazioni">i</summary><div><b>Sotto il massimo dell'anno</b>: distanza del prezzo di oggi dalla pi&ugrave; alta delle ultime 12 chiusure di fine mese (per questo pu&ograve; differire di qualche punto dal riquadro &laquo;Dal massimo&raquo;, che usa il massimo giornaliero).<br><b>Quanto &egrave; raro</b>: in quanti mesi della storia del titolo lo sconto era meno profondo di oggi.<br><b>Dopo 12 mesi era in guadagno</b>: quante volte, comprando a uno sconto come questo, il prezzo era pi&ugrave; alto un anno dopo; il trattino bianco &egrave; il valore normale del titolo.<br><br><b>Cosa dicono i dati</b> (892 titoli dal 2004): lo sconto, da solo, <b>non</b> ha fatto rendere di pi&ugrave; nei 12 mesi successivi; i titoli vicini al massimo hanno chiuso in guadagno pi&ugrave; spesso. &Egrave; un'informazione per capire dov'&egrave; il prezzo, non un segnale. I titoli falliti non sono nei dati. Statistica del passato, non un consiglio di investimento.</div></details></div>${corpo}</div>`;}
 
  // --- BILANCIO (aziende USA, fonte SEC: vedi cot_radar/fondamentali.py): ricavi, utile, anni in perdita, debito netto
  //     e giudizio SOLIDA / NELLA MEDIA / INDEBITATA. File pubblico/bilanci/<T>.json; assente = azienda non USA.
