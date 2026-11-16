@@ -34,21 +34,24 @@
       ricerca universale + voci salvate, senza pannelli separati -->
  <div class="sgruppo"><button id="lapri" class="sitem" aria-expanded="false" aria-controls="lbox" title="Cerca e salva aziende, paesi, valute e crypto"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg><span>La mia lista <i class="sdett">(watchlist)</i></span><em id="lnum" class="snum" hidden></em><svg class="sfreccia" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
   <div id="lbox" class="lbox" hidden></div></div>
- <!-- INVITA AMICI, ASSISTENZA (Feedback + Guida) -->
- <div class="sgruppo"> <button id="invita" class="sitem" title="Condividi BoardEdge con un amico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.6 3.4-5.5 6.5-5.5s5.5 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/></svg><span>Invita amici</span></button>
- <button id="sassist" class="sitem sapri" aria-expanded="false" aria-controls="sassbox" title="Feedback e guida"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17v.2"/></svg><span>Assistenza</span><svg class="sfreccia" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
- <div id="sassbox" class="ssub" hidden>
-  <button id="fbapri" class="sitem" title="Scrivici: suggerimenti, errori, domande"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><span>Feedback</span></button>
-  <button id="gapri" class="sitem" title="Come funziona"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Guida</span></button></div></div>
- <!-- v7.71 IN FONDO, vicino al profilo: STATO DATI RICHIUDIBILE. Una riga sola (pallino + data); un tocco apre
-      l'elenco delle fonti, che si apre da solo col pallino rosso quando una fonte e' in ritardo (web/js/35_sidebar.js). -->
+ <!-- INVITA AMICI. (v7.80: Feedback, Guida e stato dei dati sono dentro il riquadro del Profilo, in fondo) -->
+ <div class="sgruppo"> <button id="invita" class="sitem" title="Condividi BoardEdge con un amico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.6 3.4-5.5 6.5-5.5s5.5 1.9 6.5 5.5"/><path d="M19 8v6M16 11h6"/></svg><span>Invita amici</span></button></div>
+ <!-- v7.80 IN FONDO RESTA SOLO "PROFILO". Tutto il resto si apre da li' (riquadro #pfbox, che cresce verso l'alto):
+      #pfconto = chi sei e il tuo stato (lo scrive 36_account.js)   .pfaltro = Feedback, Guida e stato dei dati
+      #pfcoda  = "Esci" (solo con l'accesso fatto). In alto nella barra resta l'essenziale: Telegram, lista, invita. -->
  <div class="sgruppo sfondo">
+  <div id="pfbox" class="pfbox2" hidden>
+   <div id="pfconto"></div>
+   <div class="pfaltro">
+  <button id="fbapri" class="sitem pfvoce" title="Scrivici: suggerimenti, errori, domande"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><span>Feedback</span></button>
+  <button id="gapri" class="sitem pfvoce" title="Come funziona"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span>Guida</span></button>
   <button id="sdati" class="sdati" aria-expanded="false" aria-controls="status" title="Stato dei dati: tocca per vedere le fonti">
    <i id="sdot"></i><span class="sdtx"><b id="sdtit">Dati aggiornati</b><span id="updated"></span></span>
    <svg class="sfreccia" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
   <div id="status" class="sstato" hidden></div>
-  <!-- PROFILO: il riquadro #pfbox (36_account.js) si apre qui sopra la voce e cresce verso l'alto -->
-  <div id="pfbox" class="pfbox2" hidden></div>
+   </div>
+   <div id="pfcoda"></div>
+  </div>
   <button id="pfapri" class="sitem" aria-expanded="false" aria-controls="pfbox" title="Il tuo profilo"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Profilo <small id="pfeti" class="pfeti" hidden></small></span><svg class="sfreccia pfsu" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></div>
 </aside>
 <div id="sombra" class="sombra" hidden></div>

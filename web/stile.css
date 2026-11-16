@@ -2869,3 +2869,13 @@ html.ridotta #pfapri .pfsu{display:none}
 .sdpc em{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#2ec4b6,#e9b44c 60%,#f2716b)}
 /* scheda del titolo su PC (due colonne): la colonna di destra parte all'altezza del GRAFICO, non dei pulsanti 1 anno / 2 anni */
 @media (min-width:1101px){.azgrid>.azdx{margin-top:var(--azper,55px)}}
+/* v7.80 nel riquadro del Profilo: Feedback, Guida e stato dei dati (parte fissa), poi "Esci". In fondo alla barra resta solo "Profilo" */
+.pfaltro{display:grid;gap:2px;margin-top:4px;padding-top:6px;border-top:1px solid var(--line)}
+.pfaltro .sdati{margin:4px 0 0;padding:8px;border-color:transparent;background:none;font-size:13px}
+.pfaltro .sdati:hover{background:var(--soft);border-color:transparent}
+.pfaltro .sdtx b{font-size:13.5px;font-weight:600;color:var(--ink2)}
+.pfaltro .sstato{margin:2px 0 4px}
+#pfcoda:empty{display:none}#pfcoda{margin-top:4px;padding-top:6px;border-top:1px solid var(--line)}
+#pfconto:empty{display:none}
+#pfapri{position:relative}
+#pfapri.pfrit::after{content:"";position:absolute;left:22px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--s);box-shadow:0 0 0 2px var(--bg)}
