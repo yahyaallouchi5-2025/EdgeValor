@@ -27,7 +27,7 @@ def dati():
         "fed": {"regime": "QT (bilancio in riduzione)", "bs13": -2.7},
         "vol": {"EURUSD": {"prezzo": 1.1, "settimane": {"media": 1.0}}},
         "port": {"prossima": "2026-11-02", "rotazione": "2026-10-01", "profili": [
-            {"id": "moderato", "nome": "Moderato", "base": [{"k": "US10Y", "nome": "Treasury 10 anni"}],
+            {"id": "moderato", "nome": "Moderato", "corrente": {"mese": "ottobre", "r": 1.2, "dd": -0.8}, "base": [{"k": "US10Y", "nome": "Treasury 10 anni"}],
              "composizione": [{"k": "SP500", "nome": "S&P 500", "peso": 30, "trend": 6.0},
                               {"k": "EAFE", "nome": "Europa", "peso": 10, "trend": 0.8},
                               {"k": "CASH", "nome": "Liquidita", "peso": 60, "trend": None}],
@@ -41,9 +41,11 @@ class Briefing(unittest.TestCase):
         testo = "\n".join(t)
         for s in ("COSA MONITORARE", "MESSAGGIO CHIAVE", "FOREX UPDATE", "BANCHE CENTRALI", "ALTRI MERCATI"):
             self.assertIn(s, testo)
-        self.assertIn("🟢 S&amp;P 500", testo)             # sopra la media
-        self.assertIn("🟡 Europa", testo)                  # vicino alla media
-        self.assertIn("🔴 Treasury 10 anni", testo)        # in pausa
+        # v7.93 canale pubblico: niente nomi dei mercati ne' pesi del portafoglio (Premium)
+        self.assertNotIn("S&amp;P 500 30%", testo)
+        self.assertNotIn("Treasury 10 anni", testo)
+        self.assertIn("🟢 Moderato +1,2%", testo)
+        self.assertIn("con Premium", testo)
         self.assertNotIn("S&P 500 BUY", testo.replace("S&amp;P 500 BUY", ""))     # niente & grezzo
         self.assertIn("non una previsione", testo)         # i livelli sono ampiezze tipiche, mai previsioni
         self.assertTrue(all(len(m) < 4096 for m in t))
