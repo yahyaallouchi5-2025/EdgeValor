@@ -93,35 +93,28 @@ def semaforo(trend):
 
 # --------------------------------------------------------------------------- sezioni
 def sezione_portafoglio(dati):
-    """📌 Mercati del portafoglio Moderato col semaforo del trend, e quota di liquidita' dei tre profili."""
-    prof = [p for p in (dati.get("port") or {}).get("profili") or []]
-    mod = next((p for p in prof if p["id"] == "moderato"), prof[0] if prof else None)
-    if not mod:
+    """📌 I tre portafogli modello: com'e' andato il mese finora e quando arriva la prossima rotazione.
+    v7.93 il canale e' pubblico: NIENTE nomi dei mercati, pesi o liquidita' (sono Premium, nel terminale).
+    Usa solo i dati Basic della pagina (stat e mese in corso)."""
+    prof = [p for p in (dati.get("port") or {}).get("profili") or [] if p.get("nome")]
+    if not prof:
         return None
-    righe = ["<b>📌 COSA MONITORARE NEL PORTAFOGLIO</b>",
-             f"Profilo {_esc(mod['nome'])}, rotazione del {_data_it(dati['port'].get('rotazione'))}:"]
-    for c in mod["composizione"]:
-        if c["k"] in ("CASH",):
+    righe = ["<b>📌 COSA MONITORARE NEL PORTAFOGLIO</b>"]
+    mese = next((p["corrente"].get("mese") for p in prof if p.get("corrente")), None)
+    if mese:
+        righe.append(f"Portafogli modello, {_esc(mese)} finora:")
+    for p in prof:
+        c = p.get("corrente") or {}
+        if c.get("r") is None:
             continue
-        t = c.get("trend")
-        righe.append(f"{semaforo(t)} {_esc(c['nome'])} {_n(c['peso'], 0)}%"
-                     + (f" · {_n(t, 1, True)}% dalla media a 200 giorni" if t is not None else ""))
-    for e in mod.get("esclusi") or []:
-        if e["k"] == "AZ":
-            nome = "Azioni scelte"
-        else:
-            nome = next((x["nome"] for x in mod["base"] if x["k"] == e["k"]), e["k"])
-        t = e.get("trend")
-        righe.append(f"🔴 {_esc(nome)} {_n(e.get('base'), 0)}%: in pausa" +
-                     (f" ({_n(t, 1, True)}% dalla media)" if t is not None else ""))
-    liq = {p["id"]: next((c["peso"] for c in p["composizione"] if c["k"] == "CASH"), 0) for p in prof}
-    righe.append("")
-    righe.append("Liquidità oggi: " + " · ".join(f"{_esc(p['nome'])} {_n(liq.get(p['id'], 0), 0)}%" for p in prof))
+        righe.append(f"{'🟢' if c['r'] >= 0 else '🔴'} {_esc(p['nome'])} {_n(c['r'], 1, True)}%"
+                     + (f" · drawdown {_n(c.get('dd'), 1, True)}%" if c.get("dd") is not None else ""))
     pros = (dati.get("port") or {}).get("prossima")
+    righe.append("")
     if pros:
         d = datetime.strptime(pros, "%Y-%m-%d")
-        righe.append(f"Prossima rotazione: {GIORNI[d.weekday()]} {d.day} {MESI[d.month - 1]}. "
-                     "🟢 sopra la media · 🟡 vicino alla media (può cambiare alla rotazione) · 🔴 in pausa.")
+        righe.append(f"Prossima rotazione: {GIORNI[d.weekday()]} {d.day} {MESI[d.month - 1]}.")
+    righe.append("Composizione, pesi e acquisto guidato: nel terminale, con Premium.")
     return "\n".join(righe)
 
 

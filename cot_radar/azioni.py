@@ -752,6 +752,24 @@ def in_sconto(righe, top, n=SCONTO_N):
 
 
 # --------------------------------------------------------------------------- copia nel sito
+def _premium(dest):
+    """v7.93 dati Premium delle azioni cifrati nel sito (premium.py). Un errore qui non deve mai fermare il sito,
+    ma i dati Premium non devono restare in chiaro: in caso di errore si tolgono le cartelle per titolo."""
+    try:
+        from . import premium
+        premium.proteggi_azioni(dest)
+    except Exception as e:
+        import shutil
+        log.error("premium: protezione delle azioni non riuscita (%s): tolte le schede dei titoli", type(e).__name__)
+        for c in ("titoli", "bilanci", "bilanci_storia", "dividendi", "notizie", "intraday", "profili"):
+            shutil.rmtree(os.path.join(dest, c), ignore_errors=True)
+        for f in ("top.json", "satellite.json", "bilanci.json", "indice.json"):
+            try:
+                os.remove(os.path.join(dest, f))
+            except OSError:
+                pass
+
+
 def copia_nel_sito(out, ramo="azioni", cartella_locale=None):
     """Copia pubblico/ del ramo git "azioni" dentro <out>/azioni/ (lo fa il workflow del sito).
     Se il ramo non c'e' (primo giorno, PC senza git) non fa niente: la scheda mostra il suo stato vuoto."""
@@ -765,6 +783,7 @@ def copia_nel_sito(out, ramo="azioni", cartella_locale=None):
         if os.path.isdir(src):
             shutil.rmtree(dest, ignore_errors=True)
             shutil.copytree(src, dest)
+            _premium(dest)
             return True
         return False
     try:
@@ -781,6 +800,7 @@ def copia_nel_sito(out, ramo="azioni", cartella_locale=None):
                     with open(p, "wb") as fh:
                         fh.write(tf.extractfile(m).read())
         log.info("azioni: dati copiati nel sito (%s)", dest)
+        _premium(dest)
         return True
     except Exception as e:
         log.warning("azioni: ramo '%s' non disponibile (%s): la scheda Azioni mostra l'ultimo stato pubblicato",

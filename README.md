@@ -1,6 +1,9 @@
-# COT Radar
+# EdgeValor
 
-Dashboard che si aggiorna da sola e mette insieme tre fonti pubbliche e gratuite:
+Terminale di analisi dei mercati: **[edgevalor.com](https://edgevalor.com)**. Nel codice il motore si chiama ancora
+`cot_radar` (nome storico del progetto): cambiarlo romperebbe import e workflow senza alcun vantaggio.
+
+Si aggiorna da solo e mette insieme fonti pubbliche e gratuite:
 
 | Fonte | Cosa | Quando esce |
 |---|---|---|
@@ -15,7 +18,7 @@ Dashboard che si aggiorna da sola e mette insieme tre fonti pubbliche e gratuite
 ## Struttura del progetto
 
 ```
-cot-radar/
+EdgeValor/
 ├── main.py                  ← punto di partenza (doppio clic o da terminale)
 ├── cot_radar/               ← il "motore" in Python, un file per ogni compito
 │   ├── config.py            impostazioni: pesi, soglie, strumenti, fonti   ← si modifica qui
