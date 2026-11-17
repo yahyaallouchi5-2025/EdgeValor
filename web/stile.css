@@ -1421,7 +1421,7 @@ html.azaperto,html.azaperto body{overflow:hidden}                       /* la pa
 .vfax{font-size:11px}
 
 /* ===== v6.61 · CARRY: colonna della tabella Forex e vista "Carry" del Backtest storico ===== */
-.crok,.crno,.crnull{display:inline-block;width:16px;margin-left:6px;font-style:normal;font-weight:800;font-size:12px;text-align:center}
+.crok,.crno,.crnull{display:inline-block;width:16px;margin-right:6px;font-style:normal;font-weight:800;font-size:12px;text-align:center}
 .crok{color:#4ade80}.crno{color:#f87171}
 .crvar{margin:-6px 0 14px}.crvar .filters{margin:0;gap:6px}
 .crleg span{opacity:.6;transition:opacity .15s}.crleg span.on{opacity:1;font-weight:700}
@@ -3189,3 +3189,4 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
 .vfbadge.ko{color:var(--s);border:1px solid color-mix(in srgb,var(--s) 45%,transparent);background:color-mix(in srgb,var(--s) 12%,transparent)}
 .vfstato .info{margin-left:0}
 .vfcopia{border:1px solid var(--line);background:none;color:var(--acc);font:700 12px system-ui;border-radius:8px;padding:2px 9px;cursor:pointer}.vfcopia:hover{border-color:var(--acc)}
+.crnull{display:none}

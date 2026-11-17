@@ -4,8 +4,9 @@ try{
 var F="Tutti";
 /* v6.61 CARRY: interessi annui per chi COMPRA la coppia (tasso base - tasso quotata, cot_radar/carry.py).
    Spunta verde = il lato che incassa e' lo stesso del segnale COT; croce rossa = il segnale paga gli interessi. */
+// v7.98: il segno di spunta/croce sta PRIMA del numero, cosi' i numeri restano allineati a destra sotto "Carry"
 const crCella=p=>{if(p.carry==null)return '<td class="num small">n/d<i class="crnull"></i></td>';const c=p.carry;
- return `<td class="num"><span class="${c>0?"up":c<0?"down":""}">${(c>0?"+":c<0?"\u2212":"")+Math.abs(c).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2})}%</span>${p.carry_cot=="si"?'<i class="crok" title="Carry e COT dalla stessa parte: il segnale incassa gli interessi">&#10003;</i>':p.carry_cot=="no"?'<i class="crno" title="Carry contro il COT: il segnale paga gli interessi">&#10007;</i>':'<i class="crnull"></i>'}</td>`;};
+ return `<td class="num">${p.carry_cot=="si"?'<i class="crok" title="Carry e COT dalla stessa parte: il segnale incassa gli interessi">&#10003;</i>':p.carry_cot=="no"?'<i class="crno" title="Carry contro il COT: il segnale paga gli interessi">&#10007;</i>':'<i class="crnull"></i>'}<span class="${c>0?"up":c<0?"down":""}">${(c>0?"+":c<0?"\u2212":"")+Math.abs(c).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2})}%</span></td>`;};
 function drawTable(){const rows=D.pairs.filter(p=>F=="Tutti"||(F=="Divergenze"?p.div:F=="Carry con COT"?p.carry_cot=="si":p.label.includes(F))).slice().sort((a,b)=>b.score-a.score);
  $("ptable").innerHTML=`<tr><th>Coppia</th><th>Posizione</th><th class="num">Finale</th><th></th><th class="num">COT</th><th class="num">Mercato</th><th class="num" title="Interessi annui per chi compra la coppia (tasso base meno tasso quotata)">Carry</th><th>Base</th><th>Quotata</th><th>Divergenza</th><th class="num">Corr. flussi</th></tr>`+
  rows.map(p=>{const s=p.score,w=Math.abs(s)/2,vb=verb(D.assets[p.base].score),vq=verb(D.assets[p.quote].score);
