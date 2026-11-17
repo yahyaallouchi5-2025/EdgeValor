@@ -151,66 +151,71 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const vol=V.unita=="vol";
   GG.pts=rows.map(o=>vol?{d:o.d,n:o.n,mx:o.fv50??0,r:o.rv50??0,mn:-(o.v50??0),mb:o.n>=P90_MIN?-(o.v90??0):null}
                         :{d:o.d,n:o.n,mx:o.mfe50,r:o.res50,mn:o.mae50,mb:o.n>=P90_MIN?o.mae90:null});
-  GG.vol=vol;GG.giorni=GG.giorni||20;GG.zy=GG.zy||1;GG.p90=GG.p90!==false;
-  const maxD=GG.pts[GG.pts.length-1].d,nP90=GG.pts.some(p=>p.mb!=null);
+  GG.vol=vol;GG.giorni=GG.giorni||20;
+  const maxD=GG.pts[GG.pts.length-1].d;
   setTimeout(disegnaGraf,0);
   return `<div class="card vfgraf" id="vfgraf"><div class="vfgtesta"><b>Giorno per giorno <button type="button" class="info" data-apri="vfgrinfo" data-k="vfgraf" aria-label="Mostra o nascondi la spiegazione">i</button></b>
-    <div class="filters vfunita"><button data-u="pct" class="${vol?"":"on"}">in %</button><button data-u="vol" class="${vol?"on":""}">in volatilit&agrave;</button></div></div>
-   <p id="vfgrinfo" class="sub infotesto${infoAperte.has("vfgraf")?" aperta":""}">Per ogni giorno dall'ingresso: <b>verde</b> = guadagno massimo tipico, <b>rosso</b> = drawdown tipico (mediane), <b>bianco</b> = risultato tipico. <b>P90</b> (tratteggio) = 1 trade su 10 &egrave; andato contro pi&ugrave; di cos&igrave;: compare solo con almeno ${P90_MIN} trade per giorno, perch&eacute; con pochi trade &egrave; solo il trade peggiore. Ogni giorno conta i trade arrivati fin l&igrave;, quindi i primi giorni possono contarne di pi&ugrave;. Passa il mouse (o tocca) per i numeri del giorno.</p>
-   <div class="vfgzoom"><div class="filters vfgx">${[[5,"1 sett."],[10,"2 sett."],[20,"4 sett."]].map(([g,t])=>`<button data-gx="${g}" class="${GG.giorni==g?"on":""}"${g>5&&maxD<=g/2?" disabled":""}>${t}</button>`).join("")}</div>
-    <div class="filters vfgy"><button data-gy="in" title="Ingrandisci in verticale" aria-label="Ingrandisci in verticale">+</button><button data-gy="out" title="Rimpicciolisci in verticale" aria-label="Rimpicciolisci in verticale">&minus;</button><button data-gy="fit" class="${GG.zy==1?"on":""}">Adatta</button>${nP90?`<button data-gp="1" class="${GG.p90?"on":""}">P90</button>`:""}</div></div>
-   <div class="vfgarea"><svg class="vfgsvg" role="img" aria-label="Drawdown e guadagno giorno per giorno"></svg><div class="vfgtip" hidden></div></div>
-   <div class="vfleg small"><span><i style="background:var(--b)"></i>guadagno max</span><span><i style="background:var(--s)"></i>drawdown</span>${nP90?`<span><i class="tratt"></i>drawdown P90</span>`:""}<span><i style="background:var(--ink)"></i>risultato</span>${nP90?"":`<span class="vfgnop90">P90 nascosto: meno di ${P90_MIN} trade</span>`}</div></div>`;}
+    <div class="vfgcomandi"><div class="vfseg vfgx">${[[5,"1 sett."],[10,"2 sett."],[20,"4 sett."]].map(([g,t])=>`<button data-gx="${g}" class="${GG.giorni==g?"on":""}"${g>5&&maxD<=g/2?" disabled":""}>${t}</button>`).join("")}</div>
+    <div class="vfseg vfunita"><button data-u="pct" class="${vol?"":"on"}">in %</button><button data-u="vol" class="${vol?"on":""}">in volatilit&agrave;</button></div></div></div>
+   <p id="vfgrinfo" class="sub infotesto${infoAperte.has("vfgraf")?" aperta":""}">Per ogni giorno dopo l'ingresso: <b>verde</b> = quanto sale al massimo un trade tipico, <b>rosso</b> = quanto va contro, <b>bianco</b> = come sta andando (mediane). <b>1 su 10</b> = il drawdown superato solo da un trade su dieci: compare con almeno ${P90_MIN} trade per giorno. Scorri sul grafico con il mouse o il dito per leggere ogni giorno.</p>
+   <div class="vfgkpi" aria-live="polite"></div>
+   <div class="vfgarea"><svg class="vfgsvg" role="img" aria-label="Guadagno, drawdown e risultato giorno per giorno"></svg></div></div>`;}
+
+ // curva morbida che passa per i punti senza superarli (spline monotona di Fritsch-Carlson)
+ function curva(P){const n=P.length;if(n<2)return "";if(n==2)return `M${P[0][0]},${P[0][1]}L${P[1][0]},${P[1][1]}`;
+  const dx=[],m=[],s=[];for(let i=0;i<n-1;i++){dx[i]=P[i+1][0]-P[i][0];s[i]=(P[i+1][1]-P[i][1])/dx[i];}
+  m[0]=s[0];m[n-1]=s[n-2];for(let i=1;i<n-1;i++)m[i]=s[i-1]*s[i]<=0?0:(s[i-1]+s[i])/2;
+  for(let i=0;i<n-1;i++){if(s[i]==0){m[i]=m[i+1]=0;continue;}const a=m[i]/s[i],b=m[i+1]/s[i],h=a*a+b*b;if(h>9){const k=3/Math.sqrt(h);m[i]=k*a*s[i];m[i+1]=k*b*s[i];}}
+  let d=`M${P[0][0].toFixed(1)},${P[0][1].toFixed(1)}`;
+  for(let i=0;i<n-1;i++){const c=dx[i]/3;d+=`C${(P[i][0]+c).toFixed(1)},${(P[i][1]+m[i]*c).toFixed(1)} ${(P[i+1][0]-c).toFixed(1)},${(P[i+1][1]-m[i+1]*c).toFixed(1)} ${P[i+1][0].toFixed(1)},${P[i+1][1].toFixed(1)}`;}
+  return d;}
 
  function disegnaGraf(){const box=document.getElementById("vfgraf");if(!box||!GG.pts)return;
-  const svg=box.querySelector(".vfgsvg"),W=Math.max(280,Math.round(svg.getBoundingClientRect().width||box.clientWidth-32));
-  const mob=W<600,H=mob?220:250,L=mob?40:48,R=12,T=12,B=26,vol=GG.vol;
-  // giorni visibili: la scelta 1/2/4 settimane, ma mai oltre l'ultimo giorno con dati (niente spazio vuoto a destra)
-  const ultimo=GG.pts[GG.pts.length-1].d,fine=Math.max(2,Math.min(GG.giorni,ultimo)),pts=GG.pts.filter(p=>p.d<=fine);
-  const conP=GG.p90&&pts.some(p=>p.mb!=null);
-  const vals=pts.flatMap(p=>[p.mx,p.r,p.mn].concat(conP&&p.mb!=null?[p.mb]:[])).filter(v=>v!=null);
-  let lo=Math.min(0,...vals),hi=Math.max(0,...vals);const pad=(hi-lo||1)*0.08;lo-=pad;hi+=pad;
-  const c=(hi+lo)/2,mezza=(hi-lo)/2/GG.zy;lo=c-mezza;hi=c+mezza;            // zoom verticale attorno al centro
-  const X=d=>L+(d-1)/Math.max(1,fine-1)*(W-L-R),Y=v=>T+(hi-v)/(hi-lo)*(H-T-B);
-  const cl=v=>Y(v);                                     // con lo zoom le linee escono: le taglia il clipPath "vfgclip"
-  const path=(k)=>{let d="",su=false;pts.forEach(p=>{if(p[k]==null){su=false;return;}d+=(su?"L":"M")+X(p.d).toFixed(1)+" "+cl(p[k]).toFixed(1)+" ";su=true;});return d;};
-  // tacche "belle" sull'asse: 1-2-5 x 10^n, circa 5 righe
-  const grezzo=(hi-lo)/5,e=Math.pow(10,Math.floor(Math.log10(grezzo))),passo=[1,2,5,10].map(m=>m*e).find(x=>x>=grezzo);
-  const et=v=>{const a=Math.abs(v)<passo/1e3?0:v,dec=passo<0.1?2:passo<1?1:0;
-   return (a>0?"+":a<0?"&minus;":"")+Math.abs(a).toLocaleString("it-IT",{minimumFractionDigits:dec,maximumFractionDigits:dec})+(vol?"&times;":"%");};
-  const tacche=[];for(let v=Math.ceil(lo/passo)*passo;v<=hi+1e-9;v+=passo)tacche.push(v);
-  const xt=[1].concat([5,10,15,20].filter(d=>d<=fine&&d>1));if(xt[xt.length-1]!=fine&&fine-xt[xt.length-1]>=2)xt.push(fine);
-  const xe=d=>d==1?"1 g":d%5==0?d/5+" sett.":d+" g";
-  const area=pts.map((p,i)=>(i?"L":"M")+X(p.d).toFixed(1)+" "+cl(p.mx).toFixed(1)).join(" ")+" "+pts.slice().reverse().map(p=>"L"+X(p.d).toFixed(1)+" "+cl(p.mn).toFixed(1)).join(" ")+" Z";
+  const svg=box.querySelector(".vfgsvg"),kpi=box.querySelector(".vfgkpi"),W=Math.max(280,Math.round(svg.getBoundingClientRect().width||box.clientWidth-32));
+  const mob=W<600,H=mob?210:260,L=6,R=mob?44:52,T=14,B=26,vol=GG.vol;
+  const ultimo=GG.pts[GG.pts.length-1].d,fine=Math.max(2,Math.min(GG.giorni,ultimo)),pts=[{d:0,n:0,mx:0,r:0,mn:0,mb:null}].concat(GG.pts.filter(p=>p.d<=fine));
+  const vals=pts.flatMap(p=>[p.mx,p.r,p.mn]).filter(v=>v!=null);
+  let lo=Math.min(0,...vals),hi=Math.max(0,...vals);const pad=(hi-lo||1)*0.1;lo-=pad;hi+=pad;
+  const X=d=>L+d/fine*(W-L-R),Y=v=>T+(hi-v)/(hi-lo)*(H-T-B),z=Y(0);
+  const P=k=>pts.map(p=>[X(p.d),Y(p[k])]);
+  const area=k=>`${curva(P(k))}L${X(fine).toFixed(1)},${z.toFixed(1)}L${X(0).toFixed(1)},${z.toFixed(1)}Z`;
+  const f=(v,dec=2)=>v==null?"n/d":(v>0?"+":v<0?"&minus;":"")+Math.abs(v).toLocaleString("it-IT",{minimumFractionDigits:dec,maximumFractionDigits:dec})+(vol?"&times;":"%");
+  const xt=[0].concat([5,10,15,20].filter(d=>d<fine)).concat(fine>2?[fine]:[]);
+  const xe=d=>d==0?"ingresso":d%5==0?d/5+(d==5?" sett.":" sett."):d+" g";
+  // etichette di scala a destra: massimo, zero, minimo (bastano per orientarsi)
+  const scala=[hi-pad,0,lo+pad].filter((v,i,a)=>i==1||Math.abs(v)>(hi-lo)*0.12);
   svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.style.height=H+"px";
-  svg.innerHTML=`${tacche.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="${Math.abs(v)<passo/1e3?"vfg0":"vfgl"}"/><text x="${L-6}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end" class="vfax">${et(v)}</text>`).join("")}
-   ${xt.map(d=>`<text x="${X(d).toFixed(1)}" y="${H-8}" text-anchor="${d==1?"start":d==fine?"end":"middle"}" class="vfax">${xe(d)}</text>`).join("")}
-   <defs><clipPath id="vfgclip"><rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}"/></clipPath></defs><g clip-path="url(#vfgclip)"><path d="${area}" class="vfgar"/>
-   <path d="${path("mx")}" class="vfgln" stroke="var(--b)"/>${conP?`<path d="${path("mb")}" class="vfgln vfgp" stroke="var(--s)"/>`:""}
-   <path d="${path("mn")}" class="vfgln" stroke="var(--s)"/><path d="${path("r")}" class="vfgln" stroke="var(--ink)"/></g>
-   <line class="vfgcur" y1="${T}" y2="${H-B}" x1="-10" x2="-10"/><g class="vfgpt"></g>
-   <rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" class="vfghit"/>`;
-  // dettaglio del giorno sotto il mouse/dito
-  const tip=box.querySelector(".vfgtip"),cur=svg.querySelector(".vfgcur"),gp=svg.querySelector(".vfgpt"),hit=svg.querySelector(".vfghit");
-  const f=v=>v==null?"n/d":(v>0?"+":v<0?"&minus;":"")+Math.abs(v).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2})+(vol?"&times;":"%");   // dettaglio: 2 decimali
-  const mostra=ev=>{const r=svg.getBoundingClientRect(),x=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left;
-   const p=pts.reduce((a,q)=>Math.abs(X(q.d)-x)<Math.abs(X(a.d)-x)?q:a,pts[0]),px=X(p.d);
-   cur.setAttribute("x1",px);cur.setAttribute("x2",px);
-   gp.innerHTML=[["mx","var(--b)"],["mn","var(--s)"],["r","var(--ink)"]].concat(conP&&p.mb!=null?[["mb","var(--s)"]]:[]).map(([k,c])=>`<circle cx="${px}" cy="${cl(p[k])}" r="3.5" fill="${c}" stroke="var(--card)" stroke-width="1.5"/>`).join("");
-   tip.innerHTML=`<b>${p.d%5==0?p.d/5+(p.d==5?" settimana":" settimane"):"Giorno "+p.d}</b><span><i style="background:var(--b)"></i>guadagno max ${f(p.mx)}</span><span><i style="background:var(--s)"></i>drawdown ${f(p.mn)}</span>${conP&&p.mb!=null?`<span><i class="tratt"></i>P90 ${f(p.mb)}</span>`:""}<span><i style="background:var(--ink)"></i>risultato ${f(p.r)}</span><em>${p.n.toLocaleString("it-IT")} trade</em>`;
-   tip.hidden=false;const tw=tip.offsetWidth;tip.style.left=Math.max(0,Math.min(r.width-tw,px+12>r.width-tw?px-tw-12:px+12))+"px";};
-  const nascondi=()=>{tip.hidden=true;cur.setAttribute("x1",-10);cur.setAttribute("x2",-10);gp.innerHTML="";};
-  tip.hidden=true;                                      // ridisegno (zoom): il dettaglio vecchio sparisce
-  hit.onmousemove=mostra;hit.onmouseleave=nascondi;hit.ontouchstart=hit.ontouchmove=e=>{mostra(e);};
+  svg.innerHTML=`<defs><linearGradient id="vfgv" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--b)" stop-opacity=".42"/><stop offset="1" stop-color="var(--b)" stop-opacity="0"/></linearGradient>
+    <linearGradient id="vfgr" x1="0" x2="0" y1="1" y2="0"><stop offset="0" stop-color="var(--s)" stop-opacity=".42"/><stop offset="1" stop-color="var(--s)" stop-opacity="0"/></linearGradient>
+    <filter id="vfgalo" x="-5%" y="-30%" width="110%" height="160%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+   <path d="${area("mx")}" fill="url(#vfgv)"/><path d="${area("mn")}" fill="url(#vfgr)"/>
+   <line x1="${L}" x2="${W-R}" y1="${z.toFixed(1)}" y2="${z.toFixed(1)}" class="vfg0"/>
+   <path d="${curva(P("mx"))}" class="vfgln" stroke="var(--b)"/><path d="${curva(P("mn"))}" class="vfgln" stroke="var(--s)"/>
+   <path d="${curva(P("r"))}" class="vfgalo" filter="url(#vfgalo)"/><path d="${curva(P("r"))}" class="vfgln vfgris"/>
+   ${scala.map(v=>`<text x="${W-R+8}" y="${(Y(v)+4).toFixed(1)}" class="vfax">${f(v,v==0?0:1)}</text>`).join("")}
+   ${xt.map(d=>`<text x="${X(d).toFixed(1)}" y="${H-7}" text-anchor="${d==0?"start":d==fine?"end":"middle"}" class="vfax">${xe(d)}</text>`).join("")}
+   <line class="vfgcur" y1="${T-6}" y2="${H-B}" x1="-10" x2="-10"/><circle class="vfgpunto" r="6.5" cx="-20" cy="-20"/>
+   <rect x="${L}" y="0" width="${W-L-R}" height="${H-B}" fill="transparent" class="vfghit"/>`;
+  // numeri grandi in alto: il giorno sotto il mouse/dito, altrimenti l'ultimo
+  const cur=svg.querySelector(".vfgcur"),pu=svg.querySelector(".vfgpunto"),hit=svg.querySelector(".vfghit");
+  const leggi=p=>{kpi.innerHTML=`<div class="vfgk1"><small>${p.d%5==0?p.d/5+(p.d==5?" settimana":" settimane"):"Giorno "+p.d} &middot; risultato</small><b class="${p.r>=0?"su":"giu"}">${f(p.r)}</b></div>
+    <div><small>Guadagno max</small><em class="su">${f(p.mx)}</em></div><div><small>Drawdown</small><em class="giu">${f(p.mn)}</em></div>
+    <div><small>1 su 10</small>${p.mb!=null?`<em class="giu tenue">fino a ${f(p.mb)}</em>`:`<em class="muto">pochi trade</em>`}</div><div class="vfgn"><small>Trade</small><em>${p.n.toLocaleString("it-IT")}</em></div>`;};
+  const vero=pts.slice(1);
+  const mostra=ev=>{const r=svg.getBoundingClientRect(),x=((ev.touches?ev.touches[0].clientX:ev.clientX)-r.left)*W/r.width;
+   const p=vero.reduce((a,q)=>Math.abs(X(q.d)-x)<Math.abs(X(a.d)-x)?q:a,vero[0]),px=X(p.d);
+   cur.setAttribute("x1",px);cur.setAttribute("x2",px);pu.setAttribute("cx",px);pu.setAttribute("cy",Y(p.r));leggi(p);};
+  const riposo=()=>{const p=vero[vero.length-1];cur.setAttribute("x1",-10);cur.setAttribute("x2",-10);pu.setAttribute("cx",X(p.d));pu.setAttribute("cy",Y(p.r));leggi(p);};
+  riposo();
+  hit.onmousemove=mostra;hit.onmouseleave=riposo;hit.ontouchstart=hit.ontouchmove=e=>{mostra(e);};hit.ontouchend=()=>setTimeout(riposo,1800);
   if(!GG.ro){GG.ro=new ResizeObserver(()=>{clearTimeout(GG.rt);GG.rt=setTimeout(disegnaGraf,80);});}
   GG.ro.disconnect();GG.ro.observe(box);}
- // zoom e P90: ridisegnano solo il grafico (la pagina resta ferma)
- document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#vfgraf [data-gx],#vfgraf [data-gy],#vfgraf [data-gp]");if(!b||b.disabled)return;
-  const box=document.getElementById("vfgraf");
-  if(b.dataset.gx){GG.giorni=+b.dataset.gx;box.querySelectorAll("[data-gx]").forEach(x=>x.classList.toggle("on",x==b));}
-  if(b.dataset.gy){GG.zy=b.dataset.gy=="in"?Math.min(8,GG.zy*1.5):b.dataset.gy=="out"?Math.max(0.5,GG.zy/1.5):1;box.querySelector("[data-gy=fit]").classList.toggle("on",GG.zy==1);}
-  if(b.dataset.gp){GG.p90=!GG.p90;b.classList.toggle("on",GG.p90);}
-  disegnaGraf();});
+ // Copia dell'impronta del registro (nella (i) dello stato)
+ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".vfcopia");if(!b)return;
+  try{navigator.clipboard.writeText(b.dataset.hash).then(()=>{b.textContent="Copiata";setTimeout(()=>b.textContent="Copia",1600);});}catch(_){}});
+ // durata visibile: ridisegna solo il grafico (la pagina resta ferma)
+ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#vfgraf [data-gx]");if(!b||b.disabled)return;
+  GG.giorni=+b.dataset.gx;document.querySelectorAll("#vfgraf [data-gx]").forEach(x=>x.classList.toggle("on",x==b));disegnaGraf();});
 
  /* FASCE: quanti trade sono andati contro meno di mezza settimana tipica, tra mezza e una, tra una e due, oltre */
  function fasce(o){if(!o||o.h1==null)return "";
