@@ -3168,7 +3168,7 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
 .vfseg button:hover:not(:disabled){color:var(--ink)}.vfseg button.on{background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
 .vfseg button:disabled{opacity:.35;cursor:default}
 .vfgkpi{display:flex;align-items:flex-end;gap:10px 28px;flex-wrap:wrap;margin:10px 0 6px;min-height:58px}
-.vfgkpi>div{display:flex;flex-direction:column;gap:2px}
+.vfgkpi>div{display:flex;flex-direction:column;gap:2px;min-width:92px}.vfgkpi .vfgk1{min-width:158px}.vfgkpi .vfgn{min-width:0}
 .vfgkpi small{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--mute);white-space:nowrap}
 .vfgkpi b{font-size:32px;line-height:1;letter-spacing:-.8px;font-variant-numeric:tabular-nums}
 .vfgkpi em{font-style:normal;font-size:19px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
@@ -3180,7 +3180,7 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
 #vfgraf .vfg0{stroke:var(--mute);stroke-dasharray:3 5;opacity:.6}
 #vfgraf .vfgcur{stroke:#fff;stroke-width:1;stroke-dasharray:none;opacity:.45}
 .vfgpunto{fill:var(--acc);stroke:#fff;stroke-width:2;filter:drop-shadow(0 0 6px rgba(46,196,182,.7))}
-@media (max-width:600px){.vfgkpi{gap:8px 18px}.vfgkpi b{font-size:26px}.vfgkpi em{font-size:16px}.vfgkpi .tenue{font-size:14px}.vfgkpi .vfgn{display:none}}
+@media (max-width:600px){.vfgkpi>div{min-width:78px}.vfgkpi .vfgk1{min-width:128px}.vfgkpi{gap:8px 18px}.vfgkpi b{font-size:26px}.vfgkpi em{font-size:16px}.vfgkpi .tenue{font-size:14px}.vfgkpi .vfgn{display:none}}
 /* v7.97 stato del registro: badge "Registro verificato" */
 .vfstato{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .vfbadge{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:99px;font:700 12.5px system-ui}

@@ -201,15 +201,24 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const leggi=p=>{kpi.innerHTML=`<div class="vfgk1"><small>${p.d%5==0?p.d/5+(p.d==5?" settimana":" settimane"):"Giorno "+p.d} &middot; risultato</small><b class="${p.r>=0?"su":"giu"}">${f(p.r)}</b></div>
     <div><small>Guadagno max</small><em class="su">${f(p.mx)}</em></div><div><small>Drawdown</small><em class="giu">${f(p.mn)}</em></div>
     <div><small>1 su 10</small>${p.mb!=null?`<em class="giu tenue">fino a ${f(p.mb)}</em>`:`<em class="muto">pochi trade</em>`}</div><div class="vfgn"><small>Trade</small><em>${p.n.toLocaleString("it-IT")}</em></div>`;};
-  const vero=pts.slice(1);
-  const mostra=ev=>{const r=svg.getBoundingClientRect(),x=((ev.touches?ev.touches[0].clientX:ev.clientX)-r.left)*W/r.width;
-   const p=vero.reduce((a,q)=>Math.abs(X(q.d)-x)<Math.abs(X(a.d)-x)?q:a,vero[0]),px=X(p.d);
-   cur.setAttribute("x1",px);cur.setAttribute("x2",px);pu.setAttribute("cx",px);pu.setAttribute("cy",Y(p.r));leggi(p);};
-  const riposo=()=>{const p=vero[vero.length-1];cur.setAttribute("x1",-10);cur.setAttribute("x2",-10);pu.setAttribute("cx",X(p.d));pu.setAttribute("cy",Y(p.r));leggi(p);};
+  const vero=pts.slice(1),ris=svg.querySelector(".vfgris"),lung=ris.getTotalLength();
+  // y della linea bianca in un punto x qualsiasi (ricerca sulla curva): il pallino scorre liscio, non a scatti
+  const ySu=x=>{let a=0,b=lung;for(let i=0;i<14;i++){const m=(a+b)/2;if(ris.getPointAtLength(m).x<x)a=m;else b=m;}return ris.getPointAtLength((a+b)/2).y;};
+  let giorno=null,attesa=0;
+  // la linea verticale segue il mouse/dito in modo continuo; i numeri in alto sono quelli del giorno piu' vicino
+  const mostra=ev=>{const cx=ev.touches?ev.touches[0].clientX:ev.clientX;if(attesa)cancelAnimationFrame(attesa);
+   attesa=requestAnimationFrame(()=>{attesa=0;const r=svg.getBoundingClientRect(),x=Math.max(X(0),Math.min(X(fine),(cx-r.left)*W/r.width));
+    const p=vero.reduce((a,q)=>Math.abs(X(q.d)-x)<Math.abs(X(a.d)-x)?q:a,vero[0]);
+    cur.setAttribute("x1",x);cur.setAttribute("x2",x);pu.setAttribute("cx",x);pu.setAttribute("cy",ySu(x));
+    if(p!=giorno){giorno=p;leggi(p);}});};
+  const riposo=()=>{if(attesa){cancelAnimationFrame(attesa);attesa=0;}const p=vero[vero.length-1];giorno=p;cur.setAttribute("x1",-10);cur.setAttribute("x2",-10);pu.setAttribute("cx",X(p.d));pu.setAttribute("cy",Y(p.r));leggi(p);};
   riposo();
   hit.onmousemove=mostra;hit.onmouseleave=riposo;hit.ontouchstart=hit.ontouchmove=e=>{mostra(e);};hit.ontouchend=()=>setTimeout(riposo,1800);
-  if(!GG.ro){GG.ro=new ResizeObserver(()=>{clearTimeout(GG.rt);GG.rt=setTimeout(disegnaGraf,80);});}
-  GG.ro.disconnect();GG.ro.observe(box);}
+  // v7.99 si ridisegna SOLO se cambia la larghezza del riquadro. Prima l'osservatore veniva riagganciato a ogni
+  // disegno e ripartiva da solo ogni 80 ms: il grafico si rifaceva di continuo e la linea sotto il mouse sfarfallava.
+  GG.w=box.clientWidth;
+  if(!GG.ro)GG.ro=new ResizeObserver(()=>{const b=document.getElementById("vfgraf");if(!b||b.clientWidth==GG.w)return;clearTimeout(GG.rt);GG.rt=setTimeout(disegnaGraf,80);});
+  if(GG.box!=box){GG.ro.disconnect();GG.ro.observe(box);GG.box=box;}}
  // Copia dell'impronta del registro (nella (i) dello stato)
  document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest(".vfcopia");if(!b)return;
   try{navigator.clipboard.writeText(b.dataset.hash).then(()=>{b.textContent="Copiata";setTimeout(()=>b.textContent="Copia",1600);});}catch(_){}});
