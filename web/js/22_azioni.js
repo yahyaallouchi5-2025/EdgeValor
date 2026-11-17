@@ -50,7 +50,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  // --- caricamento (una sola volta, quando la scheda diventa visibile)
  let caricato=null;
  function carica(){if(caricato)return caricato;scheletro();
-  return caricato=fetch(BASE+"indice.json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+  return caricato=fetch(BASE+"indice.json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(premJ)
    .then(d=>{ST.dati=d;window.__azioni=d;disegna();leggiLive();
     if(d.anomalia)ebManutenzione({scheda:"azioni",codice:d.anomalia.codice,quando:d.anomalia.quando,dal:d.aggiornato});})
    .catch(e=>{console.error("[EdgeValor] azioni non caricate:",e);
@@ -207,13 +207,13 @@ try{(function(){const el=$("azioni");if(!el)return;
      return `<button class="azsc${ST.set==s.id?" on":""}" data-s="${s.id}" title="${esc(s.nome)}"><span><i>${esc(NOME_CARD[s.id]||s.nome)}</i><small>${t.length}</small></span><b class="${y>=0?"up":"down"}">${y==null?"n/d":(y>0?"+":"")+fx(y,1)+"%"}</b>
       <em>1 mese ${m==null?"n/d":(m>0?"+":"")+fx(m,1)+"%"}</em><span class="azbr" title="${sopra}% dei titoli sopra la media a 200 giorni"><i style="width:${sopra}%"></i></span><small class="azbrt">${sopra}% in trend rialzista</small></button>`;}).join("")}</div>
    <div class="azclt"><h3 class="vft azcl">${ST.set=="tutti"?"Classifica":esc(nomeSet(ST.set))} <span class="small">${righe.length} titoli${ST.cerca?" per &laquo;"+esc(ST.cerca)+"&raquo;":""}</span></h3>
-    <button type="button" class="aztrf${ST.soloSu?" on":""}" aria-pressed="${!!ST.soloSu}" title="Mostra solo i titoli in trend rialzista">${trIcon(1)}Solo trend rialzista</button>${window.ebPdf?ebPdf.bottone():""}</div>
-   <div class="tablewrap"><table class="aztab"><tr>${COL.map(c=>`<th class="${c[2]?"num":""} ${c[3]||""}${c[0]!="sp"?" azo":""}${ST.ord==c[0]?" on":""}" ${c[0]!="sp"?`data-o="${c[0]}"`:""}${c[0]=="sdo"?` title="Quanto il prezzo &egrave; sotto il massimo dell'ultimo anno. &Egrave; un'informazione, non un segnale: nei nostri dati lo sconto da solo non ha fatto rendere di pi&ugrave;."`:""}${c[0]=="st_pos"?` title="Stagionalit&agrave; di ${mese}: quota di anni positivi e rendimento medio del mese"`:""}${c[0]=="t200"?` title="Distanza dalla media a 200 giorni: positivo = trend rialzista"`:""}${c[0]=="pt"?` title="Punteggio 0-100: forza 12 e 3 mesi, trend e stagionalit&agrave; del mese"`:""}>${c[1]}${ST.ord==c[0]?(ST.dir>0?" &uarr;":" &darr;"):""}</th>`).join("")}</tr>
+    ${EB_PREMIUM?`<button type="button" class="aztrf${ST.soloSu?" on":""}" aria-pressed="${!!ST.soloSu}" title="Mostra solo i titoli in trend rialzista">${trIcon(1)}Solo trend rialzista</button>${window.ebPdf?ebPdf.bottone():""}`:""}</div>
+   ${EB_PREMIUM?`<div class="tablewrap"><table class="aztab"><tr>${COL.map(c=>`<th class="${c[2]?"num":""} ${c[3]||""}${c[0]!="sp"?" azo":""}${ST.ord==c[0]?" on":""}" ${c[0]!="sp"?`data-o="${c[0]}"`:""}${c[0]=="sdo"?` title="Quanto il prezzo &egrave; sotto il massimo dell'ultimo anno. &Egrave; un'informazione, non un segnale: nei nostri dati lo sconto da solo non ha fatto rendere di pi&ugrave;."`:""}${c[0]=="st_pos"?` title="Stagionalit&agrave; di ${mese}: quota di anni positivi e rendimento medio del mese"`:""}${c[0]=="t200"?` title="Distanza dalla media a 200 giorni: positivo = trend rialzista"`:""}${c[0]=="pt"?` title="Punteggio 0-100: forza 12 e 3 mesi, trend e stagionalit&agrave; del mese"`:""}>${c[1]}${ST.ord==c[0]?(ST.dir>0?" &uarr;":" &darr;"):""}</th>`).join("")}</tr>
     ${vis.map(t=>`<tr class="clic" data-t="${esc(t.t)}" tabindex="0"><td class="num azrk">${t.rk}</td><td class="aznome">${ebLista.stella("az",t.t)}<b>${esc(t.n)}${trIcon(t.tr)}</b><span>${esc(t.t)} &middot; ${t.l.map(nomeList).join(", ")}${t.dq?` <em class="azdq" title="Seconda quotazione della stessa societ&agrave; (principale: ${esc(t.dq)})">2&ordf; quot.</em>`:""}${evChip(t)}</span></td>
      <td>${forza(t.pt)}</td><td class="num">${sdCella(t)}</td><td class="num" data-lv="${esc(t.t)}">${prezzoCella(t)}</td><td class="num" data-lv="${esc(t.t)}" data-k="g">${varCella(t)}</td><td class="num">${pc(t.v1m)}</td><td class="num azh">${pc(t.v3m)}</td><td class="num azh azh4">${pc(t.vytd)}</td>
      <td class="num">${pc(t.v1a)}</td><td class="num azh">${t.dy?`<b class="azdy">${fx(t.dy,1)}%</b>`:'<span class="flat">&ndash;</span>'}</td><td class="num azh azst">${t.st_pos==null?'<span class="flat">n/d</span>':`<b>${t.st_pos}%</b> ${pc(t.st_media)}`}</td><td class="num azh azh3">${pc(t.t200)}</td><td class="azh2">${spark(t.sp,(t.v1a||0)>=0?"su":"giu")}</td></tr>`).join("")}
     ${!righe.length?`<tr><td colspan="14" class="small" style="text-align:center;padding:28px">Nessun titolo con questi filtri.</td></tr>`:""}</table></div>
-   ${pagine(ord.length)}`;
+   ${pagine(ord.length)}`:ebBlocco("Classifica dei titoli","Forza 0-100, sconto dal massimo, stagionalità del mese e trend di ogni azienda.",{velo:true,righe:8})}`;
   // eventi
   /* SUGGERIMENTI MENTRE SCRIVI: da 1 lettera, per nome o ticker (senza maiuscole/accenti), massimo 6 righe.
      Ordine: ticker esatto > ticker che inizia > nome che inizia > una parola del nome che inizia > contiene.
@@ -275,7 +275,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    <div class="azbarra"><button class="azx" aria-label="Torna all'elenco dei titoli"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Indietro</button>
     <span class="azbt"><b>${esc(t.n)}</b><small>${esc(t.t)}</small></span></div>
    <div class="azwrap">
-   <div class="aztesta"><span class="small azsez">${esc(nomeSet(t.s))} &middot; ${t.l.map(nomeList).join(", ")} &middot; ${esc(borsa(t.t))}<span class="azisin"></span></span><h3>${esc(t.n)} <small>${esc(t.t)}</small>${ebLista.stella("az",t.t)}</h3><div class="azfzr">${forzaTesta(t)}${window.ebPdf?ebPdf.bottone("azpdf"):""}</div>${(()=>{const p=t.dq&&ST.dati.titoli.find(x=>x.t==t.dq);   // v7.24 seconda quotazione: rimando alla principale
+   <div class="aztesta"><span class="small azsez">${esc(nomeSet(t.s))} &middot; ${t.l.map(nomeList).join(", ")} &middot; ${esc(borsa(t.t))}<span class="azisin"></span></span><h3>${esc(t.n)} <small>${esc(t.t)}</small>${ebLista.stella("az",t.t)}</h3><div class="azfzr">${forzaTesta(t)}${EB_PREMIUM&&window.ebPdf?ebPdf.bottone("azpdf"):""}</div>${(()=>{const p=t.dq&&ST.dati.titoli.find(x=>x.t==t.dq);   // v7.24 seconda quotazione: rimando alla principale
      return p?`<button type="button" class="azdqv" data-t="${esc(p.t)}">Seconda quotazione: la principale &egrave; <b>${esc(p.n)} &middot; ${esc(p.t)}</b><span aria-hidden="true">&rarr;</span></button>`:"";})()}${evAvviso(t)}
     <div class="azprz" data-lv="${esc(t.t)}" data-k="h">${testaPrezzo(t)}</div></div>
    <div class="azcorpo">${sk("100%",230,"border-radius:14px")}<div class="azmini">${Array(6).fill(`<div>${sk("60%",11)}${sk("70%",18)}</div>`).join("")}</div>${sk("100%",150,"border-radius:14px;margin-top:18px")}</div></div></div>`;
@@ -285,7 +285,9 @@ try{(function(){const el=$("azioni");if(!el)return;
   const pb=ov.querySelector(".azpdf");if(pb)pb.onclick=()=>ebPdf.avvia(pb,()=>pdfTit(t));
   requestAnimationFrame(()=>ov.classList.add("on"));ov.querySelector(".azx").focus({preventScroll:true});
   try{window.ebStat&&ebStat.ev("azione",{ticker:tk});}catch(e){}
-  fetch(BASE+"titoli/"+encodeURIComponent(tk.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+  // v7.93 Basic: testata della scheda (nome, settore, prezzo) e lucchetto al posto di grafico, forza, bilanci e notizie
+  if(!EB_PREMIUM){const c=ov.querySelector(".azcorpo");if(c)c.innerHTML=ebBlocco("Scheda completa dell'azienda","Grafico, forza, stagionalità, bilanci, dividendi e notizie.",{velo:true,righe:7});return;}
+  fetch(BASE+"titoli/"+encodeURIComponent(tk.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(premJ)
    .then(x=>{if(!ov.querySelector(".azcorpo"))return;ST.tit=x;corpo(ov,t,x);})
    .catch(e=>{console.error("[EdgeValor] scheda titolo:",e);const c=ov.querySelector(".azcorpo");if(c)c.innerHTML=`<div class="card azvuoto"><h3>Dettaglio non disponibile</h3><p class="small">Riprova tra qualche minuto.</p></div>`;});}
 
@@ -322,7 +324,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  //     Bilancio, dividendi e profilo si rileggono dai loro file (il browser li ha gia' in memoria: e' immediato).
  //     DEBUG: se una sezione manca nel PDF, manca anche il suo file (es. bilanci/<T>.json solo per le aziende USA).
  function pdfTit(t){const E=window.ebPdf,x=ST.tit;if(!E||!x||!x.d)return Promise.resolve();
-  const nf=encodeURIComponent(t.t.replace("^","_"))+".json",js=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
+  const nf=encodeURIComponent(t.t.replace("^","_"))+".json",js=u=>fetch(u).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null);
   return Promise.all([js(BASE+"bilanci/"+nf),js(BASE+"dividendi/"+nf),js(BASE+"profili/"+nf)]).then(([bil,dv,pr])=>{
    const C=E.C,d=E.Doc();d.pagina();const {M,PW}=d,LW=PW-2*M,T=`${t.n} (${t.t})`;
    const SP={USD:"$",EUR:"€",GBP:"£",JPY:"¥",CHF:"CHF ",HKD:"HK$",CNY:"CNY ",INR:"INR ",CAD:"C$",AUD:"A$"};   // simboli che il PDF sa scrivere
@@ -431,7 +433,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  const giornoIt=ts=>new Date(ts*1000).toLocaleDateString("it-IT",{timeZone:"Europe/Rome",weekday:"short",day:"2-digit",month:"2-digit"});
  function datiIntra(t){const f=encodeURIComponent(t.t.replace("^","_"))+".json";
   if(!CINTRA[t.t])CINTRA[t.t]=Promise.all([
-   fetch(BASE+"intraday/"+f,{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch(BASE+"intraday/"+f,{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null),
    fetch(RAWL+f+"?t="+Math.floor(Date.now()/6e4),{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null)
   ]).then(([b,o])=>{const barre=(b&&b.b)||[],ult=barre.length?barre[barre.length-1][0]:0;
    return barre.concat((Array.isArray(o)?o:[]).filter(p=>p[0]>ult));});
@@ -512,7 +514,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  function dollari(v){if(v==null)return "n/d";const a=Math.abs(v),s=v<0?"&minus;":"";
   return a>=1e9?s+fx(a/1e9,a>=1e11?0:1)+" mld $":a>=1e6?s+fx(a/1e6,0)+" mln $":s+fx(a,0)+" $";}
  function bilancio(box,t){if(!box)return;
-  fetch(BASE+"bilanci/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null).then(b=>{
+  fetch(BASE+"bilanci/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null).then(b=>{
    if(!box.isConnected)return;
    if(!b||!b.anni||!b.anni.length){box.innerHTML=`<h4 class="aztit">Bilancio e trimestrali</h4><p class="small">Disponibile solo per le aziende USA (fonte SEC).</p>`;return;}
    const A=b.anni,u=A[A.length-1],g=GIU[b.giudizio]||["med",b.giudizio];
@@ -570,7 +572,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  // --- v7.15 ULTIME NOTIZIE del titolo (cot_radar/notizie_az.py, EODHD): titolo, fonte, data e tono stimato.
  //     Solo titoli coperti da EODHD; senza file (Milano, Asia) il riquadro resta nascosto.
  function notizie(box,t){if(!box)return;
-  fetch(BASE+"notizie/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null).then(x=>{
+  fetch(BASE+"notizie/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null).then(x=>{
    if(!box.isConnected||!x||!(x.n||[]).length)return;
    const tono=v=>v==null?["neu","tono non stimato"]:v>=0.25?["pos","tono positivo"]:v<=-0.25?["neg","tono negativo"]:["neu","tono neutro"];
    const data=d=>{const g=new Date(d+"T12:00:00");return g.toLocaleDateString("it-IT",{day:"numeric",month:"short"});};
@@ -588,7 +590,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   const parti=[u.pu!=null?`<b>${u.pu}%</b> dell'utile`:"",u.pf!=null?`<b>${u.pf}%</b> del flusso libero`:""].filter(Boolean).join(" &middot; ");
   return `<div class="azcop" title="${esc(c.motivo||"")}"><span class="azcopb ${CL[c.giudizio]||""}">${esc(c.giudizio)}</span><span>Payout ${u.a||""}: ${parti||"n/d"}</span></div>`;}
  function dividendi(box,t){if(!box)return;
-  const nf=encodeURIComponent(t.t.replace("^","_"))+".json",js=u=>fetch(u,{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null);
+  const nf=encodeURIComponent(t.t.replace("^","_"))+".json",js=u=>fetch(u,{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null);
   Promise.all([js(BASE+"dividendi/"+nf),js(BASE+"bilanci/"+nf)]).then(([d,bil])=>{
    if(!box.isConnected||!d)return;
    const cop=copertura(bil&&bil.dividendo);
@@ -607,7 +609,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    box.hidden=false;});}
 
  function profilo(box,t){if(!box)return;
-  fetch(BASE+"profili/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null).then(p=>{
+  fetch(BASE+"profili/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null).then(p=>{
    if(!box.isConnected)return;
    if(!p||p.vuoto){box.innerHTML=`<h4 class="aztit">L'azienda</h4>${descBase(t)}<div class="azmini azfatti"><div><span>Settore</span><b>${esc(nomeSet(t.s))}</b></div><div><span>Quotata su</span><b>${esc(t.l.map(nomeList).join(", "))}</b></div></div>`;return;}   // v7.7: mai vuota
    const f=(et,v)=>v?`<div><span>${et}</span><b>${v}</b></div>`:"";

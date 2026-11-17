@@ -19,7 +19,7 @@ try{(function(){const el=$("topaz");if(!el)return;
  const fermo=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
  // scheletro mentre arriva il file
  el.innerHTML=`<div class="card tz tzsk"><i class="sk" style="width:180px;height:14px"></i><i class="sk" style="width:55%;height:28px;margin-top:12px"></i><i class="sk" style="width:100%;height:120px;margin-top:16px;border-radius:14px"></i></div>`;
- fetch("../azioni/top.json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(d=>{window.__top=d;disegna(d);
+ fetch("../azioni/top.json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(premJ).then(d=>{window.__top=d;disegna(d);
    // v7.46 "Dati al" dell'Azionario spostato nella sidebar (Stato dati): verde se aggiornato, rosso se c'e' un'anomalia
    // o se l'ultima seduta ha piu' di 4 giorni (copre weekend + un festivo)
    {const eta=d.aggiornato?(Date.now()-new Date(d.aggiornato+"T22:00:00Z").getTime())/864e5:99;
@@ -43,7 +43,10 @@ try{(function(){const el=$("topaz");if(!el)return;
   return `<div class="card tzamp"><div class="tzamp-t"><h3>Mercato azionario</h3><details class="info"><summary title="Come si calcola" aria-label="Come si calcola">i</summary><div>Quota dei titoli dell'Azionario (${a.tot.n.toLocaleString("it-IT")}) in <b>trend rialzista</b> (prezzo e SMA 50 sopra la SMA 200): verde rialzista, grigio laterale, rosso ribassista.<br><br><b>Come leggerla</b>: dice quanto &egrave; <b>largo</b> il rialzo. <b>Sopra il 60%</b> sale gran parte del mercato: il trend &egrave; diffuso. <b>Tra 40 e 60%</b> il mercato &egrave; selettivo: salgono alcuni settori e altri no, conta scegliere i titoli e i settori pi&ugrave; forti. <b>Sotto il 40%</b> pochi titoli tengono in piedi l'indice: un indice in salita con poca ampiezza &egrave; un rialzo fragile, da guardare con pi&ugrave; prudenza.<br><br><b>Aree</b>: confrontale per vedere dove il trend &egrave; pi&ugrave; forte (USA, Europa, Asia). &Egrave; un'indicazione di contesto, non un segnale di acquisto o vendita.</div></details></div>
    <div class="tzamp-big"><b class="${cls}">${tot}%</b><span>in trend rialzista &middot; <b class="${cls}">${parola}</b></span></div>${barra(a.tot)}
    <div class="tzamp-aree">${(a.aree||[]).filter(x=>x.n).map(x=>`<div><span>${esc(x.nome)}</span>${barra(x)}<b>${q(x)}%</b></div>`).join("")}</div></div>`;}
- function disegna(d){const T=d.titoli||[];const mese=MESI[(d.mese||oggiRoma().m+1)-1];
+ function disegna(d){
+  // v7.93 Basic: la Selezione di oggi (nomi delle azioni con l'edge) e' Premium
+  if(!EB_PREMIUM){el.innerHTML=ebBlocco("Selezione di oggi: le azioni più forti","Le aziende che superano tutti i filtri di trend, forza e stagionalità, ricalcolate ogni sera.",{velo:true,righe:5});return;}
+  const T=d.titoli||[];const mese=MESI[(d.mese||oggiRoma().m+1)-1];
   if(!T.length){el.innerHTML=`<div class="card tz"><div class="tztesta"><div><span class="tzchip">Selezione di oggi</span><h3>Le azioni pi&ugrave; forti</h3></div></div><p class="small" style="margin:8px 0 0">Oggi nessun titolo supera tutti i filtri: la selezione torna appena trend, forza e stagionalit&agrave; si allineano.</p></div>`;apriSc();return;}
   const slide=(t,i)=>`<article class="tzs${i?"":" on"}" data-i="${i}" aria-roledescription="slide" aria-label="${i+1} di ${T.length}">
    <div class="tzinfo"><span class="tzpos">#${i+1} di ${T.length} &middot; ${esc((d.settori||{})[t.s]||t.s)}</span>
