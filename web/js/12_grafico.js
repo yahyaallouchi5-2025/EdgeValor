@@ -135,10 +135,21 @@ function lettura(spec,f,p,k,inv){
  const giudizio=(robusto,m)=>!robusto?["neutra","var(--warn)"]:!vs?[m>0?"tende al rialzo":"tende al ribasso",m>0?verde:rosso]
   :Math.sign(m)==vs?["favorevole",verde]:["non favorevole",rosso];
  const g1=s1?giudizio(s1.robusto,s1.med):null;
- if(s1){const giu=s1.n-s1.su,g0=s1.giorno?new Date(s1.giorno):null,g7=g0?new Date(g0.getTime()+7*864e5):null;
-  let stg=`<b>Stagionalit&agrave; della settimana</b>${g0?` (da venerd&igrave; ${fd(s1.giorno)}, uscita del COT, a venerd&igrave; ${fd(g7.toISOString().slice(0,10))})`:""}: dal ${s1.dal} ${esc(nome)} &egrave; salito in <b>${s1.su} anni su ${s1.n}</b> e sceso in ${giu}${s1.robusto?`, variazione tipica ${pc1(s1.med)}`:""} &rarr; <b style="color:${g1[1]}">${g1[0].toUpperCase()}</b>${vs?` al segnale ${esc(o.label)}`:""}${s1.robusto?"":" (quasi testa o croce)"}.`;
-  if(st4){const g4=giudizio(st4.robusto,st4.score);stg+=` Sulle 4 settimane: <b style="color:${g4[1]}">${g4[0]}</b>${st4.robusto?` (${st4.score>0?st4.su:st4.n-st4.su} anni su ${st4.n})`:""}.`;}
-  stg+=` <a href="#stag" data-vai="stag">Approfondisci nella scheda Stagionalit&agrave;</a>`;righe.push(stg);}
+ /* v7.95 STAGIONALITA' A METRICHE: due righe, una per orizzonte (settimana del COT e 4 settimane), ognuna con
+    barra degli anni in rialzo, numero e giudizio in una parola. Prima era un paragrafo lungo che sembrava contraddirsi
+    ("neutra" e "tende al rialzo" insieme): sono due orizzonti diversi, ora si vede subito. Spiegazione nella (i). */
+ if(s1){const g0=s1.giorno?new Date(s1.giorno):null,g7=g0?new Date(g0.getTime()+7*864e5):null,gg=d=>fd(d).slice(0,5);
+  const parola=g=>({"neutra":"Neutra","tende al rialzo":"Rialzo","tende al ribasso":"Ribasso","favorevole":"A favore","non favorevole":"Contro"})[g[0]]||g[0];
+  const riga=(eti,su,n,g,med)=>`<div class="stgr"><span class="stgk">${eti}</span><span class="stgb" aria-hidden="true"><i style="width:${(su/n*100).toFixed(0)}%"></i></span>
+   <span class="stgn"><b>${su}</b> su ${n} in rialzo${med!=null?` &middot; ${pc1(med)}`:""}</span><em style="--c:${g[1]}">${parola(g)}</em></div>`;
+  let stg=`<div class="stgm"><div class="stgt"><b>Stagionalit&agrave;</b><span class="small">dal ${s1.dal}</span>
+   <details class="info tatti"><summary title="Come leggerla" aria-label="Informazioni">i</summary><div><b>Settimana</b>: ${g0?`da venerd&igrave; ${fd(s1.giorno)} (uscita del COT) a venerd&igrave; ${fd(g7.toISOString().slice(0,10))}`:"la settimana del segnale"}.
+    <b>4 settimane</b>: le prossime quattro. Barra e numero = anni in cui ${esc(nome)} &egrave; salito su quelli osservati${s1.robusto?"; accanto la variazione tipica":""}.
+    <b>Neutra</b> = nessuna tendenza costante negli anni.${vs?" <b>A favore</b> / <b>Contro</b> = rispetto alla direzione del segnale.":""} I due orizzonti sono indipendenti: possono dare giudizi diversi.</div></details>
+   <a href="#stag" data-vai="stag" class="stgl">Approfondisci &rarr;</a></div>
+   ${riga(g0?`Settimana ${gg(s1.giorno)}&ndash;${gg(g7.toISOString().slice(0,10))}`:"Settimana",s1.su,s1.n,g1,s1.robusto?s1.med:null)}
+   ${st4&&st4.n?riga("4 settimane",st4.su,st4.n,giudizio(st4.robusto,st4.score),null):""}</div>`;
+  righe.push(stg);}
  // --- riga riassuntiva (sempre visibile)
  const pezzi=[`Speculatori: <b style="color:${n3<2?"var(--ink)":compra?verde:rosso}">${dir}</b>`];
  if(cx){

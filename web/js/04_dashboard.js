@@ -233,20 +233,21 @@ document.addEventListener("keydown",e=>{const r=(e.key=="Enter"||e.key==" ")&&e.
 /* PIEDE: etichette brevi (solo quelle vere), per il VIX la nota su cosa vuol dire comprare, e "Approfondisci":
    tutta la scheda apre gia' il grafico al clic, ma senza una scritta visibile nessuno lo scopriva.
    (per i tassi la nota e' gia' nella (i) del titolo "Tassi": qui sarebbe un doppione su ogni scheda) */
-function piede(x,nota){const t=[];
+function piede(x,nota,nv){const t=[];
  if(x.div)t.push(`<span class="tag div" title="Una valuta comprata, l'altra venduta">Divergenza</span>`);
  if(x.crowded)t.push(`<span class="tag ko" title="Posizioni agli estremi: rischio di inversione">Affollato</span>`);
  if(x.comm_acc)t.push(`<span class="tag ${x.comm_acc=="conferma"?"ok":"ko"}" title="Chi usa la materia prima per lavoro (hedger), quando &egrave; agli estremi">Operatori commerciali ${x.comm_acc=="conferma"?"a favore":"in contrasto"}</span>`);
- return `<div class="piede">${t.length?`<div class="tags">${t.join("")}</div>`:""}${nota?`<p class="small">${nota}</p>`:""}<span class="appr">Approfondisci<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>`;}
-/* "Nuovo" accanto all'etichetta: il segnale e' cambiato questa settimana (prima = etichetta della settimana scorsa) */
-const nuovo=(x,prima)=>x.new?`<span class="nuovo" title="La settimana scorsa era: ${eti(prima)}">Nuovo</span>`:"";
-function card(p){return `<div class="card clic" data-tv="p:${p.pair}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair">${p.pair}</span><div class="sotto">${badge(p.label)}${nuovo(p,p.prev)}</div></div>${anello(p.score)}</div>
- <div class="segni">${sgSpecP(p)}${sgMerc(p.macro,(D.assets[p.base]||{}).mkt)}${sgStag(p.stag)}${sgNews([p.base,p.quote],p.news)}</div>${piede(p)}</div>`;}
+ return `<div class="piede">${t.length?`<div class="tags">${t.join("")}</div>`:""}${nota?`<p class="small">${nota}</p>`:""}<div class="pfondo">${nv||""}<span class="appr">Approfondisci<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div></div>`;}
+/* v7.95 "Nuovo segnale" in basso, piccolo, accanto ad "Approfondisci" (prima stava accanto all'etichetta):
+   il segnale e' cambiato questa settimana (prima = etichetta della settimana scorsa) */
+const nuovo=(x,prima)=>x.new?`<span class="nuovo" title="La settimana scorsa era: ${eti(prima)}"><i aria-hidden="true"></i>Nuovo segnale</span>`:"";
+function card(p){return `<div class="card clic" data-tv="p:${p.pair}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair">${p.pair}</span><div class="sotto">${badge(p.label)}</div></div>${anello(p.score)}</div>
+ <div class="segni">${sgSpecP(p)}${sgMerc(p.macro,(D.assets[p.base]||{}).mkt)}${sgStag(p.stag)}${sgNews([p.base,p.quote],p.news)}</div>${piede(p,"",nuovo(p,p.prev))}</div>`;}
 var act=D.pairs.filter(p=>p.label!="NEUTRO");
 $("cards").innerHTML=act.length?act.map(card).join(""):`<div class="card">Nessun segnale attivo sulle valute questa settimana.</div>`;
-function acard(a){const it=accenti(a.it||a.name);return `<div class="card clic" data-tv="a:${a.key}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair" style="font-size:19px" title="${esc(it)}">${esc(it)}</span><div class="sotto">${badge(a.label)}${nuovo(a,a.prev_label)}</div></div>${anello(a.score)}</div>
+function acard(a){const it=accenti(a.it||a.name);return `<div class="card clic" data-tv="a:${a.key}" title="Clic: grafico a candele"><div class="pairhead"><div><span class="pair" style="font-size:19px" title="${esc(it)}">${esc(it)}</span><div class="sotto">${badge(a.label)}</div></div>${anello(a.score)}</div>
  <div class="small sottot">${a.it&&a.it!=a.name?esc(a.name)+" &middot; ":""}${a.group}</div>
- <div class="segni">${sgSpec(a)}${sgMerc(a.macro,a.mkt)}${sgStag(a.stag)}${sgNews(["USD"])}</div>${piede(a,NOTE[a.key])}</div>`;}
+ <div class="segni">${sgSpec(a)}${sgMerc(a.macro,a.mkt)}${sgStag(a.stag)}${sgNews(["USD"])}</div>${piede(a,NOTE[a.key],nuovo(a,a.prev_label))}</div>`;}
 var oth=Object.values(D.assets).filter(a=>a.group!="Valute"&&a.label!="NEUTRO").sort((x,y)=>Math.abs(y.score)-Math.abs(x.score));
 // v6.72: una griglia per famiglia (stesso ordine dei titoli in pagina); famiglia senza segnali = riga breve
 const FAM=[["ac-mp",["Energia","Metalli","Cereali","Soft","Bestiame"]],["ac-ind",["Indici azionari"]],["ac-tas",["Tassi USA"]],["ac-cry",["Crypto"]]];
