@@ -321,9 +321,16 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
     +tabella(`Per strumento <span class="small">(${nomeP}, almeno ${V.per=="holdout"?5:20} segnali)</span>`,P.strumento,ordS,V.per=="holdout"?5:20,B.profilo));}
 
  function live(){if(!R)return `<div class="card vfvuoto">Registro non disponibile in questo aggiornamento.</div>`;
-  const cat=R.integra?`<span class="vfok">&#10003;</span> catena integra`:`<b class="vfko">&#10007; catena NON integra</b>`;
-  const testa=`<div class="vfstato small">${R.dal?`Registro attivo dal <b>${esc(R.dal)}</b> &middot; `:""}${R.eventi} eventi &middot; ${cat}${R.ultimo_hash?` <button type="button" class="info" data-apri="vfcatena" data-k="vfcatena" aria-expanded="${infoAperte.has("vfcatena")}" aria-label="Cosa vuol dire catena integra" title="Cosa vuol dire?">i</button>`:""}${R.completi?"":" &middot; <b style='color:var(--warn)'>ultimo aggiornamento con dati incompleti: registro non aggiornato</b>"}</div>
-  ${R.ultimo_hash?`<p id="vfcatena" class="sub infotesto${infoAperte.has("vfcatena")?" aperta":""}">Ogni evento del registro (apertura, conferma, chiusura di un segnale) &egrave; legato al precedente con un'impronta digitale (SHA-256). Se qualcuno modificasse o cancellasse un evento passato, le impronte non tornerebbero pi&ugrave; e qui comparirebbe <b>catena NON integra</b>: &egrave; la garanzia che i risultati non sono stati ritoccati dopo. Impronta dell'ultimo evento: <code class="vfhash">${esc(R.ultimo_hash)}</code></p>`:""}`;
+  /* v7.97 STATO DEL REGISTRO: un badge chiaro al posto della riga tecnica con il codice lungo (sembrava un errore).
+     Verde "Registro verificato" se la catena di impronte e' integra, rosso se no. L'impronta (hash SHA-256) resta
+     solo nella (i), accorciata, con il pulsante Copia per chi vuole controllarla. */
+  const hs=R.ultimo_hash||"",corto=hs?hs.slice(0,8)+"&hellip;"+hs.slice(-6):"";
+  const testa=`<div class="vfstato">${R.integra?`<span class="vfbadge ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Registro verificato</span>`
+     :`<span class="vfbadge ko">&#10007; Registro non integro</span>`}
+    <span class="small">${R.eventi.toLocaleString("it-IT")} eventi${R.dal?` dal ${esc(R.dal.replace(/ ore .*/,""))}`:""}</span>
+    ${hs?`<button type="button" class="info" data-apri="vfcatena" data-k="vfcatena" aria-expanded="${infoAperte.has("vfcatena")}" aria-label="Cosa vuol dire" title="Cosa vuol dire?">i</button>`:""}
+    ${R.completi?"":`<span class="small" style="color:var(--warn)">Ultimo aggiornamento con dati incompleti: registro fermo</span>`}</div>
+  ${hs?`<p id="vfcatena" class="sub infotesto${infoAperte.has("vfcatena")?" aperta":""}">Ogni segnale &egrave; legato al precedente con un'impronta digitale: se qualcuno cambiasse il passato, il registro risulterebbe non integro. Impronta attuale <code class="vfhash" title="${esc(hs)}">${corto}</code> <button type="button" class="vfcopia" data-hash="${esc(hs)}">Copia</button></p>`:""}`;
   if(!R.eventi)return testa+`<div class="card vfvuoto"><b>Il registro parte con il prossimo aggiornamento completo.</b><p class="small">Da quel momento ogni segnale viene salvato con data e ora, prezzo d'ingresso e risultati. Gli eventi non si possono modificare: ognuno contiene l'impronta del precedente.</p></div>`;
   return testa+comandi(R.stat)+`<div id="vfdati">${datiLive()}</div>`;}
 
@@ -352,7 +359,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    <div class="vfcorpo">${volatilitaVista()}</div>`;
    const sa=$("vfasset");if(sa)sa.onchange=()=>{V.asset=sa.value;salva();aggiorna();};
    aggiorna();return;}
-  el.innerHTML=`<h2>Live</h2><p class="sub">Ogni segnale misurato con prezzi veri dall'uscita dei dati: ingresso alla prima chiusura dopo il segnale, poi quanto va contro (drawdown), quanto guadagna al massimo e come finisce, per la durata del trade che scegli tu (da 1 giorno a 4 settimane, oppure fino al cambio di segnale). L'obiettivo &egrave; capire il rischio: quanto spazio lasciare allo stop rispetto alla volatilit&agrave; di ogni mercato.</p>
+  el.innerHTML=`<h2>Live</h2><p class="sub"><b>Live</b>: ogni segnale del terminale viene registrato nel momento in cui nasce e poi misurato sui prezzi reali: quanto va contro (drawdown), quanto guadagna, come finisce. <b>Backtest</b>: le stesse regole applicate al passato dal 1986, simulate.</p>
   <div class="vfswitch"><button data-f="live" class="${V.fin=="live"?"on":""}">Registro live</button><button data-f="bt" class="${V.fin=="bt"?"on":""}">Backtest <span class="vfsimtag">SIMULATO</span></button></div>
   <div class="vfcorpo">${V.fin=="live"?live():backtest()}</div>`;
   el.querySelectorAll(".vfswitch button").forEach(b=>b.onclick=()=>{V.fin=b.dataset.f;salva();disegna();});

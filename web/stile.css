@@ -3159,3 +3159,33 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
 /* telefono: su due righe -> nome e giudizio sopra, barra e numero sotto */
 @media (max-width:620px){.stgr{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k e" "b n";gap:5px 10px;font-size:12px}
  .stgk{grid-area:k}.stgr em{grid-area:e;justify-self:end}.stgb{grid-area:b}.stgn{grid-area:n}.stgm{gap:10px}}
+/* v7.97 GRAFICO "GIORNO PER GIORNO" rifatto (13_verifica.js): numeri grandi in alto che seguono mouse/dito,
+   curve morbide senza griglia. Tutto limitato a #vfgraf: le classi .vfgln/.vfax servono anche ad altri grafici. */
+#vfgraf{background:radial-gradient(120% 80% at 8% 0%,color-mix(in srgb,var(--acc) 8%,transparent),transparent 60%),linear-gradient(180deg,var(--card),var(--card2))}
+.vfgcomandi{display:flex;gap:8px;flex-wrap:wrap}
+.vfseg{display:inline-flex;padding:3px;border-radius:99px;border:1px solid var(--line);background:var(--bg)}
+.vfseg button{border:0;background:none;color:var(--mute);font:700 12px system-ui;padding:5px 12px;border-radius:99px;cursor:pointer;transition:background .15s,color .15s}
+.vfseg button:hover:not(:disabled){color:var(--ink)}.vfseg button.on{background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.vfseg button:disabled{opacity:.35;cursor:default}
+.vfgkpi{display:flex;align-items:flex-end;gap:10px 28px;flex-wrap:wrap;margin:10px 0 6px;min-height:58px}
+.vfgkpi>div{display:flex;flex-direction:column;gap:2px}
+.vfgkpi small{font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.vfgkpi b{font-size:32px;line-height:1;letter-spacing:-.8px;font-variant-numeric:tabular-nums}
+.vfgkpi em{font-style:normal;font-size:19px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.vfgkpi .muto{color:var(--mute);font-size:14px;font-weight:600}.vfgkpi .su{color:var(--b)}.vfgkpi .giu{color:var(--s)}.vfgkpi .tenue{opacity:.75;font-size:16px}
+.vfgkpi .vfgn{margin-left:auto}.vfgkpi .vfgn em{color:var(--ink2);font-size:16px}
+#vfgraf .vfgsvg{touch-action:pan-y;display:block;width:100%}
+#vfgraf .vfgln{stroke-width:2.4}#vfgraf .vfgris{stroke:#fff;stroke-width:3}
+#vfgraf .vfgalo{fill:none;stroke:#fff;stroke-width:7;opacity:.22}
+#vfgraf .vfg0{stroke:var(--mute);stroke-dasharray:3 5;opacity:.6}
+#vfgraf .vfgcur{stroke:#fff;stroke-width:1;stroke-dasharray:none;opacity:.45}
+.vfgpunto{fill:var(--acc);stroke:#fff;stroke-width:2;filter:drop-shadow(0 0 6px rgba(46,196,182,.7))}
+@media (max-width:600px){.vfgkpi{gap:8px 18px}.vfgkpi b{font-size:26px}.vfgkpi em{font-size:16px}.vfgkpi .tenue{font-size:14px}.vfgkpi .vfgn{display:none}}
+/* v7.97 stato del registro: badge "Registro verificato" */
+.vfstato{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vfbadge{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:99px;font:700 12.5px system-ui}
+.vfbadge svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vfbadge.ok{color:var(--b);border:1px solid color-mix(in srgb,var(--b) 45%,transparent);background:color-mix(in srgb,var(--b) 12%,transparent)}
+.vfbadge.ko{color:var(--s);border:1px solid color-mix(in srgb,var(--s) 45%,transparent);background:color-mix(in srgb,var(--s) 12%,transparent)}
+.vfstato .info{margin-left:0}
+.vfcopia{border:1px solid var(--line);background:none;color:var(--acc);font:700 12px system-ui;border-radius:8px;padding:2px 9px;cursor:pointer}.vfcopia:hover{border-color:var(--acc)}

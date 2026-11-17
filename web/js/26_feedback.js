@@ -29,7 +29,7 @@
  const numero=()=>"T-"+Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>"23456789ABCDEFGHJKLMNPQRSTUVWXYZ"[b%32]).join("");
  // o = {tipo:"abbonamento"|"segnalazione"|"call"} oppure {premium:true} (dal lucchetto: Abbonamento gia' scelto)
  function mostra(o){o=o||{};if(document.querySelector(".fbmodal"))return;
-  let tipo=o.premium?"abbonamento":(TIPI.some(t=>t[0]==o.tipo)?o.tipo:"segnalazione");
+  let tipo=o.premium||o.rinnova?"abbonamento":(TIPI.some(t=>t[0]==o.tipo)?o.tipo:"segnalazione");
   const me=mio(),box=document.createElement("div");box.className="cmodal fbmodal";
   box.innerHTML=`<form class="cmodal-box fbbox" role="dialog" aria-modal="true" aria-labelledby="fbt" novalidate>
     <div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg></span>
@@ -54,7 +54,7 @@
    varia.innerHTML=tipo=="segnalazione"?sel("tipologia","Tipologia",SEGN)+area("messaggio","Cosa succede","","Descrivi cosa hai visto e in quale scheda",4)
     :tipo=="call"?sel("tema","Tema da trattare",TEMI)+area("presentazione","Presentati in breve","(chi sei, cosa ti serve)","Es.: investo da 2 anni con un ETF, vorrei capire come usare i portafogli modello",4)
      +`<p class="small fbnota">Ti scriviamo per fissare giorno e ora della call.</p>`
-    :area("messaggio","Messaggio","","Cosa vuoi sapere sull'abbonamento?",4,o.premium?"Vorrei passare a Premium.":"");
+    :area("messaggio","Messaggio","","Cosa vuoi sapere sull'abbonamento?",4,o.rinnova?"Vorrei rinnovare il mio abbonamento Premium.":o.premium?"Vorrei passare a Premium.":"");
    varia.querySelectorAll("textarea").forEach(ta=>ta.addEventListener("input",()=>{ta.nextElementSibling.textContent=ta.value.length+" / 2000";}));
    esito.textContent="";esito.className="fbesito";
    setTimeout(()=>{const ta=varia.querySelector("textarea");ta&&ta.focus();},60);}
@@ -90,4 +90,12 @@
     ko("Invio non riuscito (connessione o servizio). Riprova tra poco.");}};}
  apri.onclick=()=>mostra();
  window.ebFeedback=mostra;
+ // v7.97 RINNOVO DALL'EMAIL: il pulsante "Rinnova" delle email di abbonamento porta a .../terminale/?rinnova=1.
+ // Appena l'utente e' dentro (anche dopo l'accesso dalla porta d'ingresso) si apre la richiesta Abbonamento gia' scritta;
+ // il parametro si toglie dall'indirizzo, cosi' ricaricando la pagina non si riapre.
+ if(/[?&]rinnova=1/.test(location.search)){let n=0;const t=setInterval(()=>{n++;
+  const u=window.ebAccount&&ebAccount.stato&&ebAccount.stato().utente;
+  if(u&&!document.querySelector(".cmodal")){clearInterval(t);
+   try{history.replaceState(null,"",location.pathname+location.hash);}catch(e){}mostra({rinnova:true});}
+  else if(n>240)clearInterval(t);},500);}
 }catch(e){console.error("[EdgeValor] assistenza:",e);}})();
