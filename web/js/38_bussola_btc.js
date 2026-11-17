@@ -51,21 +51,65 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
   const pts=v.map((t,i)=>`${x(i).toFixed(1)},${y(t).toFixed(1)}`).join(" ");
   return `<svg class="bmspark ${fav?"si":"no"}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,${H} ${pts} ${W},${H}"/><polyline points="${pts}"/></svg>`;}
  // --- 2) Bitcoin 3 anni con lo sfondo colorato dal punteggio della settimana
+ /* --- 2) GRAFICO (v7.95): prezzo settimanale in scala log, sfondo = punteggio macro della settimana.
+        TOP e BOTTOM: massimi e minimi delle chiusure settimanali, trovati con uno "zigzag": un massimo conta quando
+        dopo il prezzo scende di almeno il 20%, un minimo quando dopo sale di almeno il 20% (movimenti piccoli ignorati).
+        Pallino finale = prezzo di oggi (X.btc), con l'etichetta.  Legenda: ogni punteggio si accende/spegne con un tocco.
+        Mouse o dito sul grafico: linea verticale tratteggiata con data, prezzo e punteggio della settimana. --- */
+ const SPENTI=new Set();                 // punteggi nascosti dalla legenda (restano anche quando il grafico si ridisegna)
+ let GR=null;                            // misure dell'ultimo grafico disegnato (servono al mirino)
+ const kk=p=>"$"+(p>=1e5?Math.round(p/1000):fx(p/1000,1))+"k";          // es. $73,8k ; $124k
+ const dataIt=d=>new Date(d+"T12:00:00").toLocaleDateString("it-IT",{day:"numeric",month:"short",year:"numeric"});
+ function zigzag(Sr,soglia){const lg=Math.log,P=Sr.map(s=>s[1]),piv=[];let hi=0,lo=0,ult=null;
+  for(let i=1;i<P.length;i++){
+   if(P[i]>P[hi])hi=i;if(P[i]<P[lo])lo=i;
+   // il pivot non ancora "chiuso" si sposta se il prezzo fa un nuovo estremo nella stessa direzione
+   if(ult=="H"&&P[i]>P[piv[piv.length-1][1]]){piv[piv.length-1][1]=i;lo=i;continue;}
+   if(ult=="L"&&P[i]<P[piv[piv.length-1][1]]){piv[piv.length-1][1]=i;hi=i;continue;}
+   if(ult!="H"&&lg(P[hi])-lg(P[i])>=soglia){piv.push(["H",hi]);ult="H";lo=i;}
+   else if(ult!="L"&&lg(P[i])-lg(P[lo])>=soglia){piv.push(["L",lo]);ult="L";hi=i;}}
+  return piv.filter(v=>v[1]>0&&v[1]<P.length-1);}               // la prima settimana non e' un vero top/bottom; l'ultima ha il pallino di oggi
  function grafico(){const Sr=X.serie||[];if(Sr.length<10)return "";
-  const W=Math.round(Math.min(900,Math.max(330,(box.clientWidth||900)-44))),H=W<600?220:270,L=6,R=58,T=12,B=28,lg=Math.log;
-  const ys=Sr.map(s=>lg(s[1])),lo=Math.min(...ys),hi=Math.max(...ys),x=i=>L+i*(W-L-R)/(Sr.length-1),y=v=>T+(hi-lg(v))/((hi-lo)||1)*(H-T-B);
+  const W=Math.round(Math.min(900,Math.max(330,(box.clientWidth||900)-44))),H=W<600?236:290,L=6,R=58,T=24,B=28,lg=Math.log;
+  const oggi=Number(X.btc)||Sr[Sr.length-1][1];
+  const ys=Sr.map(s=>lg(s[1])).concat(lg(oggi)),lo=Math.min(...ys),hi=Math.max(...ys),x=i=>L+i*(W-L-R)/(Sr.length-1),y=v=>T+(hi-lg(v))/((hi-lo)||1)*(H-T-B);
   let fasce="",i0=0;for(let i=1;i<=Sr.length;i++)if(i==Sr.length||Sr[i][2]!=Sr[i0][2]){
    const a=i0?(x(i0-1)+x(i0))/2:L,b=i<Sr.length?(x(i-1)+x(i))/2:x(Sr.length-1);
    fasce+=`<rect x="${a.toFixed(1)}" y="${T}" width="${(b-a).toFixed(1)}" height="${H-T-B}" class="bmf${Sr[i0][2]}"/>`;i0=i;}
   const pts=Sr.map((s,i)=>`${x(i).toFixed(1)},${y(s[1]).toFixed(1)}`).join(" ");
   const prezzi=[hi,(hi+lo)/2,lo].map(v=>Math.exp(v)).map(p=>`<text x="${W-R+8}" y="${y(p)+4}" class="bmt">$${Math.round(p/1000)}k</text>`).join("");
   const anni=Sr.map((s,i)=>i&&s[0].slice(0,4)!=Sr[i-1][0].slice(0,4)?`<line x1="${x(i)}" x2="${x(i)}" y1="${T}" y2="${H-B}" class="bmg"/><text x="${x(i)+4}" y="${H-8}" class="bmt">${s[0].slice(0,4)}</text>`:"").join("");
-  const u=Sr[Sr.length-1];
-  return `<div class="bmgraf"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bitcoin negli ultimi 3 anni con il punteggio macro di ogni settimana">
+  // top (sopra il punto) e bottom (sotto), etichetta tenuta dentro il grafico
+  const piv=zigzag(Sr,Math.log(1.2)).map(([k,i])=>{const px=x(i),py=y(Sr[i][1]),ax=Math.min(Math.max(px,24),W-R-24);
+   return `<g class="bmpv ${k=="H"?"top":"bot"}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3"/><text x="${ax.toFixed(1)}" y="${(k=="H"?py-9:py+17).toFixed(1)}" text-anchor="middle">${kk(Sr[i][1])}</text></g>`;}).join("");
+  const xo=x(Sr.length-1),yo=y(oggi);
+  GR={Sr,x,y,W,H,T,B,L,R};
+  return `<div class="bmgraf${[...SPENTI].map(k=>" off"+k).join("")}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bitcoin negli ultimi 3 anni con il punteggio macro di ogni settimana">
    <defs><linearGradient id="bmarea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--ink)" stop-opacity=".16"/><stop offset="1" stop-color="var(--ink)" stop-opacity="0"/></linearGradient></defs>
-   ${fasce}${anni}<polygon points="${x(0)},${H-B} ${pts} ${x(Sr.length-1)},${H-B}" fill="url(#bmarea)"/><polyline points="${pts}" class="bml"/>
-   <circle cx="${x(Sr.length-1)}" cy="${y(u[1])}" r="4.5" class="bmp"/>${prezzi}</svg>
-   <div class="bmleg">${[3,2,1,0].map(k=>`<span><i class="bmf${k}"></i>${k} su 3</span>`).join("")}<em>Bitcoin settimanale, scala logaritmica</em></div></div>`;}
+   ${fasce}${anni}<polygon points="${x(0)},${H-B} ${pts} ${xo},${H-B}" fill="url(#bmarea)"/><polyline points="${pts} ${xo.toFixed(1)},${yo.toFixed(1)}" class="bml"/>
+   ${piv}<g class="bmoggi"><circle cx="${xo}" cy="${yo}" r="5" class="bmp"/><rect x="${(xo-64).toFixed(1)}" y="${(yo-30).toFixed(1)}" width="58" height="20" rx="6"/><text x="${(xo-35).toFixed(1)}" y="${(yo-16).toFixed(1)}" text-anchor="middle">${kk(oggi)}</text></g>
+   ${prezzi}<g class="bmmira" style="display:none"><line y1="${T}" y2="${H-B}"/><circle r="4"/></g></svg>
+   <div class="bmtip" hidden></div>
+   <div class="bmleg">${[3,2,1,0].map(k=>`<button type="button" class="bmlb${SPENTI.has(k)?" spento":""}" data-k="${k}" aria-pressed="${!SPENTI.has(k)}" title="Mostra o nascondi"><i class="bmf${k}"></i>${k} su 3</button>`).join("")}
+    <details class="info bmleginfo"><summary title="Cosa sono" aria-label="Cosa sono i colori">i</summary><div>Il colore di sfondo &egrave; il <b>punteggio macro</b> di quella settimana: quanti dei 3 fattori della bussola erano favorevoli a Bitcoin.
+     <b>3 su 3</b> = tutti favorevoli (storicamente il mese dopo &egrave; andato meglio), <b>0 su 3</b> = nessuno. Tocca una voce per nasconderla o mostrarla.<br><br>
+     <b>Top e bottom</b>: massimi e minimi delle chiusure settimanali, solo dopo movimenti di almeno il 20%. Il pallino verde &egrave; il prezzo di oggi.</div></details>
+    <em>Bitcoin settimanale, scala logaritmica</em></div></div>`;}
+ // mirino: linea verticale tratteggiata sulla settimana piu' vicina al mouse/dito, con data, prezzo e punteggio
+ function mirino(){const g=box.querySelector(".bmgraf");if(!g||!GR)return;const svg=g.querySelector("svg"),m=g.querySelector(".bmmira"),tip=g.querySelector(".bmtip");
+  const L=m.querySelector("line"),C=m.querySelector("circle"),{Sr,x,y,W}=GR;
+  const via=()=>{m.style.display="none";tip.hidden=true;};
+  svg.addEventListener("pointermove",e=>{const r=svg.getBoundingClientRect(),vx=(e.clientX-r.left)*W/r.width;
+   const i=Math.max(0,Math.min(Sr.length-1,Math.round((vx-GR.L)/((W-GR.L-GR.R)/(Sr.length-1))))),s=Sr[i],px=x(i),py=y(s[1]);
+   L.setAttribute("x1",px);L.setAttribute("x2",px);C.setAttribute("cx",px);C.setAttribute("cy",py);m.style.display="";
+   tip.innerHTML=`<b>$${Math.round(s[1]).toLocaleString("it-IT")}</b><span>settimana al ${dataIt(s[0])}</span><span class="bmtk" style="--c:${COL[s[2]]}">${s[2]} su 3</span>`;
+   tip.hidden=false;const sx=px*r.width/W,sy=py*r.height/GR.H,tw=tip.offsetWidth,th=tip.offsetHeight;
+   tip.style.left=Math.min(Math.max(sx-tw/2,0),r.width-tw)+"px";
+   // il riquadro sta sotto il punto se il punto e' nella meta' alta, sopra se e' nella meta' bassa (non copre top e bottom vicini)
+   tip.style.top=(sy<r.height/2?sy+16:sy-th-16)+"px";});
+  svg.addEventListener("pointerleave",via);
+  g.querySelectorAll(".bmlb").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;SPENTI.has(k)?SPENTI.delete(k):SPENTI.add(k);
+   g.classList.toggle("off"+k,SPENTI.has(k));b.classList.toggle("spento",SPENTI.has(k));b.setAttribute("aria-pressed",!SPENTI.has(k));});}
  // --- 3a) barre "il mese dopo, per punteggio"
  function barre(){const v=[0,1,2,3].map(k=>S[String(k)]);if(v.some(x=>!x))return "";
   const mx=Math.max(...v.map(x=>Math.abs(x.media)),1);   // la barra piu' lunga riempie meta' colonna
@@ -90,7 +134,8 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
       <b>${valF(f)}</b><small>3 mesi &middot; favorevole se ${f.verso=="giu"?"scende":"sale"}</small>${spark(f.spark,f.fav)}</div>`).join("")}</div></div>
    ${grafico()}
    <div class="bmdue">${barre()}${legami()}</div>
-   <p class="small bmpie">${X.vecchio?"Fonti non disponibili oggi: ultimo calcolo valido del ":"Dati al "}${gg(X.agg)}. Statistica sul passato, non un consiglio.</p></div>`;}
+   <p class="small bmpie">${X.vecchio?"Fonti non disponibili oggi: ultimo calcolo valido del ":"Dati al "}${gg(X.agg)}. Statistica sul passato, non un consiglio.</p></div>`;
+  mirino();}
  disegna();new MutationObserver(metti).observe(el,{childList:true});
  let lw=0;new ResizeObserver(()=>{const w=box.clientWidth;if(w&&Math.abs(w-lw)>40){lw=w;disegna();}}).observe(box);
 })();}catch(e){fail("Bussola macro di Bitcoin","btc",e);}
