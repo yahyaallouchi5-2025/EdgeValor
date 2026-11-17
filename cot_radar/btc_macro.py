@@ -158,3 +158,164 @@ def calcola(S, oggi=None):
         if ok and b0 and b1:
             per[p].append(math.log(b1 / b0) * 100)
     storico = {str(p): {"media": round(sum(v) / len(v), 1), "pos": round(100 * sum(1 for x in v if x > 0) / len(v)),
+                        "n": len(v)} for p, v in per.items() if v}
+    # 3) GRAFICO: Bitcoin settimanale (ultimi 3 anni) con il punteggio di ogni settimana (13 settimane = 3 mesi)
+    W = {k: _settimane(S[k]) for k in ["btc"] + [f[0] for f in FATTORI]}
+    sett = sorted(W["btc"])
+    serie = []
+    for d in sett[-SETT_GRAFICO:]:
+        d3 = (date.fromisoformat(d) - timedelta(days=91)).isoformat()
+        p = sum(1 for k, _, _, verso, modo in FATTORI if _favorevole(_var(_alla_data(S[k], d3), _alla_data(S[k], d), modo), verso))
+        serie.append([d, round(W["btc"][d]), p])
+    # 4) CON CHI SI MUOVE: correlazione dei rendimenti settimanali con S&P 500 e oro
+    corr = None
+    if S.get("spx") and S.get("oro"):
+        Ws, Wo = _settimane(S["spx"]), _settimane(S["oro"])
+        comuni = [d for d in sorted(set(W["btc"]) & set(Ws) & set(Wo)) if d >= "2011-01-07"]
+        r = lambda X, a, b: math.log(X[b] / X[a]) if X.get(a) and X.get(b) else None
+        righe = []
+        for a, b in zip(comuni, comuni[1:]):
+            x, y, z = r(W["btc"], a, b), r(Ws, a, b), r(Wo, a, b)
+            if None not in (x, y, z):
+                righe.append((b, x, y, z))
+        # regime di ogni settimana: stress se VIX > 25 o S&P 500 sotto la media a 200 giorni di borsa
+        spx = S["spx"]
+        media200, somma = [], 0.0          # media mobile a 200 sedute, calcolata una volta (somma scorrevole)
+        for i, (d, v) in enumerate(spx):
+            somma += v - (spx[i - 200][1] if i >= 200 else 0)
+            if i >= 199:
+                media200.append((d, somma / 200))
+        vix_s = S.get("vix") or []
+        def stress(d):
+            vix = _alla_data(vix_s, d)
+            m2 = _alla_data(media200, d)
+            px = _alla_data(spx, d)
+            return bool((vix is not None and vix > STRESS_VIX) or (m2 is not None and px is not None and px < m2))
+        reg = {b: stress(b) for b, *_ in righe}
+        tip = lambda flag, j: _corr([q[1] for q in righe if reg[q[0]] == flag], [q[j] for q in righe if reg[q[0]] == flag])
+        ult = righe[-52:]
+        ora = stress(ultimo)
+        corr = {"regime": "stress" if ora else "normale",
+                "spx": {"ora": _corr([q[1] for q in ult], [q[2] for q in ult]), "tipica": tip(ora, 2),
+                        "normale": tip(False, 2), "stress": tip(True, 2)},
+                "oro": {"ora": _corr([q[1] for q in ult], [q[3] for q in ult]), "tipica": tip(ora, 3),
+                        "normale": tip(False, 3), "stress": tip(True, 3)}}
+    b_fine = btc[-1][0]
+    b3 = _alla_data(btc, (date.fromisoformat(b_fine) - timedelta(days=91)).isoformat())
+    return {"agg": ultimo, "calcolato": (oggi or datetime.now()).strftime("%Y-%m-%d %H:%M"), "punteggio": punti,
+            "fattori": fattori, "storico": storico, "dal": int(STORIA_DAL[:4]), "btc": round(btc[-1][1]),
+            "btc3": None if not b3 else round((btc[-1][1] / b3 - 1) * 100, 1), "serie": serie, "corr": corr}
+
+
+# --------------------------------------------------------------------------- copia salvata
+def leggi(cartella=CARTELLA):
+    try:
+        with open(os.path.join(cartella, FILE), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def salva(blocco, cartella=CARTELLA):
+    if not os.path.isdir(cartella):
+        return
+    with open(os.path.join(cartella, FILE), "w", encoding="utf-8") as f:
+        json.dump(blocco, f, ensure_ascii=False, separators=(",", ":"))
+
+
+def per_pagina(scarica_dati=scarica, cartella=CARTELLA):
+    """Blocco D.btcmacro: calcolo nuovo se le fonti rispondono, altrimenti l'ultimo valido salvato (vecchio=True)."""
+    try:
+        nuovo = calcola(scarica_dati())
+    except Exception as e:
+        log.warning("bussola BTC: calcolo non riuscito (%s)", type(e).__name__)
+        nuovo = None
+    if nuovo:
+        salva(nuovo, cartella)
+        return nuovo
+    vecchio = leggi(cartella)
+    if vecchio:
+        log.warning("bussola BTC: fonti non disponibili, uso il calcolo del %s", vecchio.get("agg"))
+        return dict(vecchio, vecchio=True)
+    return None
+
+
+# --------------------------------------------------------------------------- v7.94 TERMOMETRO DEL SENTIMENT (contesto)
+# Studio del 17/11/2026 (studi/studio_btc_sentiment.py): il sentiment NON ha anticipato Bitcoin in modo stabile
+# (Fear & Greed e piccoli trader cambiano segno tra 2018-21 e 2022-26). Si mostra come TERMOMETRO, mai come segnale.
+# Fonti pubbliche, senza chiavi: Fear & Greed Index di alternative.me (va citato accanto al dato) e COT della CFTC sui
+# futures Bitcoin del CME (codice 133741): piccoli trader ("non reportable") e grandi speculatori ("non commercial").
+FILE_SENT = "btc_sentimento.json"
+FNG_URL = "https://api.alternative.me/fng/?limit=400&format=json"
+COT_URL = ("https://publicreporting.cftc.gov/resource/6dca-aqww.json?$where=cftc_contract_market_code='133741'"
+           "&$order=report_date_as_yyyy_mm_dd%20DESC&$limit=160&$select=report_date_as_yyyy_mm_dd,"
+           "noncomm_positions_long_all,noncomm_positions_short_all,nonrept_positions_long_all,"
+           "nonrept_positions_short_all,open_interest_all")
+FNG_IT = {"Extreme Fear": "Paura estrema", "Fear": "Paura", "Neutral": "Neutro", "Greed": "Avidità",
+          "Extreme Greed": "Avidità estrema"}
+
+
+def _json(url):
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "edgevalor/sentimento"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def _indice(valori, n=52):
+    """Indice 0-100 dell'ultimo valore rispetto al minimo e massimo delle ultime n settimane (come il COT Index)."""
+    v = [x for x in valori[-n:] if x is not None]
+    if len(v) < 26:
+        return None
+    lo, hi = min(v), max(v)
+    return None if hi == lo else round((v[-1] - lo) / (hi - lo) * 100)
+
+
+def sentimento(leggi_json=_json, oggi=None):
+    """{fng:{v, cl, d, serie}, cot:{d, retail:{netto, indice}, spec:{netto, indice}}}: ogni parte puo' mancare."""
+    out = {}
+    try:
+        f = sorted(leggi_json(FNG_URL).get("data") or [], key=lambda x: int(x["timestamp"]))
+        if f:
+            ult = f[-1]
+            sett = [int(x["value"]) for x in f][::-7][::-1][-52:]            # un valore a settimana, ultimo anno
+            out["fng"] = {"v": int(ult["value"]), "cl": FNG_IT.get(ult.get("value_classification"), ult.get("value_classification")),
+                          "d": datetime.fromtimestamp(int(ult["timestamp"]), timezone.utc).strftime("%Y-%m-%d"), "serie": sett}
+    except Exception as e:
+        log.warning("termometro BTC: Fear & Greed non letto (%s)", type(e).__name__)
+    try:
+        righe = sorted(leggi_json(COT_URL), key=lambda r: r["report_date_as_yyyy_mm_dd"])
+        if righe:
+            n = lambda r, k: float(r.get(k) or 0)
+            netto = lambda r, a, b: (n(r, a) - n(r, b)) / n(r, "open_interest_all") * 100 if n(r, "open_interest_all") else None
+            ret = [netto(r, "nonrept_positions_long_all", "nonrept_positions_short_all") for r in righe]
+            spe = [netto(r, "noncomm_positions_long_all", "noncomm_positions_short_all") for r in righe]
+            out["cot"] = {"d": righe[-1]["report_date_as_yyyy_mm_dd"][:10],
+                          "retail": {"netto": None if ret[-1] is None else round(ret[-1], 1), "indice": _indice(ret)},
+                          "spec": {"netto": None if spe[-1] is None else round(spe[-1], 1), "indice": _indice(spe)}}
+    except Exception as e:
+        log.warning("termometro BTC: COT non letto (%s)", type(e).__name__)
+    return out or None
+
+
+def sentimento_per_pagina(leggi=sentimento, cartella=CARTELLA):
+    """Blocco D.btcsent (pubblico, anche in Basic): nuovo se le fonti rispondono, altrimenti l'ultimo valido salvato."""
+    salvato = None
+    try:
+        with open(os.path.join(cartella, FILE_SENT), encoding="utf-8") as f:
+            salvato = json.load(f)
+    except (OSError, ValueError):
+        pass
+    try:
+        nuovo = leggi()
+    except Exception:
+        nuovo = None
+    if nuovo:
+        for k in ("fng", "cot"):                       # una fonte giu': resta la sua ultima copia
+            if k not in nuovo and salvato and k in salvato:
+                nuovo[k] = salvato[k]
+        if os.path.isdir(cartella):
+            with open(os.path.join(cartella, FILE_SENT), "w", encoding="utf-8") as f:
+                json.dump(nuovo, f, ensure_ascii=False, separators=(",", ":"))
+        return nuovo
+    return salvato
