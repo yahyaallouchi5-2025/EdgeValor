@@ -66,7 +66,17 @@
   if(P.sempre_premium)return ["Premium","Accesso completo, senza scadenza.","ok"];
   if(P.premium_fino&&Date.parse(P.premium_fino)>ora)return ["Premium",`Abbonamento attivo fino al ${new Date(P.premium_fino).toLocaleDateString("it-IT")}.`,"ok"];
   if(P.prova_fino&&Date.parse(P.prova_fino)>ora){const n=g(P.prova_fino);return [`Prova · ${n} g`,`Prova gratuita: ${n==1?"ti resta 1 giorno":"ti restano "+n+" giorni"}.`,"prova"];}
-  return ["Gratis","La prova gratuita è finita.",""];}
+  return ["Basic","Sei in Basic: la parte gratuita resta tua.",""];}
+ /* --- v7.92 RIEPILOGO DELLA PROVA (solo durante i 14 giorni): giorno X di 14, barra, data di fine e (i) con cosa resta
+        in Basic. Il giorno si ricava dalla fine della prova (prova_fino - 14 giorni = inizio). --- */
+ const PROVA=14;
+ function riepilogoProva(){if(!P||!P.prova_fino)return "";const fine=Date.parse(P.prova_fino),ora=Date.now();
+  const g=Math.min(PROVA,Math.max(1,Math.floor((ora-(fine-PROVA*864e5))/864e5)+1)),pc=Math.round(g/PROVA*100);
+  const data=new Date(fine).toLocaleDateString("it-IT",{day:"numeric",month:"long"});
+  return `<div class="pfprova"><div class="pfpt"><b>Prova Premium</b><button type="button" class="info" data-apri="pfprinfo" data-k="pfprova" aria-expanded="false" aria-label="Cosa succede dopo la prova">i</button></div>
+   <div class="pfbar" role="progressbar" aria-valuemin="1" aria-valuemax="${PROVA}" aria-valuenow="${g}"><i style="width:${pc}%"></i></div>
+   <div class="pfpg"><span>Giorno ${g} di ${PROVA}</span><span>fino al ${data}</span></div>
+   <p id="pfprinfo" class="sub infotesto">Fino al ${data} hai tutto Premium. Poi passi a Basic, gratis: le funzioni Premium si bloccano. Nessun pagamento automatico.</p></div>`;}
  function aggiorna(){const u=S&&chi();
   eti.textContent=u?(piano()[0]||"…"):"";eti.hidden=!u;eti.className="pfeti"+(u&&piano()[2]?" "+piano()[2]:"");
   btn.title=u?"Il tuo profilo: "+u.email:"Accedi o registrati con la tua email";}
@@ -110,7 +120,7 @@
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.setAttribute("role","status");a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3800);}
  function disegna(msg){const u=S&&chi();if(coda&&!u)coda.innerHTML="";
   if(u){const pn=piano();
-   conto.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b><span class="pfst ${pn[2]}">${pn[1]||"Sto leggendo il tuo profilo…"}</span></div>
+   conto.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b><span class="pfst ${pn[2]}">${pn[2]=="prova"?"":(pn[1]||"Sto leggendo il tuo profilo…")}</span></div>${pn[2]=="prova"?riepilogoProva():""}
     <button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>
 `;
    // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati
