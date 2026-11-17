@@ -2777,9 +2777,13 @@ html.ridotta #status{display:none}
 .sgd li{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;font-weight:500;color:var(--mute)}
 .sgd li b{display:inline;margin:0;font-size:12.5px;font-weight:600;color:var(--ink2)}.sgd li span{white-space:nowrap}
 /* "Nuovo" accanto all'etichetta e "Approfondisci" in fondo (la scheda intera apre il grafico) */
-.nuovo{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#ffd866}
+/* v7.95 "Nuovo segnale": piccolo, in basso a sinistra; a destra "Approfondisci" */
+.nuovo{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:#ffd866}
+.nuovo i{width:6px;height:6px;border-radius:50%;background:#ffd866;box-shadow:0 0 8px rgba(255,216,102,.6)}
+.pfondo{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pfondo .appr{margin-left:auto}
 .piede{display:flex;flex-direction:column;gap:10px;margin-top:12px}.card.clic>.piede{flex:1}.piede .tags{margin:0}.piede .small{margin:0}
-.appr{margin-top:auto;align-self:flex-end;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--acc);transition:gap .18s}
+.appr{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--acc);transition:gap .18s}
 .appr svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .card.clic:hover .appr{gap:10px}
 @media (max-width:600px){.sg{gap:10px;padding:9px 10px}.sg b{font-size:14.5px}.sg em{font-size:11.5px}}
@@ -3128,3 +3132,30 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
 @media (max-width:1100px){.hbgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:700px){.hbgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hbart{height:112px}.hbico{width:58px;height:58px;border-radius:16px}
  .hbico svg{width:28px;height:28px}.hbnome{padding:11px 12px;font-size:13.5px}}
+/* v7.95 GRAFICO BITCOIN: top/bottom, prezzo di oggi, mirino al passaggio e legenda accendi/spegni */
+.bmgraf{position:relative}.bmgraf svg{touch-action:pan-y}
+.bmpv circle{stroke:var(--card2);stroke-width:1.5}.bmpv text{font:700 11.5px system-ui;paint-order:stroke;stroke:var(--card2);stroke-width:3px}
+.bmpv.top circle{fill:var(--b)}.bmpv.top text{fill:var(--b)}
+.bmpv.bot circle{fill:var(--s)}.bmpv.bot text{fill:var(--s)}
+.bmoggi rect{fill:var(--acc)}.bmoggi text{fill:#04211e;font:800 11.5px system-ui}
+.bmp{filter:drop-shadow(0 0 6px rgba(46,196,182,.7))}
+.bmmira line{stroke:var(--ink);stroke-width:1;stroke-dasharray:4 4;opacity:.75}.bmmira circle{fill:var(--ink);stroke:var(--card2);stroke-width:2}
+.bmtip{position:absolute;top:0;display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:9px;border:1px solid var(--line);
+ background:rgba(9,15,27,.94);font-size:12.5px;color:var(--ink2);white-space:nowrap;pointer-events:none;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.bmtip b{color:var(--ink);font-size:13.5px}.bmtk{color:var(--c);font-weight:700}
+.bmlb{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--ink2);font:600 12.5px system-ui;cursor:pointer;transition:opacity .15s,border-color .15s}
+.bmlb:hover{border-color:var(--acc);color:var(--ink)}.bmlb.spento{opacity:.4}.bmlb.spento i{filter:grayscale(1)}
+.bmleginfo{display:inline-block}
+.bmgraf.off0 rect.bmf0,.bmgraf.off1 rect.bmf1,.bmgraf.off2 rect.bmf2,.bmgraf.off3 rect.bmf3{fill-opacity:0}
+/* v7.95 STAGIONALITA' A METRICHE nel riquadro del grafico (12_grafico.js): titolo + 2 righe allineate in colonna */
+.cotinfo .stgm{display:grid;gap:7px;padding:9px 10px;border-radius:10px;background:color-mix(in srgb,var(--soft) 55%,transparent);border:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.stgt{display:flex;align-items:center;gap:8px;font-size:13px}.stgt .small{color:var(--mute)}
+.stgl{margin-left:auto;font-size:12px;font-weight:700;color:var(--acc);text-decoration:none;white-space:nowrap}.stgl:hover{text-decoration:underline}
+.stgr{display:grid;grid-template-columns:150px minmax(60px,220px) 170px auto;align-items:center;gap:12px;font-size:12.5px;color:var(--ink2)}
+.stgk{color:var(--ink);font-weight:600;white-space:nowrap}
+.stgb{height:6px;border-radius:99px;background:var(--card2);overflow:hidden}.stgb i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--c1))}
+.stgn{white-space:nowrap;font-variant-numeric:tabular-nums}.stgn b{color:var(--ink)}
+.stgr em{justify-self:start;font-style:normal;font-weight:800;font-size:11.5px;letter-spacing:.3px;padding:2px 8px;border-radius:99px;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);background:color-mix(in srgb,var(--c) 10%,transparent)}
+/* telefono: su due righe -> nome e giudizio sopra, barra e numero sotto */
+@media (max-width:620px){.stgr{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k e" "b n";gap:5px 10px;font-size:12px}
+ .stgk{grid-area:k}.stgr em{grid-area:e;justify-self:end}.stgb{grid-area:b}.stgn{grid-area:n}.stgm{gap:10px}}
