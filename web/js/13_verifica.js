@@ -137,13 +137,15 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    ${kcard("dki4","Guadagno / drawdown",`<span class="up">${pc(o.mfe50)}</span> / <span class="down">${pc(o.mae50)}</span>`,o.prima!=null?"guadagno prima nel "+o.prima+"%":"mediane",`Guadagno massimo tipico e drawdown mediano (mediane). ${o.prima!=null?"Il guadagno massimo arriva prima del drawdown massimo nel <b>"+o.prima+"%</b> dei trade. ":""}${o.gmin?"Il punto peggiore arriva di solito al <b>"+Math.round(o.gmin)+"&deg; giorno</b> di mercato.":""}`,"vfgd")}</div>
    <p class="small vfesito">Esito, per completezza: <b>${o.hit}%</b> dei trade chiusi in guadagno &middot; resa media <b class="${col(o.resa)}">${pc(o.resa)}</b> al netto dei costi &middot; ${o.n.toLocaleString("it-IT")} trade misurati.</p>`;}
 
- /* GRAFICO giorno per giorno (v6.60, riscritto): disegnato alla larghezza VERA del riquadro (linee sottili e testo
-    piccolo e nitido, prima l'SVG veniva ingrandito e tutto diventava grosso), asse verticale che si adatta da solo ai
-    giorni visibili, zoom con i pulsanti (orizzontale: 1/2/4 settimane; verticale: + / - / adatta), dettaglio al
-    passaggio del mouse o al tocco. Il P90 (1 trade su 10) appare solo quando i trade del giorno sono almeno P90_MIN:
-    con pochi trade "1 su 10" non ha senso (con 2 trade e' semplicemente il peggiore, per questo prima schizzava in basso).
-    Le scelte di zoom ridisegnano SOLO il grafico (la pagina non si muove). */
- const P90_MIN=20,GG={};          // GG = stato del grafico: punti, unita', zoom
+ /* GRAFICO GIORNO PER GIORNO (v7.97, rifatto da zero, stile "app di trading"):
+    - curve morbide senza griglia: VERDE sopra lo zero = guadagno massimo tipico, ROSSO sotto = drawdown tipico,
+      BIANCO spesso = risultato tipico (tutte mediane dei trade arrivati a quel giorno);
+    - i NUMERI GRANDI in alto seguono il mouse o il dito: giorno, risultato, guadagno max, drawdown e "1 su 10"
+      (P90, solo se quel giorno ha almeno P90_MIN trade: con pochi trade sarebbe solo il trade peggiore);
+    - senza mouse i numeri mostrano l'ultimo giorno; scala automatica, niente pulsanti di zoom;
+    - durata visibile: 1 / 2 / 4 settimane (mai oltre l'ultimo giorno con dati).
+    Le curve usano una spline "monotona": passano per i punti senza inventare picchi tra un giorno e l'altro. */
+ const P90_MIN=20,GG={};          // GG = stato del grafico: punti, unita', giorni visibili, giorno evidenziato
  function graficoDD(lista,campi){const rows=[];for(let d=1;d<=20;d++){const o=ddRiga(lista,campi,d);if(o)rows.push(Object.assign({d:d},o));}
   if(rows.length<2)return "";
   const vol=V.unita=="vol";
