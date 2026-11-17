@@ -28,7 +28,7 @@
 <link rel="canonical" href="https://edgevalor.com/">
 <meta property="og:url" content="https://edgevalor.com/"><meta property="og:site_name" content="EdgeValor"><meta property="og:type" content="website"><meta property="og:locale" content="it_IT">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"EdgeValor","alternateName":"Edge Valor","url":"https://edgevalor.com/","inLanguage":"it","description":"Terminale di analisi dei mercati: portafogli modello, clima dei mercati, analisi delle aziende e stagionalità, con dati provati sullo storico."}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Devo avere esperienza?", "acceptedAnswer": {"@type": "Answer", "text": "No. Ogni scheda ha testi brevi e una (i) che spiega come leggerla. Si parte dal profilo e dal portafoglio del mese."}}, {"@type": "Question", "name": "Quanto tempo richiede?", "acceptedAnswer": {"@type": "Answer", "text": "Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito. Tutto il resto è lì quando vuoi capire cosa succede sui mercati."}}, {"@type": "Question", "name": "È una consulenza finanziaria?", "acceptedAnswer": {"@type": "Answer", "text": "No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Non fornisce raccomandazioni personalizzate: ogni decisione resta tua. Trovi i dettagli nelle avvertenze sui rischi."}}, {"@type": "Question", "name": "Posso perdere denaro?", "acceptedAnswer": {"@type": "Answer", "text": "Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento. I risultati passati non garantiscono quelli futuri."}}, {"@type": "Question", "name": "Quanto costa?", "acceptedAnswer": {"@type": "Answer", "text": "La registrazione è gratuita: 14 giorni di prova completa, senza carta. Dopo, ciò che è indicato come gratuito resta gratuito; l'abbonamento per la parte completa arriverà più avanti. Il canale Telegram è gratuito."}}, {"@type": "Question", "name": "Da dove provengono i dati?", "acceptedAnswer": {"@type": "Answer", "text": "Da fonti pubbliche e da un fornitore di dati di mercato: CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale e prezzi di borsa. L'elenco completo è nelle fonti dei dati."}}, {"@type": "Question", "name": "Che cos'è il report COT?", "acceptedAnswer": {"@type": "Answer", "text": "È il report pubblicato ogni settimana dall'autorità statunitense dei mercati futures: dice come sono posizionati i grandi operatori. Nel terminale è mostrato come contesto, non come indicazione operativa."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Devo avere esperienza?", "acceptedAnswer": {"@type": "Answer", "text": "No. Ogni scheda ha testi brevi e una (i) che spiega come leggerla. Si parte dal profilo e dal portafoglio del mese."}}, {"@type": "Question", "name": "Quanto tempo richiede?", "acceptedAnswer": {"@type": "Answer", "text": "Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito. Tutto il resto è lì quando vuoi capire cosa succede sui mercati."}}, {"@type": "Question", "name": "È una consulenza finanziaria?", "acceptedAnswer": {"@type": "Answer", "text": "No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Non fornisce raccomandazioni personalizzate: ogni decisione resta tua. Trovi i dettagli nelle avvertenze sui rischi."}}, {"@type": "Question", "name": "Posso perdere denaro?", "acceptedAnswer": {"@type": "Answer", "text": "Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento. I risultati passati non garantiscono quelli futuri."}}, {"@type": "Question", "name": "Quanto costa?", "acceptedAnswer": {"@type": "Answer", "text": "La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Finita la prova resti in Basic, gratis. Premium si attiva solo se lo scegli tu. Il canale Telegram è gratuito."}}, {"@type": "Question", "name": "Da dove provengono i dati?", "acceptedAnswer": {"@type": "Answer", "text": "Da fonti pubbliche e da un fornitore di dati di mercato: CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale e prezzi di borsa. L'elenco completo è nelle fonti dei dati."}}, {"@type": "Question", "name": "Che cos'è il report COT?", "acceptedAnswer": {"@type": "Answer", "text": "È il report pubblicato ogni settimana dall'autorità statunitense dei mercati futures: dice come sono posizionati i grandi operatori. Nel terminale è mostrato come contesto, non come indicazione operativa."}}]}</script>
 <link rel="icon" href="{{FAVICON}}">
 <style>
 /* --- colori: navy profondo, turchese e azzurro (come il terminale) --- */
@@ -170,7 +170,14 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 .piano li{position:relative;padding-left:28px;color:var(--ink2);font-size:16px;line-height:1.45}
 .piano li::before{content:"";position:absolute;left:2px;top:6px;width:13px;height:7px;border-left:2.5px solid var(--acc);border-bottom:2.5px solid var(--acc);transform:rotate(-45deg)}
 .piano.pro li::before{border-color:var(--acc2)}
-@media (max-width:800px){.piani{grid-template-columns:1fr}.piano{padding:26px 24px}}
+/* v7.91 Basic | Premium a confronto: etichetta stretta, Basic piu' tenue, Premium in risalto, un solo pulsante sotto */
+.piano{display:flex;flex-direction:column}.piano .ptag{align-self:flex-start}
+.piano.pro{box-shadow:0 0 0 1px rgba(91,155,255,.25),0 30px 70px rgba(20,60,140,.25)}
+.piano .piu{margin:-6px 0 14px;font-size:14px;font-weight:700;color:#a9c8ff;letter-spacing:.2px}
+.piano.pro li{color:var(--ink)}.piano.pro li b{font-weight:700}.piano:not(.pro) li{color:var(--mute)}
+.pcta{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:30px;flex-wrap:wrap;text-align:center}
+.pcta>span{color:var(--mute);font-size:14.5px}
+@media (max-width:800px){.piani{grid-template-columns:1fr}.piano{padding:26px 24px}.pcta{flex-direction:column;gap:12px}.pcta .btn{width:100%;justify-content:center}}
 /* v7.70 PREZZI E OFFERTA DI FINE NOVEMBRE (Black Friday -> Cyber Monday). Compare e sparisce da sola, ogni anno.
    .prezzi = prezzo di listino | .off = riga nel riquadro | .ochip = avviso in basso | .omod = finestra
    Due vesti: html[data-off="bf"] Black Friday (viola-rosa-arancio), html[data-off="cm"] Cyber Monday (azzurro-viola).
@@ -503,19 +510,22 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
   </div>
  </div></section>
 
- <!-- 4. ACCESSO: cosa e' libero e cosa sara' in abbonamento (prova di 14 giorni in arrivo) -->
+ <!-- 4. ACCESSO (v7.91): Basic e Premium a confronto, SENZA prezzi; un solo pulsante che apre la registrazione.
+      La riga dell'offerta (.off) resta nel riquadro Premium ma e' spenta (ACCESA=false piu' sotto). -->
  <section id="accesso" data-ev-vista="accesso"><div class="box">
-  <div class="titsez appare"><small>Accesso</small><h2>14 giorni di prova completa.</h2>
-   <p>Crei l'account con la tua email, senza carta. Finita la prova, la parte gratuita resta tua.</p></div>
+  <div class="titsez appare"><small>Accesso</small><h2>14 giorni di Premium, gratis.</h2>
+   <p>Ti registri con l'email, senza carta. Poi scegli tu.</p></div>
   <div class="piani">
-   <div class="piano appare"><span class="ptag">Gratis, sempre</span><h3>Per capire i mercati</h3>
-    <ul><li>Clima di mercato e fase delle grandi economie</li><li>Posizionamento dei grandi operatori (COT)</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Mappa della stagionalità</li><li>Settori e ricerca dei titoli</li><li>Canale Telegram</li></ul></div>
-   <div class="piano pro appare" style="--d:.08s"><span class="ptag">Abbonamento · in arrivo</span><h3>Per costruire il portafoglio</h3>
-    <p class="prezzi"><span><b>14,90 €</b> al mese</span><span>oppure <b>137 €</b> l'anno</span></p>
-    <ul><li>Composizione e pesi dei portafogli</li><li>Rischio del mese e acquisto guidato</li><li>Selezione di oggi</li><li>Elenco e scheda di ogni azienda</li><li>Stagionalità di adesso e dettaglio per strumento</li><li>Tabella completa dei paesi emergenti</li></ul>
+   <div class="piano appare"><span class="ptag">Basic</span><h3>Capire i mercati</h3>
+    <ul><li>Clima di mercato e fase delle grandi economie</li><li>Posizionamento dei grandi operatori (COT)</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Mappa della stagionalità</li><li>Settori e ricerca dei titoli</li></ul></div>
+   <div class="piano pro appare" style="--d:.08s"><span class="ptag">Premium</span><h3>Sapere cosa fare</h3>
+    <p class="piu">Tutto Basic, più:</p>
+    <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>Stagionalità di adesso</b>, strumento per strumento</li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
     <div class="off" data-off hidden><p><b data-off-nome>Black Friday</b>, fino a <span data-off-fine></span>:<br>9,90 € al mese o 89 € l'anno.</p>
      <button class="btn bia" data-off-apri data-ev="offerta_apri_accesso">Blocca il prezzo</button></div></div>
   </div>
+  <div class="pcta appare"><button class="btn pri" data-entra="reg" data-pos="accesso"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Inizia la prova</span></button>
+   <span>Basta l'email. Niente carta, nessun rinnovo automatico.</span></div>
  </div></section>
 
  <!-- 4b. CHI C'E' DIETRO: nome, volto e storia, senza numeri di rendimento -->
@@ -545,7 +555,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <details><summary>Quanto tempo richiede?</summary><p>Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito. Tutto il resto è lì quando vuoi capire cosa succede sui mercati.</p></details>
    <details><summary>È una consulenza finanziaria?</summary><p>No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Non fornisce raccomandazioni personalizzate: ogni decisione resta tua. Trovi i dettagli nelle <a href="legale/#rischi">avvertenze sui rischi</a>.</p></details>
    <details><summary>Posso perdere denaro?</summary><p>Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento. I risultati passati non garantiscono quelli futuri.</p></details>
-   <details><summary>Quanto costa?</summary><p>La registrazione è gratuita: 14 giorni di prova completa, senza carta. Dopo, ciò che è indicato come gratuito resta gratuito; l'abbonamento per la parte completa arriverà più avanti. Il canale Telegram è gratuito.</p></details>
+   <details><summary>Quanto costa?</summary><p>La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Finita la prova resti in Basic, gratis. Premium si attiva solo se lo scegli tu. Il canale Telegram è gratuito.</p></details>
    <details><summary>Da dove provengono i dati?</summary><p>Da fonti pubbliche e da un fornitore di dati di mercato: CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale e prezzi di borsa. L'elenco completo è nelle <a href="legale/#fonti">fonti dei dati</a>.</p></details>
    <details><summary>Che cos'è il report COT?</summary><p>È il report pubblicato ogni settimana dall'autorità statunitense dei mercati futures: dice come sono posizionati i grandi operatori. Nel terminale è mostrato come contesto, non come indicazione operativa.</p></details>
   </div>
@@ -599,7 +609,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <p>Un terminale per investire con metodo: portafogli modello, mercati, aziende e stagionalità. Dati, non opinioni.</p>
    <!-- contatto diretto: discreto, in fondo alla pagina -->
    <p class="scrivi">Vuoi scrivermi direttamente?<br><a href="https://t.me/Yahya_1294" target="_blank" rel="noopener" data-ev="footer_tg_diretto">Telegram @Yahya_1294</a></p></div>
-  <div><h4>Terminale</h4><a href="terminale/" data-ev="footer_terminale">Apri il terminale</a><a href="#zero">Parti da zero</a><a href="#pilastri">Dentro il terminale</a><a href="#metodo">Il metodo</a><a href="#accesso">Accesso e prezzi</a></div>
+  <div><h4>Terminale</h4><a href="terminale/" data-ev="footer_terminale">Apri il terminale</a><a href="#zero">Parti da zero</a><a href="#pilastri">Dentro il terminale</a><a href="#metodo">Il metodo</a><a href="#accesso">Accesso</a></div>
   <div><h4>Aiuto</h4><a href="#faq">Domande frequenti</a><a href="legale/#contatti">Contatti</a><a href="legale/#fonti">Fonti dei dati</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Canale Telegram</a></div>
   <div><h4>Note legali</h4><a href="legale/#termini">Termini di utilizzo</a><a href="legale/#rischi">Avvertenze sui rischi</a><a href="legale/#privacy">Privacy e statistiche</a><a href="legale/#diritti">Diritto d'autore</a></div>
  </div>
@@ -623,7 +633,8 @@ if(/(^#|&)(access_token|error_description)=/.test(vai)){location.replace("termin
 function haPass(){try{return !!localStorage.getItem("eb_pass");}catch(e){return true;}}
 function entra(){try{localStorage.setItem("eb_pass",new Date().toISOString());}catch(e){}
  // con le statistiche attive si aspettano 250 ms: il tempo di registrare il click "pass" (vedi statistiche.js)
- var dest="terminale/"+(/^#[a-z]+$/.test(vai)?vai:"");
+ // v7.91 data-entra="reg" (pulsante "Inizia la prova") apre direttamente la scheda Registrati della porta
+ var dest="terminale/"+(this&&this.getAttribute&&this.getAttribute("data-entra")=="reg"?"?reg":"")+(/^#[a-z]+$/.test(vai)?vai:"");
  setTimeout(function(){location.href=dest;},window.ebStat&&ebStat.attivo?250:0);}
 document.querySelectorAll("[data-entra]").forEach(function(b){b.addEventListener("click",entra);});
 
