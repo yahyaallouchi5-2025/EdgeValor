@@ -142,6 +142,10 @@ def righe_eventi(nuovi, aperture):
     return blocchi
 
 
+RINVIO = "2026-11-16-edgevalor"                       # v7.88: codice del rinvio una tantum (vedi esegui)
+RINVIO_DA, RINVIO_FINO = datetime(2026, 11, 16, 21), datetime(2026, 11, 18)   # finestra (UTC) del rinvio
+
+
 def _link(sito):
     """v7.84: i dati si scaricano da 'sito' (github.io, passato dai workflow), ma i link nei messaggi Telegram
     portano sempre al dominio pubblico (SITO_PUBBLICO = edgevalor.com). Altri indirizzi (prove) restano uguali."""
@@ -335,6 +339,22 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
             from . import briefing as _br
             briefing = _br.testi(dati, _link(sito), adesso_utc)
             lun_brief = lun.isoformat()
+    # v7.88 RINVIO UNA TANTUM (cambio nome in EdgeValor): si rimandano il briefing della settimana e l'avviso della
+    # prossima notizia, cosi' l'admin puo' cancellare i messaggi vecchi. Segnato nel cursore: parte una volta sola.
+    rinvio = []
+    if dati and dati.get("assets") and "github.io" in (sito or "") and (stato_ag or {}).get("rinvio") != RINVIO \
+            and RINVIO_DA <= adesso_utc < RINVIO_FINO:
+        from . import briefing as _br
+        rinvio = _br.testi(dati, _link(sito), adesso_utc)
+        prossimi = []
+        for e in (agenda_sito or {}).get("eventi") or []:
+            if e.get("utc") and not e.get("uscito"):
+                ore = (datetime.strptime(e["utc"], "%Y-%m-%dT%H:%MZ") - adesso_utc).total_seconds() / 3600
+                if 0 < ore <= avvisi.ORE_PRIMA:
+                    prossimi.append(e)
+        if prossimi:
+            rinvio.append(avvisi.testo_arrivo(prossimi[:5], credito))
+        briefing = []                                    # il briefing e' gia' dentro il rinvio: niente doppione
     testi_notizie = settimana + [avvisi.testo_arrivo(arrivo[i:i + 5], credito) for i in range(0, len(arrivo), 5)] + \
                     [avvisi.testo_esito(gruppi[i:i + 4], credito) for i in range(0, len(gruppi), 4)]
     esito = {"esito": "niente_di_nuovo", "inviati": 0, "ultimo_n": ultimo_n, "testi": testi, "briefing": briefing,
@@ -376,7 +396,14 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
         if notizie_ok:
             esito["inviati"] += len(testi_notizie)
             esito["esito"] = "inviato"
-    stato_finale = nuovo_ag if notizie_ok else stato_ag
+    if rinvio and configurato:
+        if all(invia_telegram(token, chat, t) for t in rinvio):
+            nuovo_ag = dict(nuovo_ag or {}, rinvio=RINVIO)
+            esito["inviati"] += len(rinvio)
+            esito["esito"] = "inviato"
+    elif rinvio:
+        nuovo_ag = dict(nuovo_ag or {}, rinvio=RINVIO)
+    stato_finale = nuovo_ag if notizie_ok else dict(stato_ag or {}, **({"rinvio": nuovo_ag.get("rinvio")} if (nuovo_ag or {}).get("rinvio") else {}))
     if (ultimo_n != cursore.get("ultimo_n") or nuovo_cot != cursore.get("riepilogo_cot")
             or stato_finale != cursore.get("agenda") or nuovo_brief != cursore.get("briefing")):
         scrivi_cursore(cartella, ultimo_n, ultimo_hash, adesso, nuovo_cot, stato_finale, nuovo_brief)

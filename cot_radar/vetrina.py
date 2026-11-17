@@ -13,11 +13,11 @@ import os
 import re
 import urllib.parse
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timezone
 from html import escape, unescape
 
 from . import pagina, riepilogo
-from .config import CONTATTO_EMAIL, FEEDBACK_CHIAVE, NORMAL, SECTORS, STRONG, TELEGRAM_CANALE, TITOLARE, WEB_DIR
+from .config import CONTATTO_EMAIL, FEEDBACK_CHIAVE, NORMAL, SECTORS, SITO_PUBBLICO, STRONG, TELEGRAM_CANALE, TITOLARE, WEB_DIR
 from .log import log
 
 # favicon: barra luminosa + ED/VA (logo "EDGE VALOR" in miniatura)
@@ -267,5 +267,15 @@ def crea(cartella):
     os.makedirs(os.path.join(cartella, "legale"), exist_ok=True)
     with open(os.path.join(cartella, "legale", "index.html"), "w", encoding="utf-8") as fh:
         fh.write(legale())
+    # v7.89 FARSI TROVARE SU GOOGLE: robots.txt (cosa indicizzare) e sitemap.xml (elenco delle pagine pubbliche).
+    # Il terminale (/terminale/) e' dietro l'accesso: non serve indicizzarlo.
+    oggi = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    with open(os.path.join(cartella, "robots.txt"), "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("User-agent: *\nAllow: /\nDisallow: /terminale/\n\nSitemap: " + SITO_PUBBLICO + "sitemap.xml\n")
+    pagine = [(SITO_PUBBLICO, "1.0"), (SITO_PUBBLICO + "legale/", "0.3")]
+    with open(os.path.join(cartella, "sitemap.xml"), "w", encoding="utf-8", newline="\n") as fh:
+        fh.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+                 "".join(f"  <url><loc>{u}</loc><lastmod>{oggi}</lastmod><priority>{p}</priority></url>\n" for u, p in pagine) +
+                 "</urlset>\n")
     log.info("Landing page creata: %s", f)
     return f

@@ -179,6 +179,7 @@ def da_inviare(agenda, stato, adesso):
     """Decide cosa mandare. stato = {"arrivo": {id: data}, "esito": {chiave: data}} dal cursore.
     Restituisce (eventi_in_arrivo, gruppi_esito, nuovo_stato). Lo stato si salva SOLO dopo l'invio riuscito."""
     settimana = (stato or {}).get("settimana")          # lunedi' dell'ultima agenda settimanale inviata
+    rinvio = (stato or {}).get("rinvio")                 # v7.88: rinvio una tantum gia' fatto (notifiche.RINVIO)
     stato = {"arrivo": dict((stato or {}).get("arrivo") or {}), "esito": dict((stato or {}).get("esito") or {})}
     eventi = (agenda or {}).get("eventi") or []
     oggi = adesso.date()
@@ -212,6 +213,8 @@ def da_inviare(agenda, stato, adesso):
         nuovo[k] = {i: d for i, d in nuovo[k].items() if d >= limite}
     if settimana:
         nuovo["settimana"] = settimana
+    if rinvio:
+        nuovo["rinvio"] = rinvio
     return arrivo, sorted(pronti, key=lambda g: g["chiave"]), nuovo
 
 
