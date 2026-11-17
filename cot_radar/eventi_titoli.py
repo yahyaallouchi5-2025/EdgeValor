@@ -179,6 +179,9 @@ def aggiorna(cartella, el=None, oggi=None, frazionamenti=True, scarica_elenco=_e
             ev["delistati"] = {t: {"nome": n} for t, n in nuovi.items()}
             ev["delistati"].update({t: v for t, v in vecchi.items() if nostri.get(t, (0, None))[1] not in attivi})
             ev["agg_delist"] = oggi.isoformat()
+    # v7.90 un titolo gia' tolto da azioni_elenco.csv esce subito dal registro (prima restava per sempre e
+    # teneva aperta la issue di sorveglianza, es. KVUE dopo l'acquisizione)
+    ev["delistati"] = {t: v for t, v in (ev.get("delistati") or {}).items() if t in nostri}
 
     # 3) prezzi fermi (sempre) + ultima data dei delistati
     ultimi = {}

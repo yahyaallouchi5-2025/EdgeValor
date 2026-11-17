@@ -78,6 +78,13 @@ class Giro(unittest.TestCase):
                        scarica_split=lambda b, g: chiamate.append(g) or [])
         self.assertTrue(all(g == "2026-11-09" for g in chiamate))
 
+    def test_titolo_tolto_dall_elenco_esce_dal_registro(self):
+        # v7.90 KVUE: gia' tolto da azioni_elenco.csv, non deve restare tra i delistati (e nella sorveglianza)
+        f = E.file_eventi(self.dir)
+        A._scrivi(f, {"agg_delist": "2026-11-08", "delistati": {"KVUE": {"nome": "Kenvue Inc."}}})
+        ev = E.aggiorna(self.dir, self.el, oggi=date(2026, 11, 9))
+        self.assertNotIn("KVUE", ev["delistati"])
+
     def test_senza_chiave_solo_prezzi_fermi(self):
         ev = E.aggiorna(self.dir, self.el, oggi=date(2026, 11, 9))
         self.assertEqual(ev["fermi"], {"BEZ.L": "2026-10-15"})

@@ -18,6 +18,8 @@ from datetime import date, timedelta
 from .config import ASSETS, K_MIR, PRICES
 from .log import log
 
+MENSILI = ("CPIAUCSL", "UNRATE", "INDPRO")      # v7.90 serie FRED mensili (quadro economico)
+
 
 def _ok(x):
     return isinstance(x, (int, float)) and not math.isnan(x) and not math.isinf(x)
@@ -61,7 +63,8 @@ def controlla(assets, pairs, fred, ecb, mort):
             if not pts:
                 continue
             last = pts[-1][0]
-            tol = 12 if sid in ("WALCL", "WTREGEN", "MORTGAGE30US") else 7
+            # v7.90 le serie mensili hanno la data del 1o del mese ed escono 2-7 settimane dopo: soglia di 80 giorni
+            tol = 80 if sid in MENSILI else (12 if sid in ("WALCL", "WTREGEN") else 7)
             if last < (today - timedelta(days=tol)).isoformat():
                 segnala("WARNING", "FRED", f"{sid}: ultimo dato del {last}, nessun aggiornamento da piu' di {tol} giorni")
         for key, (sid, _) in PRICES.items():

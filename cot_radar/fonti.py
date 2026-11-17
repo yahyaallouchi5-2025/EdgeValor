@@ -282,6 +282,9 @@ def load_all():
             log.info("FRED: %d serie mancanti, %d recuperate dalle fonti di riserva", len(mancanti), len(dati_r))
         if ok:
             fred["saved"] = now
+        # v7.90 serie non piu' scaricate (es. MORTGAGE30US, tolta in v6.35): via dalla copia salvata,
+        # altrimenti restano ferme per sempre e i controlli danno un falso allarme a ogni giro
+        fred["data"] = {sid: v for sid, v in fred["data"].items() if sid in FRED_IDS}
         cache["fred"] = fred
         if fred_manut:
             status["fred"] = "manutenzione"
