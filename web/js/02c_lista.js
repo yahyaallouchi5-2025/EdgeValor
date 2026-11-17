@@ -49,15 +49,17 @@ try{(function(){
  const corpo=pan.querySelector("#lcorpo"),cerca=pan.querySelector("#lq"),ris=pan.querySelector("#lris");
  let titoli=null,attesa=null;                                   // elenco delle aziende (azioni/indice.json), letto una volta
  function caricaTitoli(){if(titoli||attesa)return attesa||Promise.resolve();
-  return attesa=fetch("../azioni/indice.json",{cache:"no-cache"}).then(r=>r.ok?r.json():Promise.reject(r.status))
+  return attesa=fetch("../azioni/indice.json",{cache:"no-cache"}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(premJ)
    .then(d=>{titoli=d.titoli||[];}).catch(e=>{console.warn("[EdgeValor] lista: elenco aziende non letto",e);titoli=[];}).finally(()=>{attesa=null;});}
  const pct=v=>v==null?"n/d":(v>0?"+":"")+fx(v,1)+"%",cl=v=>v>0?"up":v<0?"down":"flat";
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3200);}
  function rigaAz(tk){const t=(titoli||[]).find(x=>x.t==tk);
   if(!t)return `<div class="lrig" data-az="${esc(tk)}"><div class="ln"><b>${esc(tk)}</b><span>${titoli?"Non più in elenco":"Caricamento…"}</span></div>${stella("az",tk)}</div>`;
   const f=typeof forzaLiv=="function"?forzaLiv(t.pt):null,fc=f?({f:"up",d:"down",n:"flat"})[f[0]]:"flat";
+  // v7.93 Basic: la Forza e' Premium, al suo posto la variazione di oggi
+  const lv=t.pt==null&&!EB_PREMIUM?`<small>Oggi</small><b class="${cl(t.v1g)}">${pct(t.v1g)}</b>`:`<small>Forza</small><b class="${fc}">${t.pt==null?"n/d":t.pt}</b>`;
   return `<div class="lrig clic" data-az="${esc(tk)}" tabindex="0" role="button"><div class="ln"><b>${esc(t.n)}</b><span>${esc(tk)}</span></div>
-   <div class="lv"><small>Forza</small><b class="${fc}">${t.pt==null?"n/d":t.pt}</b></div>${stella("az",tk)}</div>`;}
+   <div class="lv">${lv}</div>${stella("az",tk)}</div>`;}
  function rigaPa(iso){const r=((D.paesi||{}).paesi||[]).find(x=>x.iso==iso);
   if(!r)return `<div class="lrig" data-pa="${esc(iso)}"><div class="ln"><b>${esc(iso)}</b><span>Non più in elenco</span></div>${stella("pa",iso)}</div>`;
   const b=r.b||{};

@@ -118,18 +118,32 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
  if(ap)infoAperte.add(b.dataset.k);else infoAperte.delete(b.dataset.k);});
 (()=>{const w=document.querySelector(".wrap");if(!w)return;etichetteInfo(w);
  new MutationObserver(()=>etichetteInfo(w)).observe(w,{childList:true,subtree:true});})();
-/* VERSIONE NUOVA? Il browser (o GitHub Pages, ~10 minuti) puo' tenere in memoria la pagina vecchia.
-   Ogni 10 minuti leggiamo stato.json "fresco": se e' piu' recente dei dati di questa pagina, compare
-   un avviso con il pulsante per ricaricare. Solo sul sito (http/https), non sul file aperto dal PC. */
+/* v7.94 AGGIORNAMENTO AUTOMATICO E SILENZIOSO (prima: banner "E' disponibile una versione piu' recente" + "Aggiorna").
+   Ogni 10 minuti si legge stato.json "fresco": se il sito ha dati piu' recenti di questa pagina, si ricarica DA SOLO
+   nel momento giusto, senza disturbare:
+     - subito, se la pagina non e' in vista (altra scheda del browser, telefono bloccato);
+     - altrimenti appena l'utente e' fermo da 2 minuti (nessun tocco, tasto o scorrimento) e non ha nulla di aperto
+       (finestre, campi in cui sta scrivendo).
+   Dopo la ricarica si torna nella STESSA scheda e alla STESSA altezza (sessionStorage "ebRitorno").
+   Solo sul sito (http/https), non sul file aperto dal PC. DEBUG: F12 -> Console: window.__nuovaVersione */
+let fermoDa=Date.now();
+["pointerdown","keydown","scroll","touchstart"].forEach(e=>addEventListener(e,()=>{fermoDa=Date.now();},{passive:true}));
+function occupato(){const a=document.activeElement;
+ return !!(document.querySelector(".cmodal.on,.fbmodal,#porta:not([hidden]),.azdett.on")||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)));}
+function ricarica(){if(!window.__nuovaVersione)return;
+ if(!document.hidden&&(Date.now()-fermoDa<120000||occupato()))return;          // l'utente sta usando la pagina: si aspetta
+ try{const b=document.querySelector("#nav button.on");sessionStorage.setItem("ebRitorno",JSON.stringify({t:b&&b.dataset.t,y:scrollY}));}catch(e){}
+ location.reload();}
 function controllaVersione(){if(!/^https?:/.test(location.protocol)||!D.stato||!D.stato.creato)return;
- // v7.64 dal terminale (/terminale/) stato.json sta una cartella sopra: prima la richiesta dava 404
+ // v7.64 dal terminale (/terminale/) stato.json sta una cartella sopra
  fetch((/\/terminale\//.test(location.pathname)?"../":"")+"stato.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(s=>{
-  if(!s||!s.creato||s.creato<=D.stato.creato||s.esito=="scartato"||document.getElementById("nuovaversione"))return;
-  const d=document.createElement("div");d.id="nuovaversione";d.className="alert";
-  d.style.cssText="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;display:flex;gap:12px;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.18)";
-  d.innerHTML=`<span>&Egrave; disponibile una versione pi&ugrave; recente della dashboard.</span><button class="tvbtn" onclick="location.reload()">Aggiorna</button>`;
-  document.body.appendChild(d);}).catch(()=>{});}   // senza rete: nessun avviso, nessun errore
-controllaVersione();setInterval(controllaVersione,10*60*1000);
+  if(!s||!s.creato||s.creato<=D.stato.creato||s.esito=="scartato")return;
+  window.__nuovaVersione=true;ricarica();}).catch(()=>{});}   // senza rete: nessun errore
+controllaVersione();setInterval(controllaVersione,10*60*1000);setInterval(ricarica,30000);
+document.addEventListener("visibilitychange",()=>{if(document.hidden)ricarica();});
+// ritorno dopo la ricarica automatica: stessa scheda e stessa altezza (dopo che le schede sono pronte)
+addEventListener("load",()=>{try{const r=JSON.parse(sessionStorage.getItem("ebRitorno")||"null");sessionStorage.removeItem("ebRitorno");
+ if(r){setTimeout(()=>{if(r.t&&typeof go=="function")go(r.t);setTimeout(()=>scrollTo(0,r.y||0),120);},60);}}catch(e){}});
 window.addEventListener("unhandledrejection",ev=>{window.__errori.push({sezione:"pagina",errore:String(ev.reason)});bannerErrore(ev.reason);});
 
 
@@ -158,3 +172,18 @@ window.addEventListener("unhandledrejection",ev=>{window.__errori.push({sezione:
  const tutti=()=>document.querySelectorAll("details.info[open]").forEach(piazza);
  window.addEventListener("scroll",tutti,{passive:true});window.addEventListener("resize",tutti);
 })();
+/* ---------- v7.93 LUCCHETTO PREMIUM (uno solo per tutte le schede) ----------
+   EB_PREMIUM = i dati Premium ci sono (prova, abbonamento, riservati, o pagina del PC): vedi caricatore in index.html.
+   ebBlocco(titolo, testo, {velo:true, righe:n}) = riquadro "Disponibile con Premium"; con velo mostra sotto delle righe
+   finte sfocate (la forma del contenuto, mai i dati veri). Il pulsante apre la richiesta Premium (26_feedback.js). */
+const EB_PREMIUM=!!D.premium;
+const LUCCHETTO='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/><circle cx="12" cy="15.5" r="1.4"/></svg>';
+function ebBlocco(tit,txt,o){o=o||{};
+ const fondo=o.velo?`<div class="plk-fondo" aria-hidden="true">${Array(o.righe||5).fill(0).map((_,i)=>`<i style="width:${[92,78,86,70,82,74,88][i%7]}%"></i>`).join("")}</div>`:"";
+ return `<div class="card plk${o.velo?" plk-velo":""}${o.cls?" "+o.cls:""}">${fondo}<div class="plk-in"><span class="plk-ico">${LUCCHETTO}</span>
+  <div class="plk-t"><small>Premium</small><b>${tit}</b>${txt?`<span>${txt}</span>`:""}</div>
+  <button type="button" class="plk-b" data-premium>Passa a Premium</button></div></div>`;}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-premium]");if(!b)return;
+ e.preventDefault();if(window.ebFeedback)ebFeedback({premium:true});});
+// v7.93 file JSON delle azioni con parte Premium ({"__p":...}): aperti con la chiave, altrimenti parte Basic
+const premJ=j=>j&&window.ebPrem?ebPrem.apri(j):j;
