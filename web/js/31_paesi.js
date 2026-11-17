@@ -34,6 +34,8 @@ try{(function(){
   $("pefiltri").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.f==sel));
   const vis=tutti?v:v.slice(0,PRIMI);
   $("pegrid").innerHTML=v.length?testa()+vis.map(riga).join("")+(v.length>PRIMI?`<button class="pepiu" id="pepiu">${tutti?"Mostra meno":`Mostra tutti (${v.length})`}</button>`:""):`<div class="card vuota">Nessun paese in questo gruppo.</div>`;
+  // v7.93 Basic: le prime 5 economie per PIL; la tabella completa e' Premium (P.n_tot = paesi in tutto)
+  if(!EB_PREMIUM&&P.n_tot>P.paesi.length)$("pegrid").insertAdjacentHTML("beforeend",ebBlocco(`Altri ${P.n_tot-P.paesi.length} paesi emergenti`,"Tabella completa con economia, borsa e volatilità di ogni paese.",{cls:"pelk"}));
   if($("pepiu"))$("pepiu").onclick=()=>{tutti=!tutti;disegna();};
   $("pegrid").querySelectorAll("button[data-o]").forEach(b=>b.onclick=()=>{if(ord==b.dataset.o)giu=!giu;else{ord=b.dataset.o;giu=true;}disegna();});};
  $("pefiltri").innerHTML=FIL.map(([n,f])=>`<button data-f="${n}">${n} <small>${P.paesi.filter(f).length}</small></button>`).join("");

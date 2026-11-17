@@ -83,9 +83,11 @@
     const j=await r.json().catch(()=>({}));
     if(!r.ok||j.success===false)throw new Error(j.message||("HTTP "+r.status));
     ultimo=Date.now();try{window.ebStat&&ebStat.ev("feedback",{tipo});}catch(_){}
-    f.innerHTML=`<div class="fbgrazie"><span class="cmodal-ico ok" aria-hidden="true">&#10003;</span><h3>Grazie!</h3><p>Messaggio ricevuto.${mail?" Se serve, ti rispondiamo all'email indicata.":""}</p><button type="button" class="csi">Chiudi</button></div>`;
+    f.innerHTML=`<div class="fbgrazie"><span class="cmodal-ico ok" aria-hidden="true">&#10003;</span><h3>Richiesta inviata</h3>
+     <p>Numero <b class="fbnr">${nr}</b>. ${tipo=="call"?"Ti scriviamo per fissare la call":"Ti rispondiamo"} a ${esc(mail)}.</p><button type="button" class="csi">Chiudi</button></div>`;
     f.querySelector(".csi").onclick=chiudi;f.querySelector(".csi").focus();}
-   catch(err){console.warn("[EdgeValor] feedback:",err);invia.disabled=false;invia.textContent="Invia";
-    esito.className="fbesito ko";esito.textContent="Invio non riuscito (connessione o servizio). Riprova tra poco.";}};}
- apri.onclick=mostra;
-}catch(e){console.error("[EdgeValor] feedback:",e);}})();
+   catch(err){console.warn("[EdgeValor] assistenza:",err);invia.disabled=false;invia.textContent="Invia";
+    ko("Invio non riuscito (connessione o servizio). Riprova tra poco.");}};}
+ apri.onclick=()=>mostra();
+ window.ebFeedback=mostra;
+}catch(e){console.error("[EdgeValor] assistenza:",e);}})();

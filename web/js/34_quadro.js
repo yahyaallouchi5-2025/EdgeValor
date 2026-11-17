@@ -137,5 +137,5 @@ try{(function(){
   el.querySelectorAll(".qe-card").forEach(b=>b.onclick=()=>{const apri=sel!=b.dataset.id;sel=apri?b.dataset.id:null;disegna();
    if(apri){const d=el.querySelector(".qe-det");if(d&&d.getBoundingClientRect().top>innerHeight*.75)d.scrollIntoView({behavior:"smooth",block:"start"});}});}
  disegna();
- fetch("../azioni/top.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.economie){borsa=d;disegna();}}).catch(()=>{});
+ fetch("../azioni/top.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).then(d=>{if(d&&d.economie){borsa=d;disegna();}}).catch(()=>{});
 })();}catch(e){console.error("quadro economico",e);}

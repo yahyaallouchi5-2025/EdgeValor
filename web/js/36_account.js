@@ -67,6 +67,8 @@
   if(P.premium_fino&&Date.parse(P.premium_fino)>ora)return ["Premium",`Abbonamento attivo fino al ${new Date(P.premium_fino).toLocaleDateString("it-IT")}.`,"ok"];
   if(P.prova_fino&&Date.parse(P.prova_fino)>ora){const n=g(P.prova_fino);return [`Prova · ${n} g`,`Prova gratuita: ${n==1?"ti resta 1 giorno":"ti restano "+n+" giorni"}.`,"prova"];}
   return ["Basic","Sei in Basic: la parte gratuita resta tua.",""];}
+ // v7.93 ID UTENTE leggibile (EV-0001...): numero progressivo dato dal database alla registrazione
+ const idUtente=()=>P&&P.numero?"EV-"+String(P.numero).padStart(4,"0"):"";
  /* --- v7.92 RIEPILOGO DELLA PROVA (solo durante i 14 giorni): giorno X di 14, barra, data di fine e (i) con cosa resta
         in Basic. Il giorno si ricava dalla fine della prova (prova_fino - 14 giorni = inizio). --- */
  const PROVA=14;
@@ -104,7 +106,7 @@
   catch(e){console.warn("[EdgeValor] account: lista non salvata, riprovo alla prossima modifica",e);}},1200);});
 
  async function carica(){if(!S)return aggiorna();aggiorna();
-  try{const r=await db("profili?select=prova_fino,premium_fino,sempre_premium,codice_invito");P=(r&&r[0])||null;}
+  try{const r=await db("profili?select=prova_fino,premium_fino,sempre_premium,codice_invito,numero");P=(r&&r[0])||null;}
   catch(e){console.warn("[EdgeValor] account: profilo non letto",e);}
   aggiorna();
   try{await sincronizza();}catch(e){console.warn("[EdgeValor] account: lista non sincronizzata",e);}}
@@ -120,12 +122,13 @@
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.setAttribute("role","status");a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3800);}
  function disegna(msg){const u=S&&chi();if(coda&&!u)coda.innerHTML="";
   if(u){const pn=piano();
-   conto.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b><span class="pfst ${pn[2]}">${pn[2]=="prova"?"":(pn[1]||"Sto leggendo il tuo profilo…")}</span></div>${pn[2]=="prova"?riepilogoProva():""}
+   conto.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b>${idUtente()?`<span class="pfid" title="Il tuo codice: citalo quando ci scrivi">ID ${idUtente()}</span>`:""}<span class="pfst ${pn[2]}">${pn[2]=="prova"?"":(pn[1]||"Sto leggendo il tuo profilo…")}</span></div>${pn[2]=="prova"?riepilogoProva():""}
     <button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>
 `;
    // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati
    if(coda)coda.innerHTML=`<button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>`;
-   box.querySelector(".pfesci").onclick=()=>{const t=S&&S.a;S=null;P=null;pronto=false;inviato="";salva();aggiorna();mostra(false);avviso("Sei uscito dal profilo");
+   box.querySelector(".pfesci").onclick=()=>{const t=S&&S.a;S=null;P=null;pronto=false;inviato="";salva();try{localStorage.removeItem("ebPK");}catch(e){}   // v7.93 la chiave Premium resta solo a chi e' dentro
+aggiorna();mostra(false);avviso("Sei uscito dal profilo");
     // v7.86: dopo l'uscita la pagina si ricarica e mostra la porta d'ingresso
     (t?fetch(API+"/auth/v1/logout?scope=local",{method:"POST",headers:intest(t)}).catch(()=>{}):Promise.resolve()).finally(()=>location.reload());};
    return;}
@@ -160,7 +163,7 @@
   if(!mob()&&h.classList.contains("ridotta")){h.classList.remove("ridotta");try{localStorage.setItem("ebSide","aperta");}catch(e){}return mostra(true);}
   mostra(box.hidden);};
 
- window.ebAccount={ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";}};
+ window.ebAccount={ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente()};
  aggiorna();
  carica().then(()=>{if(!box.hidden)disegna();
   // ritorno dal link dell'email: un avviso breve; su PC si apre anche il riquadro del profilo
