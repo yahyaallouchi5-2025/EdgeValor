@@ -59,3 +59,65 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
    fasce+=`<rect x="${a.toFixed(1)}" y="${T}" width="${(b-a).toFixed(1)}" height="${H-T-B}" class="bmf${Sr[i0][2]}"/>`;i0=i;}
   const pts=Sr.map((s,i)=>`${x(i).toFixed(1)},${y(s[1]).toFixed(1)}`).join(" ");
   const prezzi=[hi,(hi+lo)/2,lo].map(v=>Math.exp(v)).map(p=>`<text x="${W-R+8}" y="${y(p)+4}" class="bmt">$${Math.round(p/1000)}k</text>`).join("");
+  const anni=Sr.map((s,i)=>i&&s[0].slice(0,4)!=Sr[i-1][0].slice(0,4)?`<line x1="${x(i)}" x2="${x(i)}" y1="${T}" y2="${H-B}" class="bmg"/><text x="${x(i)+4}" y="${H-8}" class="bmt">${s[0].slice(0,4)}</text>`:"").join("");
+  const u=Sr[Sr.length-1];
+  return `<div class="bmgraf"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bitcoin negli ultimi 3 anni con il punteggio macro di ogni settimana">
+   <defs><linearGradient id="bmarea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--ink)" stop-opacity=".16"/><stop offset="1" stop-color="var(--ink)" stop-opacity="0"/></linearGradient></defs>
+   ${fasce}${anni}<polygon points="${x(0)},${H-B} ${pts} ${x(Sr.length-1)},${H-B}" fill="url(#bmarea)"/><polyline points="${pts}" class="bml"/>
+   <circle cx="${x(Sr.length-1)}" cy="${y(u[1])}" r="4.5" class="bmp"/>${prezzi}</svg>
+   <div class="bmleg">${[3,2,1,0].map(k=>`<span><i class="bmf${k}"></i>${k} su 3</span>`).join("")}<em>Bitcoin settimanale, scala logaritmica</em></div></div>`;}
+ // --- 3a) barre "il mese dopo, per punteggio"
+ function barre(){const v=[0,1,2,3].map(k=>S[String(k)]);if(v.some(x=>!x))return "";
+  const mx=Math.max(...v.map(x=>Math.abs(x.media)),1);   // la barra piu' lunga riempie meta' colonna
+  return `<div class="bmbox"><h4>Il mese dopo, dal ${X.dal}</h4><div class="bmbars">${v.map((s,k)=>{const h=Math.max(3,Math.abs(s.media)/mx*48);
+   return `<div class="bmbar${k==P?" ora":""}" title="${k} su 3: ${pc(s.media)} in media, positivo ${s.pos}% dei mesi (${s.n} mesi)">
+    <b class="${s.media>=0?"up":"down"}">${pc(s.media)}</b><div class="bmcol"><i style="height:${h.toFixed(1)}%;${s.media>=0?"bottom:50%":"top:50%"};background:${COL[k]}"></i></div>
+    <span>${k} su 3</span><small>${s.pos}% positivi</small></div>`;}).join("")}</div></div>`;}
+ // --- 3b) "con chi si muove": correlazione da -1 a +1, pallino pieno = ultime 52 settimane, vuoto = tipica del regime
+ function legami(){const C=X.corr;if(!C)return "";const pos=v=>((v+1)/2*100).toFixed(1);
+  const riga=(nome,c)=>c&&c.ora!=null?`<div class="bmcr"><div class="bmcrn"><b>${nome}</b><span>${fx(c.ora,2)} <em>ultime 52 sett.</em></span></div>
+   <div class="bmscala"><u></u>${c.tipica!=null?`<i class="tip" style="left:${pos(c.tipica)}%" title="Tipica nel regime attuale: ${fx(c.tipica,2)}"></i>`:""}<i class="ora" style="left:${pos(c.ora)}%"></i></div></div>`:"";
+  return `<div class="bmbox"><h4>Con chi si muove <span class="bmreg ${C.regime}">${C.regime=="stress"?"Mercato in stress":"Mercato normale"}</span></h4>
+   ${riga("S&amp;P 500",C.spx)}${riga("Oro",C.oro)}
+   <div class="bmscl"><span>-1 opposti</span><span>0</span><span>+1 insieme</span></div>
+   <p class="small bmnota"><i class="ora"></i>ultime 52 settimane <i class="tip"></i>tipica con mercato ${C.regime=="stress"?"in stress":"normale"}</p></div>`;}
+ function disegna(){metti();
+  if(!EB_PREMIUM){box.innerHTML=`${titolo}${ebBlocco("Bussola macro di Bitcoin","Tre fattori macro, il punteggio di oggi e la storia dal 2011, con grafici.",{velo:true,righe:7})}`;return;}
+  box.innerHTML=`${titolo}<div class="card bm">
+   <div class="bmtesta"><div class="bmver" style="--c:${COL[P]}">${semicerchio()}<div class="bmvtx"><b>${P} su 3</b><span>${PAROLA[P]}</span></div>
+     <small>Bitcoin $${Number(X.btc).toLocaleString("it-IT")} &middot; 3 mesi <b class="${X.btc3>=0?"up":"down"}">${pc(X.btc3)}</b></small></div>
+    <div class="bmfat">${X.fattori.map(f=>`<div class="bmfc ${f.fav?"si":"no"}"><div class="bmfch"><span>${esc(f.nome)}</span><em>${f.fav?"Favorevole":"Sfavorevole"}</em></div>
+      <b>${valF(f)}</b><small>3 mesi &middot; favorevole se ${f.verso=="giu"?"scende":"sale"}</small>${spark(f.spark,f.fav)}</div>`).join("")}</div></div>
+   ${grafico()}
+   <div class="bmdue">${barre()}${legami()}</div>
+   <p class="small bmpie">${X.vecchio?"Fonti non disponibili oggi: ultimo calcolo valido del ":"Dati al "}${gg(X.agg)}. Statistica sul passato, non un consiglio.</p></div>`;}
+ disegna();new MutationObserver(metti).observe(el,{childList:true});
+ let lw=0;new ResizeObserver(()=>{const w=box.clientWidth;if(w&&Math.abs(w-lw)>40){lw=w;disegna();}}).observe(box);
+})();}catch(e){fail("Bussola macro di Bitcoin","btc",e);}
+
+/* ---------- v7.94 TERMOMETRO DEL SENTIMENT (D.btcsent da btc_macro.sentimento, pubblico: lo vede anche Basic) ----------
+   Fear & Greed Index (alternative.me, 0-100, citato accanto al dato come chiedono le sue condizioni) e COT CFTC sui
+   futures Bitcoin del CME: indice 0-100 sulle ultime 52 settimane di piccoli trader (retail) e grandi speculatori.
+   E' CONTESTO, non un segnale: lo studio (studi/studio_btc_sentiment.py) non ha trovato un effetto stabile. */
+function termometro(el){const T=D.btcsent;if(!el||!T||(!T.fng&&!T.cot)||el.querySelector(".bmtm"))return;
+ const gg=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
+ const parola=v=>v==null?"n/d":v<=20?"molto pessimisti":v>=80?"molto ottimisti":"nel mezzo";
+ const fngCol=v=>v<25?"var(--s)":v<45?"var(--warn)":v<=55?"var(--n)":v<=75?"color-mix(in srgb,var(--b) 55%,var(--warn))":"var(--b)";
+ const scala=(v,col)=>`<div class="bmts"><u></u><i style="left:${Math.max(0,Math.min(100,v))}%;--mc:${col}"></i></div><div class="bmtsl"><span>0</span><span>50</span><span>100</span></div>`;
+ const spark=a=>{if(!a||a.length<3)return "";const W=300,H=46,x=i=>i*W/(a.length-1),y=v=>H-3-v/100*(H-6);
+  const p=a.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  return `<svg class="bmtsp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${W}" y1="${y(50)}" y2="${y(50)}"/><polyline points="${p}"/></svg>`;};
+ const F=T.fng,C=T.cot;
+ const fng=F?`<div class="bmtbox"><div class="bmtt"><span>Fear &amp; Greed</span><em>Fonte: <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener">alternative.me</a></em></div>
+   <div class="bmtv"><b style="color:${fngCol(F.v)}">${F.v}</b><span style="color:${fngCol(F.v)}">${esc(F.cl||"")}</span></div>
+   ${scala(F.v,fngCol(F.v))}${spark(F.serie)}<small>Ultimo anno &middot; dato del ${gg(F.d)}</small></div>`:"";
+ const riga=(nome,x)=>x&&x.indice!=null?`<div class="bmtr"><div class="bmtrn"><b>${nome}</b><span>${x.indice}/100 &middot; ${parola(x.indice)}</span></div>${scala(x.indice,x.indice<=20?"var(--s)":x.indice>=80?"var(--b)":"var(--n)")}</div>`:"";
+ const cot=C?`<div class="bmtbox"><div class="bmtt"><span>Futures Bitcoin (CME)</span><em>COT CFTC</em></div>
+   ${riga("Piccoli trader",C.retail)}${riga("Grandi speculatori",C.spec)}<small>Posizione rispetto all'ultimo anno &middot; report del ${gg(C.d)}</small></div>`:"";
+ const html=`<div class="bmtm"><h2>Termometro del sentiment <details class="info"><summary title="Come si legge" aria-label="Come si legge">i</summary><div>
+  <b>Fear &amp; Greed</b>: umore del mercato crypto da 0 (paura estrema) a 100 (avidit&agrave; estrema), calcolato da alternative.me.<br><br>
+  <b>Futures Bitcoin del CME</b>: posizioni settimanali dalla CFTC. Il numero dice dove sono oggi rispetto all'ultimo anno: 0 = il punto pi&ugrave; pessimista, 100 = il pi&ugrave; ottimista.<br><br>
+  <b>&Egrave; contesto, non un segnale</b>: nel nostro studio dal 2018 il sentiment non ha anticipato Bitcoin in modo stabile (la regola &laquo;compra con la paura estrema&raquo; ha funzionato nel 2018-21 e non nel 2022-26).
+  Unico indizio coerente, ma piccolo: grandi speculatori molto ottimisti, mese dopo leggermente pi&ugrave; debole.</div></details></h2>
+  <div class="bmtg">${fng}${cot}</div></div>`;
+ el.insertAdjacentHTML("beforeend",html);}
