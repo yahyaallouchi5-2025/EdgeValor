@@ -173,6 +173,20 @@ def build(data_source=load_all, demo=False, sito=False):
         carry_pag, carry_st = carry.calcola(pairs, prezzi, righe_cot, scarica=None if demo else get_fred)
     except Exception:
         log.warning("carry non calcolato:\n%s", traceback.format_exc())
+    # v7.94 BUSSOLA MACRO DI BITCOIN (btc_macro.py): tre fattori macro, punteggio, storia e correlazioni, ricalcolati
+    # a ogni giro da EODHD + FRED. Isolata: se le fonti non rispondono resta l'ultimo calcolo valido (storico/btc_macro.json).
+    btcmacro = btcsent = None
+    if not demo:
+        try:
+            from . import btc_macro
+            btcmacro = btc_macro.per_pagina()
+        except Exception:
+            log.warning("bussola BTC non calcolata:\n%s", traceback.format_exc())
+        try:                                           # termometro del sentiment (pubblico, solo contesto)
+            from . import btc_macro
+            btcsent = btc_macro.sentimento_per_pagina()
+        except Exception:
+            log.warning("termometro BTC non calcolato:\n%s", traceback.format_exc())
     # VOLATILITA' di ogni strumento (giorni, settimane, mesi, anni, regime attuale): vedi volatilita.py
     vol = {}
     try:
@@ -303,7 +317,7 @@ def build(data_source=load_all, demo=False, sito=False):
             "assets": assets, "pairs": pairs, "corr": corr, "corr_px": corr_px, "market": market, "fed": fed,
             "order": [a[0] for a in ASSETS] + ["USD"], "sectors": SECTORS, "stato": pubblico(stato), "admin": "__ADMIN__", "eventi": news["prossimi"], "agenda": agenda_out,
             "stag": stag, "stag_meta": stag_meta, "reg": reg, "bt": bt, "vol": vol, "tat": tat, "port": port, "fore": fore,
-            "carry": carry_pag, "carry_st": carry_st, "paesi": paesi_pag, "categorie": cat_pag, "economie": quadro_pag,
+            "carry": carry_pag, "carry_st": carry_st, "btcmacro": btcmacro, "btcsent": btcsent, "paesi": paesi_pag, "categorie": cat_pag, "economie": quadro_pag,
             "tv": {k: {"s": v[0], "inv": v[1]} for k, v in TV_SYMBOLS.items()}, "tvp": TV_PAIRS}
     # "stato" pubblico = solo esito e fonti; "admin" = segnaposto che main.py sostituisce con il registro
     # completo (cifrato sul sito, in chiaro sul PC). Vedi cot_radar/admin.py
@@ -314,6 +328,11 @@ def build(data_source=load_all, demo=False, sito=False):
     if sito:
         verifica = clean({"reg": data.pop("reg"), "bt": data.pop("bt"), "carry_st": data.pop("carry_st")})
         data["verifica"] = "verifica.json?v=" + datetime.now().strftime("%Y%m%d%H%M")
+    # v7.93 DATI PREMIUM (premium.py): sul sito escono cifrati; senza chiave del database resta solo la parte Basic
+    blocco = None
+    if sito:
+        from . import premium
+        data, blocco = premium.pagina(data)
     payload = json.dumps(clean(data), ensure_ascii=False, separators=(",", ":"))
     ULTIMI.clear()
     ULTIMI.update(data=clean({"assets": assets, "pairs": pairs}), bt_dal=(bt or {}).get("dal"), bt_n=(bt or {}).get("n"),
@@ -321,7 +340,7 @@ def build(data_source=load_all, demo=False, sito=False):
                   # v7.69 per le anteprime VERE della landing (vetrina.dentro): gli stessi oggetti della pagina
                   extra={"port": port, "paesi": paesi_pag, "economie": quadro_pag, "market": market, "agenda": agenda_out})
     # "</" dentro <script> chiuderebbe il tag per errore: lo "spezziamo" in "<\/"
-    return template().replace("{{DATA}}", payload.replace("</", "<\\/")), clean(stato)
+    return template().replace("{{PREMIUM}}", json.dumps(blocco or {"vuoto": True}) if sito else "null").replace("{{DATA}}", payload.replace("</", "<\\/")), clean(stato)
 
 
 def error_page(msg):

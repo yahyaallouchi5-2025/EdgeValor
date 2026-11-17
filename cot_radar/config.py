@@ -209,6 +209,10 @@ TELEGRAM_CANALE = "https://t.me/edgeboard"
 # v7.84 INDIRIZZO PUBBLICO: i link nei messaggi Telegram portano sempre al dominio proprio, non a github.io
 #   (i workflow passano ancora l'indirizzo github.io: serve solo per SCARICARE i dati del sito).
 SITO_PUBBLICO = "https://edgevalor.com/"
+# v7.93 Supabase (account e dati Premium): indirizzo del progetto e chiave PUBBLICA ("publishable", fatta per stare
+# nel browser: da sola non apre nulla). La chiave segreta NON sta mai nel codice.
+SUPABASE_URL = "https://cwwmqujccwzmqougtedh.supabase.co"
+SUPABASE_PUBBLICA = "sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X"
 # SITO: la landing page sta nella radice, il terminale nella sottocartella TERMINALE (vedi main.py e vetrina.py)
 TERMINALE = "terminale"
 # STATISTICHE DI VISITA anonime e senza cookie (Umami, cloud.umami.is), vedi web/statistiche.js.
