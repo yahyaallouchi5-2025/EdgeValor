@@ -65,11 +65,14 @@
 <!-- v6.67 SCHEDE RAGGRUPPATE: le tre piu' usate sempre visibili, le altre in tre menu (Mercati, Analisi, Ricerca).
      I bottoni con data-t restano gli stessi: link diretti (#scheda), go() e statistiche funzionano come prima. -->
 <button data-t="sig" class="on">Dashboard</button><button data-t="port">Portafogli</button><button data-t="azioni">Azionario</button>
-<div class="ngrp" data-g="mercati"><button type="button" class="ngb" aria-haspopup="true" aria-expanded="false">Mercati<span class="ngsel"></span><svg class="ngfr" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="ngm" role="menu"><button data-t="pairs" role="menuitem">Forex</button><button data-t="assets" role="menuitem">Strumenti</button><button data-t="mkt" role="menuitem">Mercato e macro</button><button data-t="btc" role="menuitem">Bitcoin</button><button data-t="volat" role="menuitem">Volatilit&agrave;</button></div></div>
-<div class="ngrp" data-g="analisi"><button type="button" class="ngb" aria-haspopup="true" aria-expanded="false">Analisi<span class="ngsel"></span><svg class="ngfr" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="ngm" role="menu"><button data-t="stag" role="menuitem">Stagionalit&agrave;</button><button data-t="corr" role="menuitem">Correlazioni</button><button data-t="verifica" role="menuitem">Verifica dei segnali</button><button data-t="registro" role="menuitem">Registro</button></div></div>
+<!-- v7.95 MERCATI = pagina a card (41_hub_mercati.js): il pulsante apre la scheda #mercati, ogni card porta alla sua scheda.
+     "Analisi" e' confluito qui; "Verifica dei segnali" si chiama Live. I bottoni veri delle schede restano nascosti qui sotto
+     (link diretti, go(), statistiche e "Mercati · Forex" sul pulsante funzionano come prima). -->
+<div class="ngrp nghub" data-g="mercati"><button type="button" class="ngb" data-hub="mercati">Mercati<span class="ngsel"></span></button><button data-t="mercati" hidden>Mercati</button><div class="ngm" role="menu"><button data-t="pairs" role="menuitem">Forex</button><button data-t="assets" role="menuitem">COT</button><button data-t="mkt" role="menuitem">Macro</button><button data-t="btc" role="menuitem">Bitcoin</button><button data-t="volat" role="menuitem">Volatilit&agrave;</button><button data-t="stag" role="menuitem">Stagionalit&agrave;</button><button data-t="corr" role="menuitem">Correlazioni</button><button data-t="verifica" role="menuitem">Live</button><button data-t="registro" role="menuitem">Registro</button></div></div>
 <!-- v7.49 menu "Ricerca" tolto: Verifica dei segnali (e Registro admin) passano in Analisi; Forecaster eliminato -->
 </nav>
 
+<section id="mercati"></section>
 <section id="sig" class="on">
  <div id="eventi"></div>
  <div id="quadro"></div>

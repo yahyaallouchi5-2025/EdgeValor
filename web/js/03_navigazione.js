@@ -19,9 +19,11 @@ function apriMenu(g){chiudiMenu();ngAperto=g;g.classList.add("aperto");g.querySe
   .map(b=>`<button type="button" role="menuitem" data-ng="${b.dataset.t}" class="${b.classList.contains("on")?"on":""}">${b.innerHTML}</button>`).join("");
  NGM.hidden=false;posiziona();
  NGM.querySelectorAll("[data-ng]").forEach(x=>x.onclick=()=>{const v=document.querySelector(`#nav button[data-t=${x.dataset.ng}]`);if(v)v.click();});}
-function segnaGruppi(){NGR.forEach(g=>{const on=g.querySelector(".ngm button.on");g.classList.toggle("att",!!on);
+function segnaGruppi(){NGR.forEach(g=>{const on=g.querySelector(".ngm button.on"),hub=g.querySelector(".ngb[data-hub]");
+ g.classList.toggle("att",!!on||!!(hub&&$(hub.dataset.hub)&&$(hub.dataset.hub).classList.contains("on")));
  g.querySelector(".ngsel").textContent=on?on.textContent.trim():"";});}
-NGR.forEach(g=>{g.querySelector(".ngb").onclick=e=>{e.stopPropagation();ngAperto==g?chiudiMenu():apriMenu(g);};});
+// v7.95 gruppo con data-hub (Mercati): niente tendina, il pulsante apre la pagina a card della sua scheda
+NGR.forEach(g=>{const h=g.querySelector(".ngb");h.onclick=e=>{e.stopPropagation();if(h.dataset.hub){chiudiMenu();go(h.dataset.hub);return;}ngAperto==g?chiudiMenu():apriMenu(g);};});
 document.addEventListener("click",e=>{if(ngAperto&&!e.target.closest("#ngmenu"))chiudiMenu();});
 document.addEventListener("keydown",e=>{if(e.key=="Escape")chiudiMenu();});
 window.addEventListener("scroll",chiudiMenu,{passive:true});window.addEventListener("resize",chiudiMenu);

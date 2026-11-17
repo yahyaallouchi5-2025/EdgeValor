@@ -345,7 +345,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    <div class="vfcorpo">${volatilitaVista()}</div>`;
    const sa=$("vfasset");if(sa)sa.onchange=()=>{V.asset=sa.value;salva();aggiorna();};
    aggiorna();return;}
-  el.innerHTML=`<h2>Verifica dei segnali</h2><p class="sub">Ogni segnale misurato con prezzi veri dall'uscita dei dati: ingresso alla prima chiusura dopo il segnale, poi quanto va contro (drawdown), quanto guadagna al massimo e come finisce, per la durata del trade che scegli tu (da 1 giorno a 4 settimane, oppure fino al cambio di segnale). L'obiettivo &egrave; capire il rischio: quanto spazio lasciare allo stop rispetto alla volatilit&agrave; di ogni mercato.</p>
+  el.innerHTML=`<h2>Live</h2><p class="sub">Ogni segnale misurato con prezzi veri dall'uscita dei dati: ingresso alla prima chiusura dopo il segnale, poi quanto va contro (drawdown), quanto guadagna al massimo e come finisce, per la durata del trade che scegli tu (da 1 giorno a 4 settimane, oppure fino al cambio di segnale). L'obiettivo &egrave; capire il rischio: quanto spazio lasciare allo stop rispetto alla volatilit&agrave; di ogni mercato.</p>
   <div class="vfswitch"><button data-f="live" class="${V.fin=="live"?"on":""}">Registro live</button><button data-f="bt" class="${V.fin=="bt"?"on":""}">Backtest <span class="vfsimtag">SIMULATO</span></button></div>
   <div class="vfcorpo">${V.fin=="live"?live():backtest()}</div>`;
   el.querySelectorAll(".vfswitch button").forEach(b=>b.onclick=()=>{V.fin=b.dataset.f;salva();disegna();});
@@ -367,11 +367,11 @@ ebVerifica("vol");                                       // v7.48 scheda Volatil
  let stato="";                                           // "" = da caricare, "in corso", "ok"
  const sk=(w,h)=>`<i class="sk" style="width:${w};height:${h}px;display:block;margin-bottom:14px;border-radius:12px"></i>`;
  function carica(){if(stato)return;stato="in corso";
-  el.innerHTML=`<h2>Verifica dei segnali</h2>${sk("40%",16)}${sk("100%",120)}${sk("100%",320)}`;
+  el.innerHTML=`<h2>Live</h2>${sk("40%",16)}${sk("100%",120)}${sk("100%",320)}`;
   fetch(D.verifica,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
    .then(v=>{D.reg=v.reg;D.bt=v.bt;D.carry_st=v.carry_st;stato="ok";el.innerHTML="";ebVerifica();})
    .catch(e=>{stato="";console.warn("[EdgeValor] verifica.json:",e);
-    el.innerHTML=`<h2>Verifica dei segnali</h2><div class="card" style="padding:18px 20px"><p class="small">I dati della verifica non si sono caricati (connessione). </p><button class="tvbtn vfriprova">Riprova</button></div>`;
+    el.innerHTML=`<h2>Live</h2><div class="card" style="padding:18px 20px"><p class="small">I dati della verifica non si sono caricati (connessione). </p><button class="tvbtn vfriprova">Riprova</button></div>`;
     const b=el.querySelector(".vfriprova");if(b)b.onclick=carica;});}
  if(el.classList.contains("on"))carica();
  new MutationObserver(()=>{if(el.classList.contains("on"))carica();}).observe(el,{attributes:true,attributeFilter:["class"]});

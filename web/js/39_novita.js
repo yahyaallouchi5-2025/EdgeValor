@@ -10,8 +10,7 @@
  const NOVITA=[
   {d:"2026-11-17",t:"Nuova scheda Bitcoin",x:"Bussola macro (Premium) e termometro del sentiment: cosa muove Bitcoin, con grafici.",s:"btc"},
   {d:"2026-11-17",t:"Assistenza",x:"Abbonamento, segnalazioni e call live con il team, con il numero della richiesta.",s:""},
-  {d:"2026-11-17",t:"Premium e Basic",x:"Basic per capire i mercati, Premium per sapere cosa fare. 14 giorni di prova.",s:"port"},
-  {d:"2026-11-16",t:"Accesso con email e password",x:"Account personale: la tua lista ti segue su ogni dispositivo.",s:""}];
+];
  const btn=document.getElementById("novapri");if(!btn)return;
  const punto=btn.querySelector(".novpunto"),pf=document.getElementById("pfapri");
  const ultima=NOVITA[0].d;let vista="";try{vista=localStorage.getItem("ebNovita")||"";}catch(e){}
@@ -20,7 +19,7 @@
  function apri(){const box=document.createElement("div");box.className="cmodal novmodal";
   box.innerHTML=`<div class="cmodal-box novbox" role="dialog" aria-modal="true" aria-labelledby="novt">
    <div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg></span>
-    <div><h3 id="novt">Novità</h3><p>Cosa è cambiato in EdgeValor.</p></div><button type="button" class="fbx" aria-label="Chiudi">&#x2715;</button></div>
+    <div><h3 id="novt">Novità</h3><p>Novità e aggiornamenti in EdgeValor.</p></div><button type="button" class="fbx" aria-label="Chiudi">&#x2715;</button></div>
    <ol class="novlista">${NOVITA.slice(0,5).map(n=>`<li class="${n.d>vista?"nuova":""}"><div class="novtesta"><b>${esc(n.t)}</b>${n.p?'<em class="novp">Premium</em>':""}${n.d>vista?'<em class="novn">Nuovo</em>':""}<time>${gg(n.d)}</time></div>
     <p>${esc(n.x)}</p>${n.s?`<button type="button" class="novvai" data-s="${n.s}">Vai</button>`:""}</li>`).join("")}</ol></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));

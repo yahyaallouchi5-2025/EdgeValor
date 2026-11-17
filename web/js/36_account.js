@@ -25,7 +25,7 @@
  const KS="ebSess",KB="ebListaSync",TIPI=["az","pa","fx","me"];
  const btn=$("pfapri"),eti=$("pfeti");if(!btn||!$("pfbox"))return;
  const intest=t=>Object.assign({apikey:CHIAVE,"Content-Type":"application/json"},t?{Authorization:"Bearer "+t}:{});
- let S=null,P=null,esito="",tipo="";                                   // sessione, profilo letto, messaggio dopo il ritorno dal link
+ let S=null,P=null,ADM=false,esito="",tipo="";                                   // sessione, profilo letto, messaggio dopo il ritorno dal link
  try{S=JSON.parse(localStorage.getItem(KS)||"null");}catch(e){}
  const salva=()=>{try{S?localStorage.setItem(KS,JSON.stringify(S)):localStorage.removeItem(KS);}catch(e){}};
 
@@ -109,6 +109,10 @@
   try{const r=await db("profili?select=prova_fino,premium_fino,sempre_premium,codice_invito,numero");P=(r&&r[0])||null;}
   catch(e){console.warn("[EdgeValor] account: profilo non letto",e);}
   aggiorna();
+  // v7.95 voce Admin: si chiede al database "sono admin?" (l'email dell'admin non e' mai nel codice del sito)
+  try{ADM=(await db("rpc/sono_admin",{method:"POST",body:"{}"}))===true;}catch(e){ADM=false;}
+  // la classe "eb-admin" mostra le parti riservate all'admin (es. stato dei dati nel Profilo, vedi stile.css)
+  document.documentElement.classList.toggle("eb-admin",ADM);
   try{await sincronizza();}catch(e){console.warn("[EdgeValor] account: lista non sincronizzata",e);}}
 
  /* --- RIQUADRO PROFILO (v7.77): si apre DENTRO la barra laterale, appena sopra la voce "Profilo", e cresce verso l'alto
@@ -117,17 +121,20 @@
         v7.80: nello stesso riquadro (parte fissa in index.html) ci sono anche Feedback, Guida e lo stato dei dati. --- */
  const box=$("pfbox"),conto=$("pfconto")||box,coda=$("pfcoda"),mob=()=>matchMedia("(max-width:900px)").matches;
  const I={carta:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/></svg>',
+          admin:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
           esci:'<svg viewBox="0 0 24 24"><path d="M10 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19H10"/><path d="M15 8l4 4-4 4M19 12H10"/></svg>'};
  let ultimoInvio=0,inviato="";                                  // inviato = email a cui e' appena partito il link
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.setAttribute("role","status");a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3800);}
  function disegna(msg){const u=S&&chi();if(coda&&!u)coda.innerHTML="";
   if(u){const pn=piano();
    conto.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b>${idUtente()?`<span class="pfid" title="Il tuo codice: citalo quando ci scrivi">ID ${idUtente()}</span>`:""}<span class="pfst ${pn[2]}">${pn[2]=="prova"?"":(pn[1]||"Sto leggendo il tuo profilo…")}</span></div>${pn[2]=="prova"?riepilogoProva():""}
+    ${ADM?`<button type="button" class="sitem pfvoce pfadmin">${I.admin}<span>Admin · Iscritti</span></button>`:""}
     <button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>
 `;
+   const ad=box.querySelector(".pfadmin");if(ad)ad.onclick=()=>{mostra(false);window.ebAdmin&&ebAdmin.apri();};
    // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati
    if(coda)coda.innerHTML=`<button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>`;
-   box.querySelector(".pfesci").onclick=()=>{const t=S&&S.a;S=null;P=null;pronto=false;inviato="";salva();try{localStorage.removeItem("ebPK");}catch(e){}   // v7.93 la chiave Premium resta solo a chi e' dentro
+   box.querySelector(".pfesci").onclick=()=>{const t=S&&S.a;S=null;P=null;ADM=false;pronto=false;inviato="";salva();try{localStorage.removeItem("ebPK");}catch(e){}   // v7.93 la chiave Premium resta solo a chi e' dentro
 aggiorna();mostra(false);avviso("Sei uscito dal profilo");
     // v7.86: dopo l'uscita la pagina si ricarica e mostra la porta d'ingresso
     (t?fetch(API+"/auth/v1/logout?scope=local",{method:"POST",headers:intest(t)}).catch(()=>{}):Promise.resolve()).finally(()=>location.reload());};
@@ -163,7 +170,9 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   if(!mob()&&h.classList.contains("ridotta")){h.classList.remove("ridotta");try{localStorage.setItem("ebSide","aperta");}catch(e){}return mostra(true);}
   mostra(box.hidden);};
 
- window.ebAccount={ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente()};
+ window.ebAccount={ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente(),
+  // v7.95 chiamata a una funzione del database con l'accesso dell'utente (usata dal riquadro Admin)
+  rpc:(nome,corpo)=>db("rpc/"+nome,{method:"POST",body:JSON.stringify(corpo||{})})};
  aggiorna();
  carica().then(()=>{if(!box.hidden)disegna();
   // ritorno dal link dell'email: un avviso breve; su PC si apre anche il riquadro del profilo
