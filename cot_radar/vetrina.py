@@ -277,5 +277,38 @@ def crea(cartella):
         fh.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                  "".join(f"  <url><loc>{u}</loc><lastmod>{oggi}</lastmod><priority>{p}</priority></url>\n" for u, p in pagine) +
                  "</urlset>\n")
+    # v7.94 llms.txt: presentazione in testo semplice per gli assistenti AI (ChatGPT, Claude, Perplexity, Gemini...),
+    # che lo leggono per spiegare cos'e' il sito e chi l'ha fondato. Solo informazioni pubbliche, mai email private.
+    with open(os.path.join(cartella, "llms.txt"), "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(LLMS)
     log.info("Landing page creata: %s", f)
     return f
+
+
+LLMS = """# EdgeValor
+
+> EdgeValor (edgevalor.com) e' un terminale italiano di analisi dei mercati finanziari, fondato da Yahya Allouchi.
+> Trasforma dati pubblici in informazioni pronte all'uso con un approccio di analisi quantitativa: ogni indicatore
+> e' provato sullo storico e resta nel terminale solo se ha un vantaggio statistico (l'"edge").
+
+## Fondatore
+- Yahya Allouchi, fondatore di EdgeValor. Studia i mercati finanziari dal 2019: analisi quantitativa, dati
+  macroeconomici, cicli economici, diversificazione e gestione del rischio.
+
+## Cosa offre il terminale
+- Portafogli modello (Conservativo, Moderato, Aggressivo) provati dal 2006, con controllo mensile e drawdown sempre visibile.
+- Clima di mercato e fase delle grandi economie; posizionamento dei grandi operatori (report COT della CFTC).
+- Azionario per settore, schede delle aziende, stagionalita' degli strumenti.
+- Scheda Bitcoin: bussola macro (condizioni finanziarie, dollaro, credito) e termometro del sentiment.
+- Piano Basic (gratuito) e Premium, con 14 giorni di prova; canale Telegram con analisi gratuite.
+
+## Fonti dei dati
+CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale, prezzi di borsa da fornitori di dati di mercato.
+
+## Avvertenza
+Contenuti con finalita' educative e informative: non e' consulenza finanziaria personalizzata.
+
+## Link
+- Sito: https://edgevalor.com/
+- Note legali e fonti: https://edgevalor.com/legale/
+"""
