@@ -3047,3 +3047,84 @@ html.senzaccesso body>*:not(#porta){visibility:hidden}
 .bmtbox small{font-size:11.5px;color:var(--mute)}
 .bmtr{display:grid;gap:6px}.bmtrn{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.bmtrn b{font-size:14px}.bmtrn span{font-size:13px;color:var(--ink2)}
 @media (max-width:760px){.bmtg{grid-template-columns:1fr}}
+/* v7.95 ADMIN · ISCRITTI: riquadro largo; righe a 3 colonne su PC (chi | stato | azioni), schede impilate da telefono */
+.adbox{width:min(880px,100%)}.adbox .cmodal-testa{position:relative;padding-right:34px}
+.adbox .cmodal-testa h3{display:flex;align-items:center;gap:8px}
+.adbox #adinfo.aperta{margin:0}
+.adnum{flex:none;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.adn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--ink2);cursor:pointer;text-align:left;transition:border-color .15s,background .15s,transform .15s}
+.adn b{font:800 20px system-ui;color:var(--ink);font-variant-numeric:tabular-nums}.adn span{font:600 12px system-ui}
+.adn:hover{border-color:var(--acc);transform:translateY(-1px)}.adn.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--card2))}
+.adn.premium b{color:var(--b)}.adn.prova b{color:var(--acc)}.adn.scade b{color:#ff8a65}
+.adbarra{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.adcerca{flex:none;width:100%;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 14px system-ui}
+.adcerca:focus{outline:none;border-color:var(--acc)}
+.adlista{overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:8px;min-height:120px;padding-right:2px}
+.advuoto{margin:24px 0;text-align:center;color:var(--mute);font-size:14px}
+.adriga{display:grid;grid-template-columns:minmax(0,1fr) 190px 282px;gap:14px;align-items:center;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card2);transition:border-color .15s}
+.adriga:hover{border-color:color-mix(in srgb,var(--acc) 50%,var(--line))}
+.adchi{display:flex;flex-direction:column;gap:3px;min-width:0}
+.adchi b{font:700 14px system-ui;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adchi small,.adst small,.admuto{font-size:12px;color:var(--mute)}
+.adid{align-self:flex-start;font:700 11px ui-monospace,monospace;color:var(--acc);letter-spacing:.3px}
+.adst{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.adst .adwarn{color:#ff8a65}
+.adpill{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:99px;font:700 11.5px system-ui;border:1px solid var(--line);color:var(--ink2)}
+.adpill.premium,.adpill.sempre{color:var(--b);border-color:color-mix(in srgb,var(--b) 45%,transparent);background:color-mix(in srgb,var(--b) 12%,transparent)}
+.adpill.prova{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.adazioni{display:flex;gap:6px;justify-content:flex-end}
+.adb{height:32px;padding:0 11px;border-radius:9px;border:1px solid var(--line);background:none;color:var(--ink);font:700 12.5px system-ui;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s,transform .15s}
+.adb:hover:not(:disabled){border-color:var(--acc);transform:translateY(-1px)}
+.adb.pri{background:var(--acc);border-color:var(--acc);color:#04211e}.adb.pri:hover:not(:disabled){box-shadow:0 6px 18px rgba(46,196,182,.28)}
+.adb.ko{color:var(--s,#f26b6b)}.adb.ko:hover:not(:disabled){border-color:var(--s,#f26b6b)}
+.adb.vuoto{visibility:hidden;pointer-events:none}
+.adb.conf{background:var(--s,#f26b6b);border-color:var(--s,#f26b6b);color:#fff}
+.adb:disabled{opacity:.5;cursor:wait}
+@media (max-width:760px){
+ .adnum{grid-template-columns:repeat(6,1fr)}.adn{grid-column:span 2}.adn:nth-child(n+4){grid-column:span 3}
+ .adriga{grid-template-columns:1fr;gap:10px}
+ .adst{flex-direction:row;align-items:center;gap:8px}
+ .adn{padding:8px 10px}.adn b{font-size:17px}
+ .adazioni{justify-content:stretch}.adazioni .adb{flex:1;height:36px}.adazioni .adb.adcal{flex:0 0 44px}.adazioni .adb.vuoto{display:none}}
+
+/* v7.95 calendario nel riquadro Admin: pulsante con icona; il campo data nativo e' invisibile e apre il selettore */
+.adb.adcal{position:relative;width:34px;padding:0;display:inline-grid;place-items:center}
+.adb.adcal svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.adb.adcal input{position:absolute;inset:0;opacity:0;width:100%;height:100%;border:0;padding:0;pointer-events:none}
+/* v7.95 PREMIUM IN ORO: etichetta del Profilo, stato, pillole e numeri del riquadro Admin, tag delle Novita' */
+:root{--oro:#f3c75f;--oro2:#ffe7a3;--oro3:#c9962b}
+.sitem small.pfeti.ok{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,var(--oro2),var(--oro) 45%,var(--oro3));box-shadow:0 0 12px rgba(243,199,95,.35)}
+.pfst.ok{color:var(--oro)}
+.adpill.premium,.adpill.sempre{color:var(--oro);border-color:color-mix(in srgb,var(--oro) 55%,transparent);background:color-mix(in srgb,var(--oro) 12%,transparent)}
+.adn.premium b{color:var(--oro)}
+.novp{color:var(--oro);border:1px solid color-mix(in srgb,var(--oro) 50%,transparent)}
+/* v7.95 lo stato dei dati (e il suo puntino rosso sul Profilo) lo vede solo l'admin */
+html:not(.eb-admin) #sdati,html:not(.eb-admin) #status{display:none!important}
+html:not(.eb-admin) #pfapri.pfrit::after{display:none}
+/* v7.95 PAGINA MERCATI A CARD (41_hub_mercati.js): 4 card per riga su PC, 3 su tablet, 2 su telefono.
+   .hbart = parte alta con disegno a tema + icona al centro | .hbnome = nome in basso */
+.nghub .ngb{gap:0}
+.hbgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:18px}
+.hbcard{display:flex;flex-direction:column;padding:0;border-radius:16px;border:1px solid var(--line);background:linear-gradient(180deg,var(--card),var(--card2));
+ color:var(--ink);cursor:pointer;overflow:hidden;text-align:left;font:inherit;box-shadow:var(--shadow);transition:border-color .2s,transform .2s,box-shadow .2s}
+.hbart{position:relative;display:block;height:150px;background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--acc) 7%,transparent),transparent 70%),var(--card2);border-bottom:1px solid var(--line);overflow:hidden}
+.hbart>svg{position:absolute;inset:0;width:100%;height:100%;opacity:.55;transition:opacity .25s,transform .4s}
+.hbico{position:absolute;left:50%;top:50%;width:76px;height:76px;transform:translate(-50%,-50%);display:grid;place-items:center;border-radius:20px;
+ background:linear-gradient(160deg,#1d2a40,#111a2b);border:1px solid color-mix(in srgb,var(--line) 80%,#fff 8%);box-shadow:0 10px 26px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);transition:transform .25s,box-shadow .25s,border-color .25s}
+.hbico svg{width:36px;height:36px;fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.hbnome{display:block;padding:14px 16px;font:600 14.5px system-ui;color:var(--ink)}
+.hbcard:hover,.hbcard:focus-visible{border-color:color-mix(in srgb,var(--acc) 60%,transparent);transform:translateY(-3px);box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 25%,transparent),0 14px 34px rgba(2,8,20,.5),0 0 28px rgba(46,196,182,.14);outline:none}
+.hbcard:hover .hbart>svg{opacity:.85;transform:scale(1.04)}
+.hbcard:hover .hbico{transform:translate(-50%,-50%) scale(1.06);border-color:color-mix(in srgb,var(--acc) 55%,transparent);box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 22px rgba(46,196,182,.22)}
+.hbcard:hover .hbico svg{stroke:var(--acc)}
+/* disegni di sfondo */
+.hbt{fill:var(--mute);font:700 30px system-ui;opacity:.55}.hbbig{font-size:110px;opacity:.22}.hbnum{font-size:26px;opacity:.22}
+.hbl{fill:none;stroke:var(--mute);stroke-width:2;opacity:.5}.hbacc{stroke:var(--acc);opacity:.65}
+.hbg{fill:color-mix(in srgb,var(--b) 55%,transparent)}.hbr{fill:color-mix(in srgb,var(--s) 55%,transparent)}
+.hbd{fill:var(--mute);opacity:.55}
+.hblive{fill:var(--s);animation:hbpulse 1.6s ease-in-out infinite}.hblivet{font-size:13px;fill:var(--s);opacity:.9;letter-spacing:1px}
+@keyframes hbpulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.hblive{animation:none}.hbcard,.hbart>svg,.hbico{transition:none}}
+@media (max-width:1100px){.hbgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:700px){.hbgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hbart{height:112px}.hbico{width:58px;height:58px;border-radius:16px}
+ .hbico svg{width:28px;height:28px}.hbnome{padding:11px 12px;font-size:13.5px}}
