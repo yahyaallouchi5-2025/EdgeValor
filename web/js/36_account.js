@@ -135,8 +135,10 @@
   if(u){const pn=piano();
    conto.innerHTML=`<div class="pfchi"><b title="${esc(u.email)}">${esc(u.email)}</b>${idUtente()?`<span class="pfid" title="Il tuo codice: citalo quando ci scrivi">ID ${idUtente()}</span>`:""}<span class="pfst ${pn[2]}">${pn[2]=="prova"?"":(pn[1]||"Sto leggendo il tuo profilo…")}</span></div>${pn[2]=="prova"?riepilogoProva():""}
     ${ADM?`<button type="button" class="sitem pfvoce pfadmin">${I.admin}<span>Admin · Iscritti</span></button>`:""}
-    <button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>
+    ${window.ebAbbonamento&&ebAbbonamento.attivo()?`<button type="button" class="sitem pfvoce pfabb">${I.carta}<span>Gestisci abbonamento</span></button>`
+     :`<button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>`}
 `;
+   const ab=box.querySelector(".pfabb");if(ab)ab.onclick=()=>{mostra(false);ebAbbonamento.apri();};   // v8.11 area abbonamento PayPal
    const ad=box.querySelector(".pfadmin");if(ad)ad.onclick=()=>{mostra(false);window.ebAdmin&&ebAdmin.apri();};
    // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati
    if(coda)coda.innerHTML=`<button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>`;
@@ -178,7 +180,9 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
 
  window.ebAccount={ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente(),
   // v7.95 chiamata a una funzione del database con l'accesso dell'utente (usata dal riquadro Admin)
-  rpc:(nome,corpo)=>db("rpc/"+nome,{method:"POST",body:JSON.stringify(corpo||{})})};
+  rpc:(nome,corpo)=>db("rpc/"+nome,{method:"POST",body:JSON.stringify(corpo||{})}),
+  // v8.11 per l'area abbonamento (46_abbonamento.js): codice di accesso valido e rilettura del profilo
+  token:()=>codice(),ricarica:()=>{P=null;return carica().then(()=>{if(!box.hidden)disegna();});}};
  aggiorna();
  carica().then(()=>{if(!box.hidden)disegna();
   // ritorno dal link dell'email: un avviso breve; su PC si apre anche il riquadro del profilo

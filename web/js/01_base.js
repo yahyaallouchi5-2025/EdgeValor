@@ -184,6 +184,8 @@ function ebBlocco(tit,txt,o){o=o||{};
   <div class="plk-t"><small>Premium</small><b>${tit}</b>${txt?`<span>${txt}</span>`:""}</div>
   <button type="button" class="plk-b" data-premium>Passa a Premium</button></div></div>`;}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-premium]");if(!b)return;
- e.preventDefault();if(window.ebFeedback)ebFeedback({premium:true});});
+ e.preventDefault();
+ // v8.11 se l'area abbonamento e' accesa (per ora solo admin) si apre il pagamento PayPal, altrimenti il modulo Assistenza
+ if(window.ebAbbonamento&&ebAbbonamento.attivo())ebAbbonamento.apri();else if(window.ebFeedback)ebFeedback({premium:true});});
 // v7.93 file JSON delle azioni con parte Premium ({"__p":...}): aperti con la chiave, altrimenti parte Basic
 const premJ=j=>j&&window.ebPrem?ebPrem.apri(j):j;

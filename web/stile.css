@@ -3395,3 +3395,27 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 .kzferma{cursor:default}
 .kzferma .kzvai{display:none}
 .kzferma:hover{transform:none;box-shadow:none}.kzferma:hover::after{opacity:0}
+
+/* v8.11 AREA ABBONAMENTO (46_abbonamento.js): due piani, casella condizioni, pulsanti PayPal */
+.abbox{width:min(520px,100%);overflow-y:auto}
+.abbox .cmodal-testa{position:relative;padding-right:36px}.abcorpo{display:flex;flex-direction:column;gap:16px}
+.abbox .cmodal-btn{justify-content:flex-end}
+.abpiani{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.abpiano{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:18px 16px 16px;border-radius:16px;
+ background:color-mix(in srgb,var(--card2) 70%,transparent);border:1px solid var(--line);color:var(--ink);text-align:left;cursor:pointer;
+ font:inherit;transition:border-color .2s,transform .2s,box-shadow .2s}
+.abpiano:hover{transform:translateY(-2px);border-color:color-mix(in srgb,#f3c75f 55%,var(--line))}
+.abpiano.on{border-color:#f3c75f;box-shadow:0 0 0 1px #f3c75f inset,0 10px 30px rgba(243,199,95,.12)}
+.abpiano small{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--ink2)}
+.abpiano b{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:4px}.abpiano span{font-size:13px;color:var(--ink2)}
+.abpiano em{font-style:normal;font-size:12.5px;color:var(--acc);margin-top:8px}
+.abtag{position:absolute;top:-10px;right:12px;padding:3px 9px;border-radius:99px;font-size:11px!important;font-weight:800;color:#2a1d00!important;
+ background:linear-gradient(135deg,#ffe7a3,#f3c75f 55%,#c9962b)}
+.abok{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--ink2);cursor:pointer}
+.abok input{flex:none;width:18px;height:18px;margin:1px 0 0;accent-color:#f3c75f}.abok a{color:var(--acc)}
+.abparte{margin:-4px 0 0;color:var(--ink2)}
+.abpp{min-height:50px;padding:12px 12px 4px;border-radius:16px;background:#fff;transition:opacity .2s}.abpp[aria-disabled="true"]{opacity:.45}
+.abstato{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--card2) 70%,transparent)}
+.abstato small{display:block;font-size:12px;color:var(--ink2);margin-bottom:4px}.abstato b{font-size:15px;color:var(--ink)}
+.abesito{font-size:14px;color:var(--ink2);min-height:0}.abesito:empty{display:none}.abesito.ok{color:var(--b)}.abesito.ko{color:var(--s)}
+@media (max-width:520px){.abstato{grid-template-columns:1fr}.abpiano{padding:16px 12px 12px}.abpiano b{font-size:21px}.abtag{right:8px}}
