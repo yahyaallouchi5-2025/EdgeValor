@@ -151,3 +151,156 @@ def _fond(sym, get):
             "tot": num("TotalSupply"), "max": num("MaxSupply")}
 
 
+def scarica(get=None):
+    """{sigla: {"sym", "serie": [(data, chiusura, volume)], "fond": {...}}} per le monete che rispondono."""
+    if get is None:
+        from .eodhd import get
+    out, fond_ok = {}, True
+    for sig, _, simboli, *_ in MONETE:
+        for sym in simboli:
+            try:
+                s = _eod(sym, DAL, get)
+            except Exception as e:
+                log.warning("crypto: %s non scaricato (%s)", sym, type(e).__name__)
+                s = None
+            if s and len(s) > 40:
+                f = {}
+                if fond_ok:                            # al primo rifiuto (piano senza fondamentali) non si riprova
+                    try:
+                        f = _fond(sym, get)
+                    except Exception:
+                        f = {}
+                    if not f and not out:
+                        fond_ok = False
+                out[sig] = {"sym": sym, "serie": s, "fond": f}
+                break
+    log.info("crypto: %d monete scaricate su %d, fondamentali %s", len(out), len(MONETE),
+             "si" if any(v["fond"] for v in out.values()) else "no")
+    return out
+
+
+# --------------------------------------------------------------------------- calcoli
+def _var(s, giorni):
+    """Variazione % dell'ultima chiusura rispetto a `giorni` giorni di calendario prima (None se manca la storia)."""
+    ultimo = date.fromisoformat(s[-1][0])
+    lim = (ultimo - timedelta(days=giorni)).isoformat()
+    prima = [x for x in s if x[0] <= lim]
+    if not prima:
+        return None
+    return round((s[-1][1] / prima[-1][1] - 1) * 100, 2)
+
+
+def _vol30(s):
+    """Volatilita' annua % dei rendimenti giornalieri degli ultimi 30 giorni (le crypto si scambiano 365 giorni l'anno)."""
+    c = [x[1] for x in s[-31:]]
+    r = [math.log(c[i] / c[i - 1]) for i in range(1, len(c)) if c[i - 1] > 0]
+    if len(r) < 20:
+        return None
+    m = sum(r) / len(r)
+    return round(math.sqrt(sum((x - m) ** 2 for x in r) / (len(r) - 1)) * math.sqrt(365) * 100, 1)
+
+
+def _arrot(v):
+    """Prezzo con cifre significative sensate (1,23 · 0,0000123 · 97.123)."""
+    if v is None:
+        return None
+    if v >= 1000:
+        return round(v, 0)
+    if v >= 1:
+        return round(v, 2)
+    return float(f"{v:.4g}")
+
+
+def calcola(dati, oggi=None):
+    """Blocco della pagina: {agg, fond, monete:[...]} ordinate per capitalizzazione (o per volume), oppure None."""
+    if not dati or len(dati) < MIN_MONETE:
+        return None
+    oggi = oggi or datetime.now(timezone.utc).date()
+    # volume: in dollari o in monete? si decide su Bitcoin (vedi intestazione)
+    b = (dati.get("BTC") or {}).get("serie") or []
+    in_dollari = bool(b) and sum(x[2] for x in b[-30:]) / max(1, len(b[-30:])) > 1e9
+    righe = []
+    for sig, nome, _, anno, cat, desc in MONETE:
+        x = dati.get(sig)
+        if not x:
+            continue
+        s = x["serie"]
+        if (oggi - date.fromisoformat(s[-1][0])).days > 7:      # prezzi fermi da piu' di una settimana: fuori
+            log.warning("crypto: %s fermo al %s, non mostrato", sig, s[-1][0])
+            continue
+        p = s[-1][1]
+        usd = (lambda r: r[2]) if in_dollari else (lambda r: r[2] * r[1])
+        vol_m = [usd(r) for r in s[-30:] if r[2] > 0]
+        ath = max(s, key=lambda r: r[1])
+        anno_c = [r for r in s if r[0] < f"{oggi.year}-01-01"]
+        f = x.get("fond") or {}
+        circ = f.get("circ")
+        mx = f.get("max") or MAX.get(sig)
+        mcap = f.get("mcap") or (circ * p if circ else None)
+        # mini-grafico 90 giorni e grafico settimanale 3 anni (venerdi' o ultimo giorno disponibile della settimana)
+        sett = {}
+        for d, c, _ in s:
+            k = date.fromisoformat(d).isocalendar()[:2]
+            sett[k] = (d, c)
+        w = list(sett.values())[-SETT:]
+        righe.append({
+            "s": sig, "n": nome, "cat": cat, "anno": anno, "desc": desc,
+            "p": _arrot(p), "data": s[-1][0],
+            "v1g": _var(s, 1), "v7g": _var(s, 7), "v30g": _var(s, 30), "v1a": _var(s, 365),
+            "vytd": round((p / anno_c[-1][1] - 1) * 100, 2) if anno_c else None,
+            "ath": _arrot(ath[1]), "ath_d": ath[0], "dd": round((p / ath[1] - 1) * 100, 1),
+            "vol30": _vol30(s),
+            "volu": round(usd(s[-1])) if s[-1][2] > 0 else None,
+            "volm": round(sum(vol_m) / len(vol_m)) if vol_m else None,
+            "mcap": round(mcap) if mcap else None, "circ": round(circ) if circ else None,
+            "max": round(mx) if mx else None,
+            "circ_pct": round(circ / mx * 100, 1) if circ and mx else None,
+            "spark": [_arrot(r[1]) for r in s[-SPARK:]],
+            "sett": [[d, _arrot(c)] for d, c in w],
+            "dal": s[0][0][:4],
+        })
+    if len(righe) < MIN_MONETE:
+        return None
+    con_cap = any(r["mcap"] for r in righe)
+    righe.sort(key=lambda r: -((r["mcap"] if con_cap else r["volm"]) or 0))
+    # quota di capitalizzazione di ogni moneta sul totale delle monete in tabella (solo se c'e' la capitalizzazione)
+    tot = sum(r["mcap"] or 0 for r in righe)
+    for r in righe:
+        r["quota"] = round(r["mcap"] / tot * 100, 1) if tot and r["mcap"] else None
+    return {"agg": max(r["data"] for r in righe), "fond": con_cap, "ordine": "mcap" if con_cap else "volume",
+            "monete": righe}
+
+
+# --------------------------------------------------------------------------- salvataggio e pagina
+def salva(blocco, cartella=CARTELLA):
+    try:
+        os.makedirs(cartella, exist_ok=True)
+        with open(os.path.join(cartella, FILE), "w", encoding="utf-8") as f:
+            json.dump(blocco, f, ensure_ascii=False, separators=(",", ":"))
+    except OSError as e:
+        log.warning("crypto: copia non salvata (%s)", type(e).__name__)
+
+
+def leggi(cartella=CARTELLA):
+    try:
+        with open(os.path.join(cartella, FILE), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def per_pagina(scarica_dati=scarica, cartella=CARTELLA):
+    """Blocco D.crypto: calcolo nuovo se EODHD risponde, altrimenti l'ultimo valido salvato (vecchio=True)."""
+    try:
+        nuovo = calcola(scarica_dati())
+    except Exception as e:
+        log.warning("crypto: calcolo non riuscito (%s)", type(e).__name__)
+        nuovo = None
+    if nuovo:
+        salva(nuovo, cartella)
+        return nuovo
+    vecchio = leggi(cartella)
+    if vecchio:
+        log.warning("crypto: EODHD non disponibile, uso il calcolo del %s", vecchio.get("agg"))
+        return dict(vecchio, vecchio=True)
+    return None
