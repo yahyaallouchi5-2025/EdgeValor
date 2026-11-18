@@ -131,6 +131,7 @@ try{(function(){const el=$("stag");if(!el)return;
  // l'indice si scarica solo quando si apre la scheda (il terminale resta leggero)
  let avviato=false;const avvia=()=>{if(avviato)return;avviato=true;
   // v7.93 Basic: la stagionalita' oraria (ora, giorno, settimana in ora di Roma) e' dettaglio Premium
+  if(!EB_PREMIUM&&window.EB_CHIUSE){box.remove();return;}   // v8.07 scheda Stagionalita' chiusa al Basic: un solo lucchetto (45_chiuse.js)
   if(!EB_PREMIUM){box.innerHTML=ebBlocco("Stagionalità in ora di Roma","Ora per ora, giorno per giorno e mese per mese, con gli effetti affidabili.",{velo:true,righe:4});return;}
   fetch(BASE+"indice.json").then(r=>r.ok?r.json():null).then(j=>{R.idx=j;if(j&&j.simboli&&j.simboli.length){if(!j.simboli.some(x=>x.s==R.sel))R.sel=j.simboli[0].s;carica();}else disegna();}).catch(()=>{R.idx=null;disegna();});};
  const vis=()=>{if(el.offsetParent!==null)avvia();};

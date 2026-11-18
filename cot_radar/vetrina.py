@@ -265,8 +265,12 @@ def crea(cartella):
         log.warning("landing page non aggiornata: mancano i dati della dashboard")
         return None
     f = os.path.join(cartella, "index.html")
+    home = html(pagina.ULTIMI, cartella)
     with open(f, "w", encoding="utf-8") as fh:
-        fh.write(html(pagina.ULTIMI, cartella))
+        fh.write(home)
+    # v8.07 pagine pubbliche vere (prezzi, accedi, metodo, domande): servono a Google per le sotto-voci del risultato
+    from . import pagine_pubbliche
+    altre = pagine_pubbliche.crea(cartella, home)
     # v8.06 icona del sito come file (per Google: favicon nei risultati e logo dell'organizzazione)
     with open(os.path.join(cartella, "favicon.svg"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(FAVICON_SVG)
@@ -279,7 +283,7 @@ def crea(cartella):
     oggi = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     with open(os.path.join(cartella, "robots.txt"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("User-agent: *\nAllow: /\nDisallow: /terminale/\n\nSitemap: " + SITO_PUBBLICO + "sitemap.xml\n")
-    pagine = [(SITO_PUBBLICO, "1.0"), (SITO_PUBBLICO + "legale/", "0.3")]
+    pagine = [(SITO_PUBBLICO, "1.0")] + [(u, "0.8") for u in altre] + [(SITO_PUBBLICO + "legale/", "0.3")]
     with open(os.path.join(cartella, "sitemap.xml"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                  "".join(f"  <url><loc>{u}</loc><lastmod>{oggi}</lastmod><priority>{p}</priority></url>\n" for u, p in pagine) +

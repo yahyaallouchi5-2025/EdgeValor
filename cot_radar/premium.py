@@ -41,6 +41,10 @@ PORT_PREMIUM = ("composizione", "base", "ammessi", "esclusi", "rischio_quote", "
 # La mappa (mappa, da, al) resta in Basic.
 STAG_PREMIUM = ("finestra", "sett", "mesi", "giorni")
 
+# v8.07 blocchi di dati interamente Premium -> valore vuoto lasciato al Basic (stessa forma, nessun dato)
+CHIUSE = {"assets": {}, "pairs": [], "order": [], "corr": {"keys": [], "m": []}, "corr_px": None, "stag": {}, "vol": {}, "tat": {},
+          "crypto": None, "btcsent": None, "carry": None, "categorie": None, "tv": {}, "tvp": {}}
+
 _PUB = None               # (id, chiave) della costruzione in corso: una sola chiave per pagina e file delle azioni
 
 
@@ -129,6 +133,16 @@ def separa(data):
         toppe.append([["crypto", "monete"], cr["monete"]])
         cr["monete"] = cr["monete"][:CRYPTO_BASIC]
         cr["n_tot"] = len(toppe[-1][1])
+    # v8.07 SCHEDE CHIUSE AL BASIC (Ya, 18/11/2026): COT, Forex, Crypto, Volatilita', Stagionalita' e Correlazioni sono
+    # Premium per intero. I loro dati escono dalla pagina e al loro posto resta un contenitore VUOTO della stessa forma
+    # (cosi' il terminale non si rompe e mostra il lucchetto: vedi 45_chiuse.js). Le toppe gia' create qui sopra per
+    # stag e crypto vengono sostituite da quella dell'intero blocco.
+    originale = data
+    toppe = [t for t in toppe if t[0][0] not in CHIUSE]
+    for k, vuoto in CHIUSE.items():
+        if originale.get(k) is not None:
+            toppe.append([[k], copy.deepcopy(originale[k])])
+            d[k] = copy.deepcopy(vuoto)
     return d, toppe
 
 

@@ -45,7 +45,7 @@ try{(function(){const el=$("topaz");if(!el)return;
    <div class="tzamp-aree">${(a.aree||[]).filter(x=>x.n).map(x=>`<div><span>${esc(x.nome)}</span>${barra(x)}<b>${q(x)}%</b></div>`).join("")}</div></div>`;}
  function disegna(d){
   // v7.93 Basic: la Selezione di oggi (nomi delle azioni con l'edge) e' Premium
-  if(!EB_PREMIUM){el.innerHTML=ebBlocco("Selezione di oggi: le azioni più forti","Le aziende che superano tutti i filtri di trend, forza e stagionalità, ricalcolate ogni sera.",{velo:true,righe:5});return;}
+  if(!EB_PREMIUM){el.innerHTML=ebBlocco("Le 5 azioni di oggi","Le aziende che superano tutti i filtri di trend, forza e stagionalità, ricalcolate ogni sera.",{velo:true,righe:5});return;}
   const T=d.titoli||[];const mese=MESI[(d.mese||oggiRoma().m+1)-1];
   if(!T.length){el.innerHTML=`<div class="card tz"><div class="tztesta"><div><span class="tzchip">Selezione di oggi</span><h3>Le azioni pi&ugrave; forti</h3></div></div><p class="small" style="margin:8px 0 0">Oggi nessun titolo supera tutti i filtri: la selezione torna appena trend, forza e stagionalit&agrave; si allineano.</p></div>`;apriSc();return;}
   const slide=(t,i)=>`<article class="tzs${i?"":" on"}" data-i="${i}" aria-roledescription="slide" aria-label="${i+1} di ${T.length}">

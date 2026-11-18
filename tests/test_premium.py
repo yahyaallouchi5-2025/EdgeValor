@@ -43,7 +43,12 @@ class Premium(unittest.TestCase):
         self.assertNotIn("asset", p["mesi_chiusi"][0])
         self.assertEqual(p["mese"], {"media": 1.2})
         self.assertNotIn("strumenti", b["port"])
-        self.assertEqual(b["stag"]["WTI"], {"mappa": {"anni": [2020]}})
+        # v8.07 schede chiuse al Basic: stagionalita' e COT escono per intero, resta il contenitore vuoto
+        self.assertEqual(b["stag"], {})
+        self.assertEqual(b["assets"], {})
+        self.assertTrue(any(t[0] == ["stag"] for t in toppe) and any(t[0] == ["assets"] for t in toppe))
+        self.assertFalse(any(t[0][0] == "stag" and len(t[0]) > 1 for t in toppe))      # niente toppe doppie
+        self.assertNotIn("EUR", json.dumps(b["assets"]))
         self.assertEqual([r["iso"] for r in b["paesi"]["paesi"]], ["8", "7", "6", "5", "4"])   # crescita piu' alta
         self.assertEqual(b["paesi"]["n_tot"], 9)
         self.assertIn("composizione", DATI["port"]["profili"][0])                  # l'originale non si tocca
