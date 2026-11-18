@@ -2,7 +2,7 @@
    Schede dei driver (valore, variazioni, forza del movimento) e tabella "quanto e' gia' scontato". */
 try{
 (function(){const X=D.market,el=$("mtop");
- if(!X){el.innerHTML=`<h2>Mercato e macro</h2><div class="card">Dati di mercato (FRED) non disponibili: i segnali usano solo il COT.</div>`;return;}
+ if(!X){el.innerHTML=`<h2>Mercato e macro</h2><div class="card">Dati di mercato non disponibili: i segnali usano solo il COT.</div>`;return;}
  const r=X.risk,env=r>=30?["FAVOREVOLE agli asset di rischio","var(--sb)"]:r<=-30?["SFAVOREVOLE agli asset di rischio","var(--ss)"]:["NEUTRO per gli asset di rischio","var(--n)"];
  const dcard=d=>{const u=d.unit=="pb"?" pb":"";const val=d.unit=="pb"?fx(d.value)+"%":fx(d.value,1);const bad=["vix","hy","real"].includes(d.key);
   const cls=d.d4==null?'flat':(d.d4>0)==bad?'down':'up';
