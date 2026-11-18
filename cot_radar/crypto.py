@@ -1,0 +1,153 @@
+# -*- coding: utf-8 -*-
+"""
+crypto.py - v8.01 SCHEDA CRYPTO: Bitcoin e le principali altcoin in una tabella (scheda "Crypto", menu Mercati).
+
+COSA FA (a ogni costruzione del sito, in automatico):
+  1) per ogni moneta dell'elenco MONETE scarica da EODHD tutto lo storico giornaliero (chiusura e volume);
+  2) prova a leggere da EODHD anche i "fondamentali" (capitalizzazione e supply). Se il nostro piano non li
+     comprende (risposta 401/402/403) quelle colonne restano vuote: MAI numeri inventati;
+  3) calcola per ogni moneta: prezzo, variazioni 1 giorno / 7 giorni / 30 giorni / 1 anno / da inizio anno,
+     massimo storico e drawdown dal massimo, volatilita' a 30 giorni (annua, 365 giorni), volume in dollari
+     (ultimo giorno e media 30 giorni), mini-grafico 90 giorni, grafico settimanale 3 anni per il profilo;
+  4) salva il risultato in storico/crypto.json: se un giorno EODHD non risponde, la pagina mostra l'ultimo
+     calcolo valido con la sua data.
+STABLECOIN (USDT, USDC...) escluse di proposito: valgono sempre circa 1 dollaro, i numeri di prezzo non dicono nulla.
+DESCRIZIONI: scritte da noi (brevi, in italiano), non copiate da altri siti.
+SUPPLY MASSIMA: se i fondamentali non arrivano si usa il tetto fissato dal protocollo (MAX), solo per le monete che
+  ne hanno uno noto; le altre restano "senza tetto".
+VOLUME: EODHD per le crypto puo' dare il volume in monete o in dollari. Si decide su Bitcoin: un volume giornaliero
+  sopra 1 miliardo non puo' essere in BTC (ne esistono circa 20 milioni), quindi e' gia' in dollari.
+SOLO LIBRERIA STANDARD. Chiave EODHD solo nei Secrets di GitHub (variabile EODHD_API_KEY), mai nel codice.
+DEBUG: python -c "from cot_radar import crypto as c; import json; print(json.dumps(c.per_pagina()['monete'][:2], indent=1))"
+"""
+import json
+import math
+import os
+from datetime import date, datetime, timedelta, timezone
+
+from .log import log
+
+CARTELLA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "storico")
+FILE = "crypto.json"
+DAL = "2010-07-01"            # tutto lo storico disponibile (serve per il massimo storico)
+MIN_MONETE = 5                # sotto questo numero di monete scaricate il calcolo non si considera valido
+SPARK = 90                    # giorni del mini-grafico
+SETT = 156                    # settimane del grafico nel profilo (3 anni)
+
+# (sigla, nome, simboli EODHD da provare in ordine, anno di nascita, categoria, descrizione)
+MONETE = [
+    ("BTC", "Bitcoin", ["BTC-USD.CC"], 2009, "Moneta digitale",
+     "La prima criptovaluta: una moneta digitale senza banca centrale, con un massimo fisso di 21 milioni di pezzi. "
+     "Le transazioni sono validate dai miner (proof of work)."),
+    ("ETH", "Ethereum", ["ETH-USD.CC"], 2015, "Piattaforma",
+     "Rete su cui girano programmi automatici (smart contract): finanza decentralizzata, stablecoin, NFT. "
+     "Ether paga le commissioni della rete; validazione proof of stake dal 2022."),
+    ("BNB", "BNB", ["BNB-USD.CC"], 2017, "Piattaforma",
+     "Moneta dell'ecosistema Binance: paga le commissioni della BNB Chain e sconti sull'exchange. "
+     "Una parte viene distrutta ogni trimestre (burn) per ridurre l'offerta."),
+    ("SOL", "Solana", ["SOL-USD.CC"], 2020, "Piattaforma",
+     "Rete veloce e a basso costo per applicazioni e pagamenti, concorrente di Ethereum. "
+     "Combina proof of stake e un orologio interno (proof of history)."),
+    ("XRP", "XRP", ["XRP-USD.CC"], 2012, "Pagamenti",
+     "Moneta del registro XRP Ledger, pensata per pagamenti internazionali veloci tra istituzioni. "
+     "Tutti i 100 miliardi di pezzi sono stati creati all'inizio."),
+    ("DOGE", "Dogecoin", ["DOGE-USD.CC"], 2013, "Meme",
+     "Nata come scherzo ispirato a un meme, è diventata una delle monete più scambiate. "
+     "Nessun tetto: ogni anno se ne creano circa 5 miliardi di nuove."),
+    ("ADA", "Cardano", ["ADA-USD.CC"], 2017, "Piattaforma",
+     "Piattaforma per smart contract sviluppata con un approccio accademico e verifiche formali. "
+     "Proof of stake, massimo di 45 miliardi di pezzi."),
+    ("TRX", "Tron", ["TRX-USD.CC"], 2017, "Piattaforma",
+     "Rete molto usata per trasferire stablecoin (soprattutto USDT) con commissioni basse. "
+     "Validazione affidata a 27 rappresentanti eletti (delegated proof of stake)."),
+    ("AVAX", "Avalanche", ["AVAX-USD.CC"], 2020, "Piattaforma",
+     "Piattaforma per smart contract organizzata in sotto-reti personalizzabili (subnet). "
+     "Massimo di 720 milioni di pezzi; le commissioni pagate vengono distrutte."),
+    ("LINK", "Chainlink", ["LINK-USD.CC"], 2017, "Infrastruttura",
+     "Rete di oracoli: porta dati del mondo reale (prezzi, risultati, eventi) dentro gli smart contract. "
+     "LINK paga i nodi che forniscono i dati."),
+    ("DOT", "Polkadot", ["DOT-USD.CC"], 2020, "Infrastruttura",
+     "Rete che collega più blockchain specializzate (parachain) facendole comunicare e condividere la sicurezza. "
+     "DOT serve per staking e decisioni di governo della rete."),
+    ("TON", "Toncoin", ["TON-USD.CC", "TON11419-USD.CC"], 2021, "Piattaforma",
+     "Blockchain nata dal progetto di Telegram e integrata nell'app (portafoglio e pagamenti). "
+     "Pensata per gestire moltissime transazioni dividendo il lavoro in più catene."),
+    ("SHIB", "Shiba Inu", ["SHIB-USD.CC"], 2020, "Meme",
+     "Moneta meme nata come rivale di Dogecoin, con un'offerta di centinaia di migliaia di miliardi di pezzi. "
+     "Intorno sono nati un exchange decentralizzato e una rete propria (Shibarium)."),
+    ("LTC", "Litecoin", ["LTC-USD.CC"], 2011, "Moneta digitale",
+     "Una delle prime alternative a Bitcoin: stesso modello con blocchi più veloci (2,5 minuti). "
+     "Massimo di 84 milioni di pezzi."),
+    ("BCH", "Bitcoin Cash", ["BCH-USD.CC"], 2017, "Moneta digitale",
+     "Nata nel 2017 da una divisione di Bitcoin per avere blocchi più grandi e pagamenti più economici. "
+     "Massimo di 21 milioni di pezzi, come Bitcoin."),
+    ("XLM", "Stellar", ["XLM-USD.CC"], 2014, "Pagamenti",
+     "Rete per trasferire denaro tra paesi e valute in pochi secondi, con costi minimi. "
+     "Usata anche per emettere versioni digitali di valute e titoli."),
+    ("UNI", "Uniswap", ["UNI-USD.CC", "UNI7083-USD.CC"], 2020, "Finanza decentralizzata",
+     "Il più noto exchange decentralizzato: si scambiano token direttamente dal portafoglio, senza intermediario. "
+     "UNI da' diritto di voto sulle regole del protocollo."),
+    ("NEAR", "NEAR Protocol", ["NEAR-USD.CC"], 2020, "Piattaforma",
+     "Piattaforma per applicazioni che divide il lavoro in parti (sharding) per restare veloce ed economica. "
+     "Negli ultimi anni punta su applicazioni di intelligenza artificiale."),
+    ("ICP", "Internet Computer", ["ICP-USD.CC"], 2021, "Infrastruttura",
+     "Rete che vuole ospitare interi siti e servizi web direttamente sulla blockchain, senza server tradizionali. "
+     "ICP paga la potenza di calcolo usata."),
+    ("APT", "Aptos", ["APT-USD.CC", "APT21794-USD.CC"], 2022, "Piattaforma",
+     "Blockchain fondata da ex sviluppatori del progetto Diem di Meta, con il linguaggio Move. "
+     "Esegue molte transazioni in parallelo."),
+    ("SUI", "Sui", ["SUI-USD.CC", "SUI20947-USD.CC"], 2023, "Piattaforma",
+     "Blockchain che usa il linguaggio Move e tratta ogni bene digitale come un oggetto separato. "
+     "Massimo di 10 miliardi di pezzi."),
+    ("HBAR", "Hedera", ["HBAR-USD.CC"], 2019, "Infrastruttura",
+     "Registro pubblico governato da un consiglio di grandi aziende, pensato per pagamenti e usi aziendali. "
+     "Massimo di 50 miliardi di pezzi."),
+    ("ATOM", "Cosmos", ["ATOM-USD.CC"], 2019, "Infrastruttura",
+     "Ecosistema di blockchain indipendenti che si parlano tra loro con un protocollo comune (IBC). "
+     "ATOM serve per staking e voto."),
+    ("XMR", "Monero", ["XMR-USD.CC"], 2014, "Moneta digitale",
+     "Moneta digitale centrata sulla riservatezza: mittente, destinatario e importo non sono visibili. "
+     "Diversi exchange non la quotano per motivi normativi."),
+    ("ETC", "Ethereum Classic", ["ETC-USD.CC"], 2015, "Piattaforma",
+     "La catena originale di Ethereum, rimasta quando nel 2016 la rete si è divisa dopo un attacco. "
+     "Resta proof of work, con un massimo di circa 210 milioni di pezzi."),
+    ("FIL", "Filecoin", ["FIL-USD.CC"], 2020, "Infrastruttura",
+     "Mercato decentralizzato di spazio di archiviazione: chi offre spazio sui propri dischi viene pagato in FIL. "
+     "Massimo di 2 miliardi di pezzi."),
+]
+# tetto fissato dal protocollo (solo dove e' noto e stabile): usato se i fondamentali di EODHD non arrivano
+MAX = {"BTC": 21e6, "LTC": 84e6, "BCH": 21e6, "ADA": 45e9, "XRP": 100e9, "AVAX": 720e6, "SUI": 10e9,
+       "HBAR": 50e9, "FIL": 2e9, "ETC": 210.7e6}
+
+
+# --------------------------------------------------------------------------- dati
+def _eod(sym, dal, get):
+    """[(data, chiusura, volume)] di un simbolo EODHD, oppure None."""
+    js = get("eod/" + sym, {"from": dal})
+    if not isinstance(js, list):
+        return None
+    out = {}
+    for x in js:
+        c = x.get("close")
+        if x.get("date") and c and c > 0:
+            out[x["date"][:10]] = (float(c), float(x.get("volume") or 0))
+    return [(d, c, v) for d, (c, v) in sorted(out.items())] or None
+
+
+def _fond(sym, get):
+    """Capitalizzazione e supply dai fondamentali EODHD, oppure {} (piano senza fondamentali o simbolo mancante)."""
+    js = get("fundamentals/" + sym, {}, tentativi=1)
+    st = (js or {}).get("Statistics") if isinstance(js, dict) else None
+    if not isinstance(st, dict):
+        return {}
+
+    def num(k):
+        try:
+            v = float(st.get(k))
+            return v if v > 0 else None
+        except (TypeError, ValueError):
+            return None
+    return {"mcap": num("MarketCapitalization"), "circ": num("CirculatingSupply"),
+            "tot": num("TotalSupply"), "max": num("MaxSupply")}
+
+
