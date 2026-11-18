@@ -665,6 +665,7 @@ document.querySelectorAll("[data-entra]").forEach(function(b){b.addEventListener
  function finestra(anno){var g=new Date(Date.UTC(anno,10,1)).getUTCDay(),giov=1+((4-g+7)%7)+21,bf=giov+1;   // quarto giovedi' + 1
   return {ini:Date.UTC(anno,10,bf-4)-ROMA,cm:Date.UTC(anno,10,bf+3)-ROMA,fine:Date.UTC(anno,10,bf+4)-ROMA,anno:anno};}
  var F=finestra(new Date(ora()).getUTCFullYear());
+ return;   // v8.12 OFFERTA SPENTA: mostrava prezzi vecchi (9,90 / 89 euro). Per riaccenderla togliere questa riga e aggiornare i prezzi.
  if(ora()<F.ini||ora()>=F.fine)return;                                       // fuori periodo: non si vede niente
  var el=function(i){return document.getElementById(i);},H=document.documentElement;
  var mod=el("omod"),chip=el("ochip"),form=el("oform"),esito=el("oesito"),invia=el("oinvia"),conto=el("oconto"),prima=null,tic=null;

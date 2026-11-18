@@ -94,6 +94,7 @@
  // Appena l'utente e' dentro (anche dopo l'accesso dalla porta d'ingresso) si apre la richiesta Abbonamento gia' scritta;
  // il parametro si toglie dall'indirizzo, cosi' ricaricando la pagina non si riapre.
  if(/[?&]rinnova=1/.test(location.search)){let n=0;const t=setInterval(()=>{n++;
+  if(window.ebAbbonamento&&ebAbbonamento.attivo()){clearInterval(t);return;}   // v8.12 ora ci pensa l'area abbonamento (46_abbonamento.js)
   const u=window.ebAccount&&ebAccount.stato&&ebAccount.stato().utente;
   if(u&&!document.querySelector(".cmodal")){clearInterval(t);
    try{history.replaceState(null,"",location.pathname+location.hash);}catch(e){}mostra({rinnova:true});}

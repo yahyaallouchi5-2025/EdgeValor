@@ -7,11 +7,12 @@
      3) pulsanti PayPal (conto PayPal o carta) -> abbonamento creato -> ?azione=attiva -> Premium attivo;
      4) chi ha gia' un abbonamento vede stato, prossimo rinnovo e "Disdici" (Premium resta fino a fine periodo);
         chi ha disdetto vede "Riattiva": il nuovo abbonamento parte alla fine del periodo gia' pagato (nessun doppio addebito).
-   APERTURA: per ora SOLO ADMIN (APERTO=false): gli altri continuano a vedere il modulo "Assistenza" come prima.
+   APERTURA: per tutti dal v8.12 (APERTO=true). Con APERTO=false la vede solo l'admin e gli altri tornano al modulo "Assistenza".
+   ARRIVO DA FUORI: .../terminale/?premium=1 (pagina Prezzi) o ?rinnova=1 (email): appena l'utente e' dentro si apre questa finestra.
    CHIAVI: qui solo il Client ID PayPal (pubblico per natura). Il Secret sta solo nei secret di Supabase.
    DEBUG (F12 -> Console): ebAbbonamento.attivo() dice se la finestra nuova e' accesa; errori con "[EdgeValor] abbonamento". */
 (function(){try{
- const APERTO=false;                                         // true = per tutti (dopo il pagamento di prova di Ya)
+ const APERTO=true;                                          // true = per tutti (dopo il pagamento di prova di Ya)
  const API="https://cwwmqujccwzmqougtedh.supabase.co/functions/v1/paypal";
  const CLIENT="BAAG2KF3dRqXUD-lXpCqjZ9inaD5AOT6OKetoDMtkowcMNatVIBKLZ5-2_Rp4BFb9bP5skp1mrJE52zWtA";
  const PIANI={annuale:{id:"P-89G164691L706501LNL7CALY",nome:"Annuale",prezzo:"239,88 €",per:"all'anno",nota:"19,99 € al mese · risparmi il 26%"},
@@ -110,4 +111,14 @@
    corpo.querySelector(".abvai").onclick=()=>location.reload();}}       // ricarica: i dati Premium si aprono con la chiave
 
  window.ebAbbonamento={apri,attivo};
+ // v8.12 ARRIVO DALLA PAGINA PREZZI O DALLE EMAIL (?premium=1 / ?rinnova=1). Il link di accesso via email riapre la pagina
+ // senza parametri: per questo l'intenzione si ricorda nel browser (ebVaiPremium, valida 1 ora) e si usa appena si e' dentro.
+ const KV="ebVaiPremium";
+ try{if(/[?&](premium|rinnova)=1/.test(location.search)){localStorage.setItem(KV,String(Date.now()));
+   history.replaceState(null,"",location.pathname+location.hash);}}catch(e){}
+ let quando=0;try{quando=+localStorage.getItem(KV)||0;}catch(e){}
+ if(quando&&Date.now()-quando<3600e3){let n=0;const t=setInterval(()=>{n++;
+   const u=window.ebAccount&&ebAccount.stato&&ebAccount.stato().utente;
+   if(u&&!document.querySelector(".cmodal")){clearInterval(t);try{localStorage.removeItem(KV);}catch(e){}if(attivo())apri();}
+   else if(n>240)clearInterval(t);},500);}
 }catch(e){console.error("[EdgeValor] abbonamento:",e);}})();

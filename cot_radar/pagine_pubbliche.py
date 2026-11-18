@@ -9,7 +9,8 @@ COME FUNZIONA
   Le pagine riusano stile, sfondo e pie' di pagina della home gia' costruita (vetrina.html): qui cambia solo il centro.
   PREZZI (decisi da Ya): Basic gratis; Premium 27,00 EUR al mese oppure 19,99 EUR al mese con il piano annuale (239,88 EUR in un unico pagamento)
     (il risparmio in % e in euro e' CALCOLATO qui sotto, non scritto a mano).
-    Nessun pagamento automatico: "Contattaci" -> l'utente lascia l'email -> arriva al titolare (web3forms, la stessa
+    v8.12: "Attiva Premium" porta al terminale (?premium=1) dove si paga con PayPal (abbonamento con rinnovo automatico).
+    Prima (v8.07-8.11): "Contattaci" -> l'utente lasciava l'email -> arrivava al titolare (web3forms, la stessa
     chiave pubblica dell'Assistenza) che gli manda le istruzioni.
   ACCEDI: manda il link di accesso con Supabase (come il terminale) e riporta al terminale.
 DEBUG: python -c "from cot_radar import pagine_pubbliche as p; print(p.RISP, p.eu(p.ANNO_TOT))"
@@ -81,27 +82,23 @@ PREZZI = f"""
   <a class="btn sec" href="/accedi/">Inizia gratis</a></div>
  <div class="piano pro"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
   <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
-  <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; in un unico pagamento &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
+  <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; all'anno &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
   <p class="piu">Tutto Basic, più:</p>
   <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
-  <a class="btn pri" href="#contatto">{FRECCIA}Contattaci</a></div>
+  <a class="btn pri" href="/terminale/?premium=1">{FRECCIA}Attiva Premium</a>
+  <p class="sotto" style="margin:12px 0 0;text-align:center">Paghi con PayPal o carta. Si rinnova da solo, disdici quando vuoi.</p></div>
 </div>
-<div class="contatto" id="contatto"><form class="modulo" id="fprem" novalidate>
- <h3>Richiedi Premium</h3><p>Inserisci la tua email: riceverai le istruzioni per l'attivazione.</p>
- <label for="cm">La tua email</label><input id="cm" type="email" placeholder="nome@esempio.it" autocomplete="email" required>
- <label for="cp">Piano</label><select id="cp"><option>Annuale &middot; {eu(ANNO_TOT)} &euro; in un unico pagamento</option><option>Mensile &middot; {eu(MENSILE)} &euro; al mese</option></select>
- <input class="trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"><button class="btn pri">Invia la richiesta</button><p class="esito" role="status"></p><small>Usiamo la tua email solo per risponderti. <a href="/legale/#privacy">Privacy</a></small></form></div>
-<script>(function(){{var M="{eu(MENSILE)} \\u20ac",A="{eu(ANNUALE)} \\u20ac",S=document.querySelector("[data-sotto]"),T=S.innerHTML,sel=document.getElementById("cp");
+<script>(function(){{var M="{eu(MENSILE)} \\u20ac",A="{eu(ANNUALE)} \\u20ac",S=document.querySelector("[data-sotto]"),T=S.innerHTML;
  document.querySelectorAll(".cambio button").forEach(function(b){{b.onclick=function(){{var a=b.dataset.d=="a";
   document.querySelectorAll(".cambio button").forEach(function(x){{x.classList.toggle("on",x==b)}});
-  document.querySelector("[data-prezzo]").textContent=a?A:M;document.querySelector("[data-vecchio]").hidden=!a;S.innerHTML=a?T:"Paghi mese per mese.";sel.selectedIndex=a?0:1;}}}});}})();</script>
+  document.querySelector("[data-prezzo]").textContent=a?A:M;document.querySelector("[data-vecchio]").hidden=!a;S.innerHTML=a?T:"Paghi mese per mese.";}}}});}})();</script>
 """
 
 ACCEDI = f"""
 <div class="titsez" style="margin-left:auto;margin-right:auto;text-align:center"><small>Accesso</small><h1>Entra nel terminale.</h1>
  <p>Niente password: ti arriva un link via email. Se è la prima volta, parte la prova di 14 giorni.</p></div>
 <form class="modulo" id="facc" novalidate><label for="am">La tua email</label><input id="am" type="email" placeholder="nome@esempio.it" autocomplete="email" required>
- <button class="btn pri">{FRECCIA}Mandami il link</button><p class="esito" role="status"></p><small>Niente carta, nessun rinnovo automatico.</small></form>
+ <button class="btn pri">{FRECCIA}Mandami il link</button><p class="esito" role="status"></p><small>Per la prova non serve la carta.</small></form>
 """
 
 METODO = f"""
@@ -124,8 +121,8 @@ METODO = f"""
 
 DOMANDE = [("Devo avere esperienza?", "No. Ogni scheda ha testi brevi e una (i) che spiega come leggerla. Si parte dal profilo e dal portafoglio del mese."),
            ("Quanto tempo richiede?", "Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito."),
-           ("Quanto costa?", f"La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Poi resti in Basic, gratis. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese con il piano annuale, pagato in un'unica soluzione da {eu(ANNO_TOT)} € (−{RISP}%). Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
-           ("Come attivo Premium?", "Dalla pagina <a href=\"/prezzi/\">Prezzi</a> inserisci la tua email con «Contattaci»: riceverai le istruzioni per l'attivazione."),
+           ("Quanto costa?", f"La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Poi resti in Basic, gratis. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese con il piano annuale, {eu(ANNO_TOT)} € all'anno (−{RISP}%). Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
+           ("Come attivo Premium?", "Entra nel terminale e scegli «Passa a Premium», oppure parti dalla pagina <a href=\"/prezzi/\">Prezzi</a>. Paghi con PayPal o carta e Premium si attiva subito. L'abbonamento si rinnova da solo e lo disdici quando vuoi dal tuo profilo."),
            ("È una consulenza finanziaria?", "No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Ogni decisione resta tua. Dettagli nelle <a href=\"/legale/#rischi\">avvertenze sui rischi</a>."),
            ("Posso perdere denaro?", "Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento."),
            ("Da dove provengono i dati?", "Da fonti pubbliche e da un fornitore di dati di mercato. L'elenco completo è nelle <a href=\"/legale/#fonti\">fonti dei dati</a>."),
