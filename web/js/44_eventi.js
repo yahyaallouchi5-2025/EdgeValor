@@ -24,7 +24,12 @@
    info:"5 elezioni dal 2008, mediana delle aziende dell'S&P 500 di ogni settore nei 5 giorni dopo il voto, oltre l'S&P 500. Il settore va nella stessa direzione in 4 elezioni su 5, chiunque vinca."},
   {t:"Grande gioco Rockstar",chi:"Take-Two",g:["poco","Pochi casi"],n:3,p:"gta",num:[["Prima · 60 g",25.7],["Dopo · 5 g",0.7],["Dopo · 60 g",-8.3]],
    f:"Sale nei mesi prima, debole dopo l'uscita.",prox:"GTA VI esce il 19/11/2026",
-   info:"GTA IV (2008), GTA V (2013), Red Dead Redemption 2 (2018). Solo 3 casi: è un racconto, non una regola."}];
+   info:"GTA IV (2008), GTA V (2013), Red Dead Redemption 2 (2018). Solo 3 casi: è un racconto, non una regola."},
+  // v8.06 studi/studio_shock_petrolio.py: Brent +25% in un mese quando era gia' vicino ai massimi dell'anno ("shock vero")
+  {t:"Shock del petrolio",chi:"Settori",g:["ok","Regge"],n:9,
+   bar:[["Industria",-1.9,"8 su 8"],["Beni voluttuari",-1.7,"6 su 8"],["Energia",-0.5,"5 su 8"],["Salute",2.1,"5 su 8"]],
+   f:"L'Industria resta indietro; i petroliferi hanno già corso prima.",prox:"Ultimo: marzo 2026, Brent +37% in un mese",
+   info:"Settori oltre l'S&P 500, 3 mesi dopo; regge solo l'Industria (8 casi su 8). Shock = Brent +25% in un mese quando è già vicino ai massimi dell'anno (guerre, tagli dell'offerta): 9 casi dal 1996. Numeri oltre l'S&P 500, 3 mesi dopo. La borsa nel primo mese scende in 6 casi su 9, ma 6 mesi dopo è più alta in 7 su 9. Quando invece il petrolio rimbalza dopo un crollo (2009, 2016, 2020) è diverso: il petrolio continua a salire."}];
  const pc=v=>(v>0?"+":v<0?"&minus;":"")+fx(Math.abs(v),1)+"%",cl=v=>v>0?"up":v<0?"down":"";
  // grafico del percorso: verde acqua prima dell'evento, bianco dopo; pallino = giorno dell'evento
  function svg(v){const W=300,H=92,T=8,B=8,X=i=>i*W/120;let lo=Math.min(0,...v),hi=Math.max(0,...v);const pd=(hi-lo)*.12||1;lo-=pd;hi+=pd;
