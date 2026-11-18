@@ -1,0 +1,95 @@
+# -*- coding: utf-8 -*-
+"""
+pagine_pubbliche.py - v8.07 PAGINE PUBBLICHE per i "sitelink" di Google (Ya, 18/11/2026):
+  /prezzi/  /accedi/  /metodo/  /faq/
+Google mostra le sotto-voci sotto il risultato (come "Seleziona il tuo piano", "Registrati"...) solo se il sito ha
+piu' pagine vere, ognuna con titolo e descrizione propri e collegata dal menu. Prima c'erano solo home e note legali.
+
+COME FUNZIONA
+  Le pagine riusano stile, sfondo e pie' di pagina della home gia' costruita (vetrina.html): qui cambia solo il centro.
+  PREZZI (decisi da Ya): Basic gratis; Premium 27,00 EUR al mese oppure 19,99 EUR al mese con il piano annuale
+    (il risparmio in % e in euro e' CALCOLATO qui sotto, non scritto a mano).
+    Nessun pagamento automatico: "Contattaci" -> l'utente lascia l'email -> arriva al titolare (web3forms, la stessa
+    chiave pubblica dell'Assistenza) che gli manda le istruzioni.
+  ACCEDI: manda il link di accesso con Supabase (come il terminale) e riporta al terminale.
+DEBUG: python -c "from cot_radar import pagine_pubbliche as p; print(p.RISP, p.eu(p.ANNO_TOT))"
+"""
+import os
+import re
+
+from .config import SITO_PUBBLICO, SUPABASE_PUBBLICA, SUPABASE_URL, TELEGRAM_CANALE
+from .log import log
+
+TG = TELEGRAM_CANALE
+MENSILE, ANNUALE = 27.00, 19.99                              # euro al mese: mensile, e annuale (pagato in un'unica rata)
+RISP = round((1 - ANNUALE / MENSILE) * 100)                  # sconto dell'annuale in %
+ANNO_TOT, ANNO_RISP = ANNUALE * 12, (MENSILE - ANNUALE) * 12
+eu = lambda v: ("%.2f" % v).replace(".", ",")
+
+CSS = """
+/* pagine interne (prezzi, accedi, metodo, domande) */
+.pag{padding-top:64px;padding-bottom:96px}.pag .titsez{margin-bottom:40px}.pag h1{min-height:0!important;font:800 clamp(32px,4.6vw,54px)/1.08 "Inter Display","Inter",system-ui;letter-spacing:-1.6px;margin:12px 0 14px}
+.voci a.qui{color:var(--ink)}
+.cambio{display:inline-flex;padding:5px;border-radius:14px;border:1px solid var(--line);background:rgba(10,22,48,.7);margin-bottom:26px}
+.cambio button{display:flex;align-items:center;gap:8px;padding:10px 18px;border:0;border-radius:10px;background:transparent;color:var(--mute);font:700 14.5px "Inter",system-ui;cursor:pointer;transition:background .2s,color .2s}
+.cambio button.on{background:rgba(46,196,182,.14);color:var(--ink)}
+.cambio em{font-style:normal;font-size:12px;font-weight:800;padding:3px 8px;border-radius:99px;color:#03141a;background:var(--acc)}
+.prezzo{display:flex;align-items:baseline;gap:8px;margin:14px 0 4px}.prezzo b{font:800 46px/1 "Inter Display","Inter",system-ui;letter-spacing:-1.6px}
+.prezzo span{color:var(--mute);font-size:15px}.prezzo s{color:var(--mute);font-size:18px}
+.sotto{min-height:22px;margin:0 0 20px;font-size:14.5px;color:var(--mute)}.sotto b{color:var(--su,#4fd6a3)}
+.piano.pro .ptag{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,#ffe7a3,#f3c75f 55%,#c9962b);box-shadow:0 4px 14px rgba(243,199,95,.25)}
+.piano .btn{margin-top:26px;width:100%}.piano ul{flex:1;align-content:start}
+.nota{margin-top:22px;text-align:center;color:var(--mute);font-size:14.5px}
+.modulo{max-width:520px;margin:0 auto;padding:30px 32px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(11,29,66,.7),rgba(7,20,49,.5))}
+.modulo h3{font:750 22px/1.25 "Inter Display","Inter",system-ui;margin:0 0 6px}.modulo p{margin:0 0 18px;color:var(--ink2);font-size:15.5px}
+.modulo label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:0 0 6px}
+.modulo input,.modulo select{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:#060f24;color:var(--ink);font:500 16px "Inter",system-ui;margin-bottom:14px}
+.modulo input:focus,.modulo select:focus{outline:0;border-color:var(--acc)}
+.modulo .btn{width:100%}.modulo small{display:block;margin-top:12px;color:var(--mute);font-size:13px;text-align:center}.modulo small a{color:inherit}
+.modulo .esito{min-height:20px;margin:12px 0 0;font-size:14.5px;text-align:center;color:var(--ink2)}.modulo .ok{text-align:center}.modulo .ok b{display:block;font:750 20px "Inter Display","Inter",system-ui;margin-bottom:6px}
+.modulo .trap{position:absolute;left:-9999px}
+.contatto{margin-top:56px;scroll-margin-top:90px}
+.passi{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:28px}
+.passo{padding:26px;border-radius:22px;border:1px solid var(--line);background:rgba(10,22,48,.7)}
+.passo i{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;font:800 15px "Inter",system-ui;font-style:normal;color:#03141a;background:var(--acc);margin-bottom:14px}
+.passo b{display:block;font:750 18px "Inter Display","Inter",system-ui;margin-bottom:6px}.passo p{margin:0;color:var(--ink2);font-size:15px}
+.sez2{margin-top:72px}.sez2 h2{font:800 clamp(24px,3vw,34px)/1.15 "Inter Display","Inter",system-ui;letter-spacing:-.8px;margin:0 0 8px}.sez2>p{margin:0;color:var(--ink2);max-width:720px}
+.fine{margin-top:64px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+@media (max-width:900px){.passi{grid-template-columns:1fr 1fr}.pag{padding-top:36px;padding-bottom:70px}}
+@media (max-width:640px){.passi{grid-template-columns:1fr}.piani{grid-template-columns:1fr}.per{grid-template-columns:1fr}.modulo{padding:24px 20px}.cambio{display:flex}.cambio button{flex:1;justify-content:center;padding:10px 8px}
+ .voci{display:none}.piano{padding:26px 22px}}
+"""
+
+
+def testata(qui):
+    v = [("/#pilastri", "Il terminale", ""), ("/metodo/", "Il metodo", "metodo"), ("/prezzi/", "Prezzi", "prezzi"), ("/faq/", "Domande", "faq")]
+    return ('<header id="testata" class="su"><div class="box"><a class="blogo" href="/" aria-label="EdgeValor"><i></i><b>EDGE<br><span class="g">VALOR</span></b></a>'
+            '<nav class="voci">' + "".join(f'<a href="{u}"{" class=qui" if k == qui else ""}>{t}</a>' for u, t, k in v) +
+            f'<a href="{TG}" target="_blank" rel="noopener">Telegram</a></nav><a class="btn pri pic" href="/accedi/">Accedi</a></div></header>')
+
+
+FRECCIA = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+
+PREZZI = f"""
+<div class="titsez"><small>Piani e prezzi</small><h1>Parti gratis. Premium quando vuoi.</h1>
+ <p>Registrandoti con l'email otterrai 14 giorni di Premium. Nessuna carta di credito richiesta.</p></div>
+<div class="cambio" role="group" aria-label="Durata"><button type="button" data-d="m">Mensile</button><button type="button" class="on" data-d="a">Annuale <em>&minus;{RISP}%</em></button></div>
+<div class="piani">
+ <div class="piano"><span class="ptag">Basic</span><h3>Capire i mercati</h3>
+  <div class="prezzo"><b>0 &euro;</b><span>per sempre</span></div><p class="sotto">Nessuna carta richiesta.</p>
+  <ul><li>Clima di mercato e fase delle grandi economie</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul>
+  <a class="btn sec" href="/accedi/">Inizia gratis</a></div>
+ <div class="piano pro"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
+  <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
+  <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; l'anno &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
+  <p class="piu">Tutto Basic, più:</p>
+  <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT, Forex e Crypto</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li><li>Newsletter su Telegram</li></ul>
+  <a class="btn pri" href="#contatto">{FRECCIA}Contattaci</a></div>
+</div>
+<div class="contatto" id="contatto"><form class="modulo" id="fprem" novalidate>
+ <h3>Richiedi Premium</h3><p>Inserisci la tua email: riceverai le istruzioni per l'attivazione.</p>
+ <label for="cm">La tua email</label><input id="cm" type="email" placeholder="nome@esempio.it" autocomplete="email" required>
+ <label for="cp">Piano</label><select id="cp"><option>Annuale &middot; {eu(ANNUALE)} &euro; al mese</option><option>Mensile &middot; {eu(MENSILE)} &euro; al mese</option></select>
+ <input class="trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"><button class="btn pri">Invia la richiesta</button><p class="esito" role="status"></p><small>Usiamo la tua email solo per risponderti. <a href="/legale/#privacy">Privacy</a></small></form></div>
+<script>(function(){{var M="{eu(MENSILE)} \\u20ac",A="{eu(ANNUALE)} \\u20ac",S=document.querySelector("[data-sotto]"),T=S.innerHTML,sel=document.getElementById("cp");
+ document.querySelectorAll(".cambio button").forEach(function(b){{b.onclick=function(){{var a=b.dataset.d=="a";
