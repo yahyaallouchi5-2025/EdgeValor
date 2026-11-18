@@ -61,29 +61,5 @@ const EB_RX=[
  [/^· © (\d{4}) EdgeValor, tutti i diritti riservati\.$/,"· © $1 EdgeValor, all rights reserved."],
  [/^Fonti: (.+) Generato il (.+)\.$/,(m,f,g)=>"Sources: "+f.replace("Banca Centrale Europea","European Central Bank")+" Generated on "+g+"."],
 ];
-(function(){try{
- // selettore nel Profilo: IT / EN (si ricarica la pagina: ogni scheda si ridisegna nella lingua scelta)
- document.querySelectorAll("[data-lang]").forEach(b=>{b.classList.toggle("on",b.dataset.lang==EB_LANG);b.setAttribute("aria-pressed",b.dataset.lang==EB_LANG);
-  b.onclick=()=>{if(b.dataset.lang==EB_LANG)return;try{localStorage.setItem("ebLang",b.dataset.lang);}catch(e){}location.reload();};});
- if(EB_LANG!="en"){window.ebLingua={lang:EB_LANG};return;}
- const SALTA=/^(SCRIPT|STYLE|TEXTAREA|CODE)$/,ATTR=["title","aria-label","placeholder"],manca=new Set();
- function tr(v){const k=v.replace(/\s+/g," ").trim();if(!k||!/[A-Za-zÀ-ù]/.test(k))return null;
-  let o=EB_EN[k];
-  if(o==null)for(const [r,s] of EB_RX){if(r.test(k)){o=k.replace(r,s);break;}}
-  if(o==null){if(/[àèéìòù]|\b(il|la|di|che|per|non|con|dal|della|del)\b/i.test(k))manca.add(k);return null;}
-  if(o==k)return null;
-  return v.match(/^\s*/)[0]+o+v.match(/\s*$/)[0];}
- function elem(e){for(const a of ATTR){const v=e.getAttribute&&e.getAttribute(a);if(v){const o=tr(v);if(o!=null)e.setAttribute(a,o.trim());}}}
- function giro(r){
-  if(r.nodeType==3){const p=r.parentElement;if(p&&!SALTA.test(p.tagName)&&!p.closest("[data-noi18n]")){const o=tr(r.nodeValue);if(o!=null)r.nodeValue=o;}return;}
-  if(r.nodeType!=1||SALTA.test(r.tagName)||(r.closest&&r.closest("[data-noi18n]")))return;
-  elem(r);
-  const w=document.createTreeWalker(r,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:n=>n.nodeType==1&&(SALTA.test(n.tagName)||n.hasAttribute("data-noi18n"))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
-  let n;while(n=w.nextNode()){if(n.nodeType==3){const o=tr(n.nodeValue);if(o!=null)n.nodeValue=o;}else elem(n);}}
- giro(document.body);document.title=document.title.replace("Terminale di analisi dei mercati","Market analysis terminal");
- // ogni cosa disegnata dopo (schede, popup, tabelle) passa dal traduttore prima di essere mostrata
- new MutationObserver(ms=>{for(const m of ms){if(m.type=="childList")m.addedNodes.forEach(giro);
-  else if(m.type=="characterData")giro(m.target);else if(m.type=="attributes")elem(m.target);}})
-  .observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTR});
- window.ebLingua={lang:EB_LANG,mancanti:()=>[...manca]};
-}catch(e){console.error("[EdgeValor] lingua:",e);}})();
+/* il traduttore che usa questo dizionario e' in 00t_lingua.js (v8.05): parte dopo che tutti i file 00c..00s hanno
+   aggiunto le loro voci. */
