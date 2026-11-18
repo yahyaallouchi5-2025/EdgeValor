@@ -34,86 +34,112 @@ MIN_MONETE = 5                # sotto questo numero di monete scaricate il calco
 SPARK = 90                    # giorni del mini-grafico
 SETT = 156                    # settimane del grafico nel profilo (3 anni)
 
-# (sigla, nome, simboli EODHD da provare in ordine, anno di nascita, categoria, descrizione)
+# (sigla, nome, simboli EODHD da provare in ordine, anno di nascita, categoria, descrizione, descrizione in inglese)
 MONETE = [
     ("BTC", "Bitcoin", ["BTC-USD.CC"], 2009, "Moneta digitale",
      "La prima criptovaluta: una moneta digitale senza banca centrale, con un massimo fisso di 21 milioni di pezzi. "
-     "Le transazioni sono validate dai miner (proof of work)."),
+     "Le transazioni sono validate dai miner (proof of work).",
+     "The first cryptocurrency: a digital currency with no central bank and a fixed maximum of 21 million coins. Transactions are validated by miners (proof of work)."),
     ("ETH", "Ethereum", ["ETH-USD.CC"], 2015, "Piattaforma",
      "Rete su cui girano programmi automatici (smart contract): finanza decentralizzata, stablecoin, NFT. "
-     "Ether paga le commissioni della rete; validazione proof of stake dal 2022."),
+     "Ether paga le commissioni della rete; validazione proof of stake dal 2022.",
+     "Network that runs automatic programs (smart contracts): decentralized finance, stablecoins, NFTs. Ether pays the network fees; proof-of-stake validation since 2022."),
     ("BNB", "BNB", ["BNB-USD.CC"], 2017, "Piattaforma",
      "Moneta dell'ecosistema Binance: paga le commissioni della BNB Chain e sconti sull'exchange. "
-     "Una parte viene distrutta ogni trimestre (burn) per ridurre l'offerta."),
+     "Una parte viene distrutta ogni trimestre (burn) per ridurre l'offerta.",
+     "Coin of the Binance ecosystem: it pays BNB Chain fees and gives exchange discounts. Part of it is destroyed every quarter (burn) to reduce supply."),
     ("SOL", "Solana", ["SOL-USD.CC"], 2020, "Piattaforma",
      "Rete veloce e a basso costo per applicazioni e pagamenti, concorrente di Ethereum. "
-     "Combina proof of stake e un orologio interno (proof of history)."),
+     "Combina proof of stake e un orologio interno (proof of history).",
+     "Fast, low-cost network for apps and payments, a rival of Ethereum. It combines proof of stake with an internal clock (proof of history)."),
     ("XRP", "XRP", ["XRP-USD.CC"], 2012, "Pagamenti",
      "Moneta del registro XRP Ledger, pensata per pagamenti internazionali veloci tra istituzioni. "
-     "Tutti i 100 miliardi di pezzi sono stati creati all'inizio."),
+     "Tutti i 100 miliardi di pezzi sono stati creati all'inizio.",
+     "Coin of the XRP Ledger, designed for fast international payments between institutions. All 100 billion coins were created at launch."),
     ("DOGE", "Dogecoin", ["DOGE-USD.CC"], 2013, "Meme",
      "Nata come scherzo ispirato a un meme, è diventata una delle monete più scambiate. "
-     "Nessun tetto: ogni anno se ne creano circa 5 miliardi di nuove."),
+     "Nessun tetto: ogni anno se ne creano circa 5 miliardi di nuove.",
+     "Born as a joke inspired by a meme, it became one of the most traded coins. No cap: about 5 billion new coins are created every year."),
     ("ADA", "Cardano", ["ADA-USD.CC"], 2017, "Piattaforma",
      "Piattaforma per smart contract sviluppata con un approccio accademico e verifiche formali. "
-     "Proof of stake, massimo di 45 miliardi di pezzi."),
+     "Proof of stake, massimo di 45 miliardi di pezzi.",
+     "Smart-contract platform built with an academic approach and formal verification. Proof of stake, maximum of 45 billion coins."),
     ("TRX", "Tron", ["TRX-USD.CC"], 2017, "Piattaforma",
      "Rete molto usata per trasferire stablecoin (soprattutto USDT) con commissioni basse. "
-     "Validazione affidata a 27 rappresentanti eletti (delegated proof of stake)."),
+     "Validazione affidata a 27 rappresentanti eletti (delegated proof of stake).",
+     "Network widely used to move stablecoins (mostly USDT) with low fees. Validation is entrusted to 27 elected representatives (delegated proof of stake)."),
     ("AVAX", "Avalanche", ["AVAX-USD.CC"], 2020, "Piattaforma",
      "Piattaforma per smart contract organizzata in sotto-reti personalizzabili (subnet). "
-     "Massimo di 720 milioni di pezzi; le commissioni pagate vengono distrutte."),
+     "Massimo di 720 milioni di pezzi; le commissioni pagate vengono distrutte.",
+     "Smart-contract platform organized in customizable sub-networks (subnets). Maximum of 720 million coins; fees paid are burned."),
     ("LINK", "Chainlink", ["LINK-USD.CC"], 2017, "Infrastruttura",
      "Rete di oracoli: porta dati del mondo reale (prezzi, risultati, eventi) dentro gli smart contract. "
-     "LINK paga i nodi che forniscono i dati."),
+     "LINK paga i nodi che forniscono i dati.",
+     "Oracle network: it brings real-world data (prices, results, events) into smart contracts. LINK pays the nodes that supply the data."),
     ("DOT", "Polkadot", ["DOT-USD.CC"], 2020, "Infrastruttura",
      "Rete che collega più blockchain specializzate (parachain) facendole comunicare e condividere la sicurezza. "
-     "DOT serve per staking e decisioni di governo della rete."),
+     "DOT serve per staking e decisioni di governo della rete.",
+     "Network connecting several specialized blockchains (parachains) so they can communicate and share security. DOT is used for staking and network governance."),
     ("TON", "Toncoin", ["TON-USD.CC", "TON11419-USD.CC"], 2021, "Piattaforma",
      "Blockchain nata dal progetto di Telegram e integrata nell'app (portafoglio e pagamenti). "
-     "Pensata per gestire moltissime transazioni dividendo il lavoro in più catene."),
+     "Pensata per gestire moltissime transazioni dividendo il lavoro in più catene.",
+     "Blockchain born from the Telegram project and integrated into the app (wallet and payments). Built to handle huge volumes by splitting work across chains."),
     ("SHIB", "Shiba Inu", ["SHIB-USD.CC"], 2020, "Meme",
      "Moneta meme nata come rivale di Dogecoin, con un'offerta di centinaia di migliaia di miliardi di pezzi. "
-     "Intorno sono nati un exchange decentralizzato e una rete propria (Shibarium)."),
+     "Intorno sono nati un exchange decentralizzato e una rete propria (Shibarium).",
+     "Meme coin born as a Dogecoin rival, with a supply of hundreds of trillions of coins. A decentralized exchange and its own network (Shibarium) grew around it."),
     ("LTC", "Litecoin", ["LTC-USD.CC"], 2011, "Moneta digitale",
      "Una delle prime alternative a Bitcoin: stesso modello con blocchi più veloci (2,5 minuti). "
-     "Massimo di 84 milioni di pezzi."),
+     "Massimo di 84 milioni di pezzi.",
+     "One of the first alternatives to Bitcoin: the same model with faster blocks (2.5 minutes). Maximum of 84 million coins."),
     ("BCH", "Bitcoin Cash", ["BCH-USD.CC"], 2017, "Moneta digitale",
      "Nata nel 2017 da una divisione di Bitcoin per avere blocchi più grandi e pagamenti più economici. "
-     "Massimo di 21 milioni di pezzi, come Bitcoin."),
+     "Massimo di 21 milioni di pezzi, come Bitcoin.",
+     "Born in 2017 from a split of Bitcoin to have bigger blocks and cheaper payments. Maximum of 21 million coins, like Bitcoin."),
     ("XLM", "Stellar", ["XLM-USD.CC"], 2014, "Pagamenti",
      "Rete per trasferire denaro tra paesi e valute in pochi secondi, con costi minimi. "
-     "Usata anche per emettere versioni digitali di valute e titoli."),
+     "Usata anche per emettere versioni digitali di valute e titoli.",
+     "Network to move money across countries and currencies in seconds at minimal cost. Also used to issue digital versions of currencies and securities."),
     ("UNI", "Uniswap", ["UNI-USD.CC", "UNI7083-USD.CC"], 2020, "Finanza decentralizzata",
      "Il più noto exchange decentralizzato: si scambiano token direttamente dal portafoglio, senza intermediario. "
-     "UNI da' diritto di voto sulle regole del protocollo."),
+     "UNI da' diritto di voto sulle regole del protocollo.",
+     "The best-known decentralized exchange: tokens are swapped straight from the wallet, with no intermediary. UNI gives voting rights on the protocol rules."),
     ("NEAR", "NEAR Protocol", ["NEAR-USD.CC"], 2020, "Piattaforma",
      "Piattaforma per applicazioni che divide il lavoro in parti (sharding) per restare veloce ed economica. "
-     "Negli ultimi anni punta su applicazioni di intelligenza artificiale."),
+     "Negli ultimi anni punta su applicazioni di intelligenza artificiale.",
+     "App platform that splits work into parts (sharding) to stay fast and cheap. In recent years it has focused on artificial intelligence apps."),
     ("ICP", "Internet Computer", ["ICP-USD.CC"], 2021, "Infrastruttura",
      "Rete che vuole ospitare interi siti e servizi web direttamente sulla blockchain, senza server tradizionali. "
-     "ICP paga la potenza di calcolo usata."),
+     "ICP paga la potenza di calcolo usata.",
+     "Network that aims to host whole websites and web services directly on the blockchain, without traditional servers. ICP pays for the computing used."),
     ("APT", "Aptos", ["APT-USD.CC", "APT21794-USD.CC"], 2022, "Piattaforma",
      "Blockchain fondata da ex sviluppatori del progetto Diem di Meta, con il linguaggio Move. "
-     "Esegue molte transazioni in parallelo."),
+     "Esegue molte transazioni in parallelo.",
+     "Blockchain founded by former developers of Meta's Diem project, using the Move language. It runs many transactions in parallel."),
     ("SUI", "Sui", ["SUI-USD.CC", "SUI20947-USD.CC"], 2023, "Piattaforma",
      "Blockchain che usa il linguaggio Move e tratta ogni bene digitale come un oggetto separato. "
-     "Massimo di 10 miliardi di pezzi."),
+     "Massimo di 10 miliardi di pezzi.",
+     "Blockchain using the Move language that treats every digital asset as a separate object. Maximum of 10 billion coins."),
     ("HBAR", "Hedera", ["HBAR-USD.CC"], 2019, "Infrastruttura",
      "Registro pubblico governato da un consiglio di grandi aziende, pensato per pagamenti e usi aziendali. "
-     "Massimo di 50 miliardi di pezzi."),
+     "Massimo di 50 miliardi di pezzi.",
+     "Public ledger governed by a council of large companies, designed for payments and business use. Maximum of 50 billion coins."),
     ("ATOM", "Cosmos", ["ATOM-USD.CC"], 2019, "Infrastruttura",
      "Ecosistema di blockchain indipendenti che si parlano tra loro con un protocollo comune (IBC). "
-     "ATOM serve per staking e voto."),
+     "ATOM serve per staking e voto.",
+     "Ecosystem of independent blockchains that talk to each other through a common protocol (IBC). ATOM is used for staking and voting."),
     ("XMR", "Monero", ["XMR-USD.CC"], 2014, "Moneta digitale",
      "Moneta digitale centrata sulla riservatezza: mittente, destinatario e importo non sono visibili. "
-     "Diversi exchange non la quotano per motivi normativi."),
+     "Diversi exchange non la quotano per motivi normativi.",
+     "Digital currency focused on privacy: sender, receiver and amount are not visible. Several exchanges don't list it for regulatory reasons."),
     ("ETC", "Ethereum Classic", ["ETC-USD.CC"], 2015, "Piattaforma",
      "La catena originale di Ethereum, rimasta quando nel 2016 la rete si è divisa dopo un attacco. "
-     "Resta proof of work, con un massimo di circa 210 milioni di pezzi."),
+     "Resta proof of work, con un massimo di circa 210 milioni di pezzi.",
+     "The original Ethereum chain, which remained when the network split in 2016 after an attack. Still proof of work, with a maximum of about 210 million coins."),
     ("FIL", "Filecoin", ["FIL-USD.CC"], 2020, "Infrastruttura",
      "Mercato decentralizzato di spazio di archiviazione: chi offre spazio sui propri dischi viene pagato in FIL. "
-     "Massimo di 2 miliardi di pezzi."),
+     "Massimo di 2 miliardi di pezzi.",
+     "Decentralized storage market: those who offer space on their disks are paid in FIL. Maximum of 2 billion coins."),
 ]
 # tetto fissato dal protocollo (solo dove e' noto e stabile): usato se i fondamentali di EODHD non arrivano
 MAX = {"BTC": 21e6, "LTC": 84e6, "BCH": 21e6, "ADA": 45e9, "XRP": 100e9, "AVAX": 720e6, "SUI": 10e9,
@@ -220,7 +246,7 @@ def calcola(dati, oggi=None):
     b = (dati.get("BTC") or {}).get("serie") or []
     in_dollari = bool(b) and sum(x[2] for x in b[-30:]) / max(1, len(b[-30:])) > 1e9
     righe = []
-    for sig, nome, _, anno, cat, desc in MONETE:
+    for sig, nome, _, anno, cat, desc, desc_en in MONETE:
         x = dati.get(sig)
         if not x:
             continue
@@ -244,7 +270,7 @@ def calcola(dati, oggi=None):
             sett[k] = (d, c)
         w = list(sett.values())[-SETT:]
         righe.append({
-            "s": sig, "n": nome, "cat": cat, "anno": anno, "desc": desc,
+            "s": sig, "n": nome, "cat": cat, "anno": anno, "desc": desc, "desc_en": desc_en,
             "p": _arrot(p), "data": s[-1][0],
             "v1g": _var(s, 1), "v7g": _var(s, 7), "v30g": _var(s, 30), "v1a": _var(s, 365),
             "vytd": round((p / anno_c[-1][1] - 1) * 100, 2) if anno_c else None,
