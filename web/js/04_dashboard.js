@@ -10,7 +10,9 @@ try{
 (function kpis(){
  const altri=Object.values(D.assets).filter(a=>a.key!="USD"&&a.group!="Valute");
  const tutti=D.pairs.map(p=>p.label).concat(altri.map(a=>a.label));
- const su=tutti.filter(l=>l.includes("BUY")).length,giu=tutti.filter(l=>l.includes("SELL")).length,strong=tutti.filter(l=>l.startsWith("STRONG")).length;
+ let su=tutti.filter(l=>l.includes("BUY")).length,giu=tutti.filter(l=>l.includes("SELL")).length,strong=tutti.filter(l=>l.startsWith("STRONG")).length;
+ // v8.09 Basic: i segnali sono cifrati, la card usa i conteggi lasciati in chiaro da premium.py (D.cotsum)
+ if(!tutti.length&&D.cotsum){su=D.cotsum.su;giu=D.cotsum.giu;strong=D.cotsum.forti;}
  const r=D.market?D.market.risk:null;                       // -100 (paura) ... +100 (fiducia)
  const [rl,rc]=r==null?["n/d","var(--mute)"]:r>=30?["FIDUCIA","var(--b)"]:r<=-30?["PAURA","var(--s)"]:["NEUTRO","var(--warn)"];
  const po=D.port,cot=D.sources[0]||{};

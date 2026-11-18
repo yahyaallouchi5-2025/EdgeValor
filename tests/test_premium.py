@@ -121,3 +121,16 @@ class MacroChiusa(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PosizionamentoBasic(unittest.TestCase):
+    """v8.09 la card Posizionamento resta al Basic: solo i conteggi, senza i segnali."""
+
+    def test_conteggi(self):
+        from cot_radar import premium
+        d = {"pairs": [{"label": "STRONG BUY"}, {"label": "SELL"}],
+             "assets": {"GOLD": {"key": "GOLD", "group": "Metalli", "label": "BUY"},
+                        "USD": {"key": "USD", "group": "Valute", "label": "STRONG SELL"}}}
+        basic, _ = premium.separa(d)
+        self.assertEqual(basic["cotsum"], {"su": 2, "giu": 1, "forti": 1})
+        self.assertEqual(basic["pairs"], [])

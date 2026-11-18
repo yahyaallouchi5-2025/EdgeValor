@@ -77,13 +77,13 @@ PREZZI = f"""
 <div class="piani">
  <div class="piano"><span class="ptag">Basic</span><h3>Capire i mercati</h3>
   <div class="prezzo"><b>0 &euro;</b><span>per sempre</span></div><p class="sotto">Nessuna carta richiesta.</p>
-  <ul><li>Quadro economico</li><li>Clima di mercato</li><li>Notizie macro</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul>
+  <ul><li>Quadro economico</li><li>Clima di mercato</li><li>Posizionamento COT</li><li>Notizie macro</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul>
   <a class="btn sec" href="/accedi/">Inizia gratis</a></div>
  <div class="piano pro"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
   <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
   <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; l'anno &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
   <p class="piu">Tutto Basic, più:</p>
-  <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT, Forex e Crypto</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li><li>Newsletter su Telegram</li></ul>
+  <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
   <a class="btn pri" href="#contatto">{FRECCIA}Contattaci</a></div>
 </div>
 <div class="contatto" id="contatto"><form class="modulo" id="fprem" novalidate>

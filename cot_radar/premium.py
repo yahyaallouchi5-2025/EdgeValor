@@ -138,6 +138,15 @@ def separa(data):
     # (cosi' il terminale non si rompe e mostra il lucchetto: vedi 45_chiuse.js). Le toppe gia' create qui sopra per
     # stag e crypto vengono sostituite da quella dell'intero blocco.
     originale = data
+    # v8.09 POSIZIONAMENTO COT APERTO AL BASIC (Ya, 18/11/2026): la card della Dashboard mostra solo i CONTEGGI
+    # (quanti posizionamenti al rialzo, al ribasso e quanti forti), calcolati qui prima di togliere pairs/assets.
+    # Stessa regola di 04_dashboard.js: coppie Forex + strumenti non valutari (senza USD).
+    etichette = [p.get("label") or "" for p in (originale.get("pairs") or []) if isinstance(p, dict)]
+    etichette += [a.get("label") or "" for a in (originale.get("assets") or {}).values()
+                  if isinstance(a, dict) and a.get("key") != "USD" and a.get("group") != "Valute"]
+    if etichette:
+        d["cotsum"] = {"su": sum("BUY" in l for l in etichette), "giu": sum("SELL" in l for l in etichette),
+                       "forti": sum(l.startswith("STRONG") for l in etichette)}
     toppe = [t for t in toppe if t[0][0] not in CHIUSE]
     for k, vuoto in CHIUSE.items():
         if originale.get(k) is not None:
