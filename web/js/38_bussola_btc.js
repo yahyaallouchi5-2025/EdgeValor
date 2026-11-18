@@ -59,7 +59,7 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
  const SPENTI=new Set();                 // punteggi nascosti dalla legenda (restano anche quando il grafico si ridisegna)
  let GR=null;                            // misure dell'ultimo grafico disegnato (servono al mirino)
  const kk=p=>"$"+(p>=1e5?Math.round(p/1000):fx(p/1000,1))+"k";          // es. $73,8k ; $124k
- const dataIt=d=>new Date(d+"T12:00:00").toLocaleDateString("it-IT",{day:"numeric",month:"short",year:"numeric"});
+ const dataIt=d=>new Date(d+"T12:00:00").toLocaleDateString(EB_LOC,{day:"numeric",month:"short",year:"numeric"});
  function zigzag(Sr,soglia){const lg=Math.log,P=Sr.map(s=>s[1]),piv=[];let hi=0,lo=0,ult=null;
   for(let i=1;i<P.length;i++){
    if(P[i]>P[hi])hi=i;if(P[i]<P[lo])lo=i;
@@ -102,7 +102,7 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
   svg.addEventListener("pointermove",e=>{const r=svg.getBoundingClientRect(),vx=(e.clientX-r.left)*W/r.width;
    const i=Math.max(0,Math.min(Sr.length-1,Math.round((vx-GR.L)/((W-GR.L-GR.R)/(Sr.length-1))))),s=Sr[i],px=x(i),py=y(s[1]);
    L.setAttribute("x1",px);L.setAttribute("x2",px);C.setAttribute("cx",px);C.setAttribute("cy",py);m.style.display="";
-   tip.innerHTML=`<b>$${Math.round(s[1]).toLocaleString("it-IT")}</b><span>settimana al ${dataIt(s[0])}</span><span class="bmtk" style="--c:${COL[s[2]]}">${s[2]} su 3</span>`;
+   tip.innerHTML=`<b>$${Math.round(s[1]).toLocaleString(EB_LOC)}</b><span>settimana al ${dataIt(s[0])}</span><span class="bmtk" style="--c:${COL[s[2]]}">${s[2]} su 3</span>`;
    tip.hidden=false;const sx=px*r.width/W,sy=py*r.height/GR.H,tw=tip.offsetWidth,th=tip.offsetHeight;
    tip.style.left=Math.min(Math.max(sx-tw/2,0),r.width-tw)+"px";
    // il riquadro sta sotto il punto se il punto e' nella meta' alta, sopra se e' nella meta' bassa (non copre top e bottom vicini)
@@ -129,7 +129,7 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
   if(!EB_PREMIUM){box.innerHTML=`${titolo}${ebBlocco("Bussola macro di Bitcoin","Tre fattori macro, il punteggio di oggi e la storia dal 2011, con grafici.",{velo:true,righe:7})}`;return;}
   box.innerHTML=`${titolo}<div class="card bm">
    <div class="bmtesta"><div class="bmver" style="--c:${COL[P]}">${semicerchio()}<div class="bmvtx"><b>${P} su 3</b><span>${PAROLA[P]}</span></div>
-     <small>Bitcoin $${Number(X.btc).toLocaleString("it-IT")} &middot; 3 mesi <b class="${X.btc3>=0?"up":"down"}">${pc(X.btc3)}</b></small></div>
+     <small>Bitcoin $${Number(X.btc).toLocaleString(EB_LOC)} &middot; 3 mesi <b class="${X.btc3>=0?"up":"down"}">${pc(X.btc3)}</b></small></div>
     <div class="bmfat">${X.fattori.map(f=>`<div class="bmfc ${f.fav?"si":"no"}"><div class="bmfch"><span>${esc(f.nome)}</span><em>${f.fav?"Favorevole":"Sfavorevole"}</em></div>
       <b>${valF(f)}</b><small>3 mesi &middot; favorevole se ${f.verso=="giu"?"scende":"sale"}</small>${spark(f.spark,f.fav)}</div>`).join("")}</div></div>
    ${grafico()}

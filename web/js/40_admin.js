@@ -12,7 +12,7 @@
 (function(){try{
  const GIORNO=864e5;
  let elenco=[],filtro="tutti",cerca="";
- const data=d=>d?new Date(d).toLocaleDateString("it-IT",{day:"2-digit",month:"short",year:"numeric"}):"—";
+ const data=d=>d?new Date(d).toLocaleDateString(EB_LOC,{day:"2-digit",month:"short",year:"numeric"}):"—";
  const idDi=u=>u.numero?"EV-"+String(u.numero).padStart(4,"0"):"—";
  // stato di un iscritto: [chiave, etichetta, scadenza da mostrare]
  function stato(u){const ora=Date.now();

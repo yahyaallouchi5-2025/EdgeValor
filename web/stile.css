@@ -3271,3 +3271,7 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
  .cyprof{margin-top:-8px;border:1px solid var(--acc);border-top:0;border-radius:0 0 14px 14px;padding:14px 13px 16px}
  .cyptesta strong{font-size:17px}.cyfatti b{font-size:14px}
 }
+
+/* v8.02 selettore della lingua nel Profilo (00_lingua.js) */
+.pflingua{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px 10px;font-size:14px;color:var(--ink2)}
+.pflingua .vfseg button{padding:4px 12px}

@@ -25,7 +25,7 @@ function crCorpo(){const H=CR.H,S=D.carry_st,C=D.carry||{},X=S.varianti[CR.v],pc
  const kpi=`<div class="grid k4 vfkpi">
    ${H.kcard("crk1","Rendimento annuo",pc(X.cagr),"ultimi 5 anni "+pc(X.ultimi5),`Crescita media composta all'anno, costi inclusi, senza leva: 100 investiti diventano ${(100*X.curva[X.curva.length-1][1]).toFixed(0)} in ${Math.round(X.n/12)} anni. Negli ultimi 5 anni: ${pc(X.ultimi5)} l'anno.`,X.cagr>=0?"up":"down")}
    ${H.kcard("crk2","Drawdown massimo",pc(X.maxdd,1),"dal massimo precedente",`La perdita pi&ugrave; grande da un massimo al minimo successivo. Il carry guadagna piano e perde in fretta: questo &egrave; il numero da guardare per decidere quanto rischiare.`,"down")}
-   ${H.kcard("crk3","Rendimento / rischio",X.rr==null?"n/d":X.rr.toLocaleString("it-IT",{minimumFractionDigits:2}),"volatilit&agrave; "+pc(X.vol,1),`Rendimento medio annuo diviso la volatilit&agrave; annua (${pc(X.vol,1)}). Sopra 0,5 &egrave; buono, sotto 0,3 &egrave; debole.`)}
+   ${H.kcard("crk3","Rendimento / rischio",X.rr==null?"n/d":X.rr.toLocaleString(EB_LOC,{minimumFractionDigits:2}),"volatilit&agrave; "+pc(X.vol,1),`Rendimento medio annuo diviso la volatilit&agrave; annua (${pc(X.vol,1)}). Sopra 0,5 &egrave; buono, sotto 0,3 &egrave; debole.`)}
    ${H.kcard("crk4","Mese peggiore",pc(X.peggior_mese[1],1),mese(X.peggior_mese[0])+" &middot; positivi "+X.positivi+"%",`Il mese con la perdita pi&ugrave; grande. I mesi chiusi in guadagno sono stati il ${X.positivi}%.`,"down")}</div>`;
  // 3) grafico della crescita (tutte le varianti, quella scelta in evidenza)
  const graf=`<div class="card vfgraf" id="crgraf"><div class="vfgtesta"><b>Crescita di 100 investiti ${H.infoBtn("crginfo","Come leggere il grafico")}</b>
@@ -38,7 +38,7 @@ function crCorpo(){const H=CR.H,S=D.carry_st,C=D.carry||{},X=S.varianti[CR.v],pc
   ${H.infoP("crtinfo",`Intervallo 95% = dove sta, con buona probabilit&agrave;, il rendimento medio annuo vero (corretto per 3 varianti). Vantaggio &laquo;s&igrave;&raquo; solo se anche il limite basso &egrave; sopra zero. Le crisi mostrano il risultato cumulato in quei mesi.`)}
   <div class="tablewrap"><table class="compatta crtab"><tr><th>Variante</th><th class="num">Annuo</th><th class="num crmob">Rend./rischio</th><th class="num">Drawdown</th><th class="num crmob">Intervallo 95%</th>${(X.stress||[]).map(s=>`<th class="num crmob">${esc(s[0])}</th>`).join("")}<th class="num">Vantaggio</th></tr>
   ${Object.entries(S.varianti).map(([k,x])=>`<tr class="${k==CR.v?"crsel":""}"><td><span class="crmob">${esc(x.nome)}</span><span class="crbreve">${CR_BREVE[k]||esc(x.nome)}</span></td><td class="num ${x.cagr>=0?"up":"down"}"><b>${pc(x.cagr)}</b></td>
-   <td class="num crmob">${x.rr==null?"n/d":x.rr.toLocaleString("it-IT",{minimumFractionDigits:2})}</td><td class="num down">${pc(x.maxdd,1)}</td>
+   <td class="num crmob">${x.rr==null?"n/d":x.rr.toLocaleString(EB_LOC,{minimumFractionDigits:2})}</td><td class="num down">${pc(x.maxdd,1)}</td>
    <td class="num crmob">${pc(x.ic_anno[0],1)} &hellip; ${pc(x.ic_anno[1],1)}</td>${(x.stress||[]).map(s=>`<td class="num crmob ${s[1]>=0?"up":"down"}">${pc(s[1],1)}</td>`).join("")}
    <td class="num"><span class="ptv ${x.verdetto}">${VC[x.verdetto]||"no"}</span></td></tr>`).join("")}</table></div>`;
  // 5) paniere di oggi + tassi usati
@@ -87,7 +87,7 @@ function crDisegna(){const box=document.getElementById("crgraf"),S=D.carry_st;if
   const i=Math.max(0,Math.min(n-1,Math.round((x-L)/(W-L-R)*(n-1)))),px=X(i);
   cur.setAttribute("x1",px);cur.setAttribute("x2",px);
   gp.innerHTML=V.map(([k,x])=>`<circle cx="${px}" cy="${Y(x.curva[i][1]*100)}" r="${k==CR.v?3.5:2.5}" fill="${crColore(k)}" stroke="var(--card)" stroke-width="1.5"/>`).join("");
-  tip.innerHTML=`<b>${mesi[i].slice(5,7)}/${mesi[i].slice(0,4)}</b>`+V.map(([k,x])=>`<span><i style="background:${crColore(k)}"></i>${esc(x.nome)} ${(x.curva[i][1]*100).toLocaleString("it-IT",{maximumFractionDigits:1})}</span>`).join("");
+  tip.innerHTML=`<b>${mesi[i].slice(5,7)}/${mesi[i].slice(0,4)}</b>`+V.map(([k,x])=>`<span><i style="background:${crColore(k)}"></i>${esc(x.nome)} ${(x.curva[i][1]*100).toLocaleString(EB_LOC,{maximumFractionDigits:1})}</span>`).join("");
   tip.hidden=false;const tw=tip.offsetWidth;tip.style.left=Math.max(0,Math.min(r.width-tw,px+12>r.width-tw?px-tw-12:px+12))+"px";};
  hit.onmousemove=mostra;hit.onmouseleave=()=>{tip.hidden=true;cur.setAttribute("x1",-10);cur.setAttribute("x2",-10);gp.innerHTML="";};
  hit.ontouchstart=hit.ontouchmove=mostra;

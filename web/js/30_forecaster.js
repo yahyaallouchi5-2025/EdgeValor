@@ -12,7 +12,7 @@ try{(function(){const F=D.fore,el=$("fore");if(!el)return;
  const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
  const meseN=m=>m?MESI[+m.slice(5,7)-1]+" "+m.slice(0,4):"";
  const gg=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
- const ora=iso=>{try{return new Date(iso.replace("Z",":00Z")).toLocaleString("it-IT",{timeZone:"Europe/Rome",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return iso;}};
+ const ora=iso=>{try{return new Date(iso.replace("Z",":00Z")).toLocaleString(EB_LOC,{timeZone:"Europe/Rome",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});}catch(e){return iso;}};
  const pc=(v,d=2)=>v==null?'<span class="fcnd">&ndash;</span>':`<span class="${v>0?"up":v<0?"down":""}">${v>0?"+":""}${fx(v,d)}%</span>`;
  const info=(id,t)=>`<button type="button" class="info" data-apri="${id}" data-k="${id}" aria-expanded="${infoAperte.has(id)}" aria-label="${t}" title="${t}">i</button>`;
  const testo=(id,t)=>`<p id="${id}" class="sub infotesto${infoAperte.has(id)?" aperta":""}">${t}</p>`;

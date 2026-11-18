@@ -64,7 +64,7 @@
  /* --- stato dell'abbonamento in parole semplici: [etichetta breve, frase, classe colore] --- */
  function piano(){if(!P)return ["","",""];const ora=Date.now(),g=d=>Math.max(0,Math.ceil((Date.parse(d)-ora)/864e5));
   if(P.sempre_premium)return ["Premium","Accesso completo, senza scadenza.","ok"];
-  if(P.premium_fino&&Date.parse(P.premium_fino)>ora)return ["Premium",`Abbonamento attivo fino al ${new Date(P.premium_fino).toLocaleDateString("it-IT")}.`,"ok"];
+  if(P.premium_fino&&Date.parse(P.premium_fino)>ora)return ["Premium",`Abbonamento attivo fino al ${new Date(P.premium_fino).toLocaleDateString(EB_LOC)}.`,"ok"];
   if(P.prova_fino&&Date.parse(P.prova_fino)>ora){const n=g(P.prova_fino);return [`Prova · ${n} g`,`Prova gratuita: ${n==1?"ti resta 1 giorno":"ti restano "+n+" giorni"}.`,"prova"];}
   return ["Basic","Sei in Basic: la parte gratuita resta tua.",""];}
  // v7.93 ID UTENTE leggibile (EV-0001...): numero progressivo dato dal database alla registrazione
@@ -74,7 +74,7 @@
  const PROVA=14;
  function riepilogoProva(){if(!P||!P.prova_fino)return "";const fine=Date.parse(P.prova_fino),ora=Date.now();
   const g=Math.min(PROVA,Math.max(1,Math.floor((ora-(fine-PROVA*864e5))/864e5)+1)),pc=Math.round(g/PROVA*100);
-  const data=new Date(fine).toLocaleDateString("it-IT",{day:"numeric",month:"long"});
+  const data=new Date(fine).toLocaleDateString(EB_LOC,{day:"numeric",month:"long"});
   return `<div class="pfprova"><div class="pfpt"><b>Prova Premium</b><button type="button" class="info" data-apri="pfprinfo" data-k="pfprova" aria-expanded="false" aria-label="Cosa succede dopo la prova">i</button></div>
    <div class="pfbar" role="progressbar" aria-valuemin="1" aria-valuemax="${PROVA}" aria-valuenow="${g}"><i style="width:${pc}%"></i></div>
    <div class="pfpg"><span>Giorno ${g} di ${PROVA}</span><span>fino al ${data}</span></div>

@@ -14,7 +14,7 @@ try{(function(){
     <div><small>Massima</small><b>${m.max?gr(m.max):"Senza tetto"}</b></div>
     ${m.circ_pct!=null?`<i class="cybar"><i style="width:${Math.min(100,m.circ_pct)}%"></i></i><span>${fx(m.circ_pct,1)}% gi&agrave; in circolazione</span>`:""}</div>`:"";
   return `<div class="cyprof" data-p="${esc(m.s)}">
-   <p class="cydesc"><span class="cytag">${esc(m.cat)} &middot; nata nel ${m.anno}</span>${esc(m.desc)}</p>
+   <p class="cydesc"><span class="cytag">${esc(m.cat)} &middot; nata nel ${m.anno}</span>${esc(EB_LANG=="en"&&m.desc_en||m.desc)}</p>
    <div class="cypcorpo"><div class="cygraf" data-g="${esc(m.s)}"><div class="cygtip"></div><svg role="img" aria-label="Prezzo di ${esc(m.n)}, ultimi 3 anni"></svg></div>
     <div class="cyfatti">${fatti.map((f,i)=>`<div${i==fatti.length-1&&fatti.length%2?' class="largo"':""}><small>${f[0]}</small><b>${f[1]}</b>${f[2]?`<span>${f[2]}</span>`:""}</div>`).join("")}${sup}</div></div></div>`;}
  // grafico settimanale 3 anni con la linea del massimo storico; mouse/dito = data e prezzo di quella settimana

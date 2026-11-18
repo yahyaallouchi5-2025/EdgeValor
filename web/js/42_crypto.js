@@ -15,7 +15,7 @@ try{(function(){const el=$("btc"),C=D.crypto;if(!el)return;
  if(!C||!C.monete||!C.monete.length){box.innerHTML=`<h2>Mercato crypto</h2><div class="card small" style="padding:18px 20px">I dati delle criptovalute arrivano con il prossimo aggiornamento.</div>`;return;}
  const M=C.monete,FOND=!!C.fond;
  // ---------- formati (italiano: 1.234,56)
- const pr=v=>v==null?"&ndash;":(v>=1000?fx(v,0):v>=1?fx(v,2):v.toLocaleString("it-IT",{maximumSignificantDigits:4}))+"&nbsp;$";
+ const pr=v=>v==null?"&ndash;":(v>=1000?fx(v,0):v>=1?fx(v,2):v.toLocaleString(EB_LOC,{maximumSignificantDigits:4}))+"&nbsp;$";
  const pc=(v,d=1)=>v==null?"&ndash;":(v>0?"+":v<0?"&minus;":"")+fx(Math.abs(v),d)+"%";
  const cl=v=>v>0?"up":v<0?"down":"";
  const gr=(v,u="")=>v==null?"&ndash;":v>=1e9?fx(v/1e9,v>=1e11?0:1)+"&nbsp;mld"+u:v>=1e6?fx(v/1e6,v>=1e8?0:1)+"&nbsp;mln"+u:fx(v,0)+u;
