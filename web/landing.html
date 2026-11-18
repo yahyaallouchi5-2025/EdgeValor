@@ -166,7 +166,7 @@ footer{padding:64px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 .piano:hover{transform:translateY(-4px);border-color:rgba(46,196,182,.6);box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(46,196,182,.12)}
 .piano.pro{border-color:rgba(91,155,255,.55);background:linear-gradient(180deg,rgba(18,40,88,.8),rgba(7,20,49,.55))}
 .piano .ptag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--acc);padding:5px 12px;border-radius:99px;border:1px solid rgba(46,196,182,.4);background:rgba(46,196,182,.08)}
-.piano.pro .ptag{color:#a9c8ff;border-color:rgba(91,155,255,.5);background:rgba(91,155,255,.1)}
+.piano.pro .ptag{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,#ffe7a3,#f3c75f 55%,#c9962b);box-shadow:0 4px 14px rgba(243,199,95,.25)}
 .piano h3{font:750 23px/1.25 "Inter Display","Inter",system-ui;letter-spacing:-.4px;margin:16px 0 18px}
 .piano ul{list-style:none;margin:0;padding:0;display:grid;gap:11px}
 .piano li{position:relative;padding-left:28px;color:var(--ink2);font-size:16px;line-height:1.45}
@@ -403,7 +403,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
 
 <header id="testata" data-pos="testata"><div class="box">
  <a class="blogo" href="#" aria-label="EdgeValor"><i></i><b>EDGE<br><span class="g">VALOR</span></b></a>
- <nav class="voci"><a href="#zero">Parti da zero</a><a href="#pilastri">Il terminale</a><a href="#metodo">Il metodo</a><a href="#accesso">Accesso</a><a href="#faq">Domande</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Telegram</a></nav>
+ <nav class="voci"><a href="#pilastri">Il terminale</a><a href="metodo/">Il metodo</a><a href="prezzi/">Prezzi</a><a href="faq/">Domande</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Telegram</a></nav>
  <button class="btn pri pic" data-entra><span data-etichetta>Accedi</span></button>
 </div></header>
 
@@ -519,15 +519,15 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <p>Ti registri con l'email, senza carta. Poi scegli tu.</p></div>
   <div class="piani">
    <div class="piano appare"><span class="ptag">Basic</span><h3>Capire i mercati</h3>
-    <ul><li>Clima di mercato e fase delle grandi economie</li><li>Posizionamento dei grandi operatori (COT)</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Mappa della stagionalità</li><li>Settori e ricerca dei titoli</li></ul></div>
-   <div class="piano pro appare" style="--d:.08s"><span class="ptag">Premium</span><h3>Sapere cosa fare</h3>
+    <ul><li>Clima di mercato e fase delle grandi economie</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul></div>
+   <div class="piano pro appare" style="--d:.08s"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
     <p class="piu">Tutto Basic, più:</p>
-    <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>Stagionalità di adesso</b>, strumento per strumento</li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
+    <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT, Forex e Crypto</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
     <div class="off" data-off hidden><p><b data-off-nome>Black Friday</b>, fino a <span data-off-fine></span>:<br>9,90 € al mese o 89 € l'anno.</p>
      <button class="btn bia" data-off-apri data-ev="offerta_apri_accesso">Blocca il prezzo</button></div></div>
   </div>
   <div class="pcta appare"><button class="btn pri" data-entra="reg" data-pos="accesso"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Inizia la prova</span></button>
-   <span>Basta l'email. Niente carta, nessun rinnovo automatico.</span></div>
+   <span>Basta l'email. Niente carta. <a href="prezzi/" style="color:inherit">Vedi i prezzi</a></span></div>
  </div></section>
 
  <!-- 4b. CHI C'E' DIETRO: nome, volto e storia, senza numeri di rendimento -->
@@ -557,7 +557,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <details><summary>Quanto tempo richiede?</summary><p>Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito. Tutto il resto è lì quando vuoi capire cosa succede sui mercati.</p></details>
    <details><summary>È una consulenza finanziaria?</summary><p>No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Non fornisce raccomandazioni personalizzate: ogni decisione resta tua. Trovi i dettagli nelle <a href="legale/#rischi">avvertenze sui rischi</a>.</p></details>
    <details><summary>Posso perdere denaro?</summary><p>Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento. I risultati passati non garantiscono quelli futuri.</p></details>
-   <details><summary>Quanto costa?</summary><p>La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Finita la prova resti in Basic, gratis. Premium si attiva solo se lo scegli tu. Il canale Telegram è gratuito.</p></details>
+   <details><summary>Quanto costa?</summary><p>La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Finita la prova resti in Basic, gratis. Premium si attiva solo se lo scegli tu: vedi <a href="prezzi/">piani e prezzi</a>. Il canale Telegram è gratuito.</p></details>
    <details><summary>Da dove provengono i dati?</summary><p>Da fonti pubbliche e da un fornitore di dati di mercato: CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale e prezzi di borsa. L'elenco completo è nelle <a href="legale/#fonti">fonti dei dati</a>.</p></details>
    <details><summary>Che cos'è il report COT?</summary><p>È il report pubblicato ogni settimana dall'autorità statunitense dei mercati futures: dice come sono posizionati i grandi operatori. Nel terminale è mostrato come contesto, non come indicazione operativa.</p></details>
   </div>
@@ -611,8 +611,8 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <p>Un terminale per investire con metodo: portafogli modello, mercati, aziende e stagionalità. Dati, non opinioni.</p>
    <!-- contatto diretto: discreto, in fondo alla pagina -->
    <p class="scrivi">Vuoi scrivermi direttamente?<br><a href="https://t.me/Yahya_1294" target="_blank" rel="noopener" data-ev="footer_tg_diretto">Telegram @Yahya_1294</a></p></div>
-  <div><h4>Terminale</h4><a href="terminale/" data-ev="footer_terminale">Apri il terminale</a><a href="#zero">Parti da zero</a><a href="#pilastri">Dentro il terminale</a><a href="#metodo">Il metodo</a><a href="#accesso">Accesso</a></div>
-  <div><h4>Aiuto</h4><a href="#faq">Domande frequenti</a><a href="legale/#contatti">Contatti</a><a href="legale/#fonti">Fonti dei dati</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Canale Telegram</a></div>
+  <div><h4>Terminale</h4><a href="terminale/" data-ev="footer_terminale">Apri il terminale</a><a href="#zero">Parti da zero</a><a href="#pilastri">Dentro il terminale</a><a href="metodo/">Il metodo</a><a href="prezzi/">Prezzi</a><a href="accedi/">Accedi o registrati</a></div>
+  <div><h4>Aiuto</h4><a href="faq/">Domande frequenti</a><a href="legale/#contatti">Contatti</a><a href="legale/#fonti">Fonti dei dati</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Canale Telegram</a></div>
   <div><h4>Note legali</h4><a href="legale/#termini">Termini di utilizzo</a><a href="legale/#rischi">Avvertenze sui rischi</a><a href="legale/#privacy">Privacy e statistiche</a><a href="legale/#diritti">Diritto d'autore</a></div>
  </div>
  <div class="firma"><span>© {{ANNO}} EdgeValor · Tutti i diritti riservati.</span><span>Aggiornato il {{AGGIORNATO}}</span></div>

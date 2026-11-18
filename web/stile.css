@@ -3375,3 +3375,18 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 @media (max-width:600px){.nvfab{right:14px;bottom:14px;width:44px;height:44px}
  .nvchat{left:8px;right:8px;bottom:8px;width:auto;max-height:72vh;border-radius:18px 18px 14px 14px;transform-origin:bottom center}}
 @media (prefers-reduced-motion:reduce){.nvfab.vivo::before,.nvfaro.on,.nvmsg{animation:none;opacity:1;transform:none}}
+
+/* ---------- v8.07 SCHEDE CHIUSE AL BASIC (45_chiuse.js) ---------- */
+.plk-scheda{min-height:320px;margin-top:6px}
+.kz.kzchiusa{cursor:pointer}
+.kzlk{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;border:1px dashed color-mix(in srgb,var(--oro) 45%,var(--line));
+ background:color-mix(in srgb,var(--oro) 6%,transparent)}
+.kzlk span{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--oro) 16%,transparent)}
+.kzlk svg{width:18px;height:18px;fill:none;stroke:var(--oro);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.kzlk b{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--oro)}
+.hbcard{position:relative}
+.hblk{position:absolute;right:10px;top:10px;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:rgba(6,10,19,.75);
+ border:1px solid color-mix(in srgb,var(--oro) 45%,var(--line))}
+.hblk svg{width:15px;height:15px;fill:none;stroke:var(--oro);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hbchiusa .hbart{opacity:.55}
+.kzchiusa .kzvai{display:none}
