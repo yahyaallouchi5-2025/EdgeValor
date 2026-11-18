@@ -1,0 +1,113 @@
+/* ---------- 46_abbonamento.js - v8.11 AREA ABBONAMENTO (PayPal, rinnovo automatico fino a disdetta) ----------
+   Finestra "Passa a Premium" / "Il tuo abbonamento". L'utente deve aver fatto l'accesso: l'abbonamento PayPal porta con se'
+   il suo ID (custom_id) e la funzione Supabase "paypal" attiva Premium SOLO dopo aver riletto lo stato vero da PayPal.
+   FLUSSO:
+     1) scelta del piano (Annuale 239,88 EUR/anno oppure Mensile 27,00 EUR/mese);
+     2) casella obbligatoria "Accetto le condizioni. Si rinnova da solo, disdici quando vuoi." (senza spunta niente pagamento);
+     3) pulsanti PayPal (conto PayPal o carta) -> abbonamento creato -> ?azione=attiva -> Premium attivo;
+     4) chi ha gia' un abbonamento vede stato, prossimo rinnovo e "Disdici" (Premium resta fino a fine periodo);
+        chi ha disdetto vede "Riattiva": il nuovo abbonamento parte alla fine del periodo gia' pagato (nessun doppio addebito).
+   APERTURA: per ora SOLO ADMIN (APERTO=false): gli altri continuano a vedere il modulo "Assistenza" come prima.
+   CHIAVI: qui solo il Client ID PayPal (pubblico per natura). Il Secret sta solo nei secret di Supabase.
+   DEBUG (F12 -> Console): ebAbbonamento.attivo() dice se la finestra nuova e' accesa; errori con "[EdgeValor] abbonamento". */
+(function(){try{
+ const APERTO=false;                                         // true = per tutti (dopo il pagamento di prova di Ya)
+ const API="https://cwwmqujccwzmqougtedh.supabase.co/functions/v1/paypal";
+ const CLIENT="BAAG2KF3dRqXUD-lXpCqjZ9inaD5AOT6OKetoDMtkowcMNatVIBKLZ5-2_Rp4BFb9bP5skp1mrJE52zWtA";
+ const PIANI={annuale:{id:"P-89G164691L706501LNL7CALY",nome:"Annuale",prezzo:"239,88 €",per:"all'anno",nota:"19,99 € al mese · risparmi il 26%"},
+              mensile:{id:"P-5HA71857XX328563CNL7B7XI",nome:"Mensile",prezzo:"27,00 €",per:"al mese",nota:"Massima flessibilità"}};
+ const attivo=()=>APERTO||document.documentElement.classList.contains("eb-admin");
+ const data=d=>new Date(d).toLocaleDateString(typeof EB_LOC!="undefined"?EB_LOC:"it-IT",{day:"numeric",month:"long",year:"numeric"});
+ const ICO='<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>';
+
+ // SDK PayPal caricato una volta sola, solo quando serve
+ let sdk=null;
+ const caricaSdk=()=>sdk||(sdk=new Promise((ok,ko)=>{const s=document.createElement("script");
+  s.src="https://www.paypal.com/sdk/js?client-id="+CLIENT+"&vault=true&intent=subscription&currency=EUR&locale=it_IT&components=buttons";
+  s.onload=()=>ok(window.paypal);s.onerror=()=>{sdk=null;ko(new Error("SDK PayPal non caricato"));};document.head.appendChild(s);}));
+
+ // chiamata alla funzione "paypal" con l'accesso dell'utente
+ async function chiama(azione,corpo){const t=window.ebAccount&&ebAccount.token&&await ebAccount.token();if(!t)throw new Error("accesso");
+  const r=await fetch(API+"?azione="+azione,{method:"POST",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(corpo||{})});
+  const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.errore||("HTTP "+r.status));return j;}
+
+ function apri(){if(document.querySelector(".abmodal"))return;
+  const st=window.ebAccount&&ebAccount.stato();
+  if(!st||!st.sessione){if(window.ebFeedback)ebFeedback({premium:true});return;}       // senza accesso: prima si entra
+  const box=document.createElement("div");box.className="cmodal abmodal";
+  box.innerHTML=`<div class="cmodal-box abbox" role="dialog" aria-modal="true" aria-labelledby="abt">
+    <div class="cmodal-testa"><span class="cmodal-ico abico" aria-hidden="true">${ICO}</span>
+     <div><h3 id="abt">Premium</h3><p class="absott">Sto leggendo il tuo abbonamento…</p></div>
+     <button type="button" class="fbx" aria-label="Chiudi">&#x2715;</button></div>
+    <div class="abcorpo"></div></div>`;
+  document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
+  const corpo=box.querySelector(".abcorpo"),sott=box.querySelector(".absott"),chiudi=()=>{box.classList.remove("on");setTimeout(()=>box.remove(),200);};
+  box.querySelector(".fbx").onclick=chiudi;box.onclick=e=>{if(e.target==box)chiudi();};
+  document.addEventListener("keydown",function k(e){if(e.key=="Escape"){chiudi();document.removeEventListener("keydown",k);}});
+
+  // --- stato attuale (database) -> quale vista mostrare
+  (window.ebAccount.rpc("mio_abbonamento").catch(()=>[])).then(r=>{const a=(r||[])[0];
+   const fino=a&&a.premium_fino&&Date.parse(a.premium_fino)>Date.now()?a.premium_fino:null;
+   if(a&&a.stato=="ACTIVE")return vistaAttivo(a);
+   if(a&&fino&&a.stato!="RIMBORSATO")return vistaScelta(fino,`Disdetto · Premium attivo fino al ${data(fino)}`);
+   vistaScelta(null,"Sblocca tutte le potenzialità del terminale.");});
+
+  // --- vista 1: abbonamento attivo -> stato + Disdici
+  function vistaAttivo(a){const p=PIANI[a.piano]||PIANI.mensile;
+   sott.textContent="Il tuo abbonamento è attivo.";
+   corpo.innerHTML=`<div class="abstato"><div><small>Piano</small><b>${p.nome} · ${p.prezzo} ${p.per}</b></div>
+     <div><small>Prossimo rinnovo</small><b>${a.prossimo?data(a.prossimo):"—"}</b></div></div>
+    <div class="abesito" role="status" aria-live="polite"></div>
+    <div class="cmodal-btn"><button type="button" class="cno abdisdici">Disdici</button><button type="button" class="csi abchiudi">Chiudi</button></div>`;
+   corpo.querySelector(".abchiudi").onclick=chiudi;
+   const d=corpo.querySelector(".abdisdici"),es=corpo.querySelector(".abesito");
+   d.onclick=async()=>{
+    if(!d.dataset.ok){d.dataset.ok="1";d.textContent="Conferma disdetta";es.className="abesito";
+     es.textContent=`Premium resta attivo fino al ${a.prossimo?data(a.prossimo):"fine periodo"}. Nessun altro addebito.`;return;}
+    d.disabled=true;d.textContent="Disdetta…";
+    try{await chiama("disdici");es.className="abesito ok";es.textContent="Disdetta fatta. Puoi riattivare quando vuoi.";
+     d.remove();window.ebAccount.ricarica&&ebAccount.ricarica();}
+    catch(e){console.warn("[EdgeValor] abbonamento: disdetta",e);d.disabled=false;d.textContent="Conferma disdetta";
+     es.className="abesito ko";es.textContent="Disdetta non riuscita. Riprova tra poco.";}};}
+
+  // --- vista 2: scelta del piano + condizioni + PayPal. parte = data di partenza (riattivazione) o null (subito)
+  function vistaScelta(parte,frase){let scelto="annuale";
+   sott.textContent=frase;
+   corpo.innerHTML=`<div class="abpiani" role="radiogroup" aria-label="Piano">${Object.entries(PIANI).map(([k,p])=>`
+     <button type="button" role="radio" class="abpiano${k==scelto?" on":""}" data-k="${k}" aria-checked="${k==scelto}">
+      ${k=="annuale"?'<span class="abtag">Più conveniente</span>':""}<small>${p.nome}</small><b>${p.prezzo}</b><span>${p.per}</span><em>${p.nota}</em></button>`).join("")}</div>
+    <label class="abok"><input type="checkbox"><span>Accetto le <a href="../legale/#abbonamento" target="_blank" rel="noopener">condizioni</a>. Si rinnova da solo, disdici quando vuoi.</span></label>
+    ${parte?`<p class="small abparte">Il primo addebito parte il ${data(parte)}, alla fine del periodo già pagato.</p>`:""}
+    <div class="abpp" aria-disabled="true"><div class="abppin"></div></div>
+    <div class="abesito" role="status" aria-live="polite"></div>`;
+   const ok=corpo.querySelector(".abok input"),pp=corpo.querySelector(".abpp"),es=corpo.querySelector(".abesito");
+   corpo.querySelectorAll(".abpiano").forEach(b=>b.onclick=()=>{scelto=b.dataset.k;
+    corpo.querySelectorAll(".abpiano").forEach(x=>{x.classList.toggle("on",x==b);x.setAttribute("aria-checked",x==b);});});
+   let azioni=null;
+   const blocca=()=>{const si=ok.checked;pp.setAttribute("aria-disabled",!si);if(azioni)si?azioni.enable():azioni.disable();};
+   ok.onchange=blocca;
+   caricaSdk().then(paypal=>paypal.Buttons({style:{shape:"pill",color:"gold",layout:"vertical",label:"subscribe",height:46},
+     onInit:(d,a)=>{azioni=a;blocca();},
+     onClick:()=>{if(!ok.checked){es.className="abesito ko";es.textContent="Spunta la casella delle condizioni per continuare.";}},
+     createSubscription:(d,a)=>{const u=window.ebAccount.stato().utente;
+      const o={plan_id:PIANI[scelto].id,custom_id:u.id,
+       application_context:{brand_name:"EdgeValor",locale:"it-IT",shipping_preference:"NO_SHIPPING",user_action:"SUBSCRIBE_NOW"}};
+      if(parte)o.start_time=new Date(Math.max(Date.parse(parte),Date.now()+3600e3)).toISOString();
+      return a.subscription.create(o);},
+     onApprove:async d=>{pp.hidden=true;es.className="abesito";es.textContent="Attivo Premium sul tuo account…";
+      try{const r=await chiama("attiva",{id:d.subscriptionID});vistaFatto(r.fino);}
+      catch(e){console.warn("[EdgeValor] abbonamento: attivazione",e);es.className="abesito ko";
+       es.textContent="Pagamento ricevuto. L'attivazione arriva entro pochi minuti: riceverai un'email.";}},
+     onError:e=>{console.warn("[EdgeValor] abbonamento: PayPal",e);es.className="abesito ko";es.textContent="Pagamento non riuscito. Riprova tra poco.";}
+    }).render(corpo.querySelector(".abppin"))).catch(e=>{console.warn("[EdgeValor] abbonamento:",e);es.className="abesito ko";
+     es.textContent="PayPal non si è caricato. Controlla la connessione e riprova.";});}
+
+  // --- vista 3: fatto
+  function vistaFatto(fino){sott.textContent="Benvenuto in Premium.";box.querySelector(".abico").classList.add("ok");
+   corpo.innerHTML=`<div class="abstato"><div><small>Premium attivo</small><b>${fino?"fino al "+data(fino):"Attivato"}</b></div></div>
+    <p class="small">Ti abbiamo mandato la conferma via email. Si rinnova da solo: lo disdici quando vuoi da qui.</p>
+    <div class="cmodal-btn"><button type="button" class="csi abvai">Apri il terminale</button></div>`;
+   corpo.querySelector(".abvai").onclick=()=>location.reload();}}       // ricarica: i dati Premium si aprono con la chiave
+
+ window.ebAbbonamento={apri,attivo};
+}catch(e){console.error("[EdgeValor] abbonamento:",e);}})();
