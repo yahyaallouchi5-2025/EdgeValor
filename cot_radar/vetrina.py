@@ -26,6 +26,10 @@ FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox
            "y='31' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%23eef5ff'%3EED%3C/text%3E"
            "%3Ctext x='22' y='51' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%235b9bff'%3EVA"
            "%3C/text%3E%3C/svg%3E")
+# v8.06 Google non usa le icone "data:" nei risultati di ricerca (mostrava il globo grigio): l'icona diventa un file vero
+# /favicon.svg (stesso disegno) e le pagine pubbliche puntano a quello. Il terminale tiene la versione "data:".
+FAVICON_SVG = urllib.parse.unquote(FAVICON.split(",", 1)[1])
+FAVICON_URL = "/favicon.svg"
 
 
 # --------------------------------------------------------------------------- v7.69 "DENTRO IL TERMINALE"
@@ -216,7 +220,7 @@ def html(ultimi, cartella=None):
         "{{MODULO_KEY}}": "".join(c for c in (os.environ.get("WEB3FORMS_KEY") or FEEDBACK_CHIAVE)
                                   if c.isalnum() or c == "-"),
         "{{STATISTICHE}}": pagina.statistiche(),     # statistiche anonime senza cookie (web/statistiche.js)
-        "{{FAVICON}}": FAVICON,
+        "{{FAVICON}}": FAVICON_URL,
         "{{N_SEGNALI}}": str(sum(len(v) for v in attivi.values())),
         "{{N_MERCATI}}": str(len(mercati)),
         "{{N_COPPIE}}": str(len(dati.get("pairs") or [])),
@@ -245,7 +249,7 @@ def legale():
     else:
         contatti = (f'Per segnalazioni, richieste di autorizzazione e comunicazioni scrivi tramite il canale Telegram '
                     f'<a href="{escape(TELEGRAM_CANALE)}" target="_blank" rel="noopener">EdgeValor</a>.')
-    valori = {"{{FAVICON}}": FAVICON, "{{TELEGRAM}}": TELEGRAM_CANALE, "{{STATISTICHE}}": pagina.statistiche(),
+    valori = {"{{FAVICON}}": FAVICON_URL, "{{TELEGRAM}}": TELEGRAM_CANALE, "{{STATISTICHE}}": pagina.statistiche(),
               "{{DATA}}": datetime.now().strftime("%d/%m/%Y"), "{{ANNO}}": str(datetime.now().year),
               "{{TITOLARE}}": titolare, "{{CONTATTI}}": contatti}
     with open(os.path.join(WEB_DIR, "legale.html"), encoding="utf-8") as f:
@@ -263,6 +267,9 @@ def crea(cartella):
     f = os.path.join(cartella, "index.html")
     with open(f, "w", encoding="utf-8") as fh:
         fh.write(html(pagina.ULTIMI, cartella))
+    # v8.06 icona del sito come file (per Google: favicon nei risultati e logo dell'organizzazione)
+    with open(os.path.join(cartella, "favicon.svg"), "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(FAVICON_SVG)
     # note legali in /legale/ (pagina fissa, indipendente dai dati)
     os.makedirs(os.path.join(cartella, "legale"), exist_ok=True)
     with open(os.path.join(cartella, "legale", "index.html"), "w", encoding="utf-8") as fh:
