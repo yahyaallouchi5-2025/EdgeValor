@@ -3105,6 +3105,8 @@ html.senzaccesso body>*:not(#porta){visibility:hidden}
 /* v7.95 lo stato dei dati (e il suo puntino rosso sul Profilo) lo vede solo l'admin */
 html:not(.eb-admin) #sdati,html:not(.eb-admin) #status{display:none!important}
 html:not(.eb-admin) #pfapri.pfrit::after{display:none}
+/* v8.05 selettore lingua visibile solo all'admin finche' la traduzione non e' completa */
+html:not(.eb-admin) .pflingua{display:none!important}
 /* v7.95 PAGINA MERCATI A CARD (41_hub_mercati.js): 4 card per riga su PC, 3 su tablet, 2 su telefono.
    .hbart = parte alta con disegno a tema + icona al centro | .hbnome = nome in basso */
 .nghub .ngb{gap:0}

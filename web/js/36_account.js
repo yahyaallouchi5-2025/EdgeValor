@@ -105,12 +105,18 @@
    localStorage.setItem(KB,JSON.stringify({u:u.id,l}));}
   catch(e){console.warn("[EdgeValor] account: lista non salvata, riprovo alla prossima modifica",e);}},1200);});
 
- async function carica(){if(!S)return aggiorna();aggiorna();
+ // v8.05 l'inglese e' ancora parziale: finche' non e' completo lo usa solo l'admin. Chi non e' admin e aveva scelto EN
+ // torna all'italiano (si cancella la scelta e si ricarica la pagina una sola volta).
+ function soloItaliano(){if(typeof EB_LANG=="undefined"||EB_LANG!="en")return;
+  try{localStorage.removeItem("ebLang");}catch(e){}location.reload();}
+ async function carica(){if(!S){soloItaliano();return aggiorna();}aggiorna();
   try{const r=await db("profili?select=prova_fino,premium_fino,sempre_premium,codice_invito,numero");P=(r&&r[0])||null;}
   catch(e){console.warn("[EdgeValor] account: profilo non letto",e);}
   aggiorna();
   // v7.95 voce Admin: si chiede al database "sono admin?" (l'email dell'admin non e' mai nel codice del sito)
-  try{ADM=(await db("rpc/sono_admin",{method:"POST",body:"{}"}))===true;}catch(e){ADM=false;}
+  let certo=true;                        // false se la domanda al database non e' riuscita (allora non si tocca la lingua)
+  try{ADM=(await db("rpc/sono_admin",{method:"POST",body:"{}"}))===true;}catch(e){ADM=false;certo=false;}
+  if(certo&&!ADM)soloItaliano();
   // la classe "eb-admin" mostra le parti riservate all'admin (es. stato dei dati nel Profilo, vedi stile.css)
   document.documentElement.classList.toggle("eb-admin",ADM);
   try{await sincronizza();}catch(e){console.warn("[EdgeValor] account: lista non sincronizzata",e);}}
