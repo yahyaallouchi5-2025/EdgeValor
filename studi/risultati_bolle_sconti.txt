@@ -1,0 +1,52 @@
+titoli con prezzi: 20123 (usciti dalla borsa: 14739); ultimo mese 2026-11
+
+==============================================================================================================
+A) BOLLE: titoli saliti molto piu' del mercato in 24 mesi. CROLLO = -40% sotto il prezzo del segnale entro 24 mesi
+
+ -- periodo 1997-01 -> 2010-12
+  rialzo oltre mercato +50%..+100%   n= 3456  crollo  25.7%  usciti  5.4%  | oltre mercato: 6m   +2.7%  12m   +2.9% (mediana   +1.1%, positivi 51.1%)  24m   +4.5% (mediana   +0.7%, positivi 50.7%)
+  rialzo oltre mercato +100%..+150%  n=  781  crollo  30.5%  usciti  7.0%  | oltre mercato: 6m   +2.3%  12m   +2.4% (mediana   -0.1%, positivi 49.8%)  24m   +6.6% (mediana   +4.2%, positivi 52.1%)
+  rialzo oltre mercato +150%..       n= 1198  crollo  46.8%  usciti  6.3%  | oltre mercato: 6m   -1.2%  12m   -4.3% (mediana   -6.7%, positivi 43.2%)  24m   -2.5% (mediana  -10.8%, positivi 43.7%)
+   sintomi, solo rialzi oltre +100%:
+     con accelerazione               n=  372  crollo  43.8%  usciti  8.9%  | oltre mercato: 6m   +0.8%  12m   -4.3% (mediana   -7.1%, positivi 42.2%)  24m   -2.6% (mediana  -14.1%, positivi 42.5%)
+     senza accelerazione             n= 1633  crollo  40.0%  usciti  5.9%  | oltre mercato: 6m   -0.2%  12m   -1.3% (mediana   -3.0%, positivi 46.4%)  24m   +1.6% (mediana   -3.9%, positivi 47.9%)
+     con volatilita' in salita       n=  553  crollo  49.5%  usciti  5.6%  | oltre mercato: 6m   -5.7%  12m   -9.2% (mediana  -12.6%, positivi 38.7%)  24m   -7.2% (mediana  -15.6%, positivi 41.2%)
+     senza volatilita' in salita     n= 1452  crollo  37.4%  usciti  6.8%  | oltre mercato: 6m   +2.0%  12m   +0.8% (mediana   -1.4%, positivi 48.2%)  24m   +3.9% (mediana   -1.0%, positivi 49.0%)
+     con scambi in salita            n=  859  crollo  46.8%  usciti 10.1%  | oltre mercato: 6m   -2.0%  12m   -5.3% (mediana   -7.3%, positivi 43.1%)  24m   -3.1% (mediana  -11.4%, positivi 43.5%)
+     senza scambi in salita          n= 1146  crollo  36.2%  usciti  3.8%  | oltre mercato: 6m   +1.4%  12m   +0.6% (mediana   -2.0%, positivi 47.5%)  24m   +3.6% (mediana   -0.5%, positivi 49.4%)
+     tutti e 3 i sintomi             n=   99  crollo  57.6%  usciti  9.1%  | oltre mercato: 6m   -3.9%  12m  -15.5% (mediana  -17.2%, positivi 35.4%)  24m  -27.0% (mediana  -29.8%, positivi 30.3%)
+     nessun sintomo                  n=  804  crollo  34.3%  usciti  3.9%  | oltre mercato: 6m   +2.4%  12m   +2.0% (mediana   +0.7%, positivi 50.2%)  24m   +4.5% (mediana   +1.4%, positivi 51.1%)
+
+ -- periodo 2011-01 -> 2024-10
+  rialzo oltre mercato +50%..+100%   n= 2292  crollo  20.9%  usciti  8.6%  | oltre mercato: 6m   -2.4%  12m   -5.4% (mediana   -6.8%, positivi 40.7%)  24m  -12.5% (mediana  -16.8%, positivi 37.7%)
+  rialzo oltre mercato +100%..+150%  n=  374  crollo  34.0%  usciti  8.6%  | oltre mercato: 6m   -2.2%  12m   -5.4% (mediana  -10.5%, positivi 40.1%)  24m  -18.0% (mediana  -23.0%, positivi 33.4%)
+  rialzo oltre mercato +150%..       n=  501  crollo  52.5%  usciti 11.6%  | oltre mercato: 6m  -10.6%  12m  -17.9% (mediana  -20.9%, positivi 33.5%)  24m  -31.6% (mediana  -39.7%, positivi 27.7%)
+   sintomi, solo rialzi oltre +100%:
+     con accelerazione               n=  164  crollo  59.1%  usciti 18.3%  | oltre mercato: 6m  -10.5%  12m  -25.6% (mediana  -29.9%, positivi 30.5%)  24m  -45.2% (mediana  -59.2%, positivi 23.2%)
+     senza accelerazione             n=  739  crollo  41.7%  usciti  8.8%  | oltre mercato: 6m   -6.5%  12m  -10.0% (mediana  -14.0%, positivi 36.9%)  24m  -21.8% (mediana  -29.2%, positivi 31.4%)
+     con volatilita' in salita       n=  245  crollo  49.4%  usciti 16.7%  | oltre mercato: 6m  -11.1%  12m  -21.5% (mediana  -22.7%, positivi 29.8%)  24m  -35.3% (mediana  -43.7%, positivi 25.3%)
+     senza volatilita' in salita     n=  658  crollo  43.2%  usciti  8.2%  | oltre mercato: 6m   -5.8%  12m   -9.4% (mediana  -14.2%, positivi 38.0%)  24m  -22.5% (mediana  -29.4%, positivi 31.6%)
+     con scambi in salita            n=  326  crollo  48.2%  usciti 16.9%  | oltre mercato: 6m   -9.1%  12m  -14.8% (mediana  -19.4%, positivi 34.7%)  24m  -27.1% (mediana  -35.7%, positivi 28.5%)
+     senza scambi in salita          n=  577  crollo  43.0%  usciti  6.9%  | oltre mercato: 6m   -6.0%  12m  -11.5% (mediana  -15.6%, positivi 36.4%)  24m  -25.0% (mediana  -32.1%, positivi 30.7%)
+     tutti e 3 i sintomi             n=   71  crollo  63.4%  usciti 28.2%  | oltre mercato: 6m  -16.6%  12m  -33.9% (mediana  -34.0%, positivi 25.4%)  24m  -49.5% (mediana  -66.7%, positivi 19.7%)
+     nessun sintomo                  n=  435  crollo  42.8%  usciti  6.0%  | oltre mercato: 6m   -6.2%  12m  -10.2% (mediana  -14.0%, positivi 37.5%)  24m  -23.2% (mediana  -29.5%, positivi 30.6%)
+
+ -- base: titoli QUALSIASI dell'universo (un mese a caso ogni 12 per titolo)
+  base 1997-01 -> 2010-12            n=14000  crollo  30.1%  usciti  5.8%  | oltre mercato: 6m   +0.2%  12m   +0.8% (mediana   -0.8%, positivi 49.0%)  24m   +1.9% (mediana   -0.7%, positivi 49.5%)
+  base 2011-01 -> 2024-10            n=14000  crollo  19.5%  usciti  7.0%  | oltre mercato: 6m   -3.1%  12m   -5.1% (mediana   -5.2%, positivi 42.1%)  24m  -11.7% (mediana  -12.7%, positivi 38.4%)
+
+==============================================================================================================
+B) SCONTI: titoli a -60% o peggio dal massimo dei 24 mesi. CROLLO = un altro -50% entro 24 mesi
+titoli abbinati a un bilancio SEC: 8175
+
+ -- periodo 2010-06 -> 2016-12
+  tutti gli sconti -60%              n=  537  crollo  36.1%  usciti  8.2%  | oltre mercato: 6m   +3.6%  12m   -1.2% (mediana   -9.5%, positivi 44.5%)  24m   -9.5% (mediana  -24.2%, positivi 40.0%)
+  SCONTO CON CASSA (FCF > 0)         n=  136  crollo  28.7%  usciti  8.8%  | oltre mercato: 6m   +4.5%  12m   +6.2% (mediana   +1.5%, positivi 50.7%)  24m   -7.0% (mediana  -24.8%, positivi 36.8%)
+  SCONTO SENZA CASSA (FCF <= 0)      n=   63  crollo  47.6%  usciti  7.9%  | oltre mercato: 6m   +0.4%  12m  -18.3% (mediana  -19.8%, positivi 33.3%)  24m  -31.0% (mediana  -35.2%, positivi 36.5%)
+  senza bilancio abbinato            n=  338  crollo  37.0%  usciti  8.0%  | oltre mercato: 6m   +3.8%  12m   -0.8% (mediana  -10.5%, positivi 44.1%)  24m   -5.9% (mediana  -20.8%, positivi 42.0%)
+
+ -- periodo 2017-01 -> 2024-10
+  tutti gli sconti -60%              n=  843  crollo  39.0%  usciti 14.0%  | oltre mercato: 6m   -6.2%  12m   -3.4% (mediana  -14.1%, positivi 40.8%)  24m  -13.6% (mediana  -35.8%, positivi 33.8%)
+  SCONTO CON CASSA (FCF > 0)         n=  307  crollo  32.6%  usciti  9.4%  | oltre mercato: 6m   -3.7%  12m   +6.9% (mediana   -1.3%, positivi 48.5%)  24m   -0.3% (mediana  -24.7%, positivi 38.8%)
+  SCONTO SENZA CASSA (FCF <= 0)      n=  200  crollo  45.5%  usciti  9.5%  | oltre mercato: 6m   -8.1%  12m   -8.7% (mediana  -24.2%, positivi 37.5%)  24m  -19.8% (mediana  -42.2%, positivi 30.5%)
+  senza bilancio abbinato            n=  336  crollo  41.1%  usciti 20.8%  | oltre mercato: 6m   -7.7%  12m  -10.1% (mediana  -19.2%, positivi 35.7%)  24m  -21.8% (mediana  -44.4%, positivi 31.2%)

@@ -1,0 +1,149 @@
+Rendimento OLTRE l'S&P 500. 'prima' = dai giorni indicati fino alla chiusura prima dell'evento; 'dopo' = dalla chiusura prima dell'evento ai giorni indicati.
+media | mediana | % positivi
+
+== Apple: presentazione di un nuovo iPhone  (19 eventi, 19 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media           +11.9%         +2.7%         +0.1%         -0.4%         -1.2%         -0.7%         +0.8%
+   mediana         +10.7%         +2.0%         -0.3%         -0.7%         -2.4%         -1.6%         -0.7%
+   positivi           89%           84%           47%           26%           32%           47%           47%
+     2007-01-09 iPhone                           prima 20g   -5.0%   dopo 5g  +12.4%   dopo 60g   +8.0%
+     2008-06-09 iPhone 3G                        prima 20g   +2.4%   dopo 5g   -7.0%   dopo 60g   -4.9%
+     2009-06-08 iPhone 3GS                       prima 20g   +8.0%   dopo 5g   -5.9%   dopo 60g   +7.3%
+     2010-06-07 iPhone 4                         prima 20g   +9.4%   dopo 5g   -3.6%   dopo 60g   -4.3%
+     2011-10-04 iPhone 4S                        prima 20g   +6.4%   dopo 5g   -5.0%   dopo 60g   -6.8%
+     2012-09-12 iPhone 5                         prima 20g   +2.6%   dopo 5g   +4.4%   dopo 60g  -18.4%
+     2013-09-10 iPhone 5s/5c                     prima 20g  +12.4%   dopo 5g  -12.7%   dopo 60g   +4.8%
+     2014-09-09 iPhone 6                         prima 20g   +0.0%   dopo 5g   +4.1%   dopo 60g  +13.3%
+     2015-09-09 iPhone 6s                        prima 20g   +0.1%   dopo 5g   +3.0%   dopo 60g   -2.2%
+     2016-09-07 iPhone 7                         prima 20g   -1.1%   dopo 5g   +2.9%   dopo 60g   +2.0%
+     2017-09-12 iPhone X/8                       prima 20g   +0.5%   dopo 5g   -2.5%   dopo 60g   -0.7%
+     2018-09-12 iPhone XS                        prima 20g   +4.7%   dopo 5g   -3.1%   dopo 60g  -15.5%
+     2019-09-10 iPhone 11                        prima 20g   +4.3%   dopo 5g   +2.0%   dopo 60g  +17.2%
+     2020-10-13 iPhone 12                        prima 20g   +3.3%   dopo 5g   -3.8%   dopo 60g   -2.6%
+     2021-09-14 iPhone 13                        prima 20g   +0.2%   dopo 5g   -1.9%   dopo 60g   +9.4%
+     2022-09-07 iPhone 14                        prima 20g   -0.9%   dopo 5g   -1.0%   dopo 60g   -8.8%
+     2023-09-12 iPhone 15                        prima 20g   +0.3%   dopo 5g   -0.0%   dopo 60g   +5.8%
+     2024-09-09 iPhone 16                        prima 20g   +1.8%   dopo 5g   -3.2%   dopo 60g   -3.4%
+     2025-09-09 iPhone 17                        prima 20g   +2.0%   dopo 5g   -2.4%   dopo 60g  +15.1%
+
+== Take-Two: uscita di un grande gioco Rockstar  (3 eventi, 3 casi titolo-evento)  -> POCHI CASI
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media           +25.7%         -5.0%         -3.4%         -0.1%         +0.7%         -3.0%         -8.3%
+   mediana         +10.9%         -4.9%         -2.6%         +1.0%         -1.0%         -2.2%         -9.2%
+   positivi          100%            0%           33%           67%           33%           33%            0%
+     2008-04-29 GTA IV                           prima 20g   -2.1%   dopo 5g   -2.4%   dopo 60g   -1.6%
+     2013-09-17 GTA V                            prima 20g   -8.2%   dopo 5g   -1.0%   dopo 60g   -9.2%
+     2018-10-26 Red Dead Redemption 2            prima 20g   -4.9%   dopo 5g   +5.5%   dopo 60g  -14.1%
+
+== Take-Two: rinvio di un grande gioco  (3 eventi, 3 casi titolo-evento)  -> POCHI CASI
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media           +16.1%         +8.1%         +2.8%         -7.6%         -0.5%         -0.8%         -9.5%
+   mediana         +10.7%        +12.5%         +3.4%         -8.1%         -5.3%         -4.1%        -18.8%
+   positivi          100%           67%          100%            0%           33%           33%           33%
+     2013-01-31 rinvio GTA V                     prima 20g  +13.2%   dopo 5g   +9.8%   dopo 60g  +13.5%
+     2025-05-02 rinvio GTA VI a maggio 2026      prima 20g  +12.5%   dopo 5g   -5.3%   dopo 60g  -18.8%
+     2025-11-07 rinvio GTA VI a novembre 2026    prima 20g   -1.5%   dopo 5g   -6.1%   dopo 60g  -23.1%
+
+== Guerre: difesa USA  (7 eventi, 35 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            +1.2%         +1.5%         +0.4%         +2.7%         +4.3%         +4.6%         +3.8%
+   mediana          +0.6%         +0.8%         +0.2%         +1.4%         +2.7%         +3.9%         +4.0%
+   positivi           54%           60%           54%           91%           94%           74%           71%
+     2008-08-08 Russia-Georgia                   prima 20g   +3.3%   dopo 5g   +2.1%   dopo 60g   -1.8%
+     2014-02-27 Crimea                           prima 20g   +2.2%   dopo 5g   +1.8%   dopo 60g   -0.2%
+     2017-04-07 attacco USA in Siria             prima 20g   -0.8%   dopo 5g   +1.7%   dopo 60g   +2.9%
+     2020-01-03 Soleimani                        prima 20g   -1.5%   dopo 5g   +2.5%   dopo 60g   +0.2%
+     2022-02-24 invasione dell'Ucraina           prima 20g   +2.8%   dopo 5g  +10.3%   dopo 60g  +14.4%
+     2023-10-09 7 ottobre (primo giorno di borsa) prima 20g   -1.2%   dopo 5g   +9.4%   dopo 60g   +9.8%
+     2025-06-13 Israele-Iran                     prima 20g   +5.4%   dopo 5g   +2.0%   dopo 60g   +1.1%
+
+== Guerre: difesa Europa  (7 eventi, 21 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            +5.0%         +1.3%         -1.6%         +1.3%         +4.8%         +8.3%         +3.4%
+   mediana          +2.6%         +1.2%         -0.4%         +1.0%         +1.2%         +4.4%         -5.7%
+   positivi           57%           62%           43%           81%           62%           76%           48%
+     2008-08-08 Russia-Georgia                   prima 20g   +2.3%   dopo 5g   -2.4%   dopo 60g   -9.6%
+     2014-02-27 Crimea                           prima 20g   +2.1%   dopo 5g   +1.1%   dopo 60g  -11.8%
+     2017-04-07 attacco USA in Siria             prima 20g   +5.3%   dopo 5g   +1.5%   dopo 60g   +6.4%
+     2020-01-03 Soleimani                        prima 20g   -5.6%   dopo 5g   +2.8%   dopo 60g  -18.6%
+     2022-02-24 invasione dell'Ucraina           prima 20g   +6.0%   dopo 5g  +22.3%   dopo 60g  +54.5%
+     2023-10-09 7 ottobre                        prima 20g   -1.0%   dopo 5g   +8.2%   dopo 60g   +9.1%
+     2025-06-13 Israele-Iran                     prima 20g   +0.2%   dopo 5g   -0.1%   dopo 60g   -6.0%
+
+== Guerre: petroliferi  (7 eventi, 21 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            +1.6%         -1.0%         +0.6%         +0.4%         +1.0%         -1.3%         -1.0%
+   mediana          -3.6%         -0.7%         +0.1%         -0.2%         +0.4%         -1.1%         -5.1%
+   positivi           43%           43%           57%           38%           52%           43%           38%
+     2008-08-08 Russia-Georgia                   prima 20g  -12.4%   dopo 5g   -1.1%   dopo 60g   +7.1%
+     2014-02-27 Crimea                           prima 20g   -2.7%   dopo 5g   -2.5%   dopo 60g   +8.4%
+     2017-04-07 attacco USA in Siria             prima 20g   +2.9%   dopo 5g   -1.1%   dopo 60g   -6.6%
+     2020-01-03 Soleimani                        prima 20g   +1.3%   dopo 5g   -1.8%   dopo 60g  -28.1%
+     2022-02-24 invasione dell'Ucraina           prima 20g   +5.8%   dopo 5g   +6.1%   dopo 60g  +28.6%
+     2023-10-09 7 ottobre                        prima 20g   -2.0%   dopo 5g   +3.5%   dopo 60g  -10.7%
+     2025-06-13 Israele-Iran                     prima 20g   +0.2%   dopo 5g   +3.8%   dopo 60g   -5.5%
+
+== Guerre: compagnie aeree  (7 eventi, 14 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            -0.3%        +12.8%         +1.6%         -0.5%         -0.9%         -0.3%         +7.2%
+   mediana          -0.6%         -2.3%         -1.0%         -1.1%         -1.9%         -1.9%         +6.6%
+   positivi           50%           43%           29%           21%           14%           50%           64%
+     2008-08-08 Russia-Georgia                   prima 20g  +98.5%   dopo 5g  +14.2%   dopo 60g  +61.5%
+     2014-02-27 Crimea                           prima 20g   +1.9%   dopo 5g   +0.5%   dopo 60g   -0.4%
+     2017-04-07 attacco USA in Siria             prima 20g   -3.5%   dopo 5g   -0.9%   dopo 60g  +10.1%
+     2020-01-03 Soleimani                        prima 20g   -1.9%   dopo 5g   -1.6%   dopo 60g  -39.8%
+     2022-02-24 invasione dell'Ucraina           prima 20g   +7.3%   dopo 5g   -8.1%   dopo 60g   +6.6%
+     2023-10-09 7 ottobre                        prima 20g   -7.4%   dopo 5g   -8.0%   dopo 60g   -9.8%
+     2025-06-13 Israele-Iran                     prima 20g   -5.4%   dopo 5g   -2.5%   dopo 60g  +22.5%
+
+== Fed: primo taglio dei tassi del ciclo - banche  (3 eventi, 6 casi titolo-evento)  -> POCHI CASI
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            -1.0%         -1.9%         -0.1%         +0.8%         -1.3%         -1.7%         +3.7%
+   mediana          -2.1%         -1.9%         -0.6%         +0.5%         -0.7%         -1.7%         +5.5%
+   positivi           33%           33%           33%           83%            0%           33%           83%
+     2007-09-18 primo taglio 2007                prima 20g   -5.7%   dopo 5g   -0.7%   dopo 60g   -3.5%
+     2019-07-31 primo taglio 2019                prima 20g   +2.0%   dopo 5g   -1.9%   dopo 60g   +5.6%
+     2024-09-18 primo taglio 2024                prima 20g   -1.9%   dopo 5g   -1.3%   dopo 60g   +8.9%
+
+== Fed: primo taglio dei tassi del ciclo - case  (3 eventi, 9 casi titolo-evento)  -> POCHI CASI
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            -1.1%         -0.2%         +2.6%         -0.0%         -2.5%         -2.1%         -6.9%
+   mediana          +3.0%         +4.6%         +2.5%         -0.2%         -3.3%         -5.3%         -8.3%
+   positivi           56%           67%           89%           22%           44%           44%           44%
+     2007-09-18 primo taglio 2007                prima 20g   -9.2%   dopo 5g   -8.5%   dopo 60g  -20.5%
+     2019-07-31 primo taglio 2019                prima 20g   +1.9%   dopo 5g   +2.6%   dopo 60g  +16.8%
+     2024-09-18 primo taglio 2024                prima 20g   +6.6%   dopo 5g   -1.7%   dopo 60g  -17.2%
+
+== Elezioni USA: banche  (5 eventi, 10 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            +8.7%         +1.1%         +1.4%         +0.4%         +3.4%         +2.6%         +3.8%
+   mediana          +6.2%         +3.5%         +1.0%         +0.3%         +5.1%         +6.4%        +12.1%
+   positivi           80%           80%           70%           70%           60%           70%           80%
+     2008-11-04 Obama                            prima 20g   -9.8%   dopo 5g   -9.4%   dopo 60g  -40.0%
+     2012-11-06 Obama 2                          prima 20g   +5.3%   dopo 5g   -1.3%   dopo 60g   +9.7%
+     2016-11-08 Trump                            prima 20g   +4.5%   dopo 5g  +14.3%   dopo 60g  +23.2%
+     2020-11-03 Biden                            prima 20g   +2.3%   dopo 5g   +8.6%   dopo 60g  +14.0%
+     2024-11-05 Trump 2                          prima 20g   +3.5%   dopo 5g   +5.1%   dopo 60g  +12.0%
+
+== Elezioni USA: difesa  (5 eventi, 25 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            -1.7%         -0.4%         +0.2%         +0.4%         +1.7%         -0.7%         -2.6%
+   mediana          -1.6%         +0.3%         +0.5%         +0.0%         +1.3%         -1.2%         -4.0%
+   positivi           36%           52%           60%           56%           68%           44%           36%
+     2008-11-04 Obama                            prima 20g   -2.0%   dopo 5g   +1.0%   dopo 60g  +15.0%
+     2012-11-06 Obama 2                          prima 20g   +2.1%   dopo 5g   -1.0%   dopo 60g   -7.6%
+     2016-11-08 Trump                            prima 20g   +4.7%   dopo 5g   +7.5%   dopo 60g   +0.5%
+     2020-11-03 Biden                            prima 20g   -2.3%   dopo 5g   +0.3%   dopo 60g   -8.7%
+     2024-11-05 Trump 2                          prima 20g   -4.3%   dopo 5g   +0.8%   dopo 60g  -12.1%
+
+== Elezioni USA: petroliferi  (5 eventi, 15 casi titolo-evento)
+                60g prima             20g prima              5g prima               1g dopo               5g dopo              20g dopo              60g dopo
+   media            -2.1%         -0.9%         +1.8%         -0.3%         +0.4%         +4.6%         +2.1%
+   mediana          -0.8%         +1.2%         +1.7%         +0.3%         -0.5%         +2.6%         +0.2%
+   positivi           47%           60%           73%           53%           40%           60%           53%
+     2008-11-04 Obama                            prima 20g   -1.9%   dopo 5g   +4.6%   dopo 60g  +11.4%
+     2012-11-06 Obama 2                          prima 20g   +0.6%   dopo 5g   -0.6%   dopo 60g   -4.1%
+     2016-11-08 Trump                            prima 20g   +1.0%   dopo 5g   -1.3%   dopo 60g   -1.3%
+     2020-11-03 Biden                            prima 20g   -0.8%   dopo 5g   +2.3%   dopo 60g  +16.6%
+     2024-11-05 Trump 2                          prima 20g   -3.2%   dopo 5g   -2.8%   dopo 60g  -11.9%
+
