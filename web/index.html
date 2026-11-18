@@ -70,11 +70,12 @@
 <!-- v7.95 MERCATI = pagina a card (41_hub_mercati.js): il pulsante apre la scheda #mercati, ogni card porta alla sua scheda.
      "Analisi" e' confluito qui; "Verifica dei segnali" si chiama Live. I bottoni veri delle schede restano nascosti qui sotto
      (link diretti, go(), statistiche e "Mercati · Forex" sul pulsante funzionano come prima). -->
-<div class="ngrp nghub" data-g="mercati"><button type="button" class="ngb" data-hub="mercati">Mercati<span class="ngsel"></span></button><button data-t="mercati" hidden>Mercati</button><div class="ngm" role="menu"><button data-t="pairs" role="menuitem">Forex</button><button data-t="assets" role="menuitem">COT</button><button data-t="mkt" role="menuitem">Macro</button><button data-t="btc" role="menuitem">Crypto</button><button data-t="volat" role="menuitem">Volatilit&agrave;</button><button data-t="stag" role="menuitem">Stagionalit&agrave;</button><button data-t="corr" role="menuitem">Correlazioni</button><button data-t="verifica" role="menuitem">Live</button><button data-t="registro" role="menuitem">Registro</button></div></div>
+<div class="ngrp nghub" data-g="mercati"><button type="button" class="ngb" data-hub="mercati">Mercati<span class="ngsel"></span></button><button data-t="mercati" hidden>Mercati</button><div class="ngm" role="menu"><button data-t="pairs" role="menuitem">Forex</button><button data-t="assets" role="menuitem">COT</button><button data-t="mkt" role="menuitem">Macro</button><button data-t="btc" role="menuitem">Crypto</button><button data-t="volat" role="menuitem">Volatilit&agrave;</button><button data-t="stag" role="menuitem">Stagionalit&agrave;</button><button data-t="corr" role="menuitem">Correlazioni</button><button data-t="verifica" role="menuitem">Live</button><button data-t="eventi" role="menuitem" style="display:none">Eventi</button><button data-t="registro" role="menuitem">Registro</button></div></div>
 <!-- v7.49 menu "Ricerca" tolto: Verifica dei segnali (e Registro admin) passano in Analisi; Forecaster eliminato -->
 </nav>
 
 <section id="mercati"></section>
+<section id="eventi"></section>
 <section id="sig" class="on">
  <div id="eventi"></div>
  <div id="quadro"></div>

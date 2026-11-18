@@ -20,6 +20,7 @@
   stag:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4M8 14h2M14 14h2M8 17h2"/>',
   corr:'<circle cx="7" cy="16" r="1.6"/><circle cx="11" cy="12" r="1.6"/><circle cx="15" cy="13" r="1.6"/><circle cx="17.5" cy="7.5" r="1.6"/><path d="M4 19L20 5"/>',
   verifica:'<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+  eventi:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M8 16l3-3 2 2 3-4"/>',
   registro:'<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>'};
  const ART={
   // valute che "scorrono"
@@ -38,6 +39,8 @@
   corr:[...Array(26)].map((_,i)=>{const x=14+i*11,y=128-i*4.2+((i*29)%26-13);return `<circle cx="${x}" cy="${y}" r="2.4" class="hbd"/>`;}).join("")+`<path d="M8 134 L292 18" class="hbl hbacc"/>`,
   // battito
   verifica:`<path d="M0 82 H80 L95 56 L110 112 L128 30 L146 98 L160 82 H300" class="hbl hbacc"/><circle cx="196" cy="30" r="5" class="hblive"/><text x="207" y="35" class="hbt hblivet">LIVE</text>`,
+  // percorso con il giorno dell'evento (linea verticale) e il pallino
+  eventi:`<rect x="0" y="0" width="150" height="150" class="hbd" style="opacity:.08"/><line x1="150" x2="150" y1="8" y2="142" class="hbl"/><path d="M0 112 C30 104 60 98 90 84 S130 70 150 64 S200 74 230 70 S270 60 300 66" class="hbl hbacc"/><circle cx="150" cy="64" r="6" class="hblive"/>`,
   // righe di registro
   registro:[...Array(6)].map((_,i)=>`<rect x="24" y="${18+i*21}" width="${150+((i*41)%110)}" height="7" rx="3.5" class="hbd"/>`).join("")};
  function disegna(){
