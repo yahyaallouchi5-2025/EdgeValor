@@ -7,7 +7,7 @@ piu' pagine vere, ognuna con titolo e descrizione propri e collegata dal menu. P
 
 COME FUNZIONA
   Le pagine riusano stile, sfondo e pie' di pagina della home gia' costruita (vetrina.html): qui cambia solo il centro.
-  PREZZI (decisi da Ya): Basic gratis; Premium 27,00 EUR al mese oppure 19,99 EUR al mese con il piano annuale
+  PREZZI (decisi da Ya): Basic gratis; Premium 27,00 EUR al mese oppure 19,99 EUR al mese con il piano annuale (239,88 EUR in un unico pagamento)
     (il risparmio in % e in euro e' CALCOLATO qui sotto, non scritto a mano).
     Nessun pagamento automatico: "Contattaci" -> l'utente lascia l'email -> arriva al titolare (web3forms, la stessa
     chiave pubblica dell'Assistenza) che gli manda le istruzioni.
@@ -81,7 +81,7 @@ PREZZI = f"""
   <a class="btn sec" href="/accedi/">Inizia gratis</a></div>
  <div class="piano pro"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
   <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
-  <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; l'anno &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
+  <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; in un unico pagamento &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
   <p class="piu">Tutto Basic, più:</p>
   <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
   <a class="btn pri" href="#contatto">{FRECCIA}Contattaci</a></div>
@@ -89,7 +89,7 @@ PREZZI = f"""
 <div class="contatto" id="contatto"><form class="modulo" id="fprem" novalidate>
  <h3>Richiedi Premium</h3><p>Inserisci la tua email: riceverai le istruzioni per l'attivazione.</p>
  <label for="cm">La tua email</label><input id="cm" type="email" placeholder="nome@esempio.it" autocomplete="email" required>
- <label for="cp">Piano</label><select id="cp"><option>Annuale &middot; {eu(ANNUALE)} &euro; al mese</option><option>Mensile &middot; {eu(MENSILE)} &euro; al mese</option></select>
+ <label for="cp">Piano</label><select id="cp"><option>Annuale &middot; {eu(ANNO_TOT)} &euro; in un unico pagamento</option><option>Mensile &middot; {eu(MENSILE)} &euro; al mese</option></select>
  <input class="trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"><button class="btn pri">Invia la richiesta</button><p class="esito" role="status"></p><small>Usiamo la tua email solo per risponderti. <a href="/legale/#privacy">Privacy</a></small></form></div>
 <script>(function(){{var M="{eu(MENSILE)} \\u20ac",A="{eu(ANNUALE)} \\u20ac",S=document.querySelector("[data-sotto]"),T=S.innerHTML,sel=document.getElementById("cp");
  document.querySelectorAll(".cambio button").forEach(function(b){{b.onclick=function(){{var a=b.dataset.d=="a";
@@ -124,7 +124,7 @@ METODO = f"""
 
 DOMANDE = [("Devo avere esperienza?", "No. Ogni scheda ha testi brevi e una (i) che spiega come leggerla. Si parte dal profilo e dal portafoglio del mese."),
            ("Quanto tempo richiede?", "Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito."),
-           ("Quanto costa?", f"La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Poi resti in Basic, gratis. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese con il piano annuale (−{RISP}%). Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
+           ("Quanto costa?", f"La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Poi resti in Basic, gratis. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese con il piano annuale, pagato in un'unica soluzione da {eu(ANNO_TOT)} € (−{RISP}%). Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
            ("Come attivo Premium?", "Dalla pagina <a href=\"/prezzi/\">Prezzi</a> inserisci la tua email con «Contattaci»: riceverai le istruzioni per l'attivazione."),
            ("È una consulenza finanziaria?", "No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Ogni decisione resta tua. Dettagli nelle <a href=\"/legale/#rischi\">avvertenze sui rischi</a>."),
            ("Posso perdere denaro?", "Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento."),
