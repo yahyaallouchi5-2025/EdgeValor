@@ -157,11 +157,11 @@ function termometro(el){const T=D.btcsent;if(!el||!T||(!T.fng&&!T.cot)||el.query
    <div class="bmtv"><b style="color:${fngCol(F.v)}">${F.v}</b><span style="color:${fngCol(F.v)}">${esc(F.cl||"")}</span></div>
    ${scala(F.v,fngCol(F.v))}${spark(F.serie)}<small>Ultimo anno &middot; dato del ${gg(F.d)}</small></div>`:"";
  const riga=(nome,x)=>x&&x.indice!=null?`<div class="bmtr"><div class="bmtrn"><b>${nome}</b><span>${x.indice}/100 &middot; ${parola(x.indice)}</span></div>${scala(x.indice,x.indice<=20?"var(--s)":x.indice>=80?"var(--b)":"var(--n)")}</div>`:"";
- const cot=C?`<div class="bmtbox"><div class="bmtt"><span>Futures Bitcoin (CME)</span><em>COT CFTC</em></div>
+ const cot=C?`<div class="bmtbox"><div class="bmtt"><span>Futures Bitcoin (CME)</span><em>COT</em></div>
    ${riga("Piccoli trader",C.retail)}${riga("Grandi speculatori",C.spec)}<small>Posizione rispetto all'ultimo anno &middot; report del ${gg(C.d)}</small></div>`:"";
  const html=`<div class="bmtm"><h2>Termometro del sentiment <details class="info"><summary title="Come si legge" aria-label="Come si legge">i</summary><div>
-  <b>Fear &amp; Greed</b>: umore del mercato crypto da 0 (paura estrema) a 100 (avidit&agrave; estrema), calcolato da alternative.me.<br><br>
-  <b>Futures Bitcoin del CME</b>: posizioni settimanali dalla CFTC. Il numero dice dove sono oggi rispetto all'ultimo anno: 0 = il punto pi&ugrave; pessimista, 100 = il pi&ugrave; ottimista.<br><br>
+  <b>Fear &amp; Greed</b>: umore del mercato crypto da 0 (paura estrema) a 100 (avidit&agrave; estrema).<br><br>
+  <b>Futures Bitcoin del CME</b>: posizioni settimanali (COT). Il numero dice dove sono oggi rispetto all'ultimo anno: 0 = il punto pi&ugrave; pessimista, 100 = il pi&ugrave; ottimista.<br><br>
   <b>&Egrave; contesto, non un segnale</b>: nel nostro studio dal 2018 il sentiment non ha anticipato Bitcoin in modo stabile (la regola &laquo;compra con la paura estrema&raquo; ha funzionato nel 2018-21 e non nel 2022-26).
   Unico indizio coerente, ma piccolo: grandi speculatori molto ottimisti, mese dopo leggermente pi&ugrave; debole.</div></details></h2>
   <div class="bmtg">${fng}${cot}</div></div>`;

@@ -382,7 +382,7 @@ try{(function(){const el=$("azioni");if(!el)return;
     y+=alt;}
    // --- bilancio (aziende USA, fonte SEC)
    if(bil&&bil.anni&&bil.anni.length){const A=bil.anni.slice(-5),u=A[A.length-1],GC={"SOLIDA":C.up,"NELLA MEDIA":C.warn,"INDEBITATA":C.down}[bil.giudizio]||C.mute;
-    y=d.serve(y,60+24+A.length*15+50,T);y=E.sezione(d,y+24,"Bilancio",`${bil.anni.length} anni · fonte SEC`);
+    y=d.serve(y,60+24+A.length*15+50,T);y=E.sezione(d,y+24,"Bilancio",`${bil.anni.length} anni`);
     const wg=d.larghezza(String(bil.giudizio||""),8,true)+14;d.rett(M,y,wg,17,{f:GC,r:8.5});d.testo(M+wg/2,y+11.8,String(bil.giudizio||""),{s:8,b:true,c:C.bianco,a:"c"});
     d.testo(M+wg+8,y+11.8,d.taglia((bil.motivo||"")+(bil.lynch?` · ${bil.lynch.tipo}: ${bil.lynch.motivo||""}`:""),LW-wg-8,8.5),{s:8.5,c:C.mute});y+=25;
     const cw=(LW-3*6)/4;
@@ -411,7 +411,7 @@ try{(function(){const el=$("azioni");if(!el)return;
     if(pr&&!pr.vuoto){if(pr.fondata)fatti.push("Fondata: "+pr.fondata);const sede=[pr.sede,pr.paese].filter(Boolean).join(", ");if(sede)fatti.push("Sede: "+sede);
      if((pr.ceo||[]).length)fatti.push("Amministratore delegato: "+pr.ceo.join(", "));if(pr.dipendenti)fatti.push("Dipendenti: "+Number(pr.dipendenti.n).toLocaleString("it-IT")+(pr.dipendenti.anno?` (${pr.dipendenti.anno})`:""));}
     if(desc||fatti.length){const testo=desc.length>700?desc.slice(0,700).replace(/\s+\S*$/,"")+"…":desc,rg=testo?d.righe(testo,LW,8.6).length:0;
-     y=d.serve(y,40+rg*11.9+(fatti.length?14:0),T);y=E.sezione(d,y+24,"L'azienda",pr&&pr.desc?"fonte: Wikidata e Wikipedia":"");
+     y=d.serve(y,40+rg*11.9+(fatti.length?14:0),T);y=E.sezione(d,y+24,"L'azienda","");
      if(testo)y+=d.paragrafo(M,y+2,testo,LW,{s:8.6,c:C.ink})+4;
      if(fatti.length)y+=d.paragrafo(M,y+4,fatti.join("  ·  "),LW,{s:8.2,c:C.mute});}}
    d.salva(E.nomeFile(t.t.replace(/[^A-Za-z0-9]+/g,"-")),T,(n,tot)=>E.piede(d,n,tot));
@@ -516,7 +516,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  function bilancio(box,t){if(!box)return;
   fetch(BASE+"bilanci/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null).then(b=>{
    if(!box.isConnected)return;
-   if(!b||!b.anni||!b.anni.length){box.innerHTML=`<h4 class="aztit">Bilancio e trimestrali</h4><p class="small">Disponibile solo per le aziende USA (fonte SEC).</p>`;return;}
+   if(!b||!b.anni||!b.anni.length){box.innerHTML=`<h4 class="aztit">Bilancio e trimestrali</h4><p class="small">Disponibile solo per le aziende USA.</p>`;return;}
    const A=b.anni,u=A[A.length-1],g=GIU[b.giudizio]||["med",b.giudizio];
    const mx=Math.max(1,...A.map(y=>Math.abs(y.ricavi||0))),W=440,H=150,T=10,B=22,bw=(W/A.length);
    const Y0=T+(H-T-B)*0.78,Ys=v=>Math.min(Y0-T,(Math.abs(v)/mx)*(Y0-T)),Yn=v=>Math.min(H-B-Y0-4,(Math.abs(v)/mx)*(Y0-T));   // zero al 78%: le perdite scendono sotto
@@ -524,8 +524,8 @@ try{(function(){const el=$("azioni");if(!el)return;
     return `<rect x="${(x+bw*.16).toFixed(1)}" y="${(Y0-r).toFixed(1)}" width="${(bw*.32).toFixed(1)}" height="${r.toFixed(1)}" rx="3" class="bric"><title>${y.a}: ricavi ${dollari(y.ricavi).replace("&minus;","-")}</title></rect>
      <rect x="${(x+bw*.52).toFixed(1)}" y="${(y.utile>=0?Y0-uu:Y0).toFixed(1)}" width="${(bw*.32).toFixed(1)}" height="${Math.max(1,uu).toFixed(1)}" rx="3" class="${y.utile>=0?"butu":"bper"}"><title>${y.a}: utile ${dollari(y.utile).replace("&minus;","-")}</title></rect>
      <text x="${(x+bw/2).toFixed(1)}" y="${H-6}" text-anchor="middle" class="pax">${y.a}</text>`;}).join("");
-   box.innerHTML=`<h4 class="aztit">Bilancio <span class="small">${A.length} anni &middot; SEC</span>
-     <details class="info"><summary title="Da dove arrivano i dati" aria-label="Informazioni">i</summary><div>Bilanci annuali (10-K) depositati alla SEC: arrivano 2-3 mesi dopo la chiusura dell'anno fiscale e qui si aggiornano ogni settimana. Giudizio automatico e semplificato, non una valutazione di investimento.</div></details></h4>
+   box.innerHTML=`<h4 class="aztit">Bilancio <span class="small">${A.length} anni</span>
+     <details class="info"><summary title="Da dove arrivano i dati" aria-label="Informazioni">i</summary><div>Bilanci annuali ufficiali (10-K): arrivano 2-3 mesi dopo la chiusura dell'anno fiscale e qui si aggiornano ogni settimana. Giudizio automatico e semplificato, non una valutazione di investimento.</div></details></h4>
     <div class="bgiu ${g[0]}"><b>${g[1]}</b><span>${esc(b.motivo||"")}</span></div>${b.lynch?`<div class="blyn"><span class="blynt">${esc(b.lynch.tipo)}</span><span>${esc(b.lynch.motivo||"")}</span>
      <details class="info"><summary title="I tipi di Peter Lynch" aria-label="Informazioni">i</summary><div>Classificazione di Peter Lynch (&laquo;One Up on Wall Street&raquo;) dagli utili degli ultimi anni, solo per capire <b>cosa aspettarsi</b>: <b>Crescita lenta</b> (sotto il 10% l'anno): aziende mature, si tengono per il dividendo. <b>Solida</b> (10-20%): grandi aziende stabili, guadagni moderati e buona tenuta nelle crisi. <b>Crescita rapida</b> (oltre 20%): il potenziale pi&ugrave; alto e il rischio pi&ugrave; alto, finch&eacute; la crescita dura. <b>Ciclica</b> (materiali, energia): utili che seguono il ciclo economico, contano i tempi. <b>In ripresa</b>: tornata in utile dopo una perdita. Non entra nel punteggio Forza e non &egrave; un consiglio.</div></details></div>`:""}
     <div class="azmini bmini"><div><span>Ricavi ${u.a}</span><b>${dollari(u.ricavi)}</b>${b.crescita!=null?`<em class="${b.crescita>=0?"up":"down"}">${b.crescita>0?"+":""}${fx(b.crescita,1)}% l'anno</em>`:""}</div>
@@ -563,7 +563,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   const c=b.conti,oggi=new Date().toISOString().slice(0,10);
   const pross=c?(c.prossimo<=oggi?`<b>attesi a breve</b>`:`<b>~ ${dataIt(c.prossimo)}</b>`):"";
   return `<h4 class="aztit tritit">Risultati trimestrali
-    <details class="info"><summary title="Come leggere la tabella" aria-label="Informazioni">i</summary><div>Ricavi, utile netto e utile per azione (EPS diluito) dai bilanci trimestrali depositati alla SEC (10-Q), con la variazione rispetto allo stesso trimestre dell'anno prima. Il 4&deg; trimestre non viene depositato da solo: &egrave; calcolato come anno intero meno i primi tre (*). La data dei prossimi conti &egrave; una stima basata sul calendario dell'anno precedente. Dati gratuiti con qualche giorno di ritardo; le stime degli analisti non sono incluse.</div></details></h4>
+    <details class="info"><summary title="Come leggere la tabella" aria-label="Informazioni">i</summary><div>Ricavi, utile netto e utile per azione (EPS diluito) dai bilanci trimestrali ufficiali (10-Q), con la variazione rispetto allo stesso trimestre dell'anno prima. Il 4&deg; trimestre non viene depositato da solo: &egrave; calcolato come anno intero meno i primi tre (*). La data dei prossimi conti &egrave; una stima basata sul calendario dell'anno precedente. Dati gratuiti con qualche giorno di ritardo; le stime degli analisti non sono incluse.</div></details></h4>
    ${c?`<div class="tconti"><span>Ultimi conti <b>${dataIt(c.ultimo)}</b></span><span class="prox">Prossimi conti (stima) ${pross}</span></div>`:""}
    <div class="ttab"><table><thead><tr><th>Trimestre</th><th>Ricavi</th><th class="tut">Utile netto</th><th>EPS</th></tr></thead><tbody>${righe}</tbody></table></div>`;}
 
@@ -576,7 +576,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    if(!box.isConnected||!x||!(x.n||[]).length)return;
    const tono=v=>v==null?["neu","tono non stimato"]:v>=0.25?["pos","tono positivo"]:v<=-0.25?["neg","tono negativo"]:["neu","tono neutro"];
    const data=d=>{const g=new Date(d+"T12:00:00");return g.toLocaleDateString("it-IT",{day:"numeric",month:"short"});};
-   box.innerHTML=`<h4 class="aztit">Ultime notizie <details class="info"><summary title="Da dove arrivano" aria-label="Informazioni">i</summary><div>Titoli delle notizie finanziarie degli ultimi 30 giorni (EODHD), in inglese: il tocco apre l'articolo sulla fonte. Il pallino &egrave; il <b>tono</b> della notizia stimato automaticamente (verde positivo, rosso negativo, grigio neutro): una lettura veloce, non un segnale di acquisto o vendita.</div></details></h4>
+   box.innerHTML=`<h4 class="aztit">Ultime notizie <details class="info"><summary title="Da dove arrivano" aria-label="Informazioni">i</summary><div>Titoli delle notizie finanziarie degli ultimi 30 giorni, in inglese: il tocco apre l'articolo sulla fonte. Il pallino &egrave; il <b>tono</b> della notizia stimato automaticamente (verde positivo, rosso negativo, grigio neutro): una lettura veloce, non un segnale di acquisto o vendita.</div></details></h4>
     <div class="aznl">${x.n.map(n=>{const s=tono(n.tono);return `<a class="azn" href="${esc(n.link)}" target="_blank" rel="noopener noreferrer"><i class="aznt ${s[0]}" title="${s[1]}"></i><span class="azn-t">${esc(n.titolo)}</span><small>${esc(n.fonte||"")} &middot; ${data(n.d)}</small></a>`;}).join("")}</div>`;
    box.hidden=false;});}
  // v7.7 quando manca la descrizione: una riga con quello che sappiamo (settore e borsa) e la ricerca su Wikipedia
@@ -597,7 +597,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    const val=d.valuta||t.val,l=lv(t),px=l?l.p:t.p,dy=d.u12&&px?d.u12/px*100:0;
    const FREQ={1:"Annuale",2:"Semestrale",4:"Trimestrale",12:"Mensile"},fq=FREQ[d.freq]||(d.freq?d.freq+" volte l'anno":"&ndash;");
    const S=d.storia||[],mx=Math.max(...S.map(x=>x[1]),0)||1,u=(d.ultimi||[])[0];
-   const info=`<details class="info"><summary title="Come si legge" aria-label="Informazioni">i</summary><div><b>Rendimento</b>: dividendi staccati negli ultimi 12 mesi diviso il prezzo di oggi. <b>Crescita 5 anni</b>: aumento medio annuo del dividendo tra l'ultimo anno completo e 5 anni prima. <b>Anni di aumenti</b>: anni di fila in cui il dividendo tipico (mediana dei pagamenti dell'anno) &egrave; salito; da 25 in su l'azienda &egrave; un &laquo;aristocratico&raquo; del dividendo. Sotto: anni di fila con almeno un dividendo. Importi rettificati per i frazionamenti; l'anno in corso &egrave; parziale. <b>Copertura</b> (titoli USA, bilanci SEC): dividendi pagati nell'ultimo anno fiscale in percentuale dell'utile e del flusso di cassa libero (cassa operativa meno investimenti). <b>Coperto</b> = sotto il 75%; <b>Attenzione</b> = sopra il 75% o salito di oltre 25 punti in un anno; <b>A rischio</b> = dividendi superiori al flusso di cassa libero o pagati in un anno in perdita. Un payout che sale di colpo spesso anticipa un taglio del dividendo. Il dividendo si incassa se si possiede il titolo il giorno prima dello <b>stacco</b>. Su Scalable in regime amministrato il dividendo arriva gi&agrave; tassato (26% in Italia, pi&ugrave; l'eventuale ritenuta del paese della societ&agrave;).</div></details>`;
+   const info=`<details class="info"><summary title="Come si legge" aria-label="Informazioni">i</summary><div><b>Rendimento</b>: dividendi staccati negli ultimi 12 mesi diviso il prezzo di oggi. <b>Crescita 5 anni</b>: aumento medio annuo del dividendo tra l'ultimo anno completo e 5 anni prima. <b>Anni di aumenti</b>: anni di fila in cui il dividendo tipico (mediana dei pagamenti dell'anno) &egrave; salito; da 25 in su l'azienda &egrave; un &laquo;aristocratico&raquo; del dividendo. Sotto: anni di fila con almeno un dividendo. Importi rettificati per i frazionamenti; l'anno in corso &egrave; parziale. <b>Copertura</b> (titoli USA): dividendi pagati nell'ultimo anno fiscale in percentuale dell'utile e del flusso di cassa libero (cassa operativa meno investimenti). <b>Coperto</b> = sotto il 75%; <b>Attenzione</b> = sopra il 75% o salito di oltre 25 punti in un anno; <b>A rischio</b> = dividendi superiori al flusso di cassa libero o pagati in un anno in perdita. Un payout che sale di colpo spesso anticipa un taglio del dividendo. Il dividendo si incassa se si possiede il titolo il giorno prima dello <b>stacco</b>. Su Scalable in regime amministrato il dividendo arriva gi&agrave; tassato (26% in Italia, pi&ugrave; l'eventuale ritenuta del paese della societ&agrave;).</div></details>`;
    if(!d.u12&&!d.anni){box.innerHTML=`<h4 class="aztit">Dividendi ${info}</h4><p class="small">Nessun dividendo negli ultimi anni.</p>`;box.hidden=false;return;}
    box.innerHTML=`<h4 class="aztit">Dividendi ${info}</h4>
     <div class="azdvt"><b>${fx(dy,2)}%</b><span>rendimento ultimi 12 mesi<br><em>${prezzo(d.u12,val)} per azione</em></span></div>${cop}
@@ -621,7 +621,7 @@ try{(function(){const el=$("azioni");if(!el)return;
      ${f((p.ceo||[]).length>1?"Amministratori delegati":"Amministratore delegato",esc((p.ceo||[]).join(", ")))}${f("Dipendenti",dip)}
      ${f("Quotata su",esc((p.borse||[]).join(", ")||t.l.map(nomeList).join(", ")))}${acq?f("Acquisita da",esc(acq.nome)+` <em>(${acq.anno})</em>`):""}
 </div>
-    <p class="small azfonte">Fonte: Wikidata e Wikipedia${p.desc&&p.desc.url?` &middot; <a href="${esc(p.desc.url)}" target="_blank" rel="noopener">voce completa</a>`:""}${p.sito?` &middot; <a href="${esc(p.sito)}" target="_blank" rel="noopener">sito ufficiale</a>`:""}.</p>`;
+    ${(p.desc&&p.desc.url)||p.sito?`<p class="small azfonte">${[p.desc&&p.desc.url?`<a href="${esc(p.desc.url)}" target="_blank" rel="noopener">Leggi su Wikipedia</a>`:"",p.sito?`<a href="${esc(p.sito)}" target="_blank" rel="noopener">Sito ufficiale</a>`:""].filter(Boolean).join(" &middot; ")}</p>`:""}`;
    // v6.73: ISIN copiabile (per cercare il titolo nell'app del broker). v7.22: nella riga in alto accanto al settore
    const slot=document.querySelector(".azdett.on .azisin");
    if(slot&&p.isin)slot.innerHTML=`<button type="button" class="pisin" title="Copia l'ISIN da cercare nell'app del broker">ISIN <code>${esc(p.isin)}</code><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>`;

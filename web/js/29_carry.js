@@ -51,9 +51,9 @@ function crCorpo(){const H=CR.H,S=D.carry_st,C=D.carry||{},X=S.varianti[CR.v],pc
    <div class="crtot">Carry del paniere <b class="up">${pc(P.carry)}</b> <span class="small">l'anno</span></div></div>`:"";
  const vec=Object.values(T).some(x=>x.vecchio);
  const tassi=`<details class="vfdett crtassi"><summary>Tassi d'interesse usati${vec?' <span class="tag">alcuni in ritardo</span>':""}</summary>
-  <div class="tablewrap"><table class="compatta"><tr><th>Valuta</th><th class="num">Tasso</th><th class="num">Mese</th><th class="crmob">Fonte FRED</th></tr>
+  <div class="tablewrap"><table class="compatta"><tr><th>Valuta</th><th class="num">Tasso</th><th class="num">Mese</th></tr>
   ${Object.entries(T).sort((a,b)=>b[1].v-a[1].v).map(([v,x])=>`<tr><td><b>${v}</b> <span class="small crmob">${esc(x.nome)}</span></td><td class="num">${pc(x.v)}</td>
-   <td class="num${x.vecchio?" crold":""}">${mese(x.mese)}${x.vecchio?' <span title="Dato vecchio: la fonte non ha ancora pubblicato i mesi recenti">&#9888;</span>':""}</td><td class="crmob small">${esc(x.fonte||"")}</td></tr>`).join("")}</table></div>
+   <td class="num${x.vecchio?" crold":""}">${mese(x.mese)}${x.vecchio?' <span title="Dato vecchio: la fonte non ha ancora pubblicato i mesi recenti">&#9888;</span>':""}</td></tr>`).join("")}</table></div>
   <p class="small">Tassi interbancari a 3 mesi (OECD) o a brevissimo termine, mensili, con 1-2 mesi di ritardo. Il broker applica swap un po' peggiori.</p></details>`;
  setTimeout(crDisegna,0);
  return testa+kpi+graf+tab+pan+tassi;}

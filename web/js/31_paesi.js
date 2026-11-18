@@ -41,6 +41,6 @@ try{(function(){
  $("pefiltri").innerHTML=FIL.map(([n,f])=>`<button data-f="${n}">${n} <small>${P.paesi.filter(f).length}</small></button>`).join("");
  $("pefiltri").querySelectorAll("button").forEach(b=>b.onclick=()=>{sel=b.dataset.f;disegna();});
  const gg=d=>d?d.split("-").reverse().join("/"):"",ult=P.paesi.map(r=>B(r).t).filter(Boolean).sort().pop();
- $("pefonte").innerHTML=`Economia: ${esc(P.fonte)}${P.agg?` (${gg(P.agg)})`:""}${P.copia?", ultima copia":""}${ult?` &middot; Borsa: prezzi al ${gg(ult)}`:""}`;
+ $("pefonte").innerHTML=`${P.agg?`Economia: aggiornata il ${gg(P.agg)}`:""}${ult?`${P.agg?" &middot; ":""}Borsa: prezzi al ${gg(ult)}`:""}`;
  disegna();
 })();}catch(e){fail('Paesi emergenti','sig',e);}
