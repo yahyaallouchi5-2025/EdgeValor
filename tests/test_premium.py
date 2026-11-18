@@ -104,5 +104,20 @@ class Premium(unittest.TestCase):
             self.assertEqual(PR._leggi(os.path.join(d, "indice.json")), {"titoli": [{"t": "AAPL"}]})
 
 
+
+class MacroChiusa(unittest.TestCase):
+    """v8.08 Macro chiusa al Basic: resta solo il punteggio del clima, il resto e' una toppa Premium."""
+
+    def test_market_e_fed(self):
+        from cot_radar import premium
+        d = {"market": {"risk": 12, "drivers": [{"key": "vix"}], "anchor": "2026-11-17"}, "fed": {"bs": 1}}
+        basic, toppe = premium.separa(d)
+        self.assertEqual(basic["market"], {"risk": 12})
+        self.assertIsNone(basic["fed"])
+        percorsi = [t[0] for t in toppe]
+        self.assertIn(["market"], percorsi)
+        self.assertIn(["fed"], percorsi)
+        self.assertEqual(d["market"]["drivers"], [{"key": "vix"}])      # l'originale non viene toccato
+
 if __name__ == "__main__":
     unittest.main()

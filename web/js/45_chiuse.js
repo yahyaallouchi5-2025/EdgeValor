@@ -1,6 +1,6 @@
-/* ---------- 45_chiuse.js - v8.07 SCHEDE CHIUSE AL BASIC (Ya, 18/11/2026) ----------
-   Per chi NON ha Premium (EB_PREMIUM falso) queste schede sono chiuse: COT, Forex, Crypto, Volatilita',
-   Stagionalita', Correlazioni. I loro dati NON sono nella pagina (premium.py li cifra e lascia contenitori vuoti):
+/* ---------- 45_chiuse.js - v8.08 SCHEDE CHIUSE AL BASIC (Ya, 18/11/2026) ----------
+   Per chi NON ha Premium (EB_PREMIUM falso) queste schede sono chiuse: COT, Forex, Macro, Crypto, Volatilita',
+   Stagionalita', Correlazioni, Live. I loro dati NON sono nella pagina (premium.py li cifra e lascia contenitori vuoti):
    qui si mette solo la grafica del lucchetto. Ultimo file: lavora dopo che le altre schede si sono disegnate.
    COSA FA:
      1) ogni scheda chiusa mostra titolo + lucchetto "Passa a Premium" (ebBlocco di 01_base.js);
@@ -19,7 +19,9 @@
   btc:["Crypto","Bussola macro di Bitcoin, sentiment e tabella completa delle criptovalute."],
   volat:["Volatilità","Quanto si muove ogni strumento: regime di adesso, settimana, giorno e mese."],
   stag:["Stagionalità","Gli effetti stagionali affidabili, strumento per strumento."],
-  corr:["Correlazioni","Chi si muove insieme e chi al contrario, tra prezzi e flussi."]};
+  corr:["Correlazioni","Chi si muove insieme e chi al contrario, tra prezzi e flussi."],
+  mkt:["Macro","I driver del mercato, quanto è già scontato nei prezzi e la liquidità della Fed."],
+  verifica:["Live","Il registro dei segnali veri e il backtest storico, con ogni risultato."]};
  window.EB_CHIUSE=Object.keys(CHIUSE);
  // 1) schede chiuse
  for(const k in CHIUSE){const s=$(k);if(!s)continue;const [t,x]=CHIUSE[k];
@@ -34,8 +36,9 @@
  const da=$("topaz"),a=$("peblocco");
  if(da&&a&&da.parentNode==a.parentNode){let n=da.nextSibling;while(n&&n!=a){const p=n.nextSibling;n.remove();n=p;}
   a.insertAdjacentHTML("beforebegin",`<h2>Posizionamento</h2>${ebBlocco("Dove puntano gli speculatori","Forex, materie prime, indici, tassi e crypto: i segnali attivi di questa settimana.",{velo:true,righe:6,cls:"plk-scheda"})}`);}
- // Macro resta aperta, tranne la tabella per strumento (punteggio "Mercato" di ogni strumento = parte del COT)
- const mt=$("mtable");if(mt){const w=mt.closest(".tablewrap")||mt;w.outerHTML=ebBlocco("Quanto è già scontato, strumento per strumento","Mossa implicita, mossa reale e punteggio di ogni strumento.",{velo:true,righe:5});}
+ // la card "Clima del mercato" resta visibile, ma non porta piu' alla scheda Macro (niente ponti)
+ document.querySelectorAll('#kpis .kz2,[data-vai="mkt"],[data-vai="verifica"]').forEach(c=>{if(c.closest("#mercati,.ngrp"))return;
+  ["href","data-vai","title"].forEach(n=>c.removeAttribute(n));c.classList.add("kzferma");});
  // 3) pagina Mercati: lucchetto sulle card delle schede chiuse (la card apre la scheda, che mostra solo il lucchetto)
  function hub(){document.querySelectorAll("#mercati [data-t],#mercati [data-vai]").forEach(c=>{const k=c.dataset.t||c.dataset.vai;
    if(CHIUSE[k]&&!c.querySelector(".hblk")){c.classList.add("hbchiusa");c.insertAdjacentHTML("beforeend",`<span class="hblk" title="Premium">${LUCCHETTO}</span>`);}});}

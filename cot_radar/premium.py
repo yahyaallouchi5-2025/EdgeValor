@@ -43,7 +43,7 @@ STAG_PREMIUM = ("finestra", "sett", "mesi", "giorni")
 
 # v8.07 blocchi di dati interamente Premium -> valore vuoto lasciato al Basic (stessa forma, nessun dato)
 CHIUSE = {"assets": {}, "pairs": [], "order": [], "corr": {"keys": [], "m": []}, "corr_px": None, "stag": {}, "vol": {}, "tat": {},
-          "crypto": None, "btcsent": None, "carry": None, "categorie": None, "tv": {}, "tvp": {}}
+          "crypto": None, "btcsent": None, "carry": None, "categorie": None, "tv": {}, "tvp": {}, "fed": None}
 
 _PUB = None               # (id, chiave) della costruzione in corso: una sola chiave per pagina e file delle azioni
 
@@ -143,6 +143,12 @@ def separa(data):
         if originale.get(k) is not None:
             toppe.append([[k], copy.deepcopy(originale[k])])
             d[k] = copy.deepcopy(vuoto)
+    # v8.08 MACRO chiusa al Basic (Ya, 18/11/2026): driver, tabella "gia' scontato" e liquidita' Fed sono Premium.
+    # Al Basic resta solo il punteggio del clima (lancetta "Clima del mercato" della Dashboard).
+    m = originale.get("market")
+    if isinstance(m, dict):
+        toppe.append([["market"], copy.deepcopy(m)])
+        d["market"] = {"risk": m.get("risk")}
     return d, toppe
 
 

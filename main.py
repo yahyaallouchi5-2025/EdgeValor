@@ -166,7 +166,13 @@ def main(argv):
     from cot_radar.pagina import ULTIMI
     if ULTIMI.get("verifica") is not None:
         with open(os.path.join(os.path.dirname(out), "verifica.json"), "w", encoding="utf-8") as f:
-            json.dump(ULTIMI["verifica"], f, ensure_ascii=False, separators=(",", ":"))
+            # v8.08 scheda Live chiusa al Basic: sul sito il file esce CIFRATO ({"__p": ...}, vedi premium.py);
+            # senza chiave del database esce vuoto (mai in chiaro). Sul PC resta in chiaro.
+            ver = ULTIMI["verifica"]
+            if site:
+                from cot_radar import premium
+                ver = premium.file_premium(ver)
+            json.dump(ver, f, ensure_ascii=False, separators=(",", ":"))
     log.info("Pagina creata: %s  |  registro: %s", out, REGISTRO)
     if site:
         # SCHEDA AZIONI: dati del ramo "azioni" (workflow azioni.yml) copiati in <sito>/azioni/.

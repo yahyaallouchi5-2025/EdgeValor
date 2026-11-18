@@ -3390,3 +3390,8 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 .hblk svg{width:15px;height:15px;fill:none;stroke:var(--oro);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .hbchiusa .hbart{opacity:.55}
 .kzchiusa .kzvai{display:none}
+
+/* v8.08 card della Dashboard senza collegamento (scheda Macro chiusa al Basic) */
+.kzferma{cursor:default}
+.kzferma .kzvai{display:none}
+.kzferma:hover{transform:none;box-shadow:none}.kzferma:hover::after{opacity:0}

@@ -387,12 +387,13 @@ ebVerifica("vol");                                       // v7.48 scheda Volatil
    aperta da file) i dati restano dentro la pagina: il browser non permette di leggere file vicini. */
 (function(){const el=$("verifica");if(!el)return;
  if(D.reg||D.bt||!D.verifica){ebVerifica();return;}
+ if(!EB_PREMIUM)return;                                  // v8.08 Live chiusa al Basic: lucchetto di 45_chiuse.js, niente download
  let stato="";                                           // "" = da caricare, "in corso", "ok"
  const sk=(w,h)=>`<i class="sk" style="width:${w};height:${h}px;display:block;margin-bottom:14px;border-radius:12px"></i>`;
  function carica(){if(stato)return;stato="in corso";
   el.innerHTML=`<h2>Live</h2>${sk("40%",16)}${sk("100%",120)}${sk("100%",320)}`;
-  fetch(D.verifica,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
-   .then(v=>{D.reg=v.reg;D.bt=v.bt;D.carry_st=v.carry_st;stato="ok";el.innerHTML="";ebVerifica();})
+  fetch(D.verifica,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(v=>window.ebPrem?ebPrem.apri(v):v)   // v8.08 file cifrato: si apre con la chiave Premium
+   .then(v=>{if(!v||(!v.reg&&!v.bt))throw new Error("file non aperto");D.reg=v.reg;D.bt=v.bt;D.carry_st=v.carry_st;stato="ok";el.innerHTML="";ebVerifica();})
    .catch(e=>{stato="";console.warn("[EdgeValor] verifica.json:",e);
     el.innerHTML=`<h2>Live</h2><div class="card" style="padding:18px 20px"><p class="small">I dati della verifica non si sono caricati (connessione). </p><button class="tvbtn vfriprova">Riprova</button></div>`;
     const b=el.querySelector(".vfriprova");if(b)b.onclick=carica;});}
