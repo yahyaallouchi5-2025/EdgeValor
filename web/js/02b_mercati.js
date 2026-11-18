@@ -26,7 +26,7 @@ try{(function(){
  function prossima(g,d){let t=new Date(Math.ceil(d.getTime()/6e5)*6e5);          // griglia di 10 minuti, fino a 10 giorni
   for(let k=0;k<1440;k++,t=new Date(t.getTime()+6e5))if(apertoG(g,t))return t;return null;}
  function festivoG(g,d){for(const b of membri(g)){const i=info(b),l=loc(i.fuso,d);if(i.festivi[l.ymd]&&i.giorni.includes(l.wd))return i.festivi[l.ymd];}return null;}
- const oraIt=t=>t.toLocaleString("it-IT",{timeZone:"Europe/Rome",weekday:"short",day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit"});
+ const oraIt=t=>t.toLocaleString(EB_LOC,{timeZone:"Europe/Rome",weekday:"short",day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit"});
  function stato(g,d){d=d||new Date();const a=apertoG(g,d);return {aperto:a,prossima:a?null:prossima(g,d),festivo:festivoG(g,d)};}
  function html(){const ora=new Date(),S=GRUPPI.map(([g])=>[g,stato(g,ora)]);
   const aperti=S.filter(x=>x[1].aperto).map(x=>x[0]),prox=S.filter(x=>!x[1].aperto&&x[1].prossima).sort((a,b)=>a[1].prossima-b[1].prossima);

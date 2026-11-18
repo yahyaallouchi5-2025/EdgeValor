@@ -210,8 +210,8 @@ function sgStag(st){if(!st)return "";
    Quali dati sono: solo al passaggio del mouse o toccando la riga (elenco .sgd), come chiesto.
    valute = ["USD"] per gli strumenti in dollari, [base, quotata] per una coppia; news = p.news della coppia (o niente). */
 const AGE=((D.agenda||{}).eventi||[]).filter(e=>e.impatto=="high");
-const fGiorno=new Intl.DateTimeFormat("it-IT",{timeZone:"Europe/Rome",weekday:"short",day:"numeric",month:"short"}),
-      fOra=new Intl.DateTimeFormat("it-IT",{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"}),
+const fGiorno=new Intl.DateTimeFormat(EB_LOC,{timeZone:"Europe/Rome",weekday:"short",day:"numeric",month:"short"}),
+      fOra=new Intl.DateTimeFormat(EB_LOC,{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"}),
       fYmd=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome"});
 const SGFRECCIA='<svg class="sgv" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 function sgNews(valute,news){const ora=Date.now(),G=864e5,tm=e=>Date.parse(e.utc||e.data+"T22:59Z"),nome=e=>esc(e.nome.replace(/\s*\(.*\)$/,""));

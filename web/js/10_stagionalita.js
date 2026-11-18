@@ -44,7 +44,7 @@ try{(function(){const S=D.stag||{},el=$("stag"),M12=["Gen","Feb","Mar","Apr","Ma
   const parti=(d,z)=>Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:z,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(d).map(x=>[x.type,x.value]));
   const p=parti(n,tz),guess=Date.UTC(+p.year,+p.month-1,+p.day,h,m),q=parti(new Date(guess),tz);
   const off=Date.UTC(+q.year,+q.month-1,+q.day,+q.hour,+q.minute)-guess;
-  return new Date(guess-off).toLocaleTimeString("it-IT",{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"});}
+  return new Date(guess-off).toLocaleTimeString(EB_LOC,{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"});}
  function giornata(k){const c=CHIUSURA[k];
   if(!c)return "Prezzo spot giornaliero EIA (FRED): l'orario esatto di rilevazione non &egrave; pubblicato.";
   const r=oraRoma(c[0],c[1]),dopo=r<"12:00"&&c[1]>="12:00";       // es. Coinbase 17:00 PT = 02:00 di Roma del giorno dopo

@@ -32,12 +32,12 @@ try{(function(){const el=$("stag");if(!el)return;
  function tessera(tit,c,nota){if(!c)return `<div class="sr-t vuota"><span>${tit}</span><b>n/d</b><small>${nota||"pochi dati"}</small></div>`;
   const [n,su,med,,, ,,ok]=c,col=su>=50?"var(--b)":"var(--s)";
   return `<div class="sr-t${ok?" ok":""}"><span>${tit}</span><b style="color:${ok?col:"var(--ink2)"}">${fx(su,0)}%<i>in rialzo</i></b>
-   <small>media ${pc(med)} &middot; ${n.toLocaleString("it-IT")} casi</small>${ok?`<em class="tag ok">affidabile</em>`:`<em class="tag">neutro</em>`}</div>`;}
+   <small>media ${pc(med)} &middot; ${n.toLocaleString(EB_LOC)} casi</small>${ok?`<em class="tag ok">affidabile</em>`:`<em class="tag">neutro</em>`}</div>`;}
  // tabella stile backtester MT5
  function tabella(righe,attuale){return `<div class="tablewrap sr-tw"><table class="vftab sr-tab"><tr><th></th><th class="num">Casi</th><th class="num">% rialzo</th>
    <th class="num">Media</th><th class="num sr-x">Media rialzi</th><th class="num sr-x">Media ribassi</th><th class="num">Rapporto</th><th></th></tr>
   ${righe.map(([et,k,c])=>{if(!c)return "";const [n,su,med,mu,md,rap,z,ok]=c;
-   return `<tr class="${ok?"":"sr-grigio"}${k==attuale?" sr-ora":""}"><td><b>${et}</b></td><td class="num">${n.toLocaleString("it-IT")}</td>
+   return `<tr class="${ok?"":"sr-grigio"}${k==attuale?" sr-ora":""}"><td><b>${et}</b></td><td class="num">${n.toLocaleString(EB_LOC)}</td>
     <td class="num"><span class="sr-bar"><i style="width:${su}%;background:${su>=50?"var(--b)":"var(--s)"}"></i></span>${fx(su,1)}%</td>
     <td class="num ${med>0?"up":med<0?"down":""}">${pc(med)}</td><td class="num sr-x up">${pc(mu)}</td><td class="num sr-x down">${pc(md)}</td>
     <td class="num">${rap==null?"n/d":fx(rap,2)}</td><td>${ok?`<span class="tag ${su>=50?"ok":"ko"}" title="z ${fx(z,1)}">${su>=50?"&uarr;":"&darr;"}</span>`:""}</td></tr>`;}).join("")}</table></div>`;}
@@ -74,7 +74,7 @@ try{(function(){const el=$("stag");if(!el)return;
  function mostra(e){const c=e.dataset.c.split("|"),[n,su,med,mu,md,rap,,ok]=c.map((v,i)=>i==7?v=="true":v===""?null:+v),r=e.getBoundingClientRect();
   nascondi();e.classList.add("sel");
   const ti=e.dataset.tit;tip.innerHTML=`<h5>${ti.charAt(0).toUpperCase()+ti.slice(1)}${e.classList.contains("ora")?" <span>&middot; adesso</span>":""}</h5>
-   <div><em>Casi</em><b>${n.toLocaleString("it-IT")}</b></div><div><em>% rialzo</em><b class="${su>=50?"up":"down"}">${fx(su,1)}%</b></div>
+   <div><em>Casi</em><b>${n.toLocaleString(EB_LOC)}</b></div><div><em>% rialzo</em><b class="${su>=50?"up":"down"}">${fx(su,1)}%</b></div>
    <div><em>Media</em><b class="${med>0?"up":med<0?"down":""}">${pc(med)}</b></div><div><em>Media rialzi</em><b class="up">${pc(mu)}</b></div>
    <div><em>Media ribassi</em><b class="down">${pc(md)}</b></div><div><em>Rapporto</em><b>${rap==null?"n/d":fx(rap,2)}</b></div>
    <span class="tag${ok?" ok":""}">${ok?"affidabile":"neutro"}</span>`;
