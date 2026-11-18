@@ -14,11 +14,11 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  if(solaVol)V.fin="vol";else if(!["live","bt"].includes(V.fin))V.fin="live";   // v7.48 viste rimaste
  const salva=()=>{try{const s=Object.assign({},V);if(solaVol)delete s.fin;            // la scheda Volatilita' non cambia la vista della Verifica
   localStorage.setItem("ebVerifica",JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("ebVerifica")||"{}"),s)));}catch(e){}};
- const pc=(x,d=2)=>x==null||isNaN(x)?"n/d":(x>0?"+":x<0?"−":"")+Math.abs(x).toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d})+"%";
+ const pc=(x,d=2)=>x==null||isNaN(x)?"n/d":(x>0?"+":x<0?"−":"")+Math.abs(x).toLocaleString(EB_LOC,{minimumFractionDigits:d,maximumFractionDigits:d})+"%";
  const col=x=>x==null?"":x>0?"up":x<0?"down":"flat";
- const prezzo=p=>{if(p==null)return"n/d";const d=p>=1000?2:p>=100?3:p>=10?3:4;return p.toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d});};
+ const prezzo=p=>{if(p==null)return"n/d";const d=p>=1000?2:p>=100?3:p>=10?3:4;return p.toLocaleString(EB_LOC,{minimumFractionDigits:d,maximumFractionDigits:d});};
  const oraIt=u=>{if(!u)return"";const t=new Date(u.replace("Z",":00Z"));
-  return t.toLocaleDateString("it-IT",{timeZone:"Europe/Rome",day:"2-digit",month:"2-digit",year:"numeric"})+" ore "+t.toLocaleTimeString("it-IT",{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"});};
+  return t.toLocaleDateString(EB_LOC,{timeZone:"Europe/Rome",day:"2-digit",month:"2-digit",year:"numeric"})+" ore "+t.toLocaleTimeString(EB_LOC,{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"});};
  const sett=(a,b)=>Math.max(1,Math.round((new Date(b)-new Date(a))/864e5/7));
  const MOT={neutro:"tornato NEUTRO",inversione:"segnale invertito",indebolito:"tornato da forte a normale","12 settimane":"limite di 12 settimane"};
 
@@ -63,7 +63,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
     La "natura" di ogni mercato: quanto si muove per giorno della settimana, per settimana, per mese del
     calendario e anno per anno, e in che regime e' adesso. Volatilita' da chiusura a chiusura (FRED). */
  const VCOL={calma:"var(--c1)",normale:"var(--warn)",agitata:"var(--ss)"};
- const fp=(x,d=2)=>x==null?"n/d":x.toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d})+"%";
+ const fp=(x,d=2)=>x==null?"n/d":x.toLocaleString(EB_LOC,{minimumFractionDigits:d,maximumFractionDigits:d})+"%";
  const volTag=v=>v?` <span class="tag vfvtag" style="--vc:${VCOL[v.nome]}" title="Volatilita' delle 4 settimane prima del segnale (${fp(v.vol,1)} annua) rispetto agli ultimi 5 anni">vol. ${v.nome} &middot; ${v.pct}&deg;</span>`:"";
  /* barre verticali semplici: items = [{et, v, v2?, evid?, tit?}]; v2 = seconda serie (ultimo anno) */
  function barre(items,dec,cls){const mx=Math.max(1e-9,...items.flatMap(x=>[x.v||0,x.v2||0]));
@@ -123,8 +123,8 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  function ddRiga(lista,campi,d){d=d??V.d;const r=lista&&lista[d=="fine"?20:d-1];if(!r||!campi)return null;
   const o={};campi.forEach((k,i)=>o[k]=r[i]);return o.n?o:null;}
  // punti: pip senza decimali, punti indice e dollari con i decimali che servono
- const fmtPt=(x,u)=>{const dec=u=="pip"?0:x<10?2:x<100?1:0;return x.toLocaleString("it-IT",{minimumFractionDigits:dec,maximumFractionDigits:dec})+(u=="$"?" $":" "+u);};
- const vx=x=>x==null?"n/d":x.toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1})+"&times;";
+ const fmtPt=(x,u)=>{const dec=u=="pip"?0:x<10?2:x<100?1:0;return x.toLocaleString(EB_LOC,{minimumFractionDigits:dec,maximumFractionDigits:dec})+(u=="$"?" $":" "+u);};
+ const vx=x=>x==null?"n/d":x.toLocaleString(EB_LOC,{minimumFractionDigits:1,maximumFractionDigits:1})+"&times;";
 
  /* quattro riquadri: drawdown assoluto mediano e P90, in volatilita', guadagno contro drawdown (+ esito in piccolo) */
  function kpiDD(o,u){
@@ -135,7 +135,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    ${kcard("dki2","Drawdown assoluto P90",pc(o.mae90),ptb(o.p90)||"1 trade su 10",`<b>1 trade su 10</b> va contro di pi&ugrave;${u&&o.p90!=null?" (circa "+fmtPt(o.p90,u)+")":""}. &Egrave; il numero da guardare per lo stop: uno stop pi&ugrave; stretto viene preso da almeno un trade su 10 anche quando l'idea era giusta.`,"down")}
    ${kcard("dki3","In volatilit&agrave;",vx(o.v50),"P90 "+vx(o.v90),`Il drawdown diviso il movimento di una settimana normale di quel mercato, misurato prima dell'ingresso. 1&times; = una settimana normale. Cos&igrave; EURUSD, petrolio e Bitcoin si confrontano sulla stessa scala. Mediano ${vx(o.v50)}, P90 (1 trade su 10) ${vx(o.v90)}.`)}
    ${kcard("dki4","Guadagno / drawdown",`<span class="up">${pc(o.mfe50)}</span> / <span class="down">${pc(o.mae50)}</span>`,o.prima!=null?"guadagno prima nel "+o.prima+"%":"mediane",`Guadagno massimo tipico e drawdown mediano (mediane). ${o.prima!=null?"Il guadagno massimo arriva prima del drawdown massimo nel <b>"+o.prima+"%</b> dei trade. ":""}${o.gmin?"Il punto peggiore arriva di solito al <b>"+Math.round(o.gmin)+"&deg; giorno</b> di mercato.":""}`,"vfgd")}</div>
-   <p class="small vfesito">Esito, per completezza: <b>${o.hit}%</b> dei trade chiusi in guadagno &middot; resa media <b class="${col(o.resa)}">${pc(o.resa)}</b> al netto dei costi &middot; ${o.n.toLocaleString("it-IT")} trade misurati.</p>`;}
+   <p class="small vfesito">Esito, per completezza: <b>${o.hit}%</b> dei trade chiusi in guadagno &middot; resa media <b class="${col(o.resa)}">${pc(o.resa)}</b> al netto dei costi &middot; ${o.n.toLocaleString(EB_LOC)} trade misurati.</p>`;}
 
  /* GRAFICO GIORNO PER GIORNO (v7.97, rifatto da zero, stile "app di trading"):
     - curve morbide senza griglia: VERDE sopra lo zero = guadagno massimo tipico, ROSSO sotto = drawdown tipico,
@@ -179,7 +179,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const X=d=>L+d/fine*(W-L-R),Y=v=>T+(hi-v)/(hi-lo)*(H-T-B),z=Y(0);
   const P=k=>pts.map(p=>[X(p.d),Y(p[k])]);
   const area=k=>`${curva(P(k))}L${X(fine).toFixed(1)},${z.toFixed(1)}L${X(0).toFixed(1)},${z.toFixed(1)}Z`;
-  const f=(v,dec=2)=>v==null?"n/d":(v>0?"+":v<0?"&minus;":"")+Math.abs(v).toLocaleString("it-IT",{minimumFractionDigits:dec,maximumFractionDigits:dec})+(vol?"&times;":"%");
+  const f=(v,dec=2)=>v==null?"n/d":(v>0?"+":v<0?"&minus;":"")+Math.abs(v).toLocaleString(EB_LOC,{minimumFractionDigits:dec,maximumFractionDigits:dec})+(vol?"&times;":"%");
   const xt=[0].concat([5,10,15,20].filter(d=>d<fine)).concat(fine>2?[fine]:[]);
   const xe=d=>d==0?"ingresso":d%5==0?d/5+(d==5?" sett.":" sett."):d+" g";
   // etichette di scala a destra: massimo, zero, minimo (bastano per orientarsi)
@@ -200,7 +200,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const cur=svg.querySelector(".vfgcur"),pu=svg.querySelector(".vfgpunto"),hit=svg.querySelector(".vfghit");
   const leggi=p=>{kpi.innerHTML=`<div class="vfgk1"><small>${p.d%5==0?p.d/5+(p.d==5?" settimana":" settimane"):"Giorno "+p.d} &middot; risultato</small><b class="${p.r>=0?"su":"giu"}">${f(p.r)}</b></div>
     <div><small>Guadagno max</small><em class="su">${f(p.mx)}</em></div><div><small>Drawdown</small><em class="giu">${f(p.mn)}</em></div>
-    <div><small>1 su 10</small>${p.mb!=null?`<em class="giu tenue">fino a ${f(p.mb)}</em>`:`<em class="muto">pochi trade</em>`}</div><div class="vfgn"><small>Trade</small><em>${p.n.toLocaleString("it-IT")}</em></div>`;};
+    <div><small>1 su 10</small>${p.mb!=null?`<em class="giu tenue">fino a ${f(p.mb)}</em>`:`<em class="muto">pochi trade</em>`}</div><div class="vfgn"><small>Trade</small><em>${p.n.toLocaleString(EB_LOC)}</em></div>`;};
   const vero=pts.slice(1),ris=svg.querySelector(".vfgris"),lung=ris.getTotalLength();
   // y della linea bianca in un punto x qualsiasi (ricerca sulla curva): il pallino scorre liscio, non a scatti
   const ySu=x=>{let a=0,b=lung;for(let i=0;i<14;i++){const m=(a+b)/2;if(ris.getPointAtLength(m).x<x)a=m;else b=m;}return ris.getPointAtLength((a+b)/2).y;};
@@ -239,7 +239,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const conf=o.ev_n>=30&&o.no_n>=30,pochi=o.n<60,dd=o.pg-o.pa;
   const giud=pochi?["troppo pochi trade per un giudizio",""]:dd>=5?["pi&ugrave; del caso: gli annunci pesano sul drawdown","down"]:dd<=-5?["meno del caso",""]:["in linea con il caso: il drawdown non viene soprattutto dagli annunci",""];
   return tit+`<div class="grid k2 vfann">
-   <div class="card kpi"><h3>Drawdown con e senza annunci</h3>${conf?`<div class="vfrighe"><div class="vfr"><span>con almeno un annuncio nel trade</span><b class="down">${pc(o.ev50)}</b></div><div class="vfr"><span>senza annunci</span><b class="down">${pc(o.no50)}</b></div></div><div class="note">drawdown mediano &middot; ${o.ev_n.toLocaleString("it-IT")} trade con annunci, ${o.no_n.toLocaleString("it-IT")} senza</div>`
+   <div class="card kpi"><h3>Drawdown con e senza annunci</h3>${conf?`<div class="vfrighe"><div class="vfr"><span>con almeno un annuncio nel trade</span><b class="down">${pc(o.ev50)}</b></div><div class="vfr"><span>senza annunci</span><b class="down">${pc(o.no50)}</b></div></div><div class="note">drawdown mediano &middot; ${o.ev_n.toLocaleString(EB_LOC)} trade con annunci, ${o.no_n.toLocaleString(EB_LOC)} senza</div>`
     :`<div class="note">Con questa durata quasi ogni trade contiene un annuncio (solo ${o.no_n} senza): il confronto non &egrave; affidabile. Prova una durata pi&ugrave; breve.</div>`}</div>
    <div class="card kpi"><h3>Il giorno peggiore del trade</h3><div class="big">${o.pg}%</div><div class="note">cade su un giorno con annuncio; per puro caso sarebbe il <b>${o.pa}%</b> &rarr; <span class="${giud[1]}">${giud[0]}</span></div></div></div>`;}
 
@@ -257,7 +257,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  function tabella(titolo,gr,ordine,min,prof){const ks=(ordine||Object.keys(gr||{})).filter(k=>gr&&gr[k]&&st(gr[k])&&st(gr[k]).n>=(min||1));
   if(!ks.length)return "";
   return `<h3 class="vft">${titolo}</h3><div class="tablewrap"><table class="compatta vfcol${prof?" vfcolp":""}"><colgroup>${(prof?[19,8,6,9,8,9,9,7,8,9,8]:[22,9,8,12,11,15,15,8]).map(w=>`<col style="width:${w}%">`).join("")}</colgroup><tr><th></th><th class="num">Segnali</th><th class="num">Vinti</th><th class="num">Probabile tra</th><th class="num">Resa media</th><th class="num" title="Media dei guadagni massimi (le schede in alto usano invece la mediana)">Guadagno max medio</th><th class="num" title="Media dei drawdown massimi (le schede in alto usano invece la mediana: i casi estremi pesano meno)">Drawdown max medio</th><th class="num">Rapporto</th>${prof?`<th class="num" title="Volatilita' annua dell'ultimo anno">Volatilit&agrave; annua</th><th class="num" title="Movimento tipico in una settimana (mediana), ultimo anno">Mossa tipica sett.</th><th class="num" title="Drawdown medio diviso la mossa settimanale tipica: sotto 1 = drawdown nella norma per quel mercato, sopra 1 = il segnale soffre piu' del normale rumore">Drawdown / mossa</th>`:""}</tr>
-   ${ks.map(k=>{const x=st(gr[k]),p=prof&&prof[k];return `<tr><td><b>${esc(eti(k))}</b></td><td class="num">${x.n.toLocaleString("it-IT")}</td><td class="num"><b>${x.hit}%</b></td><td class="num small">${x.ic[0]}&ndash;${x.ic[1]}%</td><td class="num ${col(x.resa)}">${pc(x.resa)}</td><td class="num up">${pc(x.mfe)}</td><td class="num down">${pc(x.mae)}</td><td class="num">${x.rapporto==null?"n/d":x.rapporto.toLocaleString("it-IT")}</td>${prof?(p?`<td class="num">${fx(p.ann,1)}%</td><td class="num">${fx(p.sett,2)}%</td><td class="num ${Math.abs(x.mae)/p.sett>1.5?"down":""}">${fx(Math.abs(x.mae)/p.sett,2)}&times;</td>`:'<td class="num small" colspan="3">n/d</td>'):""}</tr>`;}).join("")}</table></div>${prof?`<p class="small">Drawdown e volatilit&agrave; raccontano la <b>natura del mercato</b>: lo stesso drawdown del 2% &egrave; tanto su un cambio che si muove dell'1% a settimana e poco su un mercato che si muove dell'8%. "Drawdown / mossa" sopra 1,5 = il segnale soffre pi&ugrave; del normale rumore di quello strumento.</p>`:""}`;}
+   ${ks.map(k=>{const x=st(gr[k]),p=prof&&prof[k];return `<tr><td><b>${esc(eti(k))}</b></td><td class="num">${x.n.toLocaleString(EB_LOC)}</td><td class="num"><b>${x.hit}%</b></td><td class="num small">${x.ic[0]}&ndash;${x.ic[1]}%</td><td class="num ${col(x.resa)}">${pc(x.resa)}</td><td class="num up">${pc(x.mfe)}</td><td class="num down">${pc(x.mae)}</td><td class="num">${x.rapporto==null?"n/d":x.rapporto.toLocaleString(EB_LOC)}</td>${prof?(p?`<td class="num">${fx(p.ann,1)}%</td><td class="num">${fx(p.sett,2)}%</td><td class="num ${Math.abs(x.mae)/p.sett>1.5?"down":""}">${fx(Math.abs(x.mae)/p.sett,2)}&times;</td>`:'<td class="num small" colspan="3">n/d</td>'):""}</tr>`;}).join("")}</table></div>${prof?`<p class="small">Drawdown e volatilit&agrave; raccontano la <b>natura del mercato</b>: lo stesso drawdown del 2% &egrave; tanto su un cambio che si muove dell'1% a settimana e poco su un mercato che si muove dell'8%. "Drawdown / mossa" sopra 1,5 = il segnale soffre pi&ugrave; del normale rumore di quello strumento.</p>`:""}`;}
 
  /* confronto dei tre modi di entrare: calcolato a 1, 2 e 4 settimane (5, 10, 20 sedute) */
  function varianti(R){const h={5:"1s",10:"2s",20:"4s"}[V.d],x=h&&R&&R.var&&R.var[h];
@@ -316,7 +316,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const verdetto=verd?`<div class="card vfverd ${verd[0]}"><div class="ptsth"><span class="vfvb">${verd[1]}</span>
    <span class="small">Holdout 2 anni: <b>${ho.hit}%</b> vinti (${ho.ic[0]}&ndash;${ho.ic[1]}%) &middot; resa <b class="${col(ho.resa)}">${pc(ho.resa)}</b>${tu?` &middot; dal ${esc(B.dal.slice(0,4))}: ${tu.hit}%, ${pc(tu.resa)}`:""}</span>
    <button type="button" class="info" data-apri="vfinfo" data-k="vfverd" aria-label="Mostra o nascondi la spiegazione">i</button></div>
-   <p id="vfinfo" class="sub infotesto${infoAperte.has("vfverd")?" aperta":""}">Giudizio solo sugli ultimi 2 anni (${ho.n.toLocaleString("it-IT")} segnali), mai usati per costruire il metodo; resa al netto dei costi. ${verd[0]=="si"?"Il vantaggio regge fuori campione.":"Il segnale COT da solo non ha un vantaggio affidabile: usalo come contesto insieme a trend e rischio, non come ordine."} Il backtest non include &laquo;Mercato e macro&raquo; (30% del punteggio live): lo misura il registro live.</p></div>`:"";
+   <p id="vfinfo" class="sub infotesto${infoAperte.has("vfverd")?" aperta":""}">Giudizio solo sugli ultimi 2 anni (${ho.n.toLocaleString(EB_LOC)} segnali), mai usati per costruire il metodo; resa al netto dei costi. ${verd[0]=="si"?"Il vantaggio regge fuori campione.":"Il segnale COT da solo non ha un vantaggio affidabile: usalo come contesto insieme a trend e rischio, non come ordine."} Il backtest non include &laquo;Mercato e macro&raquo; (30% del punteggio live): lo misura il registro live.</p></div>`:"";
   const ordS=Object.keys(P.strumento||{}).sort((a,b)=>((st(P.strumento[b])||{}).resa??-99)-((st(P.strumento[a])||{}).resa??-99));
   return verdetto+blocco(1,"Quanto va contro","Prima dei guadagni: quanto il trade simulato scende sotto l'ingresso, giorno per giorno.",
     bloccoDD(P,B.dd_campi,B.unita))
@@ -336,7 +336,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const hs=R.ultimo_hash||"",corto=hs?hs.slice(0,8)+"&hellip;"+hs.slice(-6):"";
   const testa=`<div class="vfstato">${R.integra?`<span class="vfbadge ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Registro verificato</span>`
      :`<span class="vfbadge ko">&#10007; Registro non integro</span>`}
-    <span class="small">${R.eventi.toLocaleString("it-IT")} eventi${R.dal?` dal ${esc(R.dal.replace(/ ore .*/,""))}`:""}</span>
+    <span class="small">${R.eventi.toLocaleString(EB_LOC)} eventi${R.dal?` dal ${esc(R.dal.replace(/ ore .*/,""))}`:""}</span>
     ${hs?`<button type="button" class="info" data-apri="vfcatena" data-k="vfcatena" aria-expanded="${infoAperte.has("vfcatena")}" aria-label="Cosa vuol dire" title="Cosa vuol dire?">i</button>`:""}
     ${R.completi?"":`<span class="small" style="color:var(--warn)">Ultimo aggiornamento con dati incompleti: registro fermo</span>`}</div>
   ${hs?`<p id="vfcatena" class="sub infotesto${infoAperte.has("vfcatena")?" aperta":""}">Ogni segnale &egrave; legato al precedente con un'impronta digitale: se qualcuno cambiasse il passato, il registro risulterebbe non integro. Impronta attuale <code class="vfhash" title="${esc(hs)}">${corto}</code> <button type="button" class="vfcopia" data-hash="${esc(hs)}">Copia</button></p>`:""}`;
@@ -345,7 +345,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
 
  function backtest(){if(!B)return `<div class="card vfvuoto">Backtest non disponibile in questo aggiornamento.</div>`;
   return `<div class="vfsimulato"><b>SIMULATO</b> &middot; risultati ricostruiti sul passato, non segnali reali. Servono a capire se il metodo ha un vantaggio, non promettono risultati futuri.</div>
-   <div class="vfstato small">Dal <b>${fd(B.dal)}</b> al <b>${fd(B.al)}</b> &middot; ${B.n.toLocaleString("it-IT")} segnali (pi&ugrave; ${B.n_strong.toLocaleString("it-IT")} fasi forti) &middot; sviluppo ${(B.n_svil||0).toLocaleString("it-IT")} &middot; holdout dal ${fd(B.holdout_dal)}: ${(B.n_hold||0).toLocaleString("it-IT")}</div>
+   <div class="vfstato small">Dal <b>${fd(B.dal)}</b> al <b>${fd(B.al)}</b> &middot; ${B.n.toLocaleString(EB_LOC)} segnali (pi&ugrave; ${B.n_strong.toLocaleString(EB_LOC)} fasi forti) &middot; sviluppo ${(B.n_svil||0).toLocaleString(EB_LOC)} &middot; holdout dal ${fd(B.holdout_dal)}: ${(B.n_hold||0).toLocaleString(EB_LOC)}</div>
    ${comandi(B.periodi.tutti)}<div id="vfdati">${datiBt()}</div>
    <details class="vfdett"><summary>Come &egrave; costruito (e cosa manca rispetto al live)</summary><ul class="small">
     <li>Ogni settimana il punteggio COT &egrave; ricalcolato con i <b>soli report disponibili allora</b>; il segnale nasce alla pubblicazione (venerd&igrave; 15:30 di New York, 21:30 in Italia) ed entra alla prima chiusura successiva: da l&igrave; partono il percorso e i risultati.</li>

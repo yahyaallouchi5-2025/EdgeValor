@@ -180,7 +180,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  // prossima apertura, festivita' comprese: 02b_mercati.js) e la data della chiusura usata. Mai un orario "nudo" vecchio.
  function statoPrezzi(ora,oggi,dt){const eu=window.ebMercati?ebMercati.stato("Europa"):null,aperta=eu?eu.aperto:!!oggi;
   if(aperta&&ora&&oggi)return `<span class="plive on" title="Prezzi intraday con il ritardo di borsa (circa 15-20 minuti)"><i></i>Xetra aperta &middot; prezzi delle ${ora} &middot; ritardo ~15 min</span>`;
-  const quando=dt?(oggi?"di oggi":"del "+dt.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"})):"dell'ultima seduta";
+  const quando=dt?(oggi?"di oggi":"del "+dt.toLocaleDateString(EB_LOC,{day:"2-digit",month:"2-digit"})):"dell'ultima seduta";
   if(aperta)return `<span class="plive" title="I prezzi di oggi arrivano entro pochi minuti"><i></i>Xetra aperta &middot; prezzi di chiusura ${quando}</span>`;
   const riapre=eu&&eu.prossima?` &middot; riapre ${ebMercati.oraIt(eu.prossima)}`:"";
   return `<span class="pacq-st"><span class="azmk off"><i></i>${eu&&eu.festivo?"Borse chiuse per festivit&agrave;":"Xetra chiusa"}${riapre}</span><span class="small">prezzi di chiusura ${quando}</span></span>`;}
@@ -188,7 +188,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   // orario dei PREZZI (non della corsa): a borse chiuse e' l'ultima seduta, quindi si mostra anche la data
   const L=window.ebLive,tt=L&&L.ue?Math.max(0,...Object.values(L.ue).map(v=>v.t||0)):0,dt=tt?new Date(tt*1000):null,
    oggi=dt&&dt.toDateString()==new Date().toDateString(),
-   ora=dt?(oggi?"":dt.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"})+" ")+dt.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):null;
+   ora=dt?(oggi?"":dt.toLocaleDateString(EB_LOC,{day:"2-digit",month:"2-digit"})+" ")+dt.toLocaleTimeString(EB_LOC,{hour:"2-digit",minute:"2-digit"}):null;
   return `<div class="pacq-t"><h3 class="pacq-h" role="button" tabindex="0" aria-expanded="${acqAperto}">Acquisto diretto</h3>
     ${statoPrezzi(ora,oggi,dt)}
     <details class="info pacq-i"><summary title="Come si calcola" aria-label="Informazioni">i</summary><div>Con l'ordine normale il broker compra solo <b>quote intere</b>: per ogni strumento il numero di quote &egrave; la parte intera di importo del modello &divide; prezzo di 1 quota (prezzo di chiusura, con 0,5% di margine). Quello che avanza resta sul conto. Le <b>azioni scelte</b>: se 1 azione costa pi&ugrave; della sua quota, al suo posto c'&egrave; il candidato successivo della stessa regola che ci sta. Con capitali piccoli lo <b>scostamento dal modello</b> &egrave; normale; il modello e i risultati pubblicati non cambiano. Prezzi indicativi: controllali sul broker prima di confermare.<br><br><b>A borsa chiusa</b> i prezzi sono quelli di chiusura dell'ultima seduta (Xetra, 17:30). Su Scalable (gettex) gli ordini si possono inviare anche la sera: il prezzo &egrave; quello del market maker in quel momento e pu&ograve; scostarsi dalla chiusura.</div></details><button type="button" class="pacq-tg" aria-label="${acqAperto?"Chiudi":"Apri"} Acquisto diretto" aria-expanded="${acqAperto}"></button></div>
@@ -1004,7 +1004,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   let r=0,w=0,t=0;p.composizione.forEach(x=>{const v=L.ue[x.k]||(x.k=="AZ"&&L.ue.SP500);if(x.k=="CASH")w+=x.peso;
    else if(v&&v.p&&v.prev){r+=x.peso/100*(v.p/v.prev-1)*100;w+=x.peso;t=Math.max(t,v.t||0);}});
   const giorno=t?new Date(t*1000).toISOString().slice(0,10):null;if(!giorno||giorno<=c.al||w<50){box.hidden=true;return;}
-  const ora=new Date(t*1000).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}),mese=((1+c.r/100)*(1+r/100)-1)*100;
+  const ora=new Date(t*1000).toLocaleTimeString(EB_LOC,{hour:"2-digit",minute:"2-digit"}),mese=((1+c.r/100)*(1+r/100)-1)*100;
   box.hidden=false;box.innerHTML=`<span class="plive on"><i></i>Oggi alle ${ora}</span><b class="${r>=0?"up":"down"}">${pc(r,2)}</b>`;
   // v7.64 il numero grande del mese include oggi (prima: due numeri del mese diversi, "-2,0%" e "mese stimato -3,2%")
   const g=el.querySelector(".pmc-k [data-chiusura]");if(g){g.textContent=pc(Math.abs(mese)<0.05?0:mese);g.className="pk-v "+(mese>0.05?"up":mese<-0.05?"down":"flat");}
