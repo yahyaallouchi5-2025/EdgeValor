@@ -583,6 +583,7 @@ def pubblica(cartella, stato=None, titoli=None):
     ev = _leggi(os.path.join(cartella, "pubblico", "eventi_titoli.json")) or {}     # v7.27 delistati, fermi, split
     SOSPESI.clear()
     SOSPESI.update(set(ev.get("delistati") or {}) | set(ev.get("fermi") or {}))
+    spx = _leggi(os.path.join(cartella, "grezzi", _nome_file("^GSPC") + ".json"))     # v8.04 per lo stato del titolo
     for x in el:
         rec = _leggi(os.path.join(cartella, "grezzi", _nome_file(x["t"]) + ".json"))
         r = riassunto(rec) if rec else None
@@ -606,9 +607,19 @@ def pubblica(cartella, stato=None, titoli=None):
             righe[-1]["dy"] = dividendi.rendimento(cartella, x["t"], r.get("p"), rec.get("valuta"))
         except Exception:
             pass
+        # v8.04 STATO DEL TITOLO (stato_titolo.py): euforia / sconto con cassa / sconto senza cassa. Mai bloccante.
+        stt = None
+        try:
+            from . import stato_titolo
+            bil = _leggi(os.path.join(cartella, "pubblico", "bilanci", _nome_file(x["t"]) + ".json"))
+            stt = stato_titolo.calcola(rec, spx, bil, x["s"], date.fromisoformat(r["data"]))
+            if stt:
+                righe[-1]["stt"] = stt["k"]
+        except Exception as e:
+            log.info("stato del titolo %s non calcolato (%s)", x["t"], type(e).__name__)
         det = {"t": x["t"], "n": rec.get("nome") or x["nome"], "s": x["s"], "l": x["l"], "val": rec.get("valuta"),
                "borsa": rec.get("borsa"), "d": rec["d"], "m": rec.get("m") or [], "stag": stag,
-               "tec": tecnica(rec["d"])}                                   # v7.7 analisi tecnica
+               "tec": tecnica(rec["d"]), "stato": stt}                     # v7.7 analisi tecnica, v8.04 stato
         _scrivi(os.path.join(cartella, "pubblico", "titoli", _nome_file(x["t"]) + ".json"), det)
         mensili[x["t"]] = [v for _, v in (rec.get("m") or [])[:-1]]   # SMART DISCOUNT: solo mesi chiusi
         dettagli += 1

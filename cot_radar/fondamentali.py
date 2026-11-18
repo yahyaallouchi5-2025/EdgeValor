@@ -127,6 +127,7 @@ def estrai(fatti, settore=None):
         return None
     dt, dl, db = _annuali(fatti, DEBITO_TOT, False), _annuali(fatti, DEBITO_LUNGO, False), _annuali(fatti, DEBITO_BREVE, False)
     cs, pn = _annuali(fatti, CASSA, False), _annuali(fatti, PN, False)
+    fco, cpx = _annuali(fatti, FCO), _annuali(fatti, CAPEX)        # v8.04 flusso di cassa libero (stato del titolo)
     fini = sorted(set(ric) & set(ut))[-ANNI:]
     anni = []
     for f in fini:
@@ -135,7 +136,8 @@ def estrai(fatti, settore=None):
             deb = (dl.get(f) or 0) + (db.get(f) or 0)
         cassa = cs.get(f)
         anni.append({"a": int(f[:4]), "fine": f, "ricavi": ric[f], "utile": ut[f], "debito": deb, "cassa": cassa,
-                     "pn": pn.get(f), "dn": (deb or 0) - (cassa or 0) if deb is not None or cassa is not None else None})
+                     "pn": pn.get(f), "dn": (deb or 0) - (cassa or 0) if deb is not None or cassa is not None else None,
+                     "fcf": fco[f] - abs(cpx.get(f) or 0) if fco.get(f) is not None else None})
     if len(anni) < 2:
         return None
     perdite = sum(1 for x in anni if x["utile"] < 0)
