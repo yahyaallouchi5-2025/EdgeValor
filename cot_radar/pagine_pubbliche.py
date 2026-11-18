@@ -93,3 +93,99 @@ PREZZI = f"""
  <input class="trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"><button class="btn pri">Invia la richiesta</button><p class="esito" role="status"></p><small>Usiamo la tua email solo per risponderti. <a href="/legale/#privacy">Privacy</a></small></form></div>
 <script>(function(){{var M="{eu(MENSILE)} \\u20ac",A="{eu(ANNUALE)} \\u20ac",S=document.querySelector("[data-sotto]"),T=S.innerHTML,sel=document.getElementById("cp");
  document.querySelectorAll(".cambio button").forEach(function(b){{b.onclick=function(){{var a=b.dataset.d=="a";
+  document.querySelectorAll(".cambio button").forEach(function(x){{x.classList.toggle("on",x==b)}});
+  document.querySelector("[data-prezzo]").textContent=a?A:M;document.querySelector("[data-vecchio]").hidden=!a;S.innerHTML=a?T:"Paghi mese per mese.";sel.selectedIndex=a?0:1;}}}});}})();</script>
+"""
+
+ACCEDI = f"""
+<div class="titsez" style="margin-left:auto;margin-right:auto;text-align:center"><small>Accesso</small><h1>Entra nel terminale.</h1>
+ <p>Niente password: ti arriva un link via email. Se è la prima volta, parte la prova di 14 giorni.</p></div>
+<form class="modulo" id="facc" novalidate><label for="am">La tua email</label><input id="am" type="email" placeholder="nome@esempio.it" autocomplete="email" required>
+ <button class="btn pri">{FRECCIA}Mandami il link</button><p class="esito" role="status"></p><small>Niente carta, nessun rinnovo automatico.</small></form>
+"""
+
+METODO = f"""
+<div class="titsez"><small>Il metodo</small><h1>Dati, non opinioni.</h1>
+ <p>Gli algoritmi di EdgeValor filtrano i dati e lasciano passare solo ciò che ha una probabilità statistica a favore: l'edge. Il resto resta fuori dal terminale.</p></div>
+<div class="per">
+ <div class="dato"><b>Dal 2006</b><p>I portafogli sono provati su vent'anni di storico e messi sotto stress nelle crisi del 2008 e del 2020. Gli anni dal 2016 servono solo da verifica.</p></div>
+ <div class="dato"><b>Andamento live</b><p>Il mese in corso si segue mentre accade. Alla chiusura il suo risultato resta scritto, anche quando è negativo.</p></div>
+ <div class="dato"><b>10 minuti</b><p>Un portafoglio si completa in 10 minuti: ogni strumento ha il codice ISIN da copiare nel tuo broker. Senza leva.</p></div>
+</div>
+<div class="sez2"><h2>Come nasce un portafoglio</h2><p>Tre profili di rischio, solo acquisti, un controllo al mese.</p>
+ <div class="passi">
+  <div class="passo"><i>1</i><b>Dati pubblici</b><p>Prezzi di borsa, CFTC, Federal Reserve, BCE e Fondo Monetario.</p></div>
+  <div class="passo"><i>2</i><b>Filtro di trend</b><p>Un mercato sotto la sua media di lungo periodo va in pausa nella liquidità.</p></div>
+  <div class="passo"><i>3</i><b>Prova sullo storico</b><p>Numeri in euro, costi inclusi, sempre con il drawdown accanto al rendimento.</p></div>
+  <div class="passo"><i>4</i><b>Rotazione mensile</b><p>Il primo giorno di borsa del mese si controlla. Poi non si tocca nulla.</p></div>
+ </div></div>
+<div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="/prezzi/">Vedi i piani</a></div>
+"""
+
+DOMANDE = [("Devo avere esperienza?", "No. Ogni scheda ha testi brevi e una (i) che spiega come leggerla. Si parte dal profilo e dal portafoglio del mese."),
+           ("Quanto tempo richiede?", "Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito."),
+           ("Quanto costa?", f"La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Poi resti in Basic, gratis. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese con il piano annuale (−{RISP}%). Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
+           ("Come attivo Premium?", "Dalla pagina <a href=\"/prezzi/\">Prezzi</a> inserisci la tua email con «Contattaci»: riceverai le istruzioni per l'attivazione."),
+           ("È una consulenza finanziaria?", "No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Ogni decisione resta tua. Dettagli nelle <a href=\"/legale/#rischi\">avvertenze sui rischi</a>."),
+           ("Posso perdere denaro?", "Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento."),
+           ("Da dove provengono i dati?", "Da fonti pubbliche e da un fornitore di dati di mercato. L'elenco completo è nelle <a href=\"/legale/#fonti\">fonti dei dati</a>."),
+           ("Che cos'è il report COT?", "È il report settimanale dell'autorità statunitense dei mercati futures: dice come sono posizionati i grandi operatori. Nel terminale è contesto, non un'indicazione operativa.")]
+FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, prima di entrare.</h1></div><div class="faq">' +
+       "".join(f"<details{' open' if i == 0 else ''}><summary>{d}</summary><p>{r}</p></details>" for i, (d, r) in enumerate(DOMANDE)) +
+       f'</div><div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="{TG}" target="_blank" rel="noopener">Scrivimi su Telegram</a></div>')
+
+PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Basic gratis per sempre. Premium a 27,00 € al mese o 19,99 € al mese con il piano annuale. 14 giorni di prova senza carta.", PREZZI),
+          "accedi": ("Accedi o registrati · EdgeValor", "Entra nel terminale EdgeValor con la tua email: nessuna password, 14 giorni di Premium in prova.", ACCEDI),
+          "metodo": ("Il metodo · EdgeValor", "Come nascono i portafogli modello di EdgeValor: dati pubblici, filtro di trend, prova su vent'anni di storico e rotazione mensile.", METODO),
+          "faq": ("Domande frequenti · EdgeValor", "Costi, tempo richiesto, rischi e fonti dei dati: le risposte alle domande più comuni su EdgeValor.", FAQ)}
+
+
+# --- script dei due moduli (ES5, come la home) ---
+JS_PREZZI = """<script>(function(){var f=document.getElementById("fprem");if(!f)return;var K="__K__",es=f.querySelector(".esito"),b=f.querySelector("button");
+ if(!K){b.disabled=true;es.textContent="Modulo in attivazione: riprova tra poco.";}
+ f.addEventListener("submit",function(e){e.preventDefault();var m=document.getElementById("cm").value.trim(),p=document.getElementById("cp").value;
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(m)){es.textContent="Controlla l'email: non sembra valida.";return;}
+  b.disabled=true;b.textContent="Invio\u2026";es.textContent="";
+  fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
+   body:JSON.stringify({access_key:K,subject:"EdgeValor \u00b7 Richiesta Premium ("+p+")",from_name:"EdgeValor prezzi",email:m,piano:p,pagina:"prezzi",botcheck:f.botcheck.checked})})
+  .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.success===false)throw new Error(j.message||r.status);});})
+  .then(function(){f.innerHTML='<div class="ok"><b>Richiesta inviata.</b><p>Riceverai le istruzioni via email.</p></div>';})
+  .catch(function(){b.disabled=false;b.textContent="Invia la richiesta";es.textContent="Invio non riuscito. Riprova tra poco.";});});})();</script>"""
+JS_ACCEDI = """<script>(function(){var f=document.getElementById("facc");if(!f)return;var es=f.querySelector(".esito"),b=f.querySelector("button"),t=b.innerHTML;
+ f.addEventListener("submit",function(e){e.preventDefault();var m=document.getElementById("am").value.trim().toLowerCase();
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(m)){es.textContent="L'email non sembra valida.";return;}
+  b.disabled=true;es.textContent="";
+  fetch("__API__/auth/v1/otp?redirect_to="+encodeURIComponent("__TERM__"),{method:"POST",headers:{apikey:"__PUB__","Content-Type":"application/json"},
+   body:JSON.stringify({email:m,create_user:true,data:{}})})
+  .then(function(r){if(!r.ok)throw r.status;f.innerHTML='<div class="ok"><b>Link inviato.</b><p>Apri l\'email e tocca il link per entrare.</p></div>';})
+  .catch(function(s){b.disabled=false;b.innerHTML=t;es.textContent=s==429?"Troppe richieste: riprova tra qualche minuto.":"Invio non riuscito. Riprova tra poco.";});});})();</script>"""
+
+
+def crea(cartella, home):
+    """Scrive le 4 pagine in cartella/<nome>/index.html partendo dall'HTML della home. -> elenco degli indirizzi (sitemap)."""
+    try:
+        testa = home[:home.index("</head>")]
+        piede = home[home.index("<footer>"):home.index("</footer>") + 9]
+    except ValueError:
+        log.warning("pagine pubbliche non create: la home non ha la forma attesa")
+        return []
+    piede = piede.replace('href="#', 'href="/#').replace('href="legale/', 'href="/legale/').replace('href="terminale/', 'href="/terminale/')
+    piede = piede.replace('href="/#faq"', 'href="/faq/"').replace('href="/#metodo"', 'href="/metodo/"').replace('href="/#accesso"', 'href="/prezzi/"')
+    k = re.search(r'var CHIAVE="([^"]*)"', home)
+    extra = {"prezzi": JS_PREZZI.replace("__K__", k.group(1) if k else ""),
+             "accedi": JS_ACCEDI.replace("__API__", SUPABASE_URL).replace("__PUB__", SUPABASE_PUBBLICA).replace("__TERM__", SITO_PUBBLICO + "terminale/")}
+    fatte = []
+    for nome, (titolo, desc, corpo) in PAGINE.items():
+        t = re.sub(r"<title>.*?</title>", lambda m: f"<title>{titolo}</title>", testa, count=1, flags=re.S)
+        t = re.sub(r'<meta name="description" content="[^"]*">', lambda m: f'<meta name="description" content="{desc}">', t, count=1)
+        t = re.sub(r'<link rel="canonical" href="[^"]*">', lambda m: f'<link rel="canonical" href="{SITO_PUBBLICO}{nome}/">', t, count=1)
+        t = re.sub(r'<script type="application/ld\+json">.*?</script>', "", t, flags=re.S)       # i dati strutturati sono della home
+        t = re.sub(r'<meta property="og:(title|description|url)" content="[^"]*">', "", t)
+        t = t.replace("</style>", CSS + "</style>", 1)
+        html = (t + '</head>\n<body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>\n' + testata(nome) +
+                f'\n<main><div class="box pag">{corpo}</div></main>\n' + piede + "\n" + extra.get(nome, "") + "</body></html>")
+        os.makedirs(os.path.join(cartella, nome), exist_ok=True)
+        with open(os.path.join(cartella, nome, "index.html"), "w", encoding="utf-8") as fh:
+            fh.write(html)
+        fatte.append(SITO_PUBBLICO + nome + "/")
+    return fatte
