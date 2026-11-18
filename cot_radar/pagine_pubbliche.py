@@ -146,6 +146,9 @@ JS_PREZZI = """<script>(function(){var f=document.getElementById("fprem");if(!f)
  f.addEventListener("submit",function(e){e.preventDefault();var m=document.getElementById("cm").value.trim(),p=document.getElementById("cp").value;
   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(m)){es.textContent="Controlla l'email: non sembra valida.";return;}
   b.disabled=true;b.textContent="Invio\u2026";es.textContent="";
+  // v8.10 email automatica all'utente (Supabase, funzione richiesta-premium): link PayPal del piano e passaggi
+  fetch("__API__/functions/v1/richiesta-premium",{method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({email:m,piano:p,botcheck:f.botcheck.checked})}).catch(function(){});
   fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
    body:JSON.stringify({access_key:K,subject:"EdgeValor \u00b7 Richiesta Premium ("+p+")",from_name:"EdgeValor prezzi",email:m,piano:p,pagina:"prezzi",botcheck:f.botcheck.checked})})
   .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.success===false)throw new Error(j.message||r.status);});})
@@ -172,7 +175,7 @@ def crea(cartella, home):
     piede = piede.replace('href="#', 'href="/#').replace('href="legale/', 'href="/legale/').replace('href="terminale/', 'href="/terminale/')
     piede = piede.replace('href="/#faq"', 'href="/faq/"').replace('href="/#metodo"', 'href="/metodo/"').replace('href="/#accesso"', 'href="/prezzi/"')
     k = re.search(r'var CHIAVE="([^"]*)"', home)
-    extra = {"prezzi": JS_PREZZI.replace("__K__", k.group(1) if k else ""),
+    extra = {"prezzi": JS_PREZZI.replace("__K__", k.group(1) if k else "").replace("__API__", SUPABASE_URL),
              "accedi": JS_ACCEDI.replace("__API__", SUPABASE_URL).replace("__PUB__", SUPABASE_PUBBLICA).replace("__TERM__", SITO_PUBBLICO + "terminale/")}
     fatte = []
     for nome, (titolo, desc, corpo) in PAGINE.items():
