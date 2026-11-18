@@ -33,6 +33,7 @@ import zlib
 from .config import SUPABASE_PUBBLICA, SUPABASE_URL
 from .log import log
 
+CRYPTO_BASIC = 5          # Crypto: le prime 5 monete restano in Basic, la tabella completa e' Premium
 PAESI_BASIC = 5           # Paesi emergenti: le 5 economie che crescono di piu' (PIL) restano in Basic, la tabella completa e' Premium
 # campi Premium di ogni portafoglio modello (l'andamento, le statistiche e i rischi restano in Basic)
 PORT_PREMIUM = ("composizione", "base", "ammessi", "esclusi", "rischio_quote", "rotazioni", "compatto")
@@ -122,6 +123,12 @@ def separa(data):
         toppe.append([["paesi", "paesi"], pa["paesi"]])
         pa["paesi"] = sorted(pa["paesi"], key=lambda r: -(r.get("pil") if isinstance(r.get("pil"), (int, float)) else -1e9))[:PAESI_BASIC]
         pa["n_tot"] = len(toppe[-1][1])               # quante righe ha la tabella completa (per il lucchetto)
+    # v8.01 Crypto: Basic vede le prime CRYPTO_BASIC monete (per capitalizzazione), la tabella completa e' Premium
+    cr = d.get("crypto") or {}
+    if isinstance(cr.get("monete"), list) and len(cr["monete"]) > CRYPTO_BASIC:
+        toppe.append([["crypto", "monete"], cr["monete"]])
+        cr["monete"] = cr["monete"][:CRYPTO_BASIC]
+        cr["n_tot"] = len(toppe[-1][1])
     return d, toppe
 
 

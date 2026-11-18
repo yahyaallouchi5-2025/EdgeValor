@@ -8,6 +8,7 @@
    DEBUG: F12 -> Console -> localStorage.removeItem("ebNovita") fa ricomparire il pallino. */
 (function(){try{
  const NOVITA=[
+  {d:"2026-11-18",t:"Scheda Crypto",x:"Bitcoin e le principali altcoin: prezzi, volumi, drawdown dal massimo e profilo di ogni moneta.",s:"btc"},
   {d:"2026-11-17",t:"Nuova scheda Bitcoin",x:"Bussola macro (Premium) e termometro del sentiment: cosa muove Bitcoin, con grafici.",s:"btc"},
   {d:"2026-11-17",t:"Assistenza",x:"Abbonamento, segnalazioni e call live con il team, con il numero della richiesta.",s:""},
 ];
