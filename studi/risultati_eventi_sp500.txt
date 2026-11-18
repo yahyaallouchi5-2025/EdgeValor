@@ -1,0 +1,137 @@
+aziende S&P 500 con prezzi dal 2008: 408
+
+====================================================================================================
+Inizio di una guerra (7 eventi)
+  SETTORI (mediana dei titoli, oltre l'S&P 500)     5g dopo: media eventi | eventi positivi   20g prima | 20g dopo
+  Energia                       +1.46%   3/7           +0.86%    -1.06%
+  Immobiliare                   +0.67%   3/7           +0.02%    +0.69%
+  Tecnologia                    +0.39%   4/7           +0.94%    -0.65%
+  Beni voluttuari               +0.28%   4/7           +0.62%    -0.24%
+  Comunicazione                 +0.24%   4/7           +1.10%    -0.73%
+  Industria                     +0.15%   3/7           -0.02%    -0.02%
+  Servizi pubblici              +0.10%   3/7           -0.68%    +2.32%
+  Salute                        -0.34%   3/7           +1.05%    -0.98%
+  Beni di prima necessita'      -0.41%   2/7           -0.90%    -0.31%
+  Finanza                       -0.50%   2/7           -0.20%    +0.56%
+  Materiali                     -0.82%   2/7           -0.30%    -0.46%
+
+  AZIENDE con lo stesso segno in almeno 6 eventi su 7 a 5 giorni (media >= 1 punto): 37  | a caso ce ne aspetteremmo circa 51
+    NOC     Northrop Grumman Corporation       Industria                 +5.90%  (7/7 positivi)
+    OXY     Occidental Petroleum Corporation   Energia                   +5.27%  (6/7 positivi)
+    LHX     L3Harris Technologies, Inc.        Industria                 +5.05%  (7/7 positivi)
+    LMT     Lockheed Martin Corporation        Industria                 +4.91%  (7/7 positivi)
+    KR      The Kroger Co.                     Beni di prima necessita'  +4.72%  (6/7 positivi)
+    WSM     Williams-Sonoma, Inc.              Beni voluttuari           +3.73%  (7/7 positivi)
+    GD      General Dynamics Corporation       Industria                 +3.03%  (7/7 positivi)
+    IRM     Iron Mountain Incorporated         Immobiliare               +2.90%  (6/7 positivi)
+    VRSN    VeriSign, Inc.                     Tecnologia                +2.83%  (6/7 positivi)
+    AKAM    Akamai Technologies, Inc.          Tecnologia                +2.69%  (6/7 positivi)
+    TDG     TransDigm Group Incorporated       Industria                 +2.52%  (7/7 positivi)
+    WELL    Welltower Inc.                     Immobiliare               +2.51%  (7/7 positivi)
+    SBAC    SBA Communications Corporation     Immobiliare               +2.43%  (6/7 positivi)
+    CI      The Cigna Group                    Salute                    +2.29%  (7/7 positivi)
+    AAPL    Apple Inc.                         Tecnologia                +1.96%  (6/7 positivi)
+    LII     Lennox International Inc.          Industria                 +1.91%  (6/7 positivi)
+    TTWO    Take-Two Interactive Software, Inc Comunicazione             +1.68%  (6/7 positivi)
+    UNH     UnitedHealth Group Incorporated    Salute                    +1.47%  (6/7 positivi)
+    DLR     Digital Realty Trust, Inc.         Immobiliare               +1.37%  (6/7 positivi)
+    BRO     Brown & Brown, Inc.                Finanza                   +1.36%  (6/7 positivi)
+    INTU    Intuit Inc.                        Tecnologia                +1.23%  (6/7 positivi)
+    UAL     United Airlines Holdings, Inc.     Industria                 +1.19%  (1/7 positivi)
+    J       Jacobs Solutions Inc.              Industria                 +1.14%  (6/7 positivi)
+    MO      Altria Group, Inc.                 Beni di prima necessita'  +1.13%  (6/7 positivi)
+    WMB     The Williams Companies, Inc.       Energia                   +1.08%  (6/7 positivi)
+    PLD     Prologis, Inc.                     Immobiliare               +1.03%  (6/7 positivi)
+    D       Dominion Energy, Inc.              Servizi pubblici          -1.00%  (1/7 positivi)
+    STZ     Constellation Brands, Inc.         Beni di prima necessita'  -1.14%  (1/7 positivi)
+    LIN     Linde plc                          Materiali                 -1.32%  (1/7 positivi)
+    USB     U.S. Bancorp                       Finanza                   -1.71%  (1/7 positivi)
+    PCAR    PACCAR Inc                         Industria                 -1.72%  (1/7 positivi)
+    ABT     Abbott Laboratories                Salute                    -1.72%  (0/7 positivi)
+    CMI     Cummins Inc.                       Industria                 -1.73%  (1/7 positivi)
+    MTD     Mettler-Toledo International Inc.  Salute                    -2.26%  (1/7 positivi)
+    BKNG    Booking Holdings Inc.              Beni voluttuari           -2.67%  (1/7 positivi)
+    ACN     Accenture plc                      Tecnologia                -2.99%  (1/7 positivi)
+    DAL     Delta Air Lines, Inc.              Industria                 -3.01%  (1/7 positivi)
+
+====================================================================================================
+Elezioni USA (5 eventi)
+  SETTORI (mediana dei titoli, oltre l'S&P 500)     5g dopo: media eventi | eventi positivi   20g prima | 20g dopo
+  Energia                       +2.02%   3/5           -2.06%    +5.89%
+  Finanza                       +1.23%   4/5  REGGE    +1.33%    +1.75%
+  Industria                     +1.02%   3/5           +1.39%    +1.34%
+  Materiali                     +0.38%   3/5           +1.38%    +0.30%
+  Comunicazione                 -0.21%   3/5           -0.26%    +2.02%
+  Salute                        -0.34%   3/5           -0.52%    -2.52%
+  Tecnologia                    -0.67%   3/5           +0.52%    +0.09%
+  Beni voluttuari               -1.62%   1/5  REGGE    -1.51%    +0.25%
+  Beni di prima necessita'      -2.23%   2/5           -0.16%    -0.57%
+  Servizi pubblici              -2.48%   1/5  REGGE    +2.60%    -2.07%
+  Immobiliare                   -3.02%   1/5  REGGE    -1.53%    -5.19%
+
+  AZIENDE con lo stesso segno in almeno 5 eventi su 5 a 5 giorni (media >= 1 punto): 34  | a caso ce ne aspetteremmo circa 26
+    EMR     Emerson Electric Co.               Industria                 +7.44%  (5/5 positivi)
+    MCK     McKesson Corporation               Salute                    +7.08%  (5/5 positivi)
+    CAH     Cardinal Health, Inc.              Salute                    +6.36%  (5/5 positivi)
+    VLO     Valero Energy Corporation          Energia                   +6.35%  (5/5 positivi)
+    AFL     Aflac Incorporated                 Finanza                   +4.71%  (5/5 positivi)
+    DVA     DaVita Inc.                        Salute                    +4.46%  (5/5 positivi)
+    LDOS    Leidos Holdings, Inc.              Industria                 +3.47%  (5/5 positivi)
+    GL      Globe Life Inc.                    Finanza                   +3.39%  (5/5 positivi)
+    COR     Cencora, Inc.                      Salute                    +3.28%  (5/5 positivi)
+    LHX     L3Harris Technologies, Inc.        Industria                 +3.25%  (5/5 positivi)
+    RSG     Republic Services, Inc.            Industria                 +2.99%  (5/5 positivi)
+    RTX     RTX Corporation                    Industria                 +2.97%  (5/5 positivi)
+    UNP     Union Pacific Corporation          Industria                 +2.78%  (5/5 positivi)
+    GE      GE Aerospace                       Industria                 +2.75%  (5/5 positivi)
+    TRV     The Travelers Companies, Inc.      Finanza                   +1.81%  (5/5 positivi)
+    CHRW    C.H. Robinson Worldwide, Inc.      Industria                 +1.56%  (5/5 positivi)
+    NI      NiSource Inc.                      Servizi pubblici          -2.58%  (0/5 positivi)
+    DD      DuPont de Nemours, Inc.            Industria                 -2.81%  (0/5 positivi)
+    ADBE    Adobe Inc.                         Tecnologia                -2.94%  (0/5 positivi)
+    EXC     Exelon Corporation                 Servizi pubblici          -2.95%  (0/5 positivi)
+    STE     STERIS plc                         Salute                    -3.00%  (0/5 positivi)
+    EBAY    eBay Inc.                          Beni voluttuari           -3.21%  (0/5 positivi)
+    AAPL    Apple Inc.                         Tecnologia                -4.01%  (0/5 positivi)
+    WY      Weyerhaeuser Company               Immobiliare               -4.14%  (0/5 positivi)
+    NKE     NIKE, Inc.                         Beni voluttuari           -4.19%  (0/5 positivi)
+    ES      Eversource Energy                  Servizi pubblici          -4.19%  (0/5 positivi)
+    PHM     PulteGroup, Inc.                   Beni voluttuari           -4.72%  (0/5 positivi)
+    ARE     Alexandria Real Estate Equities, I Immobiliare               -5.06%  (0/5 positivi)
+    AEP     American Electric Power Company, I Servizi pubblici          -5.16%  (0/5 positivi)
+    LEN     Lennar Corporation                 Beni voluttuari           -5.23%  (0/5 positivi)
+    ED      Consolidated Edison, Inc.          Servizi pubblici          -5.31%  (0/5 positivi)
+    O       Realty Income Corporation          Immobiliare               -5.32%  (0/5 positivi)
+    IFF     International Flavors & Fragrances Materiali                 -6.20%  (0/5 positivi)
+    DHI     D.R. Horton, Inc.                  Beni voluttuari           -7.39%  (0/5 positivi)
+
+====================================================================================================
+Fed: primo taglio del ciclo (3 eventi)  -> POCHI EVENTI: solo descrizione
+  SETTORI (mediana dei titoli, oltre l'S&P 500)     5g dopo: media eventi | eventi positivi   20g prima | 20g dopo
+  Immobiliare                   +1.29%   2/3           +2.86%    +1.88%
+  Servizi pubblici              +0.82%   1/3           +1.00%    +1.67%
+  Materiali                     +0.46%   1/3           +1.79%    +0.23%
+  Comunicazione                 +0.28%   1/3           +1.40%    +0.24%
+  Industria                     -0.06%   2/3           +0.36%    +0.02%
+  Beni voluttuari               -0.24%   1/3           +2.03%    -0.81%
+  Finanza                       -0.65%   1/3           +0.07%    +0.18%
+  Tecnologia                    -0.72%   2/3           +0.80%    -0.05%
+  Beni di prima necessita'      -0.78%   1/3           +0.14%    -0.26%
+  Salute                        -0.85%   1/3           -0.28%    -1.68%
+  Energia                       -0.96%   2/3           -1.80%    -1.28%
+
+====================================================================================================
+Fed: primo rialzo del ciclo (2 eventi)  -> POCHI EVENTI: solo descrizione
+  SETTORI (mediana dei titoli, oltre l'S&P 500)     5g dopo: media eventi | eventi positivi   20g prima | 20g dopo
+  Tecnologia                    +1.23%   2/2           -0.43%    -3.23%
+  Comunicazione                 +0.11%   1/2           +0.10%    -0.17%
+  Materiali                     -0.37%   0/2           -0.18%    +1.29%
+  Beni voluttuari               -0.46%   1/2           -1.71%    -1.43%
+  Salute                        -0.52%   1/2           +2.77%    +1.44%
+  Industria                     -0.57%   1/2           +0.95%    -2.46%
+  Finanza                       -0.67%   0/2           -1.15%    -1.19%
+  Immobiliare                   -0.99%   1/2           +3.30%    +3.26%
+  Energia                       -1.18%   1/2           +0.04%    +1.03%
+  Beni di prima necessita'      -1.52%   1/2           +1.72%    +3.68%
+  Servizi pubblici              -1.94%   1/2           +4.16%    +7.77%
+
