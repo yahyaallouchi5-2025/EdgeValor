@@ -77,7 +77,7 @@ PREZZI = f"""
 <div class="piani">
  <div class="piano"><span class="ptag">Basic</span><h3>Capire i mercati</h3>
   <div class="prezzo"><b>0 &euro;</b><span>per sempre</span></div><p class="sotto">Nessuna carta richiesta.</p>
-  <ul><li>Clima di mercato e fase delle grandi economie</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul>
+  <ul><li>Quadro economico</li><li>Clima di mercato</li><li>Notizie e prossima rotazione</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul>
   <a class="btn sec" href="/accedi/">Inizia gratis</a></div>
  <div class="piano pro"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
   <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
