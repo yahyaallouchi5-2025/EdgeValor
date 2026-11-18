@@ -141,7 +141,7 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
 })();}catch(e){fail("Bussola macro di Bitcoin","btc",e);}
 
 /* ---------- v7.94 TERMOMETRO DEL SENTIMENT (D.btcsent da btc_macro.sentimento, pubblico: lo vede anche Basic) ----------
-   Fear & Greed Index (alternative.me, 0-100, citato accanto al dato come chiedono le sue condizioni) e COT CFTC sui
+   Fear & Greed Index (alternative.me, 0-100, v8.05: fonte citata in fondo alla scheda Crypto, 42_crypto.js, su richiesta di Ya) e COT CFTC sui
    futures Bitcoin del CME: indice 0-100 sulle ultime 52 settimane di piccoli trader (retail) e grandi speculatori.
    E' CONTESTO, non un segnale: lo studio (studi/studio_btc_sentiment.py) non ha trovato un effetto stabile. */
 function termometro(el){const T=D.btcsent;if(!el||!T||(!T.fng&&!T.cot)||el.querySelector(".bmtm"))return;
@@ -153,7 +153,7 @@ function termometro(el){const T=D.btcsent;if(!el||!T||(!T.fng&&!T.cot)||el.query
   const p=a.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
   return `<svg class="bmtsp" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="${W}" y1="${y(50)}" y2="${y(50)}"/><polyline points="${p}"/></svg>`;};
  const F=T.fng,C=T.cot;
- const fng=F?`<div class="bmtbox"><div class="bmtt"><span>Fear &amp; Greed</span><em>Fonte: <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener">alternative.me</a></em></div>
+ const fng=F?`<div class="bmtbox"><div class="bmtt"><span>Fear &amp; Greed</span></div>
    <div class="bmtv"><b style="color:${fngCol(F.v)}">${F.v}</b><span style="color:${fngCol(F.v)}">${esc(F.cl||"")}</span></div>
    ${scala(F.v,fngCol(F.v))}${spark(F.serie)}<small>Ultimo anno &middot; dato del ${gg(F.d)}</small></div>`:"";
  const riga=(nome,x)=>x&&x.indice!=null?`<div class="bmtr"><div class="bmtrn"><b>${nome}</b><span>${x.indice}/100 &middot; ${parola(x.indice)}</span></div>${scala(x.indice,x.indice<=20?"var(--s)":x.indice>=80?"var(--b)":"var(--n)")}</div>`:"";

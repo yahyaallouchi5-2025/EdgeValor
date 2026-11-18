@@ -3224,6 +3224,7 @@ html:not(.eb-admin) .pflingua{display:none!important}
 .cyth button.cyc:hover,.cyth button.cyc.on{color:var(--acc)}.cyth button.cyc i{font-style:normal;display:inline-block;width:10px;text-align:right}
 .cyth button.cyc:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:4px}
 .cypiede{margin-top:10px;color:var(--mute)}
+.cypiede a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .cylk{margin-top:12px}
 /* profilo della moneta (si apre sotto la riga) */
 .cyprof{padding:18px 20px 20px;border-top:1px solid color-mix(in srgb,var(--acc) 30%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 6%,var(--card)),var(--card2));animation:cyapri .22s ease}

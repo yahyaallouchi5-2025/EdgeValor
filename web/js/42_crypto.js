@@ -70,7 +70,7 @@ try{(function(){const el=$("btc"),C=D.crypto;if(!el)return;
    ${sintesi()}
    <div class="filters cyfil">${["Tutte",...cats].map(n=>`<button type="button" data-f="${esc(n)}" class="${sel==n?"on":""}">${esc(n)} <small>${n=="Tutte"?M.length:M.filter(m=>m.cat==n).length}</small></button>`).join("")}</div>
    <div class="cytab${FOND?" cyfond":""}">${testa()}${(tutte||v.length<=PRIMI+2?v:v.slice(0,PRIMI)).map(riga).join("")}${v.length>PRIMI+2?`<button type="button" class="cypiu">${tutte?"Mostra meno":`Mostra tutte (${v.length})`}</button>`:""}</div>${blocco}
-   <div class="small cypiede">Prezzi al ${gg(C.agg)}${C.vecchio?" &middot; ultimo aggiornamento disponibile":""}</div>`;
+   <div class="small cypiede">Prezzi al ${gg(C.agg)}${C.vecchio?" &middot; ultimo aggiornamento disponibile":""} &middot; Fear &amp; Greed: <a href="https://alternative.me/crypto/fear-and-greed-index/" target="_blank" rel="noopener">alternative.me</a></div>`;
   if(aperta)requestAnimationFrame(()=>{const m=M.find(x=>x.s==aperta);if(m)grafico(m);});}
  // ---------- eventi (delegati: la tabella si ridisegna spesso)
  box.addEventListener("click",e=>{const t=e.target;
