@@ -3190,3 +3190,84 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
 .vfstato .info{margin-left:0}
 .vfcopia{border:1px solid var(--line);background:none;color:var(--acc);font:700 12px system-ui;border-radius:8px;padding:2px 9px;cursor:pointer}.vfcopia:hover{border-color:var(--acc)}
 .crnull{display:none}
+
+/* ===== v8.01 SCHEDA CRYPTO (42_crypto.js): sintesi, tabella ordinabile, profilo della moneta =====
+   Sul PC una tabella a griglia; sotto 820px ogni riga diventa una scheda con le etichette (data-l). */
+.cysez{margin-top:30px}
+.cykpi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:4px 0 16px}
+.cykpi>div{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--card),var(--card2));padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cykpi small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.cykpi b{font-size:22px;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cykpi b em{font-style:normal;font-size:15px;font-weight:700;color:var(--mute)}.cykpi b em.up{color:var(--b)}.cykpi b em.down{color:var(--s)}
+.cykpi span{font-size:12px;color:var(--mute)}
+.cybar{display:block;height:6px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:4px}
+.cybar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--b))}
+.cytab{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
+.cyr{display:grid;grid-template-columns:minmax(170px,1.5fr) minmax(0,1.1fr) repeat(3,minmax(0,.85fr)) 104px minmax(0,1fr) repeat(2,minmax(0,.9fr));align-items:center;gap:0 12px;padding:10px 18px;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);transition:background .15s}
+.cyfond .cyr{grid-template-columns:minmax(160px,1.4fr) minmax(0,1.05fr) repeat(3,minmax(0,.8fr)) 96px repeat(2,minmax(0,1fr)) repeat(2,minmax(0,.85fr))}
+.cyr:not(.cyth){cursor:pointer}.cyr:not(.cyth):hover,.cyr.on{background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.cyr:not(.cyth):focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.cyn{display:flex;align-items:center;gap:10px;min-width:0}.cyn>span:not(.cyico){display:flex;flex-direction:column;min-width:0}
+.cyn b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cyn small{font-size:11.5px;color:var(--mute);font-weight:600;letter-spacing:.03em}
+.cyico{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 9.5px system-ui;letter-spacing:.02em;color:hsl(var(--h) 80% 82%);background:radial-gradient(circle at 30% 25%,hsl(var(--h) 70% 42%),hsl(var(--h) 65% 22%));box-shadow:inset 0 0 0 1px hsl(var(--h) 70% 55% / .55)}
+.cyc{text-align:right;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:0}.cyc b{font-weight:700}
+.cyc .up,.cyc b.up{color:var(--b)}.cyc .down,.cyc b.down{color:var(--s)}
+.cyc-spk{display:flex;justify-content:flex-end}
+.cyspk{width:96px;height:28px;display:block}.cyspk polyline{fill:none;stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round}
+.cyspk.up polyline{stroke:var(--b)}.cyspk.down polyline{stroke:var(--s)}
+.cyc-vol30,.cyc-volu,.cyc-mcap{color:var(--ink2)}
+.cyth{border-top:0;padding-top:11px;padding-bottom:11px;background:var(--soft)}
+.cyth .cyn,.cyth span.cyc{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.cyth button.cyc{all:unset;cursor:pointer;text-align:right;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);white-space:nowrap;transition:color .15s}
+.cyth button.cyc:hover,.cyth button.cyc.on{color:var(--acc)}.cyth button.cyc i{font-style:normal;display:inline-block;width:10px;text-align:right}
+.cyth button.cyc:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:4px}
+.cypiede{margin-top:10px;color:var(--mute)}
+.cylk{margin-top:12px}
+/* profilo della moneta (si apre sotto la riga) */
+.cyprof{padding:18px 20px 20px;border-top:1px solid color-mix(in srgb,var(--acc) 30%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 6%,var(--card)),var(--card2));animation:cyapri .22s ease}
+@keyframes cyapri{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.cyptesta{display:flex;align-items:center;gap:12px}.cyptesta .cyico{width:40px;height:40px;font-size:11px}
+.cyptesta div{display:flex;flex-direction:column;min-width:0;flex:1}.cyptesta b{font-size:17px}.cyptesta span{font-size:12.5px;color:var(--mute)}
+.cyptesta strong{font-size:20px;font-variant-numeric:tabular-nums}
+.cytag{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.cydesc{margin:0 0 14px;font-size:14px;line-height:1.55;color:var(--ink2);max-width:860px}
+.cypcorpo{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:18px;align-items:start}
+.cygraf{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--card2);padding:10px 10px 4px}
+.cygraf svg{display:block;width:100%;touch-action:pan-y}
+.cyln{fill:none;stroke-width:2.2;stroke-linejoin:round}.cyln.up{stroke:var(--b)}.cyln.down{stroke:var(--s)}
+.cyath{stroke:var(--warn);stroke-width:1;stroke-dasharray:4 5;opacity:.75}
+.cygan{stroke:var(--line);stroke-width:1;opacity:.6}
+.cyax{fill:var(--mute);font:600 10.5px system-ui}.cyaxath{fill:var(--warn)}
+.cycur{stroke:#fff;stroke-width:1;opacity:.45}.cypt{fill:var(--acc);stroke:#fff;stroke-width:2}
+.cygtip{position:absolute;top:10px;left:14px;display:flex;gap:8px;align-items:baseline;opacity:0;transition:opacity .12s;pointer-events:none;background:color-mix(in srgb,var(--card2) 85%,transparent);padding:3px 8px;border-radius:8px}
+.cygtip.on{opacity:1}.cygtip small{color:var(--mute);font-size:11.5px}.cygtip b{font-size:14px;font-variant-numeric:tabular-nums}
+.cyfatti{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cyfatti>div:not(.cysup){border:1px solid var(--line);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px;background:var(--card);min-width:0}
+.cyfatti small{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.cyfatti b{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}.cyfatti b .up{color:var(--b)}.cyfatti b .down{color:var(--s)}
+.cyfatti>div>span{font-size:11.5px;color:var(--mute)}
+.cysup{grid-column:1/-1;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card);display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+.cysup>div{display:flex;flex-direction:column;gap:2px}.cyfatti>div.largo{grid-column:1/-1}
+.cypiu{all:unset;cursor:pointer;text-align:center;padding:12px;font-size:13px;font-weight:700;color:var(--acc);border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);transition:background .15s}
+.cypiu:hover{background:color-mix(in srgb,var(--acc) 8%,transparent)}.cypiu:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}.cysup .cybar,.cysup>span{grid-column:1/-1}
+@media (max-width:1100px){.cyr{grid-template-columns:minmax(150px,1.4fr) minmax(0,1fr) repeat(3,minmax(0,.8fr)) 84px minmax(0,1fr) repeat(2,minmax(0,.8fr));gap:0 8px;padding:10px 12px}
+ .cyfond .cyr{grid-template-columns:minmax(140px,1.3fr) minmax(0,1fr) repeat(3,minmax(0,.75fr)) 80px repeat(2,minmax(0,.95fr)) repeat(2,minmax(0,.8fr))}
+ .cyspk{width:80px}.cyc{font-size:13px}.cypcorpo{grid-template-columns:1fr}}
+@media (max-width:820px){
+ .cykpi{grid-template-columns:1fr 1fr;gap:8px}.cykpi>div{padding:11px 12px}.cykpi>div:nth-child(3){grid-column:1/-1}.cykpi b{font-size:18px}
+ .cytab{border:0;background:none;gap:8px;border-radius:0;overflow:visible}
+ .cyth{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;background:none;padding:0 2px 2px;border:0}
+ .cyth .cyn,.cyth span.cyc{display:none!important}.cyth::before{content:"Ordina:";font-size:11px;color:var(--mute)}.cyth button.cyc{font-size:11px}
+ .cyr:not(.cyth),.cyfond .cyr:not(.cyth){grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 8px;padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+ .cyr.on:not(.cyth),.cyfond .cyr.on:not(.cyth){border-color:var(--acc);border-bottom-left-radius:0;border-bottom-right-radius:0}
+ .cyr:not(.cyth) .cyn{grid-column:1/3;grid-row:1}
+ .cyr:not(.cyth) .cyc-p{grid-column:3/5;grid-row:1;align-self:center;font-size:15px}
+ .cyr:not(.cyth) .cyc-p::before{display:none}
+ .cyr:not(.cyth) .cyc-spk{justify-content:flex-start}.cyr:not(.cyth) .cyspk{width:100%;max-width:120px}
+ .cyr:not(.cyth) .cyc{text-align:left;display:flex;flex-direction:column;gap:2px;font-size:12.5px}
+ .cyr:not(.cyth) .cyc-p{text-align:right;align-items:flex-end}
+ .cyr:not(.cyth) .cyc::before{content:attr(data-l);font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+ .cypiu{border:1px solid var(--line);border-radius:12px}
+ .cyprof{margin-top:-8px;border:1px solid var(--acc);border-top:0;border-radius:0 0 14px 14px;padding:14px 13px 16px}
+ .cyptesta strong{font-size:17px}.cyfatti b{font-size:14px}
+}
