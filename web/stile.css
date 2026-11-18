@@ -3304,3 +3304,19 @@ html:not(.eb-admin) #pfapri.pfrit::after{display:none}
 .evbt>i{position:absolute;top:0;bottom:0;border-radius:99px}.evbt>i.up{background:var(--b)}.evbt>i.down{background:var(--s)}
 .evbr b{text-align:right;font-variant-numeric:tabular-nums}.evbr small{color:var(--mute);font-size:11.5px;white-space:nowrap}
 @media (max-width:760px){.evgrid{grid-template-columns:1fr}.evbr{grid-template-columns:minmax(90px,1fr) 1fr 58px;row-gap:2px}.evbr small{grid-column:1/-1;margin-top:-2px}}
+
+/* ===== v8.04 STATO DEL TITOLO nell'Azionario (22_azioni.js), anteprima solo admin ===== */
+.az-st{display:inline-flex;align-items:center;gap:5px;font:700 10.5px system-ui;font-style:normal;padding:2px 8px 2px 7px;border-radius:99px;border:1px solid;white-space:nowrap;vertical-align:middle;margin-left:4px}
+.az-st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.az-st.eu{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.az-st.sc{color:var(--b);border-color:color-mix(in srgb,var(--b) 45%,transparent);background:color-mix(in srgb,var(--b) 9%,transparent)}
+.az-st.ss{color:var(--s);border-color:color-mix(in srgb,var(--s) 45%,transparent);background:color-mix(in srgb,var(--s) 9%,transparent)}
+.az-st.big{font-size:13px;padding:5px 12px 5px 10px;margin:0}
+.azstato{margin:0 0 18px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--card),var(--card2));padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.azsth{display:flex;align-items:center;gap:10px}.azsth details.info{margin-left:auto}
+.azsint{display:flex;gap:8px;flex-wrap:wrap}.azsint .si{font-size:12.5px;padding:5px 10px;border-radius:10px;background:var(--soft);color:var(--mute)}
+.azsint .si.on{color:var(--ink)}.azsint .si.on::before{content:"\2713  ";color:var(--warn);font-weight:800}
+.azsstat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.azsstat div{background:var(--soft);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px}
+.azsstat small{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.azsstat b{font-size:17px;font-variant-numeric:tabular-nums}.azsstat b.up{color:var(--b)}.azsstat b.down{color:var(--s)}.azsstat span{font-size:11.5px;color:var(--mute)}

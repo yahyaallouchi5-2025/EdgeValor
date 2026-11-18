@@ -209,7 +209,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    <div class="azclt"><h3 class="vft azcl">${ST.set=="tutti"?"Classifica":esc(nomeSet(ST.set))} <span class="small">${righe.length} titoli${ST.cerca?" per &laquo;"+esc(ST.cerca)+"&raquo;":""}</span></h3>
     ${EB_PREMIUM?`<button type="button" class="aztrf${ST.soloSu?" on":""}" aria-pressed="${!!ST.soloSu}" title="Mostra solo i titoli in trend rialzista">${trIcon(1)}Solo trend rialzista</button>${window.ebPdf?ebPdf.bottone():""}`:""}</div>
    ${EB_PREMIUM?`<div class="tablewrap"><table class="aztab"><tr>${COL.map(c=>`<th class="${c[2]?"num":""} ${c[3]||""}${c[0]!="sp"?" azo":""}${ST.ord==c[0]?" on":""}" ${c[0]!="sp"?`data-o="${c[0]}"`:""}${c[0]=="sdo"?` title="Quanto il prezzo &egrave; sotto il massimo dell'ultimo anno. &Egrave; un'informazione, non un segnale: nei nostri dati lo sconto da solo non ha fatto rendere di pi&ugrave;."`:""}${c[0]=="st_pos"?` title="Stagionalit&agrave; di ${mese}: quota di anni positivi e rendimento medio del mese"`:""}${c[0]=="t200"?` title="Distanza dalla media a 200 giorni: positivo = trend rialzista"`:""}${c[0]=="pt"?` title="Punteggio 0-100: forza 12 e 3 mesi, trend e stagionalit&agrave; del mese"`:""}>${c[1]}${ST.ord==c[0]?(ST.dir>0?" &uarr;":" &darr;"):""}</th>`).join("")}</tr>
-    ${vis.map(t=>`<tr class="clic" data-t="${esc(t.t)}" tabindex="0"><td class="num azrk">${t.rk}</td><td class="aznome">${ebLista.stella("az",t.t)}<b>${esc(t.n)}${trIcon(t.tr)}</b><span>${esc(t.t)} &middot; ${t.l.map(nomeList).join(", ")}${t.dq?` <em class="azdq" title="Seconda quotazione della stessa societ&agrave; (principale: ${esc(t.dq)})">2&ordf; quot.</em>`:""}${evChip(t)}</span></td>
+    ${vis.map(t=>`<tr class="clic" data-t="${esc(t.t)}" tabindex="0"><td class="num azrk">${t.rk}</td><td class="aznome">${ebLista.stella("az",t.t)}<b>${esc(t.n)}${trIcon(t.tr)}</b><span>${esc(t.t)} &middot; ${t.l.map(nomeList).join(", ")}${t.dq?` <em class="azdq" title="Seconda quotazione della stessa societ&agrave; (principale: ${esc(t.dq)})">2&ordf; quot.</em>`:""}${evChip(t)}${statoChip(t)}</span></td>
      <td>${forza(t.pt)}</td><td class="num">${sdCella(t)}</td><td class="num" data-lv="${esc(t.t)}">${prezzoCella(t)}</td><td class="num" data-lv="${esc(t.t)}" data-k="g">${varCella(t)}</td><td class="num">${pc(t.v1m)}</td><td class="num azh">${pc(t.v3m)}</td><td class="num azh azh4">${pc(t.vytd)}</td>
      <td class="num">${pc(t.v1a)}</td><td class="num azh">${t.dy?`<b class="azdy">${fx(t.dy,1)}%</b>`:'<span class="flat">&ndash;</span>'}</td><td class="num azh azst">${t.st_pos==null?'<span class="flat">n/d</span>':`<b>${t.st_pos}%</b> ${pc(t.st_media)}`}</td><td class="num azh azh3">${pc(t.t200)}</td><td class="azh2">${spark(t.sp,(t.v1a||0)>=0?"su":"giu")}</td></tr>`).join("")}
     ${!righe.length?`<tr><td colspan="14" class="small" style="text-align:center;padding:28px">Nessun titolo con questi filtri.</td></tr>`:""}</table></div>
@@ -261,6 +261,27 @@ try{(function(){const el=$("azioni");if(!el)return;
  // --- DETTAGLIO di un titolo (v6.54c: PAGINA INTERA con barra "Indietro" in alto): grafico, bilancio, trimestrali,
  //     azienda, stagionalita'. Si chiude con il pulsante Indietro, il tasto Esc o il tasto indietro del telefono/browser
  //     (alla apertura si aggiunge una voce alla cronologia, cosi' "indietro" chiude la scheda invece di lasciare il sito).
+ // ---------- v8.04 STATO DEL TITOLO (cot_radar/stato_titolo.py), anteprima SOLO ADMIN ----------
+ //   eu = Euforia (spia di bolla: +100% oltre l'S&P 500 in 24 mesi, prezzo che accelera, volatilita' in salita)
+ //   sc / ss = Sconto con / senza cassa (-60% dal massimo dei 24 mesi; flusso di cassa libero positivo o negativo)
+ // I numeri storici vengono da studi/risultati_bolle_sconti.txt (azioni USA anche uscite dalla borsa, 1997-2024).
+ const STT={eu:["Euforia","eu"],sc:["Sconto con cassa","sc"],ss:["Sconto senza cassa","ss"]};
+ const admin=()=>document.documentElement.classList.contains("eb-admin");
+ const statoChip=t=>admin()&&STT[t.stt]?` <em class="az-st ${STT[t.stt][1]}">${STT[t.stt][0]}</em>`:"";
+ function statoBox(ov,x){const s=x&&x.stato,c=ov.querySelector(".azcorpo");if(!admin()||!s||!STT[s.k]||!c)return;
+  const st=(l,v,cl,n)=>`<div><small>${l}</small><b class="${cl||""}">${v}</b>${n?`<span>${n}</span>`:""}</div>`;
+  let corpo,info;
+  if(s.k=="eu"){
+   corpo=`<div class="azsint"><span class="si on">+${s.rel}% oltre l'S&amp;P 500 in 2 anni</span><span class="si${s.acc?" on":""}">Il prezzo accelera</span><span class="si${s.vs?" on":""}">Volatilit&agrave; in salita</span></div>
+    <div class="azsstat">${st("Drawdown di &minus;40% entro 2 anni","50-65% dei casi","down","titolo qualsiasi: 20-30%")}${st("Titolo tipico dopo 2 anni","&minus;28% / &minus;70%","down","oltre il mercato (1997-2010 / 2011-2024)")}</div>`;
+   info="Spia di bolla: il titolo ha fatto almeno il 100% in pi&ugrave; dell'S&amp;P 500 in 24 mesi, pi&ugrave; di met&agrave; del rialzo &egrave; arrivata negli ultimi 6 mesi e la volatilit&agrave; dei rendimenti mensili &egrave; salita di oltre il 30%. Nella storia delle azioni USA (anche quelle uscite dalla borsa) dopo questi segnali il titolo ha perso il 40% entro 2 anni nel 50% dei casi nel 1997-2010 e nel 65% nel 2011-2024. Non dice quando: il picco pu&ograve; arrivare dopo.";
+  }else{const f=v=>(Math.abs(v)>=1e9?fx(v/1e9,1)+" mld":fx(v/1e6,0)+" mln")+" $";
+   corpo=`<div class="azsstat">${st("Drawdown dal massimo dei 2 anni",`&minus;${Math.abs(s.dd)}%`,"down")}${st("Flusso di cassa libero (ultimo anno)",(s.fcf<0?"&minus;":"")+f(Math.abs(s.fcf)),s.fcf>0?"up":"down")}
+    ${st("Un altro &minus;50% entro 2 anni",s.k=="sc"?"3 casi su 10":"5 casi su 10",s.k=="sc"?"":"down",s.k=="sc"?"senza cassa: 5 su 10":"con cassa: 3 su 10")}${st("Titolo tipico dopo 1 anno",s.k=="sc"?"&asymp; come il mercato":"&minus;20/&minus;24%",s.k=="sc"?"":"down","oltre il mercato")}</div>`;
+   info=s.k=="sc"?"Il titolo ha perso almeno il 60% dal massimo dei 2 anni, ma l'ultimo bilancio mostra un flusso di cassa libero positivo (cassa operativa meno investimenti): l'azienda si finanzia da sola. Nella storia (2010-2024) questi casi hanno fatto come il mercato e solo 3 su 10 sono scesi di un altro 50%. Non &egrave; un segnale di acquisto: &egrave; il filtro che separa lo sconto dalla trappola.":"Il titolo ha perso almeno il 60% dal massimo dei 2 anni e l'ultimo bilancio mostra un flusso di cassa libero negativo: l'azienda brucia cassa. Nella storia (2010-2024) il titolo tipico ha fatto circa il 20% in meno del mercato nell'anno dopo e quasi la met&agrave; &egrave; scesa di un altro 50%.";}
+  c.insertAdjacentHTML("afterbegin",`<div class="azstato"><div class="azsth"><em class="az-st ${STT[s.k][1]} big">${STT[s.k][0]}</em><span class="evtag">anteprima admin</span>
+   <details class="info"><summary title="Cosa significa" aria-label="Cosa significa">i</summary><div>${info}</div></details></div>${corpo}</div>`);}
+
  function apri(tk){const t=ST.dati.titoli.find(x=>x.t==tk);if(!t)return;
   let ov=document.querySelector(".azdett");if(!ov){ov=document.createElement("div");ov.className="azdett";document.body.appendChild(ov);
    ov.addEventListener("click",e=>{if(e.target.closest(".azx"))chiudi();});
@@ -288,7 +309,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   // v7.93 Basic: testata della scheda (nome, settore, prezzo) e lucchetto al posto di grafico, forza, bilanci e notizie
   if(!EB_PREMIUM){const c=ov.querySelector(".azcorpo");if(c)c.innerHTML=ebBlocco("Scheda completa dell'azienda","Grafico, forza, stagionalità, bilanci, dividendi e notizie.",{velo:true,righe:7});return;}
   fetch(BASE+"titoli/"+encodeURIComponent(tk.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(premJ)
-   .then(x=>{if(!ov.querySelector(".azcorpo"))return;ST.tit=x;corpo(ov,t,x);})
+   .then(x=>{if(!ov.querySelector(".azcorpo"))return;ST.tit=x;corpo(ov,t,x);statoBox(ov,x);})
    .catch(e=>{console.error("[EdgeValor] scheda titolo:",e);const c=ov.querySelector(".azcorpo");if(c)c.innerHTML=`<div class="card azvuoto"><h3>Dettaglio non disponibile</h3><p class="small">Riprova tra qualche minuto.</p></div>`;});}
 
  function corpo(ov,t,x){const c=ov.querySelector(".azcorpo");
