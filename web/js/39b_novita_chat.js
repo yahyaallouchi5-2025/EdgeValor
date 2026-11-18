@@ -10,8 +10,7 @@
        resta acceso con un bordo verde acqua che pulsa e un'etichetta "Nuovo". Si chiude con un tocco o da solo.
      - PUNTINO sulla scheda del menu che contiene novita' non viste (es. "Mercati"), finche' non la apri.
    Ogni voce di NOVITA (in 39_novita.js) puo' avere q = elemento da illuminare (selettore CSS) dentro la scheda s.
-   Per ora visibile solo all'admin (html.eb-admin): per gli altri resta la voce nel Profilo. Quando Ya approva si toglie
-   la condizione in stile.css e la voce del Profilo.
+   v8.06: approvata da Ya e visibile a tutti; la vecchia voce "Novita'" del Profilo e' nascosta (stile.css).
    DEBUG: localStorage.removeItem("ebNovita") fa ricomparire le novita' come non viste. */
 (function(){try{
  const N=window.EB_NOVITA||[];if(!N.length)return;
