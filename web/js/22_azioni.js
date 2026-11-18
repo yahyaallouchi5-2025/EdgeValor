@@ -32,7 +32,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   return righe.map(([c,tit,txt,info])=>`<div class="azev ${c}"><i aria-hidden="true"></i><span><b>${tit}</b>: ${txt}</span><details class="info"><summary title="Cosa significa" aria-label="Cosa significa">i</summary><div>${info}</div></details></div>`).join("");}
  const pc=(v,d=1)=>v==null?'<span class="flat">n/d</span>':`<span class="${v>0?"up":v<0?"down":"flat"}">${v>0?"+":""}${fx(v,d)}%</span>`;
  const SIMB={USD:"$",EUR:"€",GBP:"£",CHF:"CHF ",JPY:"¥",HKD:"HK$",CNY:"CN¥",INR:"₹",CAD:"C$",AUD:"A$"};
- const prezzo=(v,val)=>v==null?"n/d":(SIMB[val]||"")+Number(v).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2});
+ const prezzo=(v,val)=>v==null?"n/d":(SIMB[val]||"")+Number(v).toLocaleString(EB_LOC,{minimumFractionDigits:2,maximumFractionDigits:2});
  // dove e' quotato il titolo, dal suffisso del ticker di Yahoo (senza suffisso = Stati Uniti)
  const BORSE={MI:"Borsa italiana (Milano)",DE:"Borsa tedesca (Xetra)",PA:"Borsa di Parigi",AS:"Borsa di Amsterdam",MC:"Borsa di Madrid",BR:"Borsa di Bruxelles",HE:"Borsa di Helsinki",T:"Borsa di Tokyo",HK:"Borsa di Hong Kong",SS:"Borsa di Shanghai",SZ:"Borsa di Shenzhen",NS:"Borsa indiana (NSE)",L:"Borsa di Londra",TO:"Borsa di Toronto",AX:"Borsa australiana (Sydney)"};
  const borsa=tk=>{const m=String(tk).match(/\.([A-Z]+)$/);return m?(BORSE[m[1]]||"Borsa estera"):"Borsa USA";};
@@ -69,7 +69,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  const LV={p:{},quando:0};
  const lv=t=>{const v=LV.p[t.t];if(!v||!v[0])return null;
   if(t.data&&v[2]&&new Date(v[2]*1000).toISOString().slice(0,10)<t.data)return null;   // piu' vecchio della chiusura
-  return {p:v[0],g:v[1]?(v[0]/v[1]-1)*100:null,ora:v[2]?new Date(v[2]*1000).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):""};};
+  return {p:v[0],g:v[1]?(v[0]/v[1]-1)*100:null,ora:v[2]?new Date(v[2]*1000).toLocaleTimeString(EB_LOC,{hour:"2-digit",minute:"2-digit"}):""};};
  const prezzoCella=t=>{const l=lv(t);return l?`<span class="azlv" title="Prezzo con ~15 min di ritardo, ore ${l.ora}"><i></i>${prezzo(l.p,t.val)}</span>`:prezzo(t.p,t.val);};
  const varCella=t=>{const l=lv(t);return pc(l&&l.g!=null?l.g:t.v1g,2);};
  function aggiornaLive(){document.querySelectorAll("[data-lv]").forEach(c=>{const t=ST.dati&&ST.dati.titoli.find(x=>x.t==c.dataset.lv);if(!t)return;
@@ -125,7 +125,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   return `<span class="azpt fz${l[0]}" title="Forza ${v} su 100: ${l[1]}"><span class="azptb"><i style="width:${v}%"></i></span><span class="azptv"><b>${v}</b><small>${l[1]}</small></span></span>`;};
  // blocco della forza nella scheda del titolo: etichetta, punteggio, posizione in classifica e (i)
  function forzaTesta(t){const l=forzaLiv(t.pt);if(!l)return "";const n=ST.dati.titoli.length;
-  return `<div class="azfz fz${l[0]}"><span class="azfzl">${l[1]}</span><span class="azfzn"><b>${t.pt}</b>/100${t.rk?` &middot; ${t.rk.toLocaleString("it-IT")}&ordm; di ${n.toLocaleString("it-IT")}`:""}</span><details class="info"><summary title="Cosa misura" aria-label="Cosa misura">i</summary><div><b>Forza 0-100</b>: confronta il titolo con tutti gli altri dell'Azionario su rendimento a 12 mesi (30%) e a 3 mesi (20%), distanza dalla media a 200 giorni (15%) e stagionalit&agrave; del mese (35%). 50 = nella media.<br><b>Forte</b> da 65 (circa 1 titolo su 5), <b>Debole</b> sotto 35, <b>Neutro</b> in mezzo. Misura il comportamento recente del prezzo, non il valore dell'azienda: non &egrave; un consiglio di acquisto o vendita.</div></details></div>`;}
+  return `<div class="azfz fz${l[0]}"><span class="azfzl">${l[1]}</span><span class="azfzn"><b>${t.pt}</b>/100${t.rk?` &middot; ${t.rk.toLocaleString(EB_LOC)}&ordm; di ${n.toLocaleString(EB_LOC)}`:""}</span><details class="info"><summary title="Cosa misura" aria-label="Cosa misura">i</summary><div><b>Forza 0-100</b>: confronta il titolo con tutti gli altri dell'Azionario su rendimento a 12 mesi (30%) e a 3 mesi (20%), distanza dalla media a 200 giorni (15%) e stagionalit&agrave; del mese (35%). 50 = nella media.<br><b>Forte</b> da 65 (circa 1 titolo su 5), <b>Debole</b> sotto 35, <b>Neutro</b> in mezzo. Misura il comportamento recente del prezzo, non il valore dell'azienda: non &egrave; un consiglio di acquisto o vendita.</div></details></div>`;}
  const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 
  // --- v6.78 PDF DELL'AZIONARIO (generatore in 01b_pdf.js): quello che si vede con i filtri attivi (listino, settore,
@@ -142,14 +142,14 @@ try{(function(){const el=$("azioni");if(!el)return;
   const d=E.Doc({land:true});d.pagina();const {M,PW}=d,LW=PW-2*M;
   const pct=v=>v==null?"n/d":(v>0?"+":"")+fx(v,1)+"%",colV=v=>v==null?C.mute:v>0?C.up:v<0?C.down:C.mute;
   const SP={USD:"$",EUR:"€",GBP:"£",JPY:"¥",CHF:"CHF ",HKD:"HK$",CNY:"CNY ",INR:"INR "};   // simboli che il PDF sa scrivere
-  const prz=(v,val)=>v==null?"n/d":(SP[val]||"")+Number(v).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const prz=(v,val)=>v==null?"n/d":(SP[val]||"")+Number(v).toLocaleString(EB_LOC,{minimumFractionDigits:2,maximumFractionDigits:2});
   let y=E.testata(d,T,`Dati al ${gg(d0.aggiornato)} · ${righe.length} titoli · ${filtri}`);
   // indici (riquadri come in pagina)
   const I=d0.indici||[];if(I.length){const iw=(LW-8*(I.length-1))/I.length;
    // riquadro: nome, valore, poi "oggi" e "da gennaio" su due righe (stanno anche con 9 indici affiancati)
    I.forEach((i,k)=>{const x=M+k*(iw+8),on=ST.list==i.l,r=(et,v,yy)=>{d.testo(x+9,yy,et,{s:6.8,c:C.mute});d.testo(x+iw-9,yy,pct(v),{s:6.8,b:true,c:colV(v),a:"r"});};
     d.rett(x,y,iw,58,{f:on?E.chiaro(C.acc,.12):C.soft,s:on?C.acc:null,r:7});
-    d.testo(x+9,y+13,d.taglia(i.n,iw-18,7.8),{s:7.8,c:C.mute});d.testo(x+9,y+29,Number(i.p).toLocaleString("it-IT",{maximumFractionDigits:0}),{s:12,b:true});
+    d.testo(x+9,y+13,d.taglia(i.n,iw-18,7.8),{s:7.8,c:C.mute});d.testo(x+9,y+29,Number(i.p).toLocaleString(EB_LOC,{maximumFractionDigits:0}),{s:12,b:true});
     r("oggi",i.v1g,y+41);r("da gennaio",i.vytd,y+51);});y+=58;}
   // settori: media dei titoli del listino scelto (rendimento da gennaio, ultimo mese, quota sopra la media a 200 giorni)
   const S=d0.settori.map(s=>{const t=base.filter(x=>x.s==s.id);if(!t.length)return null;const md=a=>{const q=a.filter(v=>v!=null);return q.length?q.reduce((u,v)=>u+v,0)/q.length:null;};
@@ -197,7 +197,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    <div class="azbar"><span class="azmkw" data-mk>${mercatiHTML()}</span>
     <div class="azcw"><label class="azcerca"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" placeholder="Cerca titolo o ticker" value="${esc(ST.cerca)}" aria-label="Cerca titolo o ticker" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="azsg"></label><div class="azsg" id="azsg" role="listbox" hidden></div></div>
     <div class="filters azlist">${[["tutti","Tutti"]].concat(d.listini.map(l=>[l.id,l.nome])).map(x=>`<button data-l="${x[0]}" class="${ST.list==x[0]?"on":""}">${x[1]}</button>`).join("")}</div></div>
-   <div class="azidx">${d.indici.map(i=>`<div class="card azi${ST.list==i.l?" on":""}" data-l="${i.l}" role="button" tabindex="0"><span>${esc(i.n)}</span><b>${Number(i.p).toLocaleString("it-IT",{maximumFractionDigits:0,useGrouping:"always"})}</b>
+   <div class="azidx">${d.indici.map(i=>`<div class="card azi${ST.list==i.l?" on":""}" data-l="${i.l}" role="button" tabindex="0"><span>${esc(i.n)}</span><b>${Number(i.p).toLocaleString(EB_LOC,{maximumFractionDigits:0,useGrouping:"always"})}</b>
     <em><span>oggi ${pc(i.v1g,2)}</span><span>anno ${pc(i.vytd)}</span></em>${spark(i.sp,(i.v1a||0)>=0?"su":"giu")}</div>`).join("")}</div>
    <h3 class="vft">Settori${ST.list!="tutti"?` <span class="small">${esc(nomeList(ST.list))}</span>`:""} <details class="info"><summary title="Come leggere i settori" aria-label="Informazioni">i</summary><div>Media dei titoli del settore: <b>numero grande</b> = rendimento da inizio anno, sotto il rendimento dell'ultimo mese. La <b>barra</b> = quota di titoli in trend rialzista (prezzo sopra la media a 200 giorni): piena = settore forte.</div></details></h3>
    ${/* v7.61 nome corto nella card (una riga per tutte, card allineate); il nome intero resta nel title */""}
@@ -328,7 +328,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   return Promise.all([js(BASE+"bilanci/"+nf),js(BASE+"dividendi/"+nf),js(BASE+"profili/"+nf)]).then(([bil,dv,pr])=>{
    const C=E.C,d=E.Doc();d.pagina();const {M,PW}=d,LW=PW-2*M,T=`${t.n} (${t.t})`;
    const SP={USD:"$",EUR:"€",GBP:"£",JPY:"¥",CHF:"CHF ",HKD:"HK$",CNY:"CNY ",INR:"INR ",CAD:"C$",AUD:"A$"};   // simboli che il PDF sa scrivere
-   const prz=v=>v==null?"n/d":(SP[t.val]||"")+Number(v).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2});
+   const prz=v=>v==null?"n/d":(SP[t.val]||"")+Number(v).toLocaleString(EB_LOC,{minimumFractionDigits:2,maximumFractionDigits:2});
    const pct=(v,n)=>v==null?"n/d":(v>0?"+":"")+fx(v,n==null?1:n)+"%",colV=v=>v==null?C.mute:v>0?C.up:v<0?C.down:C.mute;
    const dl=v=>{if(v==null)return "n/d";const a=Math.abs(v),g=v<0?"-":"";return a>=1e9?g+fx(a/1e9,a>=1e11?0:1)+" mld $":a>=1e6?g+fx(a/1e6,0)+" mln $":g+fx(a,0)+" $";};
    // riquadro "etichetta sopra, valore sotto" (come le caselle della pagina)
@@ -343,7 +343,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    if(fl){const fc={f:C.up,n:C.acc,d:C.down}[fl[0]],bw=178,bx=PW-M-bw;d.rett(bx,y-4,bw,36,{s:fc,r:8,lw:1});
     const we=d.larghezza(fl[1].toUpperCase(),8,true)+14;d.rett(bx+8,y+5,we,18,{f:fc,r:9});d.testo(bx+8+we/2,y+17.5,fl[1].toUpperCase(),{s:8,b:true,c:C.bianco,a:"c"});
     d.testo(bx+we+16,y+13,`Forza ${t.pt}/100`,{s:10.5,b:true});
-    if(t.rk)d.testo(bx+we+16,y+25,`${t.rk.toLocaleString("it-IT")}º di ${ST.dati.titoli.length.toLocaleString("it-IT")} titoli`,{s:7.6,c:C.mute});}
+    if(t.rk)d.testo(bx+we+16,y+25,`${t.rk.toLocaleString(EB_LOC)}º di ${ST.dati.titoli.length.toLocaleString(EB_LOC)} titoli`,{s:7.6,c:C.mute});}
    y+=46;
    // --- grafico dell'ultimo anno (chiusure giornaliere)
    const lim=new Date(x.d[x.d.length-1][0]);lim.setFullYear(lim.getFullYear()-1);const S=x.d.filter(p=>p[0]>=lim.toISOString().slice(0,10));
@@ -351,7 +351,7 @@ try{(function(){const el=$("azioni");if(!el)return;
     const gh=140,gx=M,gw=LW-46,vs=S.map(p=>p[1]),lo0=Math.min(...vs),hi0=Math.max(...vs),pad=(hi0-lo0||hi0*.01)*.08,lo=lo0-pad,hi=hi0+pad;
     const X=i=>gx+i/(S.length-1)*gw,Y=v=>y+6+(hi-v)/(hi-lo)*(gh-22),su=S[S.length-1][1]>=S[0][1],col=su?C.up:C.down;
     [0,.25,.5,.75,1].forEach(k=>{const v=lo+(hi-lo)*k;d.linea(gx,Y(v),gx+gw,Y(v),{c:C.line,lw:.4});
-     d.testo(gx+gw+6,Y(v)+2.5,Number(v).toLocaleString("it-IT",{maximumFractionDigits:v<10?2:v<1000?1:0}),{s:7,c:C.mute});});
+     d.testo(gx+gw+6,Y(v)+2.5,Number(v).toLocaleString(EB_LOC,{maximumFractionDigits:v<10?2:v<1000?1:0}),{s:7,c:C.mute});});
     const pts=S.map((p,i)=>[X(i),Y(p[1])]);
     d.poli(pts.concat([[X(S.length-1),Y(lo)],[gx,Y(lo)]]),{f:E.chiaro(col,.10)});d.poli(pts,{s:col,lw:1.3});
     const MB=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];let pm="";
@@ -409,7 +409,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    // --- l'azienda
    {const desc=pr&&pr.desc&&pr.desc.testo?String(pr.desc.testo):"",fatti=[];
     if(pr&&!pr.vuoto){if(pr.fondata)fatti.push("Fondata: "+pr.fondata);const sede=[pr.sede,pr.paese].filter(Boolean).join(", ");if(sede)fatti.push("Sede: "+sede);
-     if((pr.ceo||[]).length)fatti.push("Amministratore delegato: "+pr.ceo.join(", "));if(pr.dipendenti)fatti.push("Dipendenti: "+Number(pr.dipendenti.n).toLocaleString("it-IT")+(pr.dipendenti.anno?` (${pr.dipendenti.anno})`:""));}
+     if((pr.ceo||[]).length)fatti.push("Amministratore delegato: "+pr.ceo.join(", "));if(pr.dipendenti)fatti.push("Dipendenti: "+Number(pr.dipendenti.n).toLocaleString(EB_LOC)+(pr.dipendenti.anno?` (${pr.dipendenti.anno})`:""));}
     if(desc||fatti.length){const testo=desc.length>700?desc.slice(0,700).replace(/\s+\S*$/,"")+"…":desc,rg=testo?d.righe(testo,LW,8.6).length:0;
      y=d.serve(y,40+rg*11.9+(fatti.length?14:0),T);y=E.sezione(d,y+24,"L'azienda","");
      if(testo)y+=d.paragrafo(M,y+2,testo,LW,{s:8.6,c:C.ink})+4;
@@ -429,8 +429,8 @@ try{(function(){const el=$("azioni");if(!el)return;
  const RAWL=EB_RAW+"live/oggi/";
  const CINTRA={};
  const giornoS=ts=>new Date((ts+7200)*1000).toISOString().slice(0,10);
- const oraIt=ts=>new Date(ts*1000).toLocaleTimeString("it-IT",{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"});
- const giornoIt=ts=>new Date(ts*1000).toLocaleDateString("it-IT",{timeZone:"Europe/Rome",weekday:"short",day:"2-digit",month:"2-digit"});
+ const oraIt=ts=>new Date(ts*1000).toLocaleTimeString(EB_LOC,{timeZone:"Europe/Rome",hour:"2-digit",minute:"2-digit"});
+ const giornoIt=ts=>new Date(ts*1000).toLocaleDateString(EB_LOC,{timeZone:"Europe/Rome",weekday:"short",day:"2-digit",month:"2-digit"});
  function datiIntra(t){const f=encodeURIComponent(t.t.replace("^","_"))+".json";
   if(!CINTRA[t.t])CINTRA[t.t]=Promise.all([
    fetch(BASE+"intraday/"+f,{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null),
@@ -463,7 +463,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   const passo=per=="oggi"?Math.max(1,Math.ceil(et.length/(stretto?4:7))):1;
   return `<svg viewBox="0 0 ${W} ${H}" class="azsvg ${su?"su":"giu"}" preserveAspectRatio="none">
    <defs><linearGradient id="azgri" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
-   ${tick.map(z=>`<line x1="${L}" x2="${W-R}" y1="${Y(z)}" y2="${Y(z)}" class="pgr"/><text x="${W-R+6}" y="${Y(z)+4}" class="pax">${Number(z).toLocaleString("it-IT",{maximumFractionDigits:z<10?2:z<1000?1:0})}</text>`).join("")}
+   ${tick.map(z=>`<line x1="${L}" x2="${W-R}" y1="${Y(z)}" y2="${Y(z)}" class="pgr"/><text x="${W-R+6}" y="${Y(z)+4}" class="pax">${Number(z).toLocaleString(EB_LOC,{maximumFractionDigits:z<10?2:z<1000?1:0})}</text>`).join("")}
    ${et.filter((e,k)=>k%passo==0).map(e=>`${e[2]?`<line x1="${X(e[0])}" x2="${X(e[0])}" y1="${T}" y2="${H-B}" class="azgsep"/>`:""}<text x="${Math.min(W-R-14,Math.max(L+14,X(e[0])+(per=="oggi"?0:18)))}" y="${H-7}" text-anchor="middle" class="pax">${e[1]}</text>`).join("")}
    ${per=="oggi"?`<line x1="${L}" x2="${W-R}" y1="${Y(base)}" y2="${Y(base)}" class="azgbase"/><text x="${W-R+6}" y="${Y(base)-5}" class="pax azgbt">prec.</text>`:""}
    <path d="${path}L${X(s.length-1)} ${H-B}L${L} ${H-B}Z" fill="url(#azgri)"/><path d="${path}" class="azlin"/>
@@ -575,7 +575,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   fetch(BASE+"notizie/"+encodeURIComponent(t.t.replace("^","_"))+".json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(premJ).catch(()=>null).then(x=>{
    if(!box.isConnected||!x||!(x.n||[]).length)return;
    const tono=v=>v==null?["neu","tono non stimato"]:v>=0.25?["pos","tono positivo"]:v<=-0.25?["neg","tono negativo"]:["neu","tono neutro"];
-   const data=d=>{const g=new Date(d+"T12:00:00");return g.toLocaleDateString("it-IT",{day:"numeric",month:"short"});};
+   const data=d=>{const g=new Date(d+"T12:00:00");return g.toLocaleDateString(EB_LOC,{day:"numeric",month:"short"});};
    box.innerHTML=`<h4 class="aztit">Ultime notizie <details class="info"><summary title="Da dove arrivano" aria-label="Informazioni">i</summary><div>Titoli delle notizie finanziarie degli ultimi 30 giorni, in inglese: il tocco apre l'articolo sulla fonte. Il pallino &egrave; il <b>tono</b> della notizia stimato automaticamente (verde positivo, rosso negativo, grigio neutro): una lettura veloce, non un segnale di acquisto o vendita.</div></details></h4>
     <div class="aznl">${x.n.map(n=>{const s=tono(n.tono);return `<a class="azn" href="${esc(n.link)}" target="_blank" rel="noopener noreferrer"><i class="aznt ${s[0]}" title="${s[1]}"></i><span class="azn-t">${esc(n.titolo)}</span><small>${esc(n.fonte||"")} &middot; ${data(n.d)}</small></a>`;}).join("")}</div>`;
    box.hidden=false;});}
@@ -613,7 +613,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    if(!box.isConnected)return;
    if(!p||p.vuoto){box.innerHTML=`<h4 class="aztit">L'azienda</h4>${descBase(t)}<div class="azmini azfatti"><div><span>Settore</span><b>${esc(nomeSet(t.s))}</b></div><div><span>Quotata su</span><b>${esc(t.l.map(nomeList).join(", "))}</b></div></div>`;return;}   // v7.7: mai vuota
    const f=(et,v)=>v?`<div><span>${et}</span><b>${v}</b></div>`:"";
-   const dip=p.dipendenti?Number(p.dipendenti.n).toLocaleString("it-IT")+(p.dipendenti.anno?` <em>(${p.dipendenti.anno})</em>`:""):"";
+   const dip=p.dipendenti?Number(p.dipendenti.n).toLocaleString(EB_LOC)+(p.dipendenti.anno?` <em>(${p.dipendenti.anno})</em>`:""):"";
    const acq=(p.acquisita_da||[])[0];
    box.innerHTML=`<h4 class="aztit">L'azienda</h4>
     ${!p.desc?descBase(t):""}${p.desc?`<p class="azdesc"><span class="dtesto">${esc(p.desc.testo)}</span>${p.desc.lingua!="it"?` <button type="button" class="trad" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h9M8.5 3v2M6 5c.6 3.4 2.6 6 6 7.5M11 5c-.8 3.6-3.3 6.6-7 8M13 21l4.5-10L22 21M14.5 18h6"/></svg>Traduci</button>`:""}</p>`:""}
@@ -653,7 +653,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   const anni=[];let ult="";s.forEach((p,i)=>{const k=logar?p[0].slice(0,4):p[0].slice(0,7);if(k!=ult&&(logar?+k%5==0:+p[0].slice(5,7)%3==1)&&i>0)anni.push([i,logar?k:p[0].slice(5,7)+"/"+p[0].slice(2,4)]);ult=k;});
   return `<svg viewBox="0 0 ${W} ${H}" class="azsvg ${su?"su":"giu"}" preserveAspectRatio="none">
    <defs><linearGradient id="azgr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
-   ${tick.map(z=>`<line x1="${L}" x2="${W-R}" y1="${Y(z)}" y2="${Y(z)}" class="pgr"/><text x="${W-R+6}" y="${Y(z)+4}" class="pax">${Number(z).toLocaleString("it-IT",{maximumFractionDigits:z<10?2:0})}</text>`).join("")}
+   ${tick.map(z=>`<line x1="${L}" x2="${W-R}" y1="${Y(z)}" y2="${Y(z)}" class="pgr"/><text x="${W-R+6}" y="${Y(z)+4}" class="pax">${Number(z).toLocaleString(EB_LOC,{maximumFractionDigits:z<10?2:0})}</text>`).join("")}
    ${anni.map(a=>`<text x="${X(a[0])}" y="${H-7}" text-anchor="middle" class="pax">${a[1]}</text>`).join("")}
    <path d="${path}L${X(s.length-1)} ${H-B}L${L} ${H-B}Z" fill="url(#azgr)"/><path d="${path}" class="azlin"/>
    <line class="pcur" x1="0" x2="0" y1="${T}" y2="${H-B}" style="display:none"/><circle class="pcurp" r="4" style="display:none"/></svg><div class="ptip" hidden></div>`;}

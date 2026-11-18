@@ -19,7 +19,7 @@ try{(function(){const el=$("pattern");if(!el)return;
  const z=x=>String(x).padStart(2,"0");
  // orario della CHIUSURA della candela, in ora italiana (H4: inizio + 4 ore; daily: solo la data)
  const quando=(t,tf)=>{const d=new Date((t+(tf=="h4"?4*3600:0))*1000);return tf=="h4"?`${z(d.getDate())}/${z(d.getMonth()+1)} ore ${z(d.getHours())}:${z(d.getMinutes())}`:`${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()}`;};
- const num=(v,c)=>v==null?"n/d":Number(v).toLocaleString("it-IT",{minimumFractionDigits:Math.min(c,5),maximumFractionDigits:c});
+ const num=(v,c)=>v==null?"n/d":Number(v).toLocaleString(EB_LOC,{minimumFractionDigits:Math.min(c,5),maximumFractionDigits:c});
  const cifre=v=>{const s=String(v);return s.includes(".")?s.split(".")[1].length:0;};
  // variazione %: sotto lo 0,005% e' zero (evita il "-0,00%" quando il prezzo e' fermo)
  const pc=v=>{if(v==null)return "n/d";if(Math.abs(v)<0.005)v=0;return `<span class="${v>0?"up":v<0?"down":"flat"}">${v>0?"+":""}${fx(v,2)}%</span>`;};
@@ -69,11 +69,11 @@ try{(function(){const el=$("pattern");if(!el)return;
   const esito=x=>!x||!x.ic?"no":x.ic[0]>0?"si":x.ic[1]<0?"peggio":"no";
   const tutte=[V["1R"].tutti,V["2R"].tutti,V["1R"].trend,V["2R"].trend,V["1R"].contro_trend,V["2R"].contro_trend];
   const stato=tutte.some(x=>esito(x)=="si")?"si":tutte.some(x=>esito(x)=="peggio")?"ko":"no";
-  const riga=(nome,x)=>x?`<tr><td>${nome}</td><td class="num ptmob">${x.n.toLocaleString("it-IT")}</td><td class="num ptmob">${x.vinte}%</td>
+  const riga=(nome,x)=>x?`<tr><td>${nome}</td><td class="num ptmob">${x.n.toLocaleString(EB_LOC)}</td><td class="num ptmob">${x.vinte}%</td>
    <td class="num ${x.r_medio>=0?"up":"down"}"><b>${pr(x.r_medio)}</b></td><td class="num ptmob">${x.ic?`da ${pr(x.ic[0])} a ${pr(x.ic[1])}`:"n/d"}</td>
    <td class="num"><span class="ptv ${esito(x)}"><span class="ptlg">${ETV[esito(x)]}</span><span class="ptsh">${ETC[esito(x)]}</span></span></td></tr>`:"";
   const t1=V["1R"].tutti,anno=esc((t1&&t1.dal||"").slice(0,4));
-  const frase=t1?`Operando <b>ogni</b> pattern dal ${anno} (${t1.n.toLocaleString("it-IT")} operazioni), con stop all'estremo e obiettivo pari al rischio, in media ${t1.r_medio<0?"si perde":"si guadagna"} il <b>${fx(Math.abs(t1.r_medio*100),0)}% di quanto si rischia</b> a operazione, costi inclusi.`:"";
+  const frase=t1?`Operando <b>ogni</b> pattern dal ${anno} (${t1.n.toLocaleString(EB_LOC)} operazioni), con stop all'estremo e obiettivo pari al rischio, in media ${t1.r_medio<0?"si perde":"si guadagna"} il <b>${fx(Math.abs(t1.r_medio*100),0)}% di quanto si rischia</b> a operazione, costi inclusi.`:"";
   return `<div class="card ptstudio ${stato}"><div class="ptsth"><span class="ptverd">${ETS[stato]}</span>
     <span class="small">Studio Daily dal ${anno} &middot; ${ST.d.strumenti.length} strumenti</span>
     <button type="button" class="info" data-apri="ptinfo" data-k="ptstudio" aria-label="Mostra o nascondi la spiegazione">i</button></div>
