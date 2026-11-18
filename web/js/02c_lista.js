@@ -106,8 +106,7 @@ try{(function(){
   corpo.innerHTML=(L.az.length?`<h3 class="lt">Aziende <small>${L.az.length}</small></h3><div class="lgr">${L.az.map(rigaAz).join("")}</div>`:"")
    +(L.pa.length?`<h3 class="lt">Paesi emergenti <small>${L.pa.length}</small></h3><div class="lgr">${L.pa.map(rigaPa).join("")}</div>`:"")
    +(L.fx.length?`<h3 class="lt">Forex <small>${L.fx.length}</small></h3><div class="lgr">${L.fx.map(rigaFx).join("")}</div>`:"")
-   +(L.me.length?`<h3 class="lt">Mercati <small>${L.me.length}</small></h3><div class="lgr">${L.me.map(rigaMe).join("")}</div>`:"")
-   +`<p class="lnota">Salvata in questo browser.</p>`;}
+   +(L.me.length?`<h3 class="lt">Mercati <small>${L.me.length}</small></h3><div class="lgr">${L.me.map(rigaMe).join("")}</div>`:"");}               // v8.05: tolta la nota "Salvata in questo browser" (la lista si salva anche sull'account)
  function vaiPaese(iso){try{go("sig");}catch(e){}
   setTimeout(()=>{let r=document.querySelector(`.per[data-iso="${iso}"]`);
    if(!r){const t=document.querySelector('#pefiltri button[data-f="Tutti"]');if(t)t.click();const p=$("pepiu");if(p&&/Mostra tutti/.test(p.textContent))p.click();r=document.querySelector(`.per[data-iso="${iso}"]`);}
