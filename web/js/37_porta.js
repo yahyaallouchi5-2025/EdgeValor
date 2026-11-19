@@ -1,17 +1,23 @@
-/* ---------- PORTA D'INGRESSO (v7.86): il terminale si apre solo a chi ha un account ----------
+/* ---------- PORTA D'INGRESSO (v7.86, v8.20): il terminale si apre solo a chi ha un account ----------
    COSA FA: chi arriva senza sessione (localStorage "ebSess", scritta da 36_account.js) vede solo questa schermata:
      - Accedi       -> email + password                     (POST /auth/v1/token?grant_type=password)
      - Registrati   -> email + password, poi email di conferma (POST /auth/v1/signup)
      - Password dimenticata? -> email con il link            (POST /auth/v1/recover)
      - ritorno dal link "nuova password" -> si sceglie la password (PUT /auth/v1/user)
-     - Google: pulsante pronto ma NASCOSTO finche' GOOGLE=false (si accende quando il provider e' attivo su Supabase)
+     - Google: provider attivo su Supabase dal 19/11/2026 (client "EdgeValor sito" sull'account info@edgevalor.com).
+       v8.20 GOOGLE=false: si vede solo in anteprima (indirizzo con ?google=1, ricordato nel browser); true = per tutti.
+     - v8.20 CLASSIFICATORE EMAIL (funzione public.email_stato nel database): 'temporanea' -> registrazione rifiutata;
+       'registrata' -> in Registrati si propone Accedi / Password dimenticata; 'nuova' -> in Accedi si propone Registrati.
    Dopo l'accesso la sessione si salva e la pagina si ricarica: da li' in poi pensa a tutto 36_account.js.
    La prova di 14 giorni la crea il database alla registrazione (funzione privato.nuovo_utente).
    NOTA: e' una porta "di comodo" per l'utente; i dati riservati veri andranno protetti anche sul server (passo successivo).
    DEBUG (F12 -> Console): gli errori iniziano con "[EdgeValor] porta"; ebPorta.apri("reg") mostra la schermata. */
 (function(){try{
  if(!/\/terminale\//.test(location.pathname))return;              // in locale (file aperto dal PC) il terminale resta libero
- const API="https://cwwmqujccwzmqougtedh.supabase.co",CHIAVE="sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X",GOOGLE=false;
+ const API="https://cwwmqujccwzmqougtedh.supabase.co",CHIAVE="sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X";
+ const PER_TUTTI=false;                                            // true = pulsante Google per tutti
+ try{if(/[?&]google=1/.test(location.search))localStorage.setItem("ebGoogle","1");}catch(e){}
+ const GOOGLE=PER_TUTTI||(()=>{try{return localStorage.getItem("ebGoogle")=="1";}catch(e){return false;}})();
  const H={apikey:CHIAVE,"Content-Type":"application/json"},MAIL=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  const torna=()=>location.href.split("#")[0].split("?")[0];       // dove riportano i link delle email (senza codici)
  const sess=()=>{try{return JSON.parse(localStorage.getItem("ebSess")||"null");}catch(e){return null;}};
@@ -40,7 +46,8 @@
    ${tab}${goo}<form novalidate>${mail}${pw}${sotto}${err}<button type="submit" class="ptvai">${vai}</button></form>${nota}`;}
 
  function disegna(msg){if(!el)return;const c=el.querySelector(".ptcard");c.innerHTML=html(msg);
-  c.querySelectorAll("[data-va]").forEach(b=>b.onclick=()=>{modo=b.dataset.va;disegna();});
+  c.querySelectorAll("[data-va]").forEach(b=>b.onclick=()=>{const m=c.querySelector("input[name=email]");const v=m?m.value:"";modo=b.dataset.va;disegna();
+   const n=c.querySelector("input[name=email]");if(n&&v)n.value=v;});                 // v8.20 l'email scritta resta quando si cambia scheda
   const o=c.querySelector(".ptocchio");if(o)o.onclick=()=>{const i=c.querySelector("input[name=pw]");i.type=i.type=="password"?"text":"password";};
   const g=c.querySelector(".ptgoo");if(g)g.onclick=()=>{stat("google");location.href=API+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(torna());};
   const f=c.querySelector("form");if(f)f.onsubmit=e=>{e.preventDefault();invia(f);};
@@ -56,6 +63,11 @@
   if(/weak|short|least/i.test(m))return "Password troppo corta: almeno 8 caratteri.";
   if(/same.*password|different/i.test(m))return "Scegli una password diversa da quella di prima.";
   return "Operazione non riuscita (connessione o servizio). Riprova tra poco.";};
+ // v8.20 stato dell'email: 'nuova' | 'registrata' | 'temporanea' ('' se il controllo non risponde: si prosegue normalmente)
+ async function statoEmail(m){try{const r=await fetch(API+"/rest/v1/rpc/email_stato",{method:"POST",headers:H,body:JSON.stringify({p_email:m})});
+  return r.ok?await r.json():"";}catch(e){return "";}}
+ // messaggio con collegamenti (data-va cambia scheda tenendo l'email scritta)
+ const vaiA=(testo,dove,etichetta)=>`${testo} <button type="button" class="ptlink ptin" data-va="${dove}">${etichetta}</button>`;
  function entra(j){localStorage.setItem("ebSess",JSON.stringify({a:j.access_token,r:j.refresh_token,s:Date.now()+(j.expires_in||3600)*1000}));location.reload();}
 
  async function invia(f){const b=f.querySelector(".ptvai"),t=b.textContent,mail=f.email?f.email.value.trim().toLowerCase():"",pw=f.pw?f.pw.value:"";
@@ -63,8 +75,16 @@
   if(f.pw&&pw.length<8)return disegnaKo("Password troppo corta: almeno 8 caratteri.");
   b.disabled=true;b.textContent="Un momento…";
   try{
-   if(modo=="acc"){const j=await chiama("/auth/v1/token?grant_type=password",{email:mail,password:pw});stat("entrato");return entra(j);}
-   if(modo=="reg"){let inv="";try{inv=localStorage.getItem("ebInvito")||"";}catch(_){}
+   if(modo=="acc"){try{const j=await chiama("/auth/v1/token?grant_type=password",{email:mail,password:pw});stat("entrato");return entra(j);}
+    catch(e){if(!/invalid/i.test((e.message||"")+" "+(e.cod||"")))throw e;              // credenziali errate: email sconosciuta o password sbagliata?
+     const st=await statoEmail(mail);b.disabled=false;b.textContent=t;
+     if(st=="nuova")return disegnaKo(vaiA("Questa email non è registrata.","reg","Crea un account"));
+     if(st=="registrata")return disegnaKo(vaiA("Password non corretta.","dim","Password dimenticata?")+(GOOGLE?" Se ti sei registrato con Google, usa il pulsante Google.":""));
+     throw e;}}
+   if(modo=="reg"){const st=await statoEmail(mail);
+    if(st=="temporanea"){b.disabled=false;b.textContent=t;return disegnaKo("Le email temporanee non sono accettate: usa la tua email personale.");}
+    if(st=="registrata"){b.disabled=false;b.textContent=t;return disegnaKo(vaiA("Questa email è già registrata.","acc","Accedi")+" "+vaiA("oppure","dim","recupera la password"));}
+    let inv="";try{inv=localStorage.getItem("ebInvito")||"";}catch(_){}
     const j=await chiama("/auth/v1/signup?redirect_to="+encodeURIComponent(torna()),{email:mail,password:pw,data:inv?{codice_invito:inv}:{}});
     stat("registrato");if(j.access_token)return entra(j);            // (se la conferma email fosse spenta si entra subito)
     inviatoA=mail;modo="posta";return disegna();}

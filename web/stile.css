@@ -2927,7 +2927,7 @@ html.senzaccesso body>*:not(#porta){visibility:hidden}
 .ptocchio{position:absolute;right:8px;bottom:8px;background:none;border:0;color:#8ea3c4;cursor:pointer;padding:5px;border-radius:8px}
 .ptocchio:hover{color:#f1f5fb}.ptocchio svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;display:block}
 .ptriga{display:flex;justify-content:flex-end;margin:-6px 0 14px}.ptc2{justify-content:center;margin:14px 0 0}
-.ptlink{background:none;border:0;padding:0;color:#2ec4b6;font:600 13px "Inter",system-ui;cursor:pointer}.ptlink:hover{text-decoration:underline}
+.ptlink{background:none;border:0;padding:0;color:#2ec4b6;font:600 13px "Inter",system-ui;cursor:pointer}.ptlink:hover{text-decoration:underline}.ptko .ptin{font-size:inherit;text-decoration:underline}
 .ptvai{width:100%;padding:13px;border:0;border-radius:12px;font:800 15px "Inter",system-ui;color:#03141a;cursor:pointer;
  background:linear-gradient(135deg,#46e6d5,#2ec4b6 45%,#5b9bff);box-shadow:0 10px 30px rgba(46,196,182,.32);transition:transform .2s,box-shadow .2s,opacity .2s}
 .ptvai:hover{transform:translateY(-1px);box-shadow:0 14px 40px rgba(46,196,182,.5)}.ptvai:disabled{opacity:.6;cursor:wait;transform:none}
