@@ -10,6 +10,25 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="EdgeValor">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1628'/%3E%3Crect x='10' y='12' width='6' height='40' rx='3' fill='%232ec4b6'/%3E%3Ctext x='22' y='31' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%23eef5ff'%3EED%3C/text%3E%3Ctext x='22' y='51' font-family='Arial,Helvetica,sans-serif' font-weight='900' font-size='19' fill='%235b9bff'%3EVA%3C/text%3E%3C/svg%3E">
 <script>
+/* v8.24 SEMPRE L'ULTIMA VERSIONE: il browser puo' tenere in memoria la pagina fino a 10 minuti (GitHub Pages) o mostrare
+   una scheda rimasta aperta. All'apertura (e quando si torna sulla scheda) si chiede al sito solo l'intestazione del file
+   (richiesta HEAD, pochi byte, senza memoria): se il file online e' piu' nuovo di quello mostrato, la pagina si ricarica
+   una volta dalla rete (?v=... evita la copia in memoria, poi l'indirizzo torna pulito). Mai piu' di un tentativo ogni 30 s.
+   DEBUG (F12 -> Console): righe "[EdgeValor] versione". */
+(function(){
+ if(location.protocol!="https:")return;                                  // pagina aperta dal PC: niente controllo
+ try{const u=new URL(location.href);if(u.searchParams.has("v")){u.searchParams.delete("v");history.replaceState(null,"",u.pathname+u.search+u.hash);}}catch(e){}
+ const mia=Date.parse(document.lastModified)||0;                         // data del file che sto mostrando
+ function controlla(){let t=0;try{t=+sessionStorage.getItem("ebVer")||0;}catch(e){}
+  if(Date.now()-t<30000)return;
+  fetch(location.pathname,{method:"HEAD",cache:"no-store"}).then(r=>{const lm=Date.parse(r.headers.get("last-modified")||"");
+   if(lm&&mia&&lm-mia>2000){try{sessionStorage.setItem("ebVer",String(Date.now()));}catch(e){}
+    console.info("[EdgeValor] versione: ne e' uscita una nuova, ricarico");
+    const u=new URL(location.href);u.searchParams.set("v",String(lm));location.replace(u.toString());}}).catch(()=>{});}
+ controlla();document.addEventListener("visibilitychange",()=>{if(!document.hidden)controlla();});
+})();
+</script>
+<script>
 /* PORTA D'INGRESSO (v7.86): chi apre il terminale senza account vede solo "Accedi / Registrati" (web/js/37_porta.js).
    Qui si nasconde subito il terminale, prima che si disegni, per non mostrarlo un attimo e poi coprirlo.
    Vale solo sul sito (cartella /terminale/); in locale il file si apre sempre. */
