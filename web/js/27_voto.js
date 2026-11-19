@@ -74,9 +74,17 @@
     const j=await r.json().catch(()=>({}));if(!r.ok||j.success===false)throw new Error(j.message||("HTTP "+r.status));
     const s=stato();s.votato=Date.now();s.stelle=voto;scrivi("eb_voto",s);
     try{window.ebStat&&ebStat.ev("voto",{stelle:voto});}catch(_){}
+    // v8.29 dopo l'invio si propone a TUTTI (qualsiasi voto, nessun premio: regole Trustpilot e legge sulle recensioni)
+    // di pubblicare la recensione anche su Trustpilot. Non si puo' pubblicare al posto dell'utente: la scrive lui,
+    // col suo account Trustpilot. Il commento viene copiato negli appunti cosi' basta incollarlo.
+    const testo=ta.value.trim();
     box.classList.add("fatto");
-    box.innerHTML=`<div class="evgrazie"><span aria-hidden="true">&#10003;</span><div><b>Grazie del voto!</b><small>${voto>=4?"Ci fa piacere: continueremo così.":"Lo useremo per migliorare."}</small></div></div>`;
-    setTimeout(()=>chiudi(false),2600);}
+    box.innerHTML=`<div class="evgrazie"><span aria-hidden="true">&#10003;</span><div><b>Grazie del voto!</b><small>Ti va di pubblicarlo anche su Trustpilot? Aiuta altri trader a conoscerci.</small></div></div>
+     <div class="evbtn evtpbtn"><button type="button" class="evdopo">No, grazie</button><a class="evinvia evtp" href="${EB_TRUSTPILOT}?stars=${voto}" target="_blank" rel="noopener">Pubblica su Trustpilot</a></div>
+     ${testo?'<div class="evesito">Il tuo commento è già copiato: incollalo su Trustpilot.</div>':""}`;
+    if(testo)try{navigator.clipboard&&navigator.clipboard.writeText(testo);}catch(_){}
+    box.querySelector(".evdopo").onclick=()=>chiudi(false);
+    box.querySelector(".evtp").onclick=()=>{try{window.ebStat&&ebStat.ev("voto_trustpilot",{stelle:voto});}catch(_){}setTimeout(()=>chiudi(false),300);};}
    catch(err){console.warn("[EdgeValor] voto:",err);invia.disabled=false;invia.textContent="Invia voto";
     esito.className="evesito ko";esito.textContent="Invio non riuscito, riprova tra poco.";}};
   }

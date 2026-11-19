@@ -900,6 +900,9 @@ html.cbloccato,html.cbloccato body{overflow:hidden}
 .evgrazie{display:flex;align-items:center;gap:12px;text-align:left}.evgrazie>span{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
  font:800 18px system-ui;color:var(--b);background:color-mix(in srgb,var(--b) 14%,transparent)}
 .evgrazie b{display:block;color:var(--ink);font-size:15px}.evgrazie small{color:var(--mute);font-size:13px}
+/* v8.29 dopo il voto: "Pubblica su Trustpilot" (link con lo stesso aspetto del pulsante "Invia voto") */
+.evtpbtn{margin-top:14px}.evtpbtn>*{flex:1;height:40px;border-radius:11px;font:700 13.5px system-ui;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;text-decoration:none}
+.ebvoto.fatto .evesito{margin-top:8px;color:var(--mute);text-align:center}
 @media (max-width:600px){.ebvoto{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:auto}}
 @media (prefers-reduced-motion:reduce){.ebvoto,.evstelle button,.evstelle svg{transition:none}}
 /* ---------- BILANCIO nel dettaglio di un titolo (web/js/22_azioni.js, dati fondamentali.py) ---------- */

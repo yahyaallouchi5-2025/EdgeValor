@@ -596,6 +596,10 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
 {{STATISTICHE}}
 </script>
 <script>
+/* v8.29 PORTA UN AMICO: chi arriva con ?invito=CODICE lo ricorda (stesso sito del terminale) fino alla registrazione */
+try{const c=new URLSearchParams(location.search).get("invito");if(c&&/^[a-z0-9]{6,16}$/i.test(c))localStorage.setItem("ebInvito",c);}catch(e){}
+</script>
+<script>
 var fermo=matchMedia("(prefers-reduced-motion:reduce)").matches;
 
 /* ===== PASS GRATUITO (provvisorio): un clic salva il pass nel browser e apre il terminale.

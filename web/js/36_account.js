@@ -121,6 +121,10 @@
   try{const r=await db("profili?select=prova_fino,premium_fino,sempre_premium,codice_invito,numero");P=(r&&r[0])||null;}
   catch(e){console.warn("[EdgeValor] account: profilo non letto",e);}
   aggiorna();
+  // v8.29 codice invito per chi entra con Google (i dati della registrazione non passano): una sola chiamata,
+  // il database lo accetta solo per account nuovi e senza invitante, poi il codice ricordato si cancella
+  try{const c=localStorage.getItem("ebInvito");if(c){await db("rpc/registra_invito",{method:"POST",body:JSON.stringify({p_codice:c})});localStorage.removeItem("ebInvito");}}
+  catch(e){console.warn("[EdgeValor] account: invito non registrato",e);}
   // v7.95 voce Admin: si chiede al database "sono admin?" (l'email dell'admin non e' mai nel codice del sito)
   let certo=true;                        // false se la domanda al database non e' riuscita (allora non si tocca la lingua)
   try{ADM=(await db("rpc/sono_admin",{method:"POST",body:"{}"}))===true;}catch(e){ADM=false;certo=false;}
@@ -146,7 +150,7 @@
     ${ADM?`<button type="button" class="sitem pfvoce pfadmin">${I.admin}<span>Admin · Iscritti</span></button>`:""}
     ${window.ebAbbonamento&&ebAbbonamento.attivo()?`<button type="button" class="sitem pfvoce pfabb">${I.carta}<span>Gestisci abbonamento</span></button>`
      :`<button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>`}
-    <a class="sitem pfvoce pfrec" href="https://www.trustpilot.com/evaluate/edgevalor.com" target="_blank" rel="noopener">${I.stella}<span>Lascia una recensione</span></a>
+    <a class="sitem pfvoce pfrec" href="${EB_TRUSTPILOT}" target="_blank" rel="noopener">${I.stella}<span>Lascia una recensione</span></a>
 `;
    const ab=box.querySelector(".pfabb");if(ab)ab.onclick=()=>{mostra(false);ebAbbonamento.apri();};   // v8.11 area abbonamento PayPal
    const ad=box.querySelector(".pfadmin");if(ad)ad.onclick=()=>{mostra(false);window.ebAdmin&&ebAdmin.apri();};

@@ -155,7 +155,7 @@ JS_ACCEDI = """<script>(function(){var f=document.getElementById("facc");if(!f)r
   .then(function(r){return r.ok?r.json():false;}).catch(function(){return false;}).then(function(tmp){
   if(tmp===true){b.disabled=false;es.textContent="Le email temporanee non sono accettate: usa la tua email personale.";return;}
   fetch("__API__/auth/v1/otp?redirect_to="+encodeURIComponent("__TERM__"),{method:"POST",headers:{apikey:"__PUB__","Content-Type":"application/json"},
-   body:JSON.stringify({email:m,create_user:true,data:{}})})
+   body:JSON.stringify({email:m,create_user:true,data:(function(){try{var c=localStorage.getItem("ebInvito");return c?{codice_invito:c}:{};}catch(e){return {};}})()})})
   .then(function(r){if(!r.ok)throw r.status;f.innerHTML='<div class="ok"><b>Link inviato.</b><p>Apri l’email e tocca il link per entrare.</p></div>';})
   .catch(function(s){b.disabled=false;b.innerHTML=t;es.textContent=s==429?"Troppe richieste: riprova tra qualche minuto.":"Invio non riuscito. Riprova tra poco.";});});});})();</script>"""
 

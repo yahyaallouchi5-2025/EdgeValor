@@ -24,6 +24,7 @@ const EB_GH=(()=>{try{return location.hostname.endsWith("github.io");}catch(e){r
 const EB_REPO=(()=>{try{return EB_GH&&location.pathname.split("/")[1]||"EdgeValor";}catch(e){return "EdgeValor";}})();
 const EB_RAW="https://raw.githubusercontent.com/yahyaallouchi5-2025/"+EB_REPO+"/";   // file dei rami live e pattern
 const EB_SITO=EB_GH?"https://yahyaallouchi5-2025.github.io/"+EB_REPO+"/":"https://edgevalor.com/";   // pagina di presentazione
+const EB_TRUSTPILOT="https://www.trustpilot.com/evaluate/edgevalor.com";   // v8.29 pagina per scrivere una recensione
 // v7.63 ORA DI ROMA per tutto il sito: data, mese, giorno della settimana e ora di Roma, qualunque sia il fuso del
 // dispositivo (un utente all'estero vede comunque il "mese corrente" italiano). L'ora legale e' gestita da Intl.
 // Restituisce {a: anno, m: mese 0-11, g: giorno, wd: giorno della settimana 0=lunedi', h: ora 0-23}.

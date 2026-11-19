@@ -15,8 +15,13 @@ try{(function(){
   let d=document.querySelector(".invavv");if(!d){d=document.createElement("div");d.className="invavv";d.setAttribute("role","status");document.body.appendChild(d);}
   d.textContent=t;d.classList.add("on");clearTimeout(d._t);d._t=setTimeout(()=>d.classList.remove("on"),2500);}
  const b=$("invita");if(!b)return;
+ // v8.29 PORTA UN AMICO: con l'accesso fatto il link contiene il proprio codice (?invito=...). Quando l'amico si
+ // registra e fa il primo pagamento, il database regala 1 mese di Premium a chi l'ha invitato (paypal_registra).
+ const mio=()=>{try{const p=window.ebAccount&&ebAccount.stato().profilo;return p&&p.codice_invito||"";}catch(e){return "";}};
  b.onclick=async()=>{
-  if(navigator.share){try{await navigator.share({title:"EdgeValor",text:TESTO,url:LINK});return;}catch(e){if(e&&e.name=="AbortError")return;}}
-  try{await navigator.clipboard.writeText(TESTO+" "+LINK);avviso("Link copiato: incollalo dove vuoi");}
-  catch(e){prompt("Copia il link:",LINK);}};
+  const c=mio(),url=c?LINK+"?invito="+encodeURIComponent(c):LINK;
+  const ok=c?"Link personale copiato: se un amico si abbona, ricevi 1 mese di Premium":"Link copiato: incollalo dove vuoi";
+  if(navigator.share){try{await navigator.share({title:"EdgeValor",text:TESTO,url});if(c)avviso("Se un amico si abbona, ricevi 1 mese di Premium");return;}catch(e){if(e&&e.name=="AbortError")return;}}
+  try{await navigator.clipboard.writeText(TESTO+" "+url);avviso(ok);}
+  catch(e){prompt("Copia il link:",url);}};
 })();}catch(e){console.warn("invita",e);}
