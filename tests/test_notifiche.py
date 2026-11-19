@@ -190,3 +190,15 @@ class Parole(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NotteSilenziosa(unittest.TestCase):
+    """v8.25 fra le 23 e le 6 ora italiana niente avvisi (inverno UTC+1, estate UTC+2)."""
+    def test_orari(self):
+        from datetime import datetime, timezone
+        from cot_radar.notifiche import notte
+        self.assertTrue(notte(datetime(2026, 11, 19, 0, 1, tzinfo=timezone.utc)))    # 01:01 in Italia
+        self.assertTrue(notte(datetime(2026, 11, 19, 22, 30, tzinfo=timezone.utc)))  # 23:30
+        self.assertFalse(notte(datetime(2026, 11, 19, 6, 30, tzinfo=timezone.utc)))  # 07:30
+        self.assertFalse(notte(datetime(2026, 11, 19, 21, 0, tzinfo=timezone.utc)))  # 22:00
+        self.assertTrue(notte(datetime(2026, 7, 1, 3, 30, tzinfo=timezone.utc)))     # 05:30 d estate

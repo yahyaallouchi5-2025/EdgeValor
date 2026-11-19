@@ -57,6 +57,10 @@ from .registro import leggi, verifica
 
 CURSORE = "notificati.json"
 MAX_ETA_ORE = 36                      # oltre: l'avviso e' troppo vecchio per essere utile
+# v8.25 NOTTE SILENZIOSA (richiesta di Ya): fra le 23:00 e le 06:00 ora italiana non si manda nulla sul canale.
+# Il cursore NON avanza: gli avvisi restano in coda e partono al primo giro del mattino (giro delle 05:30 UTC,
+# cioe' 06:30/07:30 in Italia). Gli eventi della sera hanno meno di 36 ore, quindi non vengono scartati.
+NOTTE_DA, NOTTE_A = 23, 6
 LIMITE_TG = 3800                      # Telegram accetta 4096 caratteri: margine per i tag HTML
 NOMI = {k: nome for k, _, nome, _ in ASSETS}
 def escape(t):
@@ -202,6 +206,14 @@ def scrivi_cursore(cartella, ultimo_n, ultimo_hash, adesso, riepilogo_cot=None, 
     os.replace(tmp, f)
 
 
+def notte(adesso):
+    """True fra le 23:00 e le 06:00 ora italiana (ora legale/solare gestita da zoneinfo)."""
+    from zoneinfo import ZoneInfo
+    a = adesso if adesso.tzinfo else adesso.replace(tzinfo=timezone.utc)
+    h = a.astimezone(ZoneInfo("Europe/Rome")).hour
+    return h >= NOTTE_DA or h < NOTTE_A
+
+
 def da_avvisare(eventi, cursore, adesso):
     """(eventi nuovi da avvisare, eventi saltati perche' troppo vecchi). cursore None = primo avvio: niente."""
     if cursore is None:
@@ -282,7 +294,11 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
     Restituisce un dizionario con l'esito (per il log del workflow e per i test)."""
     from . import riepilogo
     env = os.environ if env is None else env
+    reale = adesso is None                                 # giro vero (i test passano un orario fisso)
     adesso = adesso or datetime.now(timezone.utc)
+    if invia and reale and notte(adesso):
+        log.info("notifiche: notte in Italia, avvisi rimandati al mattino (cursore fermo)")
+        return {"esito": "notte", "inviati": 0}
     eventi = leggi(cartella)
     integra, ultimo_hash, rotto = verifica(eventi)
     if not integra:
