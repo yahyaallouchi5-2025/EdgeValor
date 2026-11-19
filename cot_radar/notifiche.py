@@ -57,7 +57,8 @@ from .registro import leggi, verifica
 
 CURSORE = "notificati.json"
 MAX_ETA_ORE = 36                      # oltre: l'avviso e' troppo vecchio per essere utile
-# v8.25 NOTTE SILENZIOSA (richiesta di Ya): fra le 23:00 e le 06:00 ora italiana non si manda nulla sul canale.
+# v8.25 NOTTE SILENZIOSA (richiesta di Ya): fra le 23:00 e le 06:00 ora italiana non si manda nulla sul canale,
+# TRANNE il riepilogo COT settimanale del venerdi' sera (v8.27, scelta di Ya).
 # Il cursore NON avanza: gli avvisi restano in coda e partono al primo giro del mattino (giro delle 05:30 UTC,
 # cioe' 06:30/07:30 in Italia). Gli eventi della sera hanno meno di 36 ore, quindi non vengono scartati.
 NOTTE_DA, NOTTE_A = 23, 6
@@ -296,9 +297,7 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
     env = os.environ if env is None else env
     reale = adesso is None                                 # giro vero (i test passano un orario fisso)
     adesso = adesso or datetime.now(timezone.utc)
-    if invia and reale and notte(adesso):
-        log.info("notifiche: notte in Italia, avvisi rimandati al mattino (cursore fermo)")
-        return {"esito": "notte", "inviati": 0}
+    silenzio = invia and reale and notte(adesso)          # v8.25 notte in Italia (eccezione: riepilogo COT, v8.27)
     eventi = leggi(cartella)
     integra, ultimo_hash, rotto = verifica(eventi)
     if not integra:
@@ -322,6 +321,10 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
     settimanale = bool(cot_sito and gia_cot and cot_sito > gia_cot)
     if cot_sito and not gia_cot:
         gia_cot = cot_sito             # cursore di una versione precedente: il primo riepilogo sara' il prossimo
+    # v8.27 ECCEZIONE DI YA: il riepilogo COT del venerdi' sera parte anche di notte; tutto il resto aspetta il mattino
+    if silenzio and not settimanale:
+        log.info("notifiche: notte in Italia, avvisi rimandati al mattino (cursore fermo)")
+        return {"esito": "notte", "inviati": 0}
     if settimanale:
         testi = riepilogo.testi(dati, _link(sito), verifica=riepilogo.scarica_verifica(sito, dati))
         log.info("notifiche: nuovo report COT online (%s): riepilogo settimanale", cot_sito)
@@ -391,6 +394,10 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
         log.info("notifiche: Telegram non configurato (Secrets TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID)")
         esito["esito"] = "non_configurato"
     nuovo_cot = cot_sito if settimanale else gia_cot
+    if silenzio:                                          # notte: solo il riepilogo COT, agenda/notizie/briefing al mattino
+        if esito["esito"] in ("inviato", "non_configurato"):
+            scrivi_cursore(cartella, ultimo_n, ultimo_hash, adesso, nuovo_cot, cursore.get("agenda"), cursore.get("briefing"))
+        return dict(esito, notte=True)
     # briefing del lunedi': se Telegram lo rifiuta il cursore NON avanza e si riprova al giro dopo
     nuovo_brief = cursore.get("briefing")
     if briefing and configurato:
