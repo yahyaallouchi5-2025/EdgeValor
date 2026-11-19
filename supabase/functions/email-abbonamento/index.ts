@@ -140,32 +140,50 @@ function testi(x: Riga): Mail {
 //   Il logo resta FUORI dai riquadri: e' un'immagine e Gmail non la tocca.
 const BG = "#040b1a", CARD = "#0b1a36", LINEA = "#1f3560";
 const sf = (c: string) => `background-color:${c};background-image:linear-gradient(${c},${c})`;
-function html(t: ReturnType<typeof testi>, id: string) {
-  const p = t.par.map((x) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#d6e0ee">${x}</p>`).join("");
-  return `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(t.oggetto)}</title></head>
-<body style="margin:0;padding:0;background:#050c1d;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#050c1d;padding:28px 12px"><tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#0a1628;border:1px solid #26426b;border-radius:16px">
-<tr><td style="padding:26px 28px 6px"><span style="font-size:22px;font-weight:800;color:#f1f5fb;letter-spacing:-.3px">Edge<span style="color:#2ec4b6">Valor</span></span></td></tr>
-<tr><td style="padding:14px 28px 4px"><h1 style="margin:0 0 16px;font-size:20px;line-height:1.35;color:#f1f5fb">${t.titolo}</h1>${p}</td></tr>
-<tr><td style="padding:4px 28px 22px"><a href="${t.btn[1]}" style="display:inline-block;background:#2ec4b6;color:#04211e;font-weight:700;font-size:15px;text-decoration:none;padding:12px 22px;border-radius:10px">${t.btn[0]}</a></td></tr>
-<tr><td style="padding:0 28px 24px;border-top:1px solid #26426b"><p style="margin:16px 0 0;font-size:15px;color:#f1f5fb"><b>Yahya Allouchi</b></p>
-<p style="margin:2px 0 0;font-size:13px;color:#a9b8d0">Fondatore di EdgeValor</p></td></tr>
+function html(t: Mail, nome: string) {
+  const P = (x: string) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#d6e0ee">${x}</p>`;
+  const riep = t.riep ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 20px;${sf("#071226")};border:1px solid ${LINEA};border-radius:12px">
+<tr><td colspan="2" style="padding:14px 18px 6px;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#f3c75f">Riepilogo dell'abbonamento</td></tr>
+${t.riep.map(([k, v]) => `<tr><td style="padding:7px 18px;font-size:14px;color:#a9b8d0;border-top:1px solid #16294a;white-space:nowrap">${k}</td><td align="right" style="padding:7px 18px;font-size:14px;font-weight:700;color:#f1f5fb;border-top:1px solid #16294a;white-space:nowrap">${v}</td></tr>`).join("")}
+<tr><td colspan="2" style="height:8px"></td></tr></table>` : "";
+  const sez = (t.sez || []).map(([tit, voci]) => `<p style="margin:18px 0 8px;font-size:16px;font-weight:700;color:#f1f5fb">${tit}</p>` +
+    voci.map((v) => `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td valign="top" style="padding:3px 10px 3px 0;color:#2ec4b6;font-weight:700">&#10003;</td><td style="padding:3px 0;font-size:15px;line-height:1.5;color:#d6e0ee">${v}</td></tr></table>`).join("")).join("");
+  const btn = t.btn ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 18px"><tr><td style="border-radius:10px;${sf("#2ec4b6")}"><a href="${t.btn[1]}" style="display:inline-block;padding:12px 22px;font-size:15px;font-weight:700;color:#04211e;text-decoration:none">${t.btn[0]}</a></td></tr></table>` : "";
+  const gm = (x: string) => `<div class="gm-s"><div class="gm-d">${x}</div></div>`;   // testi protetti dall'inversione di Gmail
+  return `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><title>${esc(t.oggetto)}</title>
+<style>u + .body .gm-s{background:#000;mix-blend-mode:screen}u + .body .gm-d{background:#000;mix-blend-mode:difference}</style></head>
+<body class="body" style="margin:0;padding:0;${sf(BG)};font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${BG}" style="${sf(BG)};padding:28px 12px"><tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${CARD}" style="max-width:560px;${sf(CARD)};border:1px solid ${LINEA};border-radius:16px">
+<tr><td style="padding:26px 28px 6px"><img src="cid:logo" width="110" height="50" alt="EdgeValor" style="display:block;border:0;width:110px;height:auto"></td></tr>
+<tr><td style="padding:14px 28px 4px">${gm(`<h1 style="margin:0 0 18px;font-size:21px;line-height:1.35;color:#f1f5fb">${t.testa}</h1>
+${P(nome ? `Ciao ${esc(nome)},` : "Ciao,")}${t.par.map(P).join("")}${riep}${sez}${(t.dopo || []).map(P).join("")}${btn}${t.fine ? P(t.fine) : ""}`)}</td></tr>
+<tr><td style="padding:0 28px 24px;border-top:1px solid ${LINEA}">${gm(`<p style="margin:16px 0 0;font-size:15px;color:#f1f5fb"><b>Yahya Allouchi</b></p>
+<p style="margin:2px 0 0;font-size:13px;color:#a9b8d0">Fondatore di EdgeValor</p>`)}</td></tr>
 </table>
-<p style="max-width:560px;margin:14px auto 0;font-size:11.5px;line-height:1.5;color:#7d8ba5">Ricevi questa email perché hai un account EdgeValor${id ? ` (ID ${id})` : ""}. Contenuti a scopo educativo, non consulenza finanziaria. <a href="https://edgevalor.com/legale/" style="color:#7d8ba5">Privacy</a></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px"><tr><td style="padding:14px 4px 0">${gm(`<p style="margin:0;font-size:11.5px;line-height:1.6;color:#7d8ba5">${t.piede}<br>${PIEDE_INFO}<br>
+<a href="${PRIVACY}" style="color:#7d8ba5">Privacy</a> · <a href="${CONDIZIONI}" style="color:#7d8ba5">Condizioni d'uso</a></p>`)}</td></tr></table>
 </td></tr></table></body></html>`;
 }
 // versione solo testo (aiuta a non finire nello spam)
-const testo = (t: ReturnType<typeof testi>, id: string) =>
-  [t.titolo, "", ...t.par.map((x) => x.replace(/<[^>]+>/g, "")), "", `${t.btn[0]}: ${t.btn[1]}`, "", "Yahya Allouchi", "Fondatore di EdgeValor", "",
-   `Ricevi questa email perché hai un account EdgeValor${id ? ` (ID ${id})` : ""}.`].join("\n");
+function testo(t: Mail, nome: string) {
+  const via = (s: string) => s.replace(/<[^>]+>/g, "");
+  return [t.testa, "", nome ? `Ciao ${nome},` : "Ciao,", "", ...t.par.map(via),
+    ...(t.riep ? ["", "Riepilogo dell'abbonamento", ...t.riep.map(([k, v]) => `- ${k}: ${v}`)] : []),
+    ...(t.sez || []).flatMap(([tit, voci]) => ["", tit, ...voci.map((v) => "- " + v)]),
+    ...(t.dopo || []).map(via), ...(t.btn ? ["", `${t.btn[0]}: ${t.btn[1]}`] : []), ...(t.fine ? ["", t.fine] : []),
+    "", "Yahya Allouchi", "Fondatore di EdgeValor", "", t.piede, PIEDE_INFO, `Privacy: ${PRIVACY}`, `Condizioni d'uso: ${CONDIZIONI}`].join("\n");
+}
 
-async function spedisci(a: string, tipo: string, scad: string, numero: number | null, chiaveIdem: string) {
-  const t = testi(tipo, scad), id = idUtente(numero);
+async function spedisci(a: string, x: Riga, chiaveIdem: string) {
+  const t = testi(x), nome = (x.nome || "").trim();
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND}`, "Content-Type": "application/json", "Idempotency-Key": chiaveIdem },
-    body: JSON.stringify({ from: MITTENTE, to: [a], subject: t.oggetto, html: html(t, id), text: testo(t, id) }),
+    body: JSON.stringify({ from: MITTENTE, to: [a], reply_to: "info@edgevalor.com", subject: t.oggetto,
+      html: html(t, nome), text: testo(t, nome),
+      attachments: [{ filename: "edgevalor.png", content: LOGO, content_id: "logo" }] }),
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`Resend HTTP ${r.status}: ${JSON.stringify(j)}`);
@@ -177,28 +195,26 @@ Deno.serve(async (req) => {
   try {
     if (!RESEND) return Response.json({ errore: "RESEND_API_KEY mancante nei secret" }, { status: 500 });
     const corpo = req.method == "POST" ? await req.json().catch(() => ({})) : {};
-    // PROVA: i 4 modelli all'admin, al massimo una volta all'ora (prenotazione con l'ora corrente)
     if ((corpo as { prova?: boolean }).prova) {
       esito.prova = true;
-      const admin = await rpc("email_admin") as string, ora = new Date(Math.floor(Date.now() / 36e5) * 36e5).toISOString();
+      const admin = await rpc("email_admin") as string, ora = new Date(Math.floor(Date.now() / 6e5) * 6e5).toISOString();
       if (!admin || !(await rpc("email_prenota", { utente: "00000000-0000-0000-0000-000000000000", tipo: "test", scadenza: ora })))
-        return Response.json({ ...esito, nota: "prova gia' fatta in quest'ora" });
-      const scad = new Date(Date.now() + 3 * 864e5).toISOString();
-      for (const tipo of ["attivo", "promemoria", "promemoria_prova", "basic"]) {
-        await spedisci(admin, tipo, scad, 1, `test-${tipo}-${ora}`); esito.inviate++;
-      }
+        return Response.json({ ...esito, nota: "prova gia' fatta in questi 10 minuti" });
+      const base = { utente: "", email: admin, numero: 1, nome: "Yahya" };
+      const tra = (g: number) => new Date(Date.now() + g * 864e5).toISOString();
+      const prove = [{ ...base, tipo: "disdetta", rinnovo: false, piano: "mensile", scadenza: tra(21) }] as Riga[];
+      for (const x of prove) { await spedisci(admin, x, `test-${x.tipo}-${x.piano}-${x.rinnovo}-${ora}`); esito.inviate++; }
       return Response.json(esito);
     }
-    // GIRO NORMALE
-    const righe = (await rpc("email_da_inviare")) as Riga[] || [];
+    const righe = (await rpc("email_da_inviare3")) as Riga[] || [];
     for (const x of righe) {
       const k = { utente: x.utente, tipo: x.tipo, scadenza: x.scadenza };
-      if (!(await rpc("email_prenota", k))) continue;                 // gia' presa da un altro giro
+      if (!(await rpc("email_prenota", k))) continue;
       try {
-        const idr = await spedisci(x.email, x.tipo, x.scadenza, x.numero, `${x.utente}-${x.tipo}-${x.scadenza}`);
+        const idr = await spedisci(x.email, x, `${x.utente}-${x.tipo}-${x.scadenza}`);
         await rpc("email_esito", { ...k, id_resend: idr }); esito.inviate++;
       } catch (e) {
-        console.error("[email] invio non riuscito", x.tipo, e);       // mai l'indirizzo nei log
+        console.error("[email] invio non riuscito", x.tipo, e);         // mai l'indirizzo nei log
         await rpc("email_annulla", k).catch(() => {}); esito.errori++;
       }
     }
