@@ -1,11 +1,14 @@
-/* ---------- 46_abbonamento.js - v8.11 AREA ABBONAMENTO (PayPal, rinnovo automatico fino a disdetta) ----------
+/* ---------- 46_abbonamento.js - v8.18 AREA ABBONAMENTO (PayPal, rinnovo automatico fino a disdetta) ----------
    Finestra "Passa a Premium" / "Il tuo abbonamento". L'utente deve aver fatto l'accesso: l'abbonamento PayPal porta con se'
    il suo ID (custom_id) e la funzione Supabase "paypal" attiva Premium SOLO dopo aver riletto lo stato vero da PayPal.
    FLUSSO:
      1) scelta del piano (Annuale 239,88 EUR/anno oppure Mensile 27,00 EUR/mese);
      2) casella obbligatoria "Accetto le condizioni. Si rinnova da solo, disdici quando vuoi." (senza spunta niente pagamento);
      3) pulsanti PayPal (conto PayPal o carta) -> abbonamento creato -> ?azione=attiva -> Premium attivo;
-     4) chi ha gia' un abbonamento vede stato, prossimo rinnovo e "Disdici" (Premium resta fino a fine periodo);
+     4) chi ha gia' un abbonamento vede stato, prossimo rinnovo e "Disdici abbonamento";
+        v8.18 (decisione di Ya): la disdetta chiede conferma (cosa si perdera'), Premium resta fino alla fine del periodo
+        pagato e arriva l'email di conferma. Solo rimborso o contestazione PayPal portano subito al Basic (funzione "paypal").
+        Dopo l'attivazione la pagina si ricarica da sola: le schede Premium si sbloccano subito.
         chi ha disdetto vede "Riattiva": il nuovo abbonamento parte alla fine del periodo gia' pagato (nessun doppio addebito).
    APERTURA: per tutti dal v8.12 (APERTO=true). Con APERTO=false la vede solo l'admin e gli altri tornano al modulo "Assistenza".
    ARRIVO DA FUORI: .../terminale/?premium=1 (pagina Prezzi) o ?rinnova=1 (email): appena l'utente e' dentro si apre questa finestra.
@@ -53,22 +56,31 @@
    if(a&&fino&&a.stato!="RIMBORSATO")return vistaScelta(fino,`Disdetto · Premium attivo fino al ${data(fino)}`);
    vistaScelta(null,"Sblocca tutte le potenzialità del terminale.");});
 
-  // --- vista 1: abbonamento attivo -> stato + Disdici
+  // --- vista 1: abbonamento attivo -> stato + Disdici abbonamento
   function vistaAttivo(a){const p=PIANI[a.piano]||PIANI.mensile;
    sott.textContent="Il tuo abbonamento è attivo.";
    corpo.innerHTML=`<div class="abstato"><div><small>Piano</small><b>${p.nome} · ${p.prezzo} ${p.per}</b></div>
      <div><small>Prossimo rinnovo</small><b>${a.prossimo?data(a.prossimo):"—"}</b></div></div>
-    <div class="abesito" role="status" aria-live="polite"></div>
-    <div class="cmodal-btn"><button type="button" class="cno abdisdici">Disdici</button><button type="button" class="csi abchiudi">Chiudi</button></div>`;
+    <div class="cmodal-btn"><button type="button" class="cno abdisdici">Disdici abbonamento</button><button type="button" class="csi abchiudi">Chiudi</button></div>`;
    corpo.querySelector(".abchiudi").onclick=chiudi;
-   const d=corpo.querySelector(".abdisdici"),es=corpo.querySelector(".abesito");
-   d.onclick=async()=>{
-    if(!d.dataset.ok){d.dataset.ok="1";d.textContent="Conferma disdetta";es.className="abesito";
-     es.textContent=`Premium resta attivo fino al ${a.prossimo?data(a.prossimo):"fine periodo"}. Nessun altro addebito.`;return;}
-    d.disabled=true;d.textContent="Disdetta…";
-    try{await chiama("disdici");es.className="abesito ok";es.textContent="Disdetta fatta. Puoi riattivare quando vuoi.";
-     d.remove();window.ebAccount.ricarica&&ebAccount.ricarica();}
-    catch(e){console.warn("[EdgeValor] abbonamento: disdetta",e);d.disabled=false;d.textContent="Conferma disdetta";
+   corpo.querySelector(".abdisdici").onclick=()=>vistaConferma(a);}
+
+  // --- vista 1b: conferma della disdetta (cosa si perdera'). Il pulsante in evidenza e' "Mantieni Premium".
+  function vistaConferma(a){const fine=a.premium_fino||a.prossimo;sott.textContent="Vuoi davvero disdire?";
+   corpo.innerHTML=`<div class="abperdi"><b>${fine?"Dal "+data(fine)+" perderai":"Alla scadenza perderai"} l'accesso a:</b>
+     <ul><li>Portafogli completi e acquisto guidato</li><li>Selezione di oggi e schede delle aziende</li>
+     <li>COT completo, Forex e Crypto</li><li>Macro, Live e statistiche avanzate</li></ul></div>
+    <p class="small abnota">Non ci saranno altri addebiti. Fino a quella data Premium resta attivo, poi passi al piano Basic. Ti mandiamo la conferma via email.</p>
+    <div class="abesito" role="status" aria-live="polite"></div>
+    <div class="cmodal-btn"><button type="button" class="cno abannulla">Sì, disdici</button><button type="button" class="csi abtieni">Mantieni Premium</button></div>`;
+   const d=corpo.querySelector(".abannulla"),es=corpo.querySelector(".abesito");
+   corpo.querySelector(".abtieni").onclick=()=>vistaAttivo(a);
+   d.onclick=async()=>{d.disabled=true;d.textContent="Disdetta…";
+    try{await chiama("disdici");sott.textContent="Disdetta confermata.";
+     corpo.innerHTML=`<p class="abesito ok">${fine?"Premium resta attivo fino al "+data(fine)+".":"Premium resta attivo fino alla scadenza."} Ti abbiamo mandato la conferma via email.</p>
+      <div class="cmodal-btn"><button type="button" class="csi abchiudi">Chiudi</button></div>`;
+     corpo.querySelector(".abchiudi").onclick=chiudi;window.ebAccount.ricarica&&ebAccount.ricarica();}
+    catch(e){console.warn("[EdgeValor] abbonamento: disdetta",e);d.disabled=false;d.textContent="Sì, disdici";
      es.className="abesito ko";es.textContent="Disdetta non riuscita. Riprova tra poco.";}};}
 
   // --- vista 2: scelta del piano + condizioni + PayPal. parte = data di partenza (riattivazione) o null (subito)
@@ -108,7 +120,8 @@
    corpo.innerHTML=`<div class="abstato"><div><small>Premium attivo</small><b>${fino?"fino al "+data(fino):"Attivato"}</b></div></div>
     <p class="small">Ti abbiamo mandato la conferma via email. Si rinnova da solo: lo disdici quando vuoi da qui.</p>
     <div class="cmodal-btn"><button type="button" class="csi abvai">Apri il terminale</button></div>`;
-   corpo.querySelector(".abvai").onclick=()=>location.reload();}}       // ricarica: i dati Premium si aprono con la chiave
+   corpo.querySelector(".abvai").onclick=()=>location.reload();       // ricarica: i dati Premium si aprono con la chiave
+   setTimeout(()=>location.reload(),3500);}}                         // v8.18 e comunque da sola: schede sbloccate subito
 
  window.ebAbbonamento={apri,attivo};
  // v8.12 ARRIVO DALLA PAGINA PREZZI O DALLE EMAIL (?premium=1 / ?rinnova=1). Il link di accesso via email riapre la pagina

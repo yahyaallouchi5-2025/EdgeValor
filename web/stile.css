@@ -3399,7 +3399,7 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 /* v8.11 AREA ABBONAMENTO (46_abbonamento.js): due piani, casella condizioni, pulsanti PayPal */
 .abbox{width:min(520px,100%);overflow-y:auto}
 .abbox .cmodal-testa{position:relative;padding-right:36px}.abcorpo{display:flex;flex-direction:column;gap:16px}
-.abbox .cmodal-btn{justify-content:flex-end}
+.abbox .cmodal-btn{justify-content:flex-end}.abbox .cmodal-btn button{white-space:nowrap}
 .abpiani{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .abpiano{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:18px 16px 16px;border-radius:16px;
  background:color-mix(in srgb,var(--card2) 70%,transparent);border:1px solid var(--line);color:var(--ink);text-align:left;cursor:pointer;
@@ -3417,5 +3417,8 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 .abpp{min-height:50px;padding:12px 12px 4px;border-radius:16px;background:#fff;transition:opacity .2s}.abpp[aria-disabled="true"]{opacity:.45}
 .abstato{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--card2) 70%,transparent)}
 .abstato small{display:block;font-size:12px;color:var(--ink2);margin-bottom:4px}.abstato b{font-size:15px;color:var(--ink)}
+.abperdi{padding:16px;border-radius:14px;border:1px solid color-mix(in srgb,var(--s) 35%,var(--line));background:color-mix(in srgb,var(--s) 6%,transparent)}
+.abperdi b{font-size:14px;color:var(--ink)}.abperdi ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--ink2)}
+.abnota{margin:-4px 0 0;color:var(--ink2);line-height:1.45}
 .abesito{font-size:14px;color:var(--ink2);min-height:0}.abesito:empty{display:none}.abesito.ok{color:var(--b)}.abesito.ko{color:var(--s)}
 @media (max-width:520px){.abstato{grid-template-columns:1fr}.abpiano{padding:16px 12px 12px}.abpiano b{font-size:21px}.abtag{right:8px}}
