@@ -1,10 +1,12 @@
-// ---------- email-abbonamento (v8.18): email di servizio sull'abbonamento EdgeValor ----------
+// ---------- email-abbonamento (v8.29): email di servizio sull'abbonamento EdgeValor ----------
 // Parte da sola ogni ora (pg_cron + pg_net) e manda, tramite Resend:
 //   attivo            -> pagamento ricevuto / Premium attivato o rinnovato (riepilogo: piano, importo, date)
 //   promemoria        -> 3 giorni prima della scadenza (con abbonamento PayPal: avviso del rinnovo automatico)
 //   promemoria_prova  -> 3 giorni prima della fine della prova gratuita (se non ha Premium)
 //   basic             -> l'accesso e' finito: ora e' nel piano Basic
 //   disdetta          -> conferma della disdetta: Premium resta fino a scadenza, poi "basic"
+//   recensione        -> (v8.29) 7 giorni dopo il primo pagamento: invito sincero a recensire su Trustpilot, nessun premio
+//   premio_invito     -> (v8.29) un amico invitato si e abbonato: 1 mese di Premium regalato
 // TESTI di "attivo", "promemoria" (rinnovo) e "basic" scritti da Ya (19/11/2026). Il nome ("Ciao Mario,") arriva da PayPal.
 // Il database (public.email_da_inviare3) dice chi deve ricevere cosa, se ha il rinnovo automatico, piano e nome.
 // MAI DOPPIONI: prima di spedire si "prenota" l'invio (utente + tipo + scadenza, chiave unica nel database).
@@ -19,6 +21,7 @@ const CHIAVE_DB = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND = Deno.env.get("RESEND_API_KEY") || "";
 const MITTENTE = "Yahya di EdgeValor <info@edgevalor.com>";
 const TERMINALE = "https://edgevalor.com/terminale/";
+const TRUSTPILOT = "https://www.trustpilot.com/evaluate/edgevalor.com";   // v8.29 pagina per scrivere la recensione
 const PREMIUM = TERMINALE + "?premium=1";            // apre la finestra dell'abbonamento (46_abbonamento.js)
 const PRIVACY = "https://edgevalor.com/legale/#privacy", CONDIZIONI = "https://edgevalor.com/legale/#termini";
 const IMPORTO: Record<string, string> = { mensile: "€27,00", annuale: "€239,88" };
@@ -115,6 +118,27 @@ function testi(x: Riga): Mail {
         piede: "Hai ricevuto questa email perché hai richiesto la disdetta del tuo abbonamento EdgeValor.",
       };
     }
+    case "recensione":  // v8.29 7 giorni dopo il primo pagamento, a TUTTI i paganti, una volta sola, nessun premio in cambio
+      return {
+        oggetto: "Come ti trovi con EdgeValor?",
+        testa: "La tua opinione conta.",
+        par: ["è passata una settimana da quando hai attivato Premium: ci piacerebbe sapere come ti trovi.",
+              "Se hai due minuti, lascia una recensione su Trustpilot: positiva o negativa, purché sincera. Aiuta altri trader a conoscerci e noi a migliorare."],
+        btn: ["Lascia una recensione", TRUSTPILOT],
+        dopo: ["Se qualcosa non va, puoi anche rispondere a questa email: ti leggiamo noi, direttamente."],
+        fine: "Grazie per il tuo tempo.",
+        piede: "Ricevi questa email una sola volta, perché hai attivato un abbonamento EdgeValor.",
+      };
+    case "premio_invito":  // v8.29 porta un amico: l'amico invitato si e' abbonato
+      return {
+        oggetto: "Hai ricevuto 1 mese di Premium gratis · EdgeValor",
+        testa: "Un amico che hai invitato si è abbonato.",
+        par: [`grazie per aver fatto conoscere EdgeValor: come promesso, ti abbiamo regalato <b>1 mese di ${P}</b>.`],
+        riep: [["Premio", "1 mese di Premium"], ["Premium attivo fino al", breve(x.scadenza)]],
+        dopo: ["Non devi fare nulla: è già attivo sul tuo account. Puoi continuare a invitare amici dal pulsante <b>Invita amici</b>."],
+        btn: ["Apri EdgeValor", TERMINALE],
+        piede: "Ricevi questa email perché un amico si è abbonato con il tuo link di invito.",
+      };
     default: // basic
       return {
         oggetto: "Il tuo account EdgeValor è ora nel piano Basic",
@@ -202,7 +226,8 @@ Deno.serve(async (req) => {
         return Response.json({ ...esito, nota: "prova gia' fatta in questi 10 minuti" });
       const base = { utente: "", email: admin, numero: 1, nome: "Yahya" };
       const tra = (g: number) => new Date(Date.now() + g * 864e5).toISOString();
-      const prove = [{ ...base, tipo: "disdetta", rinnovo: false, piano: "mensile", scadenza: tra(21) }] as Riga[];
+      const prove = [{ ...base, tipo: "recensione", rinnovo: true, piano: "mensile", scadenza: tra(-7) },
+                     { ...base, tipo: "premio_invito", rinnovo: false, piano: null, scadenza: tra(30) }] as Riga[];
       for (const x of prove) { await spedisci(admin, x, `test-${x.tipo}-${x.piano}-${x.rinnovo}-${ora}`); esito.inviate++; }
       return Response.json(esito);
     }
