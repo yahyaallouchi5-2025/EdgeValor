@@ -523,8 +523,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <div class="piano pro appare" style="--d:.08s"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
     <p class="piu">Tutto Basic, più:</p>
     <ul><li><b>Azionario globale e portafogli</b> completi</li><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
-    <div class="off" data-off hidden><p><b data-off-nome>Black Friday</b>, fino a <span data-off-fine></span>:<br>9,90 € al mese o 89 € l'anno.</p>
-     <button class="btn bia" data-off-apri data-ev="offerta_apri_accesso">Blocca il prezzo</button></div></div>
+    </div>
   </div>
   <div class="pcta appare"><button class="btn pri" data-entra="reg" data-pos="accesso"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Inizia la prova</span></button>
    <span>Basta l'email. Niente carta. <a href="prezzi/" style="color:inherit">Vedi i prezzi</a></span></div>
@@ -577,34 +576,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
 </main>
 
 
-<!-- OFFERTA DI FINE NOVEMBRE (Black Friday -> Cyber Monday): avviso discreto in basso (si chiude con la X e non torna)
-     e finestra con il risparmio. Nessun pagamento: si lascia solo l'email, con consenso.
-     Si accende e si spegne da sola alle date giuste, ogni anno (vedi lo script "OFFERTA" piu' sotto). -->
-<div class="ochip" id="ochip" data-off hidden><span><b><span data-off-nome>Black Friday</span> −35%</b><span class="lungo"> · fino a <span data-off-fine></span></span></span>
- <button class="apri2" data-off-apri data-ev="offerta_apri_avviso">Scopri</button><button class="via" id="ovia" aria-label="Chiudi l'avviso">&times;</button></div>
-<div class="omod" id="omod" role="dialog" aria-modal="true" aria-labelledby="otit"><div>
- <div class="oluci" aria-hidden="true"><i></i><i></i><i></i></div>
- <button class="chiudi" id="ochiudi" aria-label="Chiudi">&times;</button>
- <div class="osx">
-  <span class="et">EdgeValor</span>
-  <div class="nome" id="otit" data-off-nome>Black Friday</div>
-  <div class="num"><small>fino al</small><b>−35%</b></div>
-  <h3>Blocca il prezzo scontato:<br>resta tuo finché resti abbonato.</h3>
-  <div class="oconto" id="oconto" aria-label="Tempo rimasto"></div>
- </div>
- <form class="odx" id="oform" novalidate>
-  <div class="oscelta">
-   <label><input type="radio" name="piano" value="annuale" checked><span class="pt">Annuale <em>più conveniente</em></span><span class="pr"><b>89 €</b><s>137 €</s></span><span class="ps">−35% · solo 7,42 € al mese</span></label>
-   <label><input type="radio" name="piano" value="mensile"><span class="pt">Mensile</span><span class="pr"><b>9,90 €</b><s>14,90 €</s></span><span class="ps">−34% · 60 € l'anno in meno</span></label>
-  </div>
-  <input type="email" name="email" placeholder="La tua email" autocomplete="email" required aria-label="La tua email">
-  <input type="checkbox" name="botcheck" class="trappola" tabindex="-1" autocomplete="off" aria-hidden="true">
-  <label class="osi"><input type="checkbox" name="consenso"><span>Accetto di ricevere un'email quando aprono gli abbonamenti. <a href="legale/#privacy" target="_blank" rel="noopener">Privacy</a></span></label>
-  <button class="btn bia" type="submit" id="oinvia">Blocca il prezzo</button>
-  <p class="oesito" id="oesito" role="status"></p>
-  <p class="onota">Non paghi niente adesso. Poi si torna al prezzo pieno.</p>
- </form>
-</div></div>
+<!-- v8.28 offerta Black Friday RIMOSSA: anche nascosta, Google leggeva i prezzi vecchi (9,90 / 89 euro) e li mostrava come attuali. -->
 <footer><div class="box">
  <div class="piede">
   <div><a class="blogo" href="#" aria-label="EdgeValor"><i></i><b>EDGE<br><span class="g">VALOR</span></b></a>
@@ -640,82 +612,7 @@ function entra(){try{localStorage.setItem("eb_pass",new Date().toISOString());}c
  setTimeout(function(){location.href=dest;},window.ebStat&&ebStat.attivo?250:0);}
 document.querySelectorAll("[data-entra]").forEach(function(b){b.addEventListener("click",entra);});
 
-/* ===== OFFERTA DI FINE NOVEMBRE (v7.70): Black Friday -> Cyber Monday, si programma da sola ogni anno =====
-   QUANDO: dal lunedi' della settimana del Black Friday (00:00 a Roma) alla fine del Cyber Monday (24:00 a Roma).
-     - Black Friday = il venerdi' dopo il quarto giovedi' di novembre; Cyber Monday = il lunedi' subito dopo.
-     - 2026: da lunedi' 23 a lunedi' 30 novembre. 2027: da lunedi' 22 a lunedi' 29 novembre. E cosi' via.
-   COSA SI VEDE: fino alla domenica la veste "Black Friday", il lunedi' finale la veste "Cyber Monday".
-     Fuori da quei giorni non compare NIENTE (ne' avviso, ne' riga, ne' finestra): restano solo i prezzi pieni.
-     Il conto alla rovescia arriva a zero e la finestra si chiude da sola.
-   EMAIL: parte con Web3Forms (stessa chiave pubblica del modulo Feedback) e arriva solo alla casella di EdgeValor.
-   "eb_off" nel browser ricorda, per quell'anno, se l'avviso e' stato chiuso ("no") o se ci si e' gia' iscritti ("si").
-   PROVA: aggiungere all'indirizzo ?offerta=2026-11-27 (o un'altra data) mostra la pagina come in quel giorno. ===== */
-(function(){try{
- // v7.85 INTERRUTTORE: offerta SPENTA (non ci sono ancora pagamenti attivi). Il codice resta qui intero, pronto:
- //   per riaccenderla basta mettere ACCESA=true. Con ?offerta=AAAA-MM-GG nell'indirizzo si vede comunque l'anteprima.
- var ACCESA=false;
- if(!ACCESA&&!/[?&]offerta=/.test(location.search))return;
- var CHIAVE="{{MODULO_KEY}}",ROMA=3600e3;                                   // a novembre Roma e' sempre un'ora avanti su UTC
- var PIANI={annuale:"89 € l'anno",mensile:"9,90 € al mese"};
- var MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
- var prova=new URLSearchParams(location.search).get("offerta"),sfasa=0;
- if(/^\d{4}-\d{2}-\d{2}$/.test(prova||""))sfasa=Date.parse(prova+"T11:00:00Z")-Date.now();
- var ora=function(){return Date.now()+sfasa;};
- // finestra dell'anno: [inizio, passaggio a Cyber Monday, fine] in millisecondi
- function finestra(anno){var g=new Date(Date.UTC(anno,10,1)).getUTCDay(),giov=1+((4-g+7)%7)+21,bf=giov+1;   // quarto giovedi' + 1
-  return {ini:Date.UTC(anno,10,bf-4)-ROMA,cm:Date.UTC(anno,10,bf+3)-ROMA,fine:Date.UTC(anno,10,bf+4)-ROMA,anno:anno};}
- var F=finestra(new Date(ora()).getUTCFullYear());
- return;   // v8.12 OFFERTA SPENTA: mostrava prezzi vecchi (9,90 / 89 euro). Per riaccenderla togliere questa riga e aggiornare i prezzi.
- if(ora()<F.ini||ora()>=F.fine)return;                                       // fuori periodo: non si vede niente
- var el=function(i){return document.getElementById(i);},H=document.documentElement;
- var mod=el("omod"),chip=el("ochip"),form=el("oform"),esito=el("oesito"),invia=el("oinvia"),conto=el("oconto"),prima=null,tic=null;
- var ult=new Date(F.fine-1+ROMA),fineTxt="lunedì "+ult.getUTCDate()+" "+MESI[ult.getUTCMonth()];
- function veste(){var cm=ora()>=F.cm;H.setAttribute("data-off",cm?"cm":"bf");
-  document.querySelectorAll("[data-off-nome]").forEach(function(x){x.textContent=cm?"Cyber Monday":"Black Friday";});
-  document.querySelectorAll("[data-off-fine]").forEach(function(x){x.textContent=cm?"stasera":fineTxt;});}
- veste();
- var kk="eb_off",stato="";try{var v=JSON.parse(localStorage.getItem(kk)||"{}");if(v.anno==F.anno)stato=v.s;}catch(e){}
- function ricorda(s){try{localStorage.setItem(kk,JSON.stringify({anno:F.anno,s:s}));}catch(e){}}
- document.querySelectorAll("[data-off]").forEach(function(x){if(x!==chip)x.hidden=false;});
- function spegni(){clearInterval(tic);mod.classList.remove("su");H.removeAttribute("data-off");document.querySelectorAll("[data-off]").forEach(function(x){x.hidden=true;});}
- function resta(){var ms=F.fine-ora(),z=function(n){return (n<10?"0":"")+n;};
-  if(ms<=0){spegni();return;}                                               // tempo scaduto: l'offerta si stacca da sola
-  conto.innerHTML=[[Math.floor(ms/864e5),"giorni"],[Math.floor(ms/36e5)%24,"ore"],[Math.floor(ms/6e4)%60,"min"],[Math.floor(ms/1e3)%60,"sec"]]
-   .map(function(x){return "<div><b>"+z(x[0])+"</b><small>"+x[1]+"</small></div>";}).join("");}
- function apri(){prima=document.activeElement;veste();mod.classList.add("su");chip.classList.remove("su");resta();tic=setInterval(resta,1000);}
- function chiudi(){mod.classList.remove("su");clearInterval(tic);if(prima&&prima.focus)prima.focus();}
- setInterval(function(){if(ora()>=F.fine)spegni();else veste();},60000);       // anche a finestra chiusa: cambio veste e spegnimento
- document.querySelectorAll("[data-off-apri]").forEach(function(b){b.addEventListener("click",apri);});
- el("ochiudi").addEventListener("click",chiudi);
- mod.addEventListener("click",function(e){if(e.target===mod)chiudi();});
- document.addEventListener("keydown",function(e){if(e.key=="Escape"&&mod.classList.contains("su"))chiudi();});
- // avviso in basso: compare dopo un po' di lettura, mai sopra il riquadro dei prezzi, mai se chiuso o gia' iscritti
- if(!stato){chip.hidden=false;
-  var visto=false,acc=el("accesso");
-  function mostra(){if(visto||chip.hidden)return;var r=acc.getBoundingClientRect(),dentro=r.top<innerHeight&&r.bottom>0;
-   chip.classList.toggle("su",scrollY>innerHeight*0.9&&!dentro&&!mod.classList.contains("su"));}
-  addEventListener("scroll",mostra,{passive:true});
-  el("ovia").addEventListener("click",function(){visto=true;chip.classList.remove("su");ricorda("no");});}
- if(!CHIAVE){invia.disabled=true;esito.style.color="#8d98b0";esito.textContent="L'offerta è in attivazione: riprova tra poco.";}
- form.addEventListener("submit",function(e){e.preventDefault();
-  var mail=form.email.value.trim(),pn=form.piano.value,nome=ora()>=F.cm?"Cyber Monday":"Black Friday";esito.style.color="";
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){esito.textContent="Controlla l'email: non sembra valida.";form.email.focus();return;}
-  if(!form.consenso.checked){esito.textContent="Serve il tuo consenso per scriverti.";return;}
-  invia.disabled=true;invia.textContent="Invio…";esito.textContent="";
-  fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
-   body:JSON.stringify({access_key:CHIAVE,subject:"EdgeValor · Offerta "+nome+" "+F.anno+" ("+pn+")",from_name:"EdgeValor offerta "+nome,
-    email:mail,piano:pn,prezzo:PIANI[pn],consenso:"si, "+new Date().toISOString(),botcheck:form.botcheck.checked})})
-  .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.success===false)throw new Error(j.message||("HTTP "+r.status));});})
-  .then(function(){ricorda("si");try{window.ebStat&&ebStat.ev("offerta_iscritto",{piano:pn});}catch(e){}
-   chip.hidden=true;form.innerHTML='<div class="ook"><b>Prezzo bloccato.</b><p>'+PIANI[pn]+', finché resti abbonato. Ti scriviamo quando aprono gli abbonamenti.</p><button type="button" class="btn bia" id="obene">Chiudi</button></div>';
-   el("obene").addEventListener("click",chiudi);})
-  .catch(function(err){console.warn("[EdgeValor] offerta:",err);invia.disabled=false;invia.textContent="Blocca il prezzo";
-   esito.textContent="Invio non riuscito. Riprova tra poco.";});});
-}catch(e){console.error("[EdgeValor] offerta:",e);}})();
-// v7.87: chi ha gia' un account collegato in questo browser vede "Apri il terminale", gli altri "Accedi"
-(function(){var si=false;try{si=!!localStorage.getItem("ebSess");}catch(e){}
- if(si)document.querySelectorAll("[data-etichetta]").forEach(function(s){s.textContent="Apri il terminale";});})();
-
+/* v8.28 script dell'offerta Black Friday rimosso (prezzi vecchi). */
 /* ===== EFFETTO TASTIERA sul titolo: scrive lettera per lettera; "con metodo" in gradiente ===== */
 (function(){var pezzi=[["Investire ",""],["con metodo","g"],[", anche partendo da zero.",""]],el=document.getElementById("tt");
  if(fermo){el.innerHTML=pezzi.map(function(p){return p[1]?'<span class="g">'+p[0]+'</span>':p[0];}).join("");return;}
