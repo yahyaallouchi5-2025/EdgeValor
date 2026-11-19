@@ -18,6 +18,7 @@ DEBUG: python -c "from cot_radar import pagine_pubbliche as p; print(p.RISP, p.e
 import os
 import re
 
+from urllib.parse import quote   # v8.23 indirizzo di ritorno del pulsante Google
 from .config import SITO_PUBBLICO, SUPABASE_PUBBLICA, SUPABASE_URL, TELEGRAM_CANALE
 from .log import log
 
@@ -43,6 +44,9 @@ CSS = """
 .nota{margin-top:22px;text-align:center;color:var(--mute);font-size:14.5px}
 .modulo{max-width:520px;margin:0 auto;padding:30px 32px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(11,29,66,.7),rgba(7,20,49,.5))}
 .modulo h3{font:750 22px/1.25 "Inter Display","Inter",system-ui;margin:0 0 6px}.modulo p{margin:0 0 18px;color:var(--ink2);font-size:15.5px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;height:48px;border-radius:14px;background:#fff;color:#1f1f1f;font:650 15px "Inter",system-ui;text-decoration:none;transition:box-shadow .15s,transform .15s}
+.gbtn:hover{box-shadow:0 6px 18px rgba(0,0,0,.25);transform:translateY(-1px)}.gbtn svg{width:20px;height:20px}
+.oppure{display:flex;align-items:center;gap:12px;margin:18px 0;font-size:12.5px;color:var(--mute)}.oppure:before,.oppure:after{content:"";flex:1;height:1px;background:var(--line)}
 .modulo label{display:block;font-size:13px;font-weight:700;color:var(--mute);margin:0 0 6px}
 .modulo input,.modulo select{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:#060f24;color:var(--ink);font:500 16px "Inter",system-ui;margin-bottom:14px}
 .modulo input:focus,.modulo select:focus{outline:0;border-color:var(--acc)}
@@ -97,7 +101,10 @@ PREZZI = f"""
 ACCEDI = f"""
 <div class="titsez" style="margin-left:auto;margin-right:auto;text-align:center"><small>Accesso</small><h1>Entra nel terminale.</h1>
  <p>Niente password: ti arriva un link via email. Se è la prima volta, parte la prova di 14 giorni.</p></div>
-<form class="modulo" id="facc" novalidate><label for="am">La tua email</label><input id="am" type="email" placeholder="nome@esempio.it" autocomplete="email" required>
+<form class="modulo" id="facc" novalidate>
+ <a class="gbtn" href="{SUPABASE_URL}/auth/v1/authorize?provider=google&amp;redirect_to={quote(SITO_PUBBLICO + "terminale/", safe="")}"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>Continua con Google</a>
+ <div class="oppure"><span>oppure con il link via email</span></div>
+ <label for="am">La tua email</label><input id="am" type="email" placeholder="nome@esempio.it" autocomplete="email" required>
  <button class="btn pri">{FRECCIA}Mandami il link</button><p class="esito" role="status"></p><small>Per la prova non serve la carta.</small></form>
 """
 

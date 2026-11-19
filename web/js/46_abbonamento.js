@@ -49,6 +49,12 @@
   box.querySelector(".fbx").onclick=chiudi;box.onclick=e=>{if(e.target==box)chiudi();};
   document.addEventListener("keydown",function k(e){if(e.key=="Escape"){chiudi();document.removeEventListener("keydown",k);}});
 
+  // v8.23 FONDATORE / account riservati ("sempre Premium"): niente abbonamento da pagare, Premium a vita
+  const pr=st.profilo||{};
+  if(pr.sempre_premium){sott.textContent="Hai Premium a vita.";
+   corpo.innerHTML=`<div class="abstato"><div><small>Piano</small><b>Premium · fondatore</b></div><div><small>Scadenza</small><b>Nessuna</b></div></div>
+    <div class="cmodal-btn"><button type="button" class="csi abchiudi">Chiudi</button></div>`;
+   corpo.querySelector(".abchiudi").onclick=chiudi;return;}
   // --- stato attuale (database) -> quale vista mostrare
   (window.ebAccount.rpc("mio_abbonamento").catch(()=>[])).then(r=>{const a=(r||[])[0];
    const fino=a&&a.premium_fino&&Date.parse(a.premium_fino)>Date.now()?a.premium_fino:null;

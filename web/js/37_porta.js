@@ -15,7 +15,7 @@
 (function(){try{
  if(!/\/terminale\//.test(location.pathname))return;              // in locale (file aperto dal PC) il terminale resta libero
  const API="https://cwwmqujccwzmqougtedh.supabase.co",CHIAVE="sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X";
- const PER_TUTTI=false;                                            // true = pulsante Google per tutti
+ const PER_TUTTI=true;                                             // true = pulsante Google per tutti (acceso il 19/11/2026 dopo la prova di Ya)
  try{if(/[?&]google=1/.test(location.search))localStorage.setItem("ebGoogle","1");}catch(e){}
  const GOOGLE=PER_TUTTI||(()=>{try{return localStorage.getItem("ebGoogle")=="1";}catch(e){return false;}})();
  const H={apikey:CHIAVE,"Content-Type":"application/json"},MAIL=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
