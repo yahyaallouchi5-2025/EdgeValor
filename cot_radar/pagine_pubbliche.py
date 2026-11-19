@@ -137,20 +137,8 @@ PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Basic gratis per sempre. Premium a 
           "faq": ("Domande frequenti · EdgeValor", "Costi, tempo richiesto, rischi e fonti dei dati: le risposte alle domande più comuni su EdgeValor.", FAQ)}
 
 
-# --- script dei due moduli (ES5, come la home) ---
-JS_PREZZI = """<script>(function(){var f=document.getElementById("fprem");if(!f)return;var K="__K__",es=f.querySelector(".esito"),b=f.querySelector("button");
- if(!K){b.disabled=true;es.textContent="Modulo in attivazione: riprova tra poco.";}
- f.addEventListener("submit",function(e){e.preventDefault();var m=document.getElementById("cm").value.trim(),p=document.getElementById("cp").value;
-  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(m)){es.textContent="Controlla l'email: non sembra valida.";return;}
-  b.disabled=true;b.textContent="Invio\u2026";es.textContent="";
-  // v8.10 email automatica all'utente (Supabase, funzione richiesta-premium): link PayPal del piano e passaggi
-  fetch("__API__/functions/v1/richiesta-premium",{method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({email:m,piano:p,botcheck:f.botcheck.checked})}).catch(function(){});
-  fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},
-   body:JSON.stringify({access_key:K,subject:"EdgeValor \u00b7 Richiesta Premium ("+p+")",from_name:"EdgeValor prezzi",email:m,piano:p,pagina:"prezzi",botcheck:f.botcheck.checked})})
-  .then(function(r){return r.json().catch(function(){return {};}).then(function(j){if(!r.ok||j.success===false)throw new Error(j.message||r.status);});})
-  .then(function(){f.innerHTML='<div class="ok"><b>Richiesta inviata.</b><p>Riceverai le istruzioni via email.</p></div>';})
-  .catch(function(){b.disabled=false;b.textContent="Invia la richiesta";es.textContent="Invio non riuscito. Riprova tra poco.";});});})();</script>"""
+# --- script del modulo di accesso (ES5, come la home). v8.19: tolto il vecchio modulo "Richiesta Premium"
+#     (ora Premium si attiva da solo con l'abbonamento PayPal nel terminale)
 JS_ACCEDI = """<script>(function(){var f=document.getElementById("facc");if(!f)return;var es=f.querySelector(".esito"),b=f.querySelector("button"),t=b.innerHTML;
  f.addEventListener("submit",function(e){e.preventDefault();var m=document.getElementById("am").value.trim().toLowerCase();
   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(m)){es.textContent="L'email non sembra valida.";return;}
@@ -171,9 +159,7 @@ def crea(cartella, home):
         return []
     piede = piede.replace('href="#', 'href="/#').replace('href="legale/', 'href="/legale/').replace('href="terminale/', 'href="/terminale/')
     piede = piede.replace('href="/#faq"', 'href="/faq/"').replace('href="/#metodo"', 'href="/metodo/"').replace('href="/#accesso"', 'href="/prezzi/"')
-    k = re.search(r'var CHIAVE="([^"]*)"', home)
-    extra = {"prezzi": JS_PREZZI.replace("__K__", k.group(1) if k else "").replace("__API__", SUPABASE_URL),
-             "accedi": JS_ACCEDI.replace("__API__", SUPABASE_URL).replace("__PUB__", SUPABASE_PUBBLICA).replace("__TERM__", SITO_PUBBLICO + "terminale/")}
+    extra = {"accedi": JS_ACCEDI.replace("__API__", SUPABASE_URL).replace("__PUB__", SUPABASE_PUBBLICA).replace("__TERM__", SITO_PUBBLICO + "terminale/")}
     fatte = []
     for nome, (titolo, desc, corpo) in PAGINE.items():
         t = re.sub(r"<title>.*?</title>", lambda m: f"<title>{titolo}</title>", testa, count=1, flags=re.S)
