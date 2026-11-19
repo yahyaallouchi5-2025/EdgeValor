@@ -2839,7 +2839,7 @@ html.ridotta .pfbox2{display:none}
 .pfchi{display:grid;gap:3px;padding:4px 6px 8px}
 .pfchi b{font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pfst{font-size:12px;line-height:1.45;color:var(--mute)}.pfst.ok{color:var(--b)}.pfst.prova{color:var(--warn)}
-.pfvoce{padding:9px 8px;font-size:13.5px}
+.pfvoce{padding:9px 8px;font-size:13.5px}a.pfvoce{text-decoration:none;color:inherit}
 /* v7.92 riepilogo della prova: titolo + (i), barra dei giorni, "Giorno X di 14 | fino al ..." */
 .pfst:empty{display:none}
 .pfprova{display:grid;gap:8px;margin:0 6px 8px;padding:12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--warn) 35%,var(--line));background:color-mix(in srgb,var(--warn) 7%,transparent)}

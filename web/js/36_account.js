@@ -134,7 +134,8 @@
         Senza accesso: campo email + "Mandami il link".   Con accesso: email, stato, Gestisci abbonamento, Esci.
         v7.80: nello stesso riquadro (parte fissa in index.html) ci sono anche Feedback, Guida e lo stato dei dati. --- */
  const box=$("pfbox"),conto=$("pfconto")||box,coda=$("pfcoda"),mob=()=>matchMedia("(max-width:900px)").matches;
- const I={carta:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/></svg>',
+ // v8.26 stella per "Lascia una recensione" (Trustpilot, si apre in una nuova scheda)
+ const I={stella:'<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',carta:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/></svg>',
           admin:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
           esci:'<svg viewBox="0 0 24 24"><path d="M10 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19H10"/><path d="M15 8l4 4-4 4M19 12H10"/></svg>'};
  let ultimoInvio=0,inviato="";                                  // inviato = email a cui e' appena partito il link
@@ -145,6 +146,7 @@
     ${ADM?`<button type="button" class="sitem pfvoce pfadmin">${I.admin}<span>Admin · Iscritti</span></button>`:""}
     ${window.ebAbbonamento&&ebAbbonamento.attivo()?`<button type="button" class="sitem pfvoce pfabb">${I.carta}<span>Gestisci abbonamento</span></button>`
      :`<button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>`}
+    <a class="sitem pfvoce pfrec" href="https://www.trustpilot.com/evaluate/edgevalor.com" target="_blank" rel="noopener">${I.stella}<span>Lascia una recensione</span></a>
 `;
    const ab=box.querySelector(".pfabb");if(ab)ab.onclick=()=>{mostra(false);ebAbbonamento.apri();};   // v8.11 area abbonamento PayPal
    const ad=box.querySelector(".pfadmin");if(ad)ad.onclick=()=>{mostra(false);window.ebAdmin&&ebAdmin.apri();};
