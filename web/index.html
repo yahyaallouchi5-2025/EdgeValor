@@ -171,6 +171,13 @@ D.premium=!!window.__ebP||document.getElementById("ebprem").textContent.trim()==
   const j=await r.json().catch(()=>({}));if(!r.ok||!j.access_token)return null;
   const N={a:j.access_token,r:j.refresh_token,s:Date.now()+(j.expires_in||3600)*1000};try{localStorage.setItem("ebSess",JSON.stringify(N));}catch(e){}return N.a;}
  async function chiave(){if(!B||!B.id||!window.crypto||!crypto.subtle||typeof DecompressionStream=="undefined")return null;
+  // v8.21 RITORNO DA GOOGLE O DA UN LINK EMAIL: i codici di accesso sono nell'indirizzo (#access_token=...) e 36_account.js
+  // li salva solo DOPO l'avvio del terminale. Qui li si salva subito, cosi' la chiave Premium si chiede gia' al primo
+  // caricamento (prima si entrava "da Basic" finche' non si ricaricava la pagina). La chiave vecchia (ebPK) si scarta:
+  // potrebbe essere di un altro account.
+  try{const q=new URLSearchParams(location.hash.slice(1));if(q.get("access_token")&&q.get("refresh_token")){
+   localStorage.setItem("ebSess",JSON.stringify({a:q.get("access_token"),r:q.get("refresh_token"),s:Date.now()+(+q.get("expires_in")||3600)*1000}));
+   localStorage.removeItem("ebPK");}}catch(e){}
   let S=null;try{S=JSON.parse(localStorage.getItem("ebSess")||"null");}catch(e){}if(!S||!S.r)return null;
   try{const c=JSON.parse(localStorage.getItem("ebPK")||"null");if(c&&c.id===B.id&&c.k)return c.k;}catch(e){}
   const t=await token(S);if(!t)return null;
