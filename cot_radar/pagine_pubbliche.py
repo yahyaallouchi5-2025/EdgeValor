@@ -84,7 +84,7 @@ PREZZI = f"""
   <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
   <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; all'anno &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
   <p class="piu">Tutto Basic, più:</p>
-  <ul><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
+  <ul><li><b>Azionario globale e portafogli</b> completi</li><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
   <a class="btn pri" href="/terminale/?premium=1">{FRECCIA}Attiva Premium</a>
   <p class="sotto" style="margin:12px 0 0;text-align:center">Paghi con PayPal o carta. Si rinnova da solo, disdici quando vuoi.</p></div>
 </div>
@@ -143,10 +143,14 @@ JS_ACCEDI = """<script>(function(){var f=document.getElementById("facc");if(!f)r
  f.addEventListener("submit",function(e){e.preventDefault();var m=document.getElementById("am").value.trim().toLowerCase();
   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(m)){es.textContent="L'email non sembra valida.";return;}
   b.disabled=true;es.textContent="";
+  // v8.19 email temporanee rifiutate prima di mandare il link (lista nel database)
+  fetch("__API__/rest/v1/rpc/email_temporanea",{method:"POST",headers:{apikey:"__PUB__","Content-Type":"application/json"},body:JSON.stringify({p_email:m})})
+  .then(function(r){return r.ok?r.json():false;}).catch(function(){return false;}).then(function(tmp){
+  if(tmp===true){b.disabled=false;es.textContent="Le email temporanee non sono accettate: usa la tua email personale.";return;}
   fetch("__API__/auth/v1/otp?redirect_to="+encodeURIComponent("__TERM__"),{method:"POST",headers:{apikey:"__PUB__","Content-Type":"application/json"},
    body:JSON.stringify({email:m,create_user:true,data:{}})})
-  .then(function(r){if(!r.ok)throw r.status;f.innerHTML='<div class="ok"><b>Link inviato.</b><p>Apri l\'email e tocca il link per entrare.</p></div>';})
-  .catch(function(s){b.disabled=false;b.innerHTML=t;es.textContent=s==429?"Troppe richieste: riprova tra qualche minuto.":"Invio non riuscito. Riprova tra poco.";});});})();</script>"""
+  .then(function(r){if(!r.ok)throw r.status;f.innerHTML='<div class="ok"><b>Link inviato.</b><p>Apri l’email e tocca il link per entrare.</p></div>';})
+  .catch(function(s){b.disabled=false;b.innerHTML=t;es.textContent=s==429?"Troppe richieste: riprova tra qualche minuto.":"Invio non riuscito. Riprova tra poco.";});});});})();</script>"""
 
 
 def crea(cartella, home):

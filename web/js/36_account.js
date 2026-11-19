@@ -9,6 +9,10 @@
      2) il link riapre questa pagina con "#access_token=...&refresh_token=..." in fondo all'indirizzo;
      3) qui si salvano i due codici nel browser (localStorage "ebSess") e si pulisce l'indirizzo;
      4) il codice di accesso dura 1 ora: quando sta per scadere si rinnova da solo con il secondo codice.
+   v8.19 ACCESSO CON GOOGLE: "Continua con Google" porta a Supabase (/auth/v1/authorize?provider=google), Google chiede
+     il consenso e si torna qui con lo stesso "#access_token=..." del link email: il resto del flusso e' identico.
+     Le credenziali Google (Client ID/Secret) stanno solo nelle impostazioni di Supabase, mai qui.
+     GOOGLE=false: il pulsante si vede solo in anteprima (indirizzo con ?google=1, ricordato nel browser) finche' non e' collaudato.
 
    COSA SI LEGGE / SCRIVE:
      profili -> prova gratuita, premium, codice invito (sola lettura: li scrive il server)
@@ -23,6 +27,10 @@
 (function(){try{
  const API="https://cwwmqujccwzmqougtedh.supabase.co",CHIAVE="sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X";
  const KS="ebSess",KB="ebListaSync",TIPI=["az","pa","fx","me"];
+ const GOOGLE=false;                                                           // true = pulsante Google per tutti
+ try{if(/[?&]google=1/.test(location.search))localStorage.setItem("ebGoogle","1");}catch(e){}
+ const conGoogle=()=>{if(GOOGLE)return true;try{return localStorage.getItem("ebGoogle")=="1";}catch(e){return false;}};
+ const GICO='<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>';
  const btn=$("pfapri"),eti=$("pfeti");if(!btn||!$("pfbox"))return;
  const intest=t=>Object.assign({apikey:CHIAVE,"Content-Type":"application/json"},t?{Authorization:"Bearer "+t}:{});
  let S=null,P=null,ADM=false,esito="",tipo="";                                   // sessione, profilo letto, messaggio dopo il ritorno dal link
@@ -152,15 +160,24 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
    box.querySelector(".pfaltra").onclick=()=>{inviato="";disegna();};return;}
   conto.innerHTML=`<form class="pfform" novalidate><div class="pfchi"><b>Entra con la tua email</b><span class="pfst">Niente password: ti mando un link. La prima volta parte la prova gratuita di 14 giorni.</span></div>
     ${msg?`<p class="pfko">${msg}</p>`:""}
+    ${conGoogle()?`<button type="button" class="pfgoogle">${GICO}<span>Continua con Google</span></button><div class="pfoppure"><span>oppure</span></div>`:""}
     <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nome@esempio.it" aria-label="La tua email" required>
     <div class="fbesito" role="status" aria-live="polite"></div>
     <button type="submit" class="csi pfinvia">Mandami il link</button>
     <p class="small pfpriv">Usiamo l'email solo per farti accedere. <a href="../legale/#privacy" target="_blank" rel="noopener">Privacy</a></p></form>`;
   const f=box.querySelector("form"),es=f.querySelector(".fbesito"),inv=f.querySelector(".pfinvia");
+  // v8.19 accesso con Google: si torna su questa pagina con i codici di accesso (gestiti dal blocco "ritorno dal link")
+  const g=f.querySelector(".pfgoogle");if(g)g.onclick=()=>{try{window.ebStat&&ebStat.ev("accesso",{passo:"google"});}catch(_){}
+   const torna=location.href.split("#")[0].split("?")[0];
+   location.href=API+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(torna);};
   f.onsubmit=async e=>{e.preventDefault();const mail=f.email.value.trim().toLowerCase();
    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){es.className="fbesito ko";es.textContent="L'email non sembra valida.";f.email.focus();return;}
    if(Date.now()-ultimoInvio<60000){es.className="fbesito ko";es.textContent="Ti ho appena mandato un link: aspetta un minuto.";return;}
    inv.disabled=true;inv.textContent="Invio…";es.className="fbesito";es.textContent="";
+   // v8.19 email temporanee (10minutemail, yopmail...): rifiutate prima di mandare il link (lista nel database)
+   try{const t=await fetch(API+"/rest/v1/rpc/email_temporanea",{method:"POST",headers:intest(),body:JSON.stringify({p_email:mail})});
+    if(t.ok&&(await t.json())===true){inv.disabled=false;inv.textContent="Mandami il link";es.className="fbesito ko";
+     es.textContent="Le email temporanee non sono accettate: usa la tua email personale.";return;}}catch(_){}
    let inv_c="";try{inv_c=localStorage.getItem("ebInvito")||"";}catch(_){}
    try{const torna=location.href.split("#")[0].split("?")[0];
     const r=await fetch(API+"/auth/v1/otp?redirect_to="+encodeURIComponent(torna),{method:"POST",headers:intest(),
