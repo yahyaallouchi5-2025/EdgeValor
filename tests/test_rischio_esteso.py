@@ -26,6 +26,13 @@ class RischioEsteso(unittest.TestCase):
         self.assertAlmostEqual(r["scambiato_anno"], round(1.0 / (799 / 365.25) * 100), delta=1)
         self.assertAlmostEqual(r["costo_anno"], r["scambiato_anno"] * P.COSTO, delta=0.01)
 
+    def test_ordini(self):
+        # v8.30 ordini al broker: 6 all'acquisto iniziale, poi 4 + 2 in ~2,2 anni -> circa 2,7 ordini l'anno
+        c = curva(lambda i: 0.001)
+        r = P.rischio_esteso(c, None, [("2015-01-01", None, 6), ("2015-02-01", 0.5, 4), ("2016-02-01", 0.2, 2)])
+        self.assertEqual(r["ordini_iniziali"], 6)
+        self.assertAlmostEqual(r["ordini_anno"], round(6 / (799 / 365.25), 1), delta=0.05)
+
     def test_asimmetria_negativa(self):
         # quasi sempre piccoli guadagni, un crollo raro: asimmetria negativa
         c = curva(lambda i: -0.25 if i == 400 else 0.0008)

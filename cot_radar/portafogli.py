@@ -196,6 +196,7 @@ for _p in PROFILI:                                   # mercati ammessi = quelli 
 INIZIO = "2006-01-01"          # primo ribilanciamento (prima i dati degli ETF sono troppo pochi)
 OOS_DAL = "2016-01-01"         # da qui in poi: fuori campione
 COSTO = 0.001                  # 0,10% del capitale scambiato
+ORDINE_MIN = 0.005             # v8.30 sotto 0,5 punti di peso il ribilanciamento non vale un ordine (si lascia com'e')
 SMA = 200                      # media mobile del filtro di trend (giorni di borsa)
 VOL_GIORNI = 63                # finestra della volatilita' (circa 3 mesi)
 MIN_STORIA = 260               # giorni di prezzo minimi perche' un mercato sia ammesso
@@ -662,7 +663,10 @@ def simula_prudente(g, pianificati, dal_i, al_i=None, sostituisci=None, fx=None,
             if scambi is not None:                 # v7.51 capitale scambiato (quota del portafoglio, 1 = 100%)
                 tot = sum(quote.values()) or 1.0
                 vec, nuo = {k: v / tot for k, v in quote.items()}, pianificati[i]
-                scambi.append((g.date[i], sum(abs(nuo.get(k, 0) - vec.get(k, 0)) for k in set(nuo) | set(vec)) if quote else None))
+                scambi.append((g.date[i], sum(abs(nuo.get(k, 0) - vec.get(k, 0)) for k in set(nuo) | set(vec)) if quote else None,
+                               # v8.30 ORDINI al broker: strumenti con un cambio di peso di almeno 0,5 punti (con la
+                               # commissione fissa conta il numero di ordini, non solo il capitale scambiato)
+                               sum(1 for k in set(nuo) | set(vec) if abs(nuo.get(k, 0) - vec.get(k, 0)) >= ORDINE_MIN)))
             valore, quote = _ribilancia(valore, quote, pianificati[i])
         curva.append((g.date[i], valore))
     return curva
@@ -972,15 +976,21 @@ def rischio_esteso(curva, liq=None, scambi=None):
         dd12.append(peg)
     dd90 = sorted(dd12)[int(len(dd12) * 0.1)] if len(dd12) >= 20 else None
     # CAPITALE SCAMBIATO l'anno (escluso l'acquisto iniziale) e COSTO ANNUO con il costo del modello (COSTO)
-    sc = [q for _, q in (scambi or []) if q is not None]
+    sc = [x[1] for x in (scambi or []) if x[1] is not None]
     giro = sum(sc) / anni if sc else (0.0 if scambi else None)       # solo acquisto iniziale: niente scambi
     rot = sum(1 for q in sc if q > 0.005) / anni if sc else (0.0 if scambi else None)
+    # v8.30 ORDINI l'anno (escluso l'acquisto iniziale) e ordini dell'acquisto iniziale: servono al terminale per
+    # stimare la commissione FISSA del broker sul capitale dell'utente (es. 2 euro a ordine su 5.000 euro)
+    od = [x[2] for x in (scambi or []) if len(x) > 2 and x[1] is not None]
+    od0 = [x[2] for x in (scambi or []) if len(x) > 2 and x[1] is None]
     return {"sortino": sortino, "asimmetria": round(asim, 2), "cvar_mese": round(cvar * 100, 1),
             "dd_1su10": round(dd90 * 100, 1) if dd90 is not None else None,
             "peggiori12": [round(peg12[0] * 100, 1), peg12[1], peg12[2]] if peg12 else None,
             "scambiato_anno": round(giro * 100) if giro is not None else None,
             "rotazioni_anno": round(rot, 1) if rot is not None else None,
-            "costo_anno": round(giro * COSTO * 100, 2) if giro is not None else None}
+            "costo_anno": round(giro * COSTO * 100, 2) if giro is not None else None,
+            "ordini_anno": round(sum(od) / anni, 1) if scambi and len(scambi[0]) > 2 else None,
+            "ordini_iniziali": od0[0] if od0 else None}
 
 
 def _dd_rec(curva):

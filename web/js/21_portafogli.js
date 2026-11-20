@@ -196,12 +196,41 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    <div class="pacq-l">${pi.righe.map(r=>`<div class="pacq-r${r.q===0?" zero":""}"><div class="pacq-n"><b>${esc(r.nome)}</b><span>${r.cash&&!r.nota?"nessun acquisto":r.cash?"":r.isin?`ISIN ${esc(r.isin)}`:esc(r.tk||"")}${r.nota?(r.cash&&!r.neg?r.nota:`${r.cash?"":" &middot; "}<em>${r.nota}</em>`):""}</span></div>
     <div class="pacq-q">${r.cash?`<b>${eur(r.obi)}</b><span>resta sul conto</span>`:r.q==null?`<span class="small">prezzo n/d &middot; ${eur(r.obi)}</span>`:`<b>${r.q} ${r.q==1?"quota":"quote"}</b><span>${r.prezzo?"&times; "+fx(r.prezzo,2)+" € = "+eur(r.q*r.prezzo):""}</span>`}</div></div>`).join("")}</div>
    <div class="pacq-tot"><span>Investito <b>${eur(pi.spesa)}</b></span><span>Resta sul conto <b>${eur(pi.resto)}</b></span></div>
+   ${commHTML(p,pi)}
    <details class="pacq-come"><summary>Come comprare su Scalable</summary><ol>
     <li>Copia l'<b>ISIN</b> (o il ticker per le azioni) e cercalo nella barra di ricerca.</li>
     <li>Premi <b>Acquista</b>: la borsa proposta (es. European Investor Exchange) va bene.</li>
     <li>Passa da <b>Importo target</b> alla scheda <b>Numero di titoli</b> e scrivi le quote indicate qui sopra (con l'importo Scalable arrotonda per difetto alle quote intere).</li>
     <li><b>Prepara ordine</b>, controlla il totale e conferma, in orario di borsa (09:00-17:30).</li>
     <li><b>Versamenti mensili</b>: inseriscili in &laquo;Il mio conto&raquo;, che indica dove mettere i soldi nuovi. Con il piano di accumulo aggiorna gli importi a ogni rotazione.</li></ol></details>`;}
+
+ // --- v8.30 COMMISSIONI DEL BROKER sul capitale dell'utente (Ya, 20/11/2026: con 5.000 euro le commissioni fisse
+ //     da 1,50-2 euro a ordine pesano molto piu' dello 0,10% usato nel modello).
+ //     ordini all'acquisto = righe con almeno 1 quota da comprare (azioni scelte comprese), dai prezzi di oggi;
+ //     ordini l'anno = media dello storico (p.rischio_ext.ordini_anno, cot_radar/portafogli.py: strumenti con un cambio
+ //     di peso di almeno 0,5 punti a ogni ribilanciamento). Costo in % = ordini l'anno x commissione / capitale.
+ //     "In piu' del modello" = quella % meno il costo gia' tolto nei risultati (0,10% sullo scambiato): e' quanto
+ //     abbassare il rendimento annuo pubblicato per avere una stima sul TUO conto. Commissione ricordata nel browser.
+ let commissione=2;try{const c=localStorage.getItem("ebCommissione");if(c!=null&&!isNaN(+c))commissione=+c;}catch(e){}
+ function commDati(p,pi){const E=p.rischio_ext||{},T=p.stat.totale||{};
+  const ini=pi.righe.filter(r=>!r.cash&&r.q>0).length,anno=E.ordini_anno;
+  if(anno==null||!(capitale>0))return null;
+  const costoAnno=anno*commissione,perc=costoAnno/capitale*100,extra=Math.max(0,perc-(E.costo_anno||0));
+  return {ini,anno,costoIni:ini*commissione,costoAnno,perc,extra,netto:T.cagr!=null?T.cagr-extra:null,cagr:T.cagr};}
+ function commOut(d){if(!d)return "";const alto=d.perc>=1;
+  return `<span>Acquisto: ${d.ini} ordini <b>${eur(d.costoIni)}</b></span><span>Poi ~${fx(d.anno,1)} ordini l'anno <b>${eur(d.costoAnno)}</b> <em>(${fx(d.perc,2)}% del capitale)</em></span>
+   ${d.netto!=null?`<span>Rendimento annuo stimato sul tuo conto <b class="${alto?"down":""}">${pc(d.netto)}</b> <em>invece di ${pc(d.cagr)}</em></span>`:""}
+   ${alto?`<p class="pcomm-avv">Con questo capitale le commissioni pesano: scegli un broker con commissioni basse o a zero, oppure aumenta il capitale.</p>`:""}`;}
+ function commHTML(p,pi){const d=commDati(p,pi);if(!d)return "";
+  return `<div class="pcomm"><div class="pcomm-t"><label>Commissione del broker <input type="text" inputmode="decimal" value="${fx(commissione,2)}" aria-label="Commissione per ordine in euro"> &euro; a ordine</label>
+    <details class="info"><summary title="Come si calcola" aria-label="Come si calcola">i</summary><div><b>Perch&eacute; conta.</b> Molti broker chiedono una cifra fissa a ogni ordine (es. 1-2 &euro;). Su un capitale piccolo pesa molto pi&ugrave; dello 0,10% sullo scambiato gi&agrave; tolto nei risultati del modello.<br><br><b>Ordini l'anno</b>: media dello storico del profilo, contando gli strumenti che cambiano peso di almeno 0,5 punti a ogni ribilanciamento (si scambia solo se entra o esce un mercato o a inizio trimestre). Le azioni scelte aggiungono ordini quando cambiano.<br><br><b>Rendimento sul tuo conto</b>: rendimento annuo del modello meno la parte di commissioni oltre lo 0,10% gi&agrave; contato. &Egrave; una stima: spread e imposte sulle transazioni non sono inclusi.<br><br>Con un broker a commissioni zero scrivi 0.</div></details></div>
+   <div class="pacq-tot pcomm-out">${commOut(d)}</div></div>`;}
+ // eventi del campo commissione: aggiorna solo il riquadro dei risultati (il campo non perde il cursore)
+ function commEventi(acq,p){acq.addEventListener("input",e=>{const i=e.target.closest(".pcomm input");if(!i)return;
+   const v=+i.value.replace(/[^\d,.]/g,"").replace(",",".");commissione=isNaN(v)?0:Math.min(50,v);
+   try{localStorage.setItem("ebCommissione",commissione);}catch(_){}
+   const o=acq.querySelector(".pcomm-out");if(o)o.innerHTML=commOut(commDati(p,piano(p)));});
+  acq.addEventListener("focusout",e=>{const i=e.target.closest(".pcomm input");if(i)i.value=fx(commissione,2);});}
 
  // --- RISCHIO DEL MESE della rotazione (v6.41): la composizione di oggi tenuta nello stesso mese di ogni anno dello storico.
  //     1) TERMOMETRO: drawdown peggiore del mese contro il limite del profilo (tacca bianca), verdetto in parole;
@@ -958,6 +987,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
     acq.classList.toggle("pacq-chiuso",!acqAperto);
     acq.querySelectorAll(".pacq-h,.pacq-tg").forEach(x=>x.setAttribute("aria-expanded",acqAperto));};
    acq.addEventListener("click",e=>{if(e.target.closest(".pacq-h,.pacq-tg"))gira();});
+   commEventi(acq,p);                                     // v8.30 commissione del broker
    acq.addEventListener("keydown",e=>{if((e.key=="Enter"||e.key==" ")&&e.target.closest(".pacq-h")){e.preventDefault();gira();}});}
   liveOggi(p);
   tipMesi(el.querySelector(".pcontro"),p);
