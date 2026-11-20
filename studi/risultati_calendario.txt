@@ -1,0 +1,60 @@
+STUDIO ANOMALIE DI CALENDARIO (studi/studio_calendario.py, libro CFA Vol. 5 cap. 3) - 21/11/2026
+
+=== _GSPC (1970-01-02 - 2026-11-19) ===
+  TOM (ultimo + primi 3)   in campione: +8.5 pb/giorno (t +3.18, 1919 giorni) | fuori campione: +2.5 pb/giorno (t +0.61, 811 giorni)
+  prima del festivo        in campione: +14.7 pb/giorno (t +3.04, 335 giorni) | fuori campione: +6.4 pb/giorno (t +0.98, 156 giorni)
+  lunedi'                  in campione: -7.7 pb/giorno (t -2.51, 1923 giorni) | fuori campione: -0.2 pb/giorno (t -0.04, 795 giorni)
+  gennaio                  in campione: +2.3 pb/giorno (t +0.60, 837 giorni) | fuori campione: -0.1 pb/giorno (t -0.02, 343 giorni)
+  fuori campione: giorni TOM 19% delle sedute, 28% del rendimento (in log)
+
+=== SPY (1993-01-29 - 2026-11-19) ===
+  TOM (ultimo + primi 3)   in campione: +5.8 pb/giorno (t +1.21, 812 giorni) | fuori campione: +2.4 pb/giorno (t +0.57, 811 giorni)
+  prima del festivo        in campione: +4.9 pb/giorno (t +0.54, 148 giorni) | fuori campione: +5.4 pb/giorno (t +0.82, 156 giorni)
+  lunedi'                  in campione: +2.2 pb/giorno (t +0.41, 805 giorni) | fuori campione: +0.8 pb/giorno (t +0.19, 795 giorni)
+  gennaio                  in campione: -1.4 pb/giorno (t -0.19, 329 giorni) | fuori campione: -0.4 pb/giorno (t -0.08, 343 giorni)
+  fuori campione: giorni TOM 19% delle sedute, 26% del rendimento (in log)
+
+=== QQQ (1999-03-10 - 2026-11-19) ===
+  TOM (ultimo + primi 3)   in campione: +9.6 pb/giorno (t +0.87, 519 giorni) | fuori campione: +3.6 pb/giorno (t +0.72, 811 giorni)
+  prima del festivo        in campione: +10.4 pb/giorno (t +0.50, 97 giorni) | fuori campione: +4.7 pb/giorno (t +0.58, 156 giorni)
+  lunedi'                  in campione: -1.8 pb/giorno (t -0.17, 513 giorni) | fuori campione: +5.3 pb/giorno (t +1.02, 795 giorni)
+  gennaio                  in campione: -1.6 pb/giorno (t -0.09, 204 giorni) | fuori campione: +1.3 pb/giorno (t +0.19, 343 giorni)
+  fuori campione: giorni TOM 19% delle sedute, 28% del rendimento (in log)
+
+=== IWM (2000-05-26 - 2026-11-19) ===
+  TOM (ultimo + primi 3)   in campione: +2.9 pb/giorno (t +0.35, 462 giorni) | fuori campione: -1.8 pb/giorno (t -0.32, 811 giorni)
+  prima del festivo        in campione: +2.6 pb/giorno (t +0.16, 87 giorni) | fuori campione: +13.4 pb/giorno (t +1.55, 156 giorni)
+  lunedi'                  in campione: -9.7 pb/giorno (t -1.07, 455 giorni) | fuori campione: +1.9 pb/giorno (t +0.33, 795 giorni)
+  gennaio                  in campione: -4.5 pb/giorno (t -0.37, 184 giorni) | fuori campione: -0.8 pb/giorno (t -0.11, 343 giorni)
+  fuori campione: giorni TOM 19% delle sedute, 12% del rendimento (in log)
+
+=== DIA (1998-01-20 - 2026-11-19) ===
+  TOM (ultimo + primi 3)   in campione: +4.1 pb/giorno (t +0.69, 575 giorni) | fuori campione: +1.5 pb/giorno (t +0.38, 811 giorni)
+  prima del festivo        in campione: +9.7 pb/giorno (t +0.92, 107 giorni) | fuori campione: +1.9 pb/giorno (t +0.31, 156 giorni)
+  lunedi'                  in campione: +4.2 pb/giorno (t +0.62, 567 giorni) | fuori campione: +0.4 pb/giorno (t +0.10, 795 giorni)
+  gennaio                  in campione: -10.0 pb/giorno (t -1.19, 231 giorni) | fuori campione: -1.4 pb/giorno (t -0.29, 343 giorni)
+  fuori campione: giorni TOM 19% delle sedute, 24% del rendimento (in log)
+
+=== EFA (2001-08-17 - 2026-11-19) ===
+  TOM (ultimo + primi 3)   in campione: +10.7 pb/giorno (t +1.30, 403 giorni) | fuori campione: +0.1 pb/giorno (t +0.03, 811 giorni)
+  prima del festivo        in campione: +21.0 pb/giorno (t +1.88, 77 giorni) | fuori campione: +7.1 pb/giorno (t +0.99, 156 giorni)
+  lunedi'                  in campione: -7.5 pb/giorno (t -0.75, 398 giorni) | fuori campione: -5.8 pb/giorno (t -1.25, 795 giorni)
+  gennaio                  in campione: -20.5 pb/giorno (t -1.72, 163 giorni) | fuori campione: +3.4 pb/giorno (t +0.62, 343 giorni)
+  fuori campione: giorni TOM 19% delle sedute, 20% del rendimento (in log)
+
+=== EEM (2003-04-11 - 2026-11-19) ===
+  TOM (ultimo + primi 3)   in campione: +15.9 pb/giorno (t +1.16, 323 giorni) | fuori campione: +11.6 pb/giorno (t +2.20, 811 giorni)   -> CONFERMATO
+  prima del festivo        in campione: +56.8 pb/giorno (t +2.71, 61 giorni) | fuori campione: +12.6 pb/giorno (t +1.48, 156 giorni)
+  lunedi'                  in campione: -3.3 pb/giorno (t -0.21, 319 giorni) | fuori campione: -6.3 pb/giorno (t -1.12, 795 giorni)
+  gennaio                  in campione: -11.3 pb/giorno (t -0.56, 121 giorni) | fuori campione: +3.9 pb/giorno (t +0.55, 343 giorni)
+  fuori campione: giorni TOM 19% delle sedute, 135% del rendimento (in log)
+
+SINTESI (confermato = segno del libro in entrambi i periodi e t >= 2 fuori campione):
+  tom: confermato su 1 strumenti su 7: ['EEM']
+  pre: confermato su 0 strumenti su 7: []
+  lun: confermato su 0 strumenti su 7: []
+  gen: confermato su 0 strumenti su 7: []
+
+ESITO: nessun effetto di calendario regge fuori campione (2010-oggi) sugli indici USA; TOM confermato solo su EEM
+(1 su 7: con 28 prove e' quanto ci si aspetta dal caso). Come dice il libro, le anomalie si sono attenuate dopo
+essere state scoperte. Nessuna modifica al sito.
