@@ -71,6 +71,7 @@ fuori campione, con le regole decise prima di guardare i risultati.
   USO contro petrolio spot -10,5 punti l'anno nel 2010-2017 (contango), -0,2 nel 2018-oggi; CPER contro future
   continuo -1,2 punti l'anno dal 2011. Il terminale lo dice gia' nella nota degli strumenti.
 - Gia' provati prima: carry delle valute (parita' dei tassi, tolto), vendita di opzioni (studio_opzioni.py) e premio
-  del VIX (studio_vix.py). Il segnale "carry" delle materie prime (backwardation) richiede la curva dei future, che
-  non abbiamo: non provato.
+  del VIX (studio_vix.py). Il segnale "carry" delle materie prime (backwardation) e' stato provato misurando il rinnovo
+  realizzato (ETF sui future contro prezzo senza rinnovo, studio_carry_materie.py): aiuta il drawdown soprattutto
+  perche' tiene fuori piu' spesso; sul petrolio dei portafogli rende meno. Portafogli invariati.
 - Saltato: valutazione di forward, swap e opzioni (binomiale, parita' put-call): teoria dei prezzi senza uso nel terminale.

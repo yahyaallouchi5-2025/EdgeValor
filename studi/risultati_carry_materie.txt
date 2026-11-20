@@ -1,0 +1,28 @@
+STUDIO CARRY DELLE MATERIE PRIME (studi/studio_carry_materie.py, libro CFA Vol. 7) - 21/11/2026
+Petrolio WTI  dal 2007-04: carry medio -10.0% l'anno, in backwardation il 38% dei mesi, oggi +25.2%
+Gas naturale  dal 2008-04: carry medio -30.2% l'anno, in backwardation il 10% dei mesi, oggi -2.6%
+Rame          dal 2012-11: carry medio -2.6% l'anno, in backwardation il 6% dei mesi, oggi -6.8%
+Mais          dal 2011-06: carry medio -4.7% l'anno, in backwardation il 29% dei mesi, oggi -10.0%
+Grano         dal 2012-09: carry medio -11.9% l'anno, in backwardation il 9% dei mesi, oggi -11.3%
+Soia          dal 2012-09: carry medio -0.2% l'anno, in backwardation il 41% dei mesi, oggi -2.1%
+
+A) solo trend  contro  B) trend + carry > 0   (materie a pesi uguali, mese dopo, costi inclusi)
+  sviluppo fino al 2017  A -4.51% annuo, drawdown -34.1% | B -1.27% annuo, drawdown -9.1% | coppie +3.07% annuo, p 0.24 (79 mesi)
+  verifica 2018-oggi     A +3.05% annuo, drawdown -23.0% | B +3.63% annuo, drawdown -10.0% | coppie +0.07% annuo, p 0.98 (106 mesi)
+
+C) materie con carry sopra la mediana (pesi uguali) contro tutte (pesi uguali), mese dopo
+  sviluppo fino al 2017  media -0.00% al mese (-0.0% annuo), t -0.01, p 0.991, meglio 30 peggio 34 (64 mesi)
+  verifica 2018-oggi     media +0.04% al mese (+0.5% annuo), t +0.10, p 0.917, meglio 60 peggio 46 (106 mesi)
+
+PER MATERIA (A solo trend / B trend + carry; rendimento annuo / drawdown; sviluppo | verifica 2018-oggi):
+  Petrolio WTI  A +0,7%/-58% B -0,8%/-29% | A +9,3%/-39% B +6,1%/-35%
+  Gas naturale  A -5,2%/-51% B -1,2%/-21% | A -12,8%/-81% B -2,0%/-34%
+  Rame          A -0,4%/-31% B -0,9%/-6%  | A +1,8%/-28% B +3,3%/0% (B quasi sempre in liquidita': backwardation nel 6% dei mesi)
+  Mais          A -4,8%/-42% B -1,2%/-10% | A +5,7%/-23% B +5,8%/-17%
+  Grano         A -10,9%/-46% B +0,3%/0%  | A +1,1%/-31% B +2,9%/-24%
+  Soia          A -8,8%/-39% B -4,9%/-24% | A +3,9%/-24% B +2,1%/-12%
+
+ESITO: B passa la regola sull'insieme (verifica: rendimento +3,05 -> +3,63%, drawdown -23 -> -10%, coppie p 0,98),
+ma gran parte del drawdown in meno viene dallo stare fuori piu' spesso. Sulle due materie dei portafogli: petrolio
+rende MENO con B in verifica (9,3 -> 6,1%), rame quasi sempre fuori. C (incrociato) nullo.
+DECISIONE PROPOSTA: portafogli invariati; carry utile come DATO DESCRITTIVO (backwardation / contango) nelle schede.
