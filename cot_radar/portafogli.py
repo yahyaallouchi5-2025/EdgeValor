@@ -666,7 +666,8 @@ def simula_prudente(g, pianificati, dal_i, al_i=None, sostituisci=None, fx=None,
                 scambi.append((g.date[i], sum(abs(nuo.get(k, 0) - vec.get(k, 0)) for k in set(nuo) | set(vec)) if quote else None,
                                # v8.30 ORDINI al broker: strumenti con un cambio di peso di almeno 0,5 punti (con la
                                # commissione fissa conta il numero di ordini, non solo il capitale scambiato)
-                               sum(1 for k in set(nuo) | set(vec) if abs(nuo.get(k, 0) - vec.get(k, 0)) >= ORDINE_MIN)))
+                               # la LIQUIDITA' resta sul conto del broker (nessun ETF da comprare): non e' un ordine
+                               sum(1 for k in set(nuo) | set(vec) if k != "CASH" and abs(nuo.get(k, 0) - vec.get(k, 0)) >= ORDINE_MIN)))
             valore, quote = _ribilancia(valore, quote, pianificati[i])
         curva.append((g.date[i], valore))
     return curva
