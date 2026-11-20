@@ -56,6 +56,7 @@ DEBITO_BREVE = ["LongTermDebtCurrent", "DebtCurrent"]
 CASSA = ["CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
          "CashAndDueFromBanks"]
 PN = ["StockholdersEquity", "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"]
+ATTIVO = ["Assets"]             # v8.43 totale attivo: serve alla scomposizione del ROE (libro CFA Vol. 4, DuPont)
 EPS = ["EarningsPerShareDiluted", "EarningsPerShareBasicAndDiluted", "EarningsPerShareBasic"]
 URL_DEPOSITI = "https://data.sec.gov/submissions/CIK{cik:010d}.json"
 # v7.51 COPERTURA DEL DIVIDENDO (idea da "Get Rich with Dividends", Lichtenfeld): dividendi pagati confrontati con
@@ -128,6 +129,7 @@ def estrai(fatti, settore=None):
     dt, dl, db = _annuali(fatti, DEBITO_TOT, False), _annuali(fatti, DEBITO_LUNGO, False), _annuali(fatti, DEBITO_BREVE, False)
     cs, pn = _annuali(fatti, CASSA, False), _annuali(fatti, PN, False)
     fco, cpx = _annuali(fatti, FCO), _annuali(fatti, CAPEX)        # v8.04 flusso di cassa libero (stato del titolo)
+    att = _annuali(fatti, ATTIVO, False)                           # v8.43 attivo totale (scomposizione del ROE)
     fini = sorted(set(ric) & set(ut))[-ANNI:]
     anni = []
     for f in fini:
@@ -137,7 +139,8 @@ def estrai(fatti, settore=None):
         cassa = cs.get(f)
         anni.append({"a": int(f[:4]), "fine": f, "ricavi": ric[f], "utile": ut[f], "debito": deb, "cassa": cassa,
                      "pn": pn.get(f), "dn": (deb or 0) - (cassa or 0) if deb is not None or cassa is not None else None,
-                     "fcf": fco[f] - abs(cpx.get(f) or 0) if fco.get(f) is not None else None})
+                     "fcf": fco[f] - abs(cpx.get(f) or 0) if fco.get(f) is not None else None,
+                     "attivo": att.get(f)})
     if len(anni) < 2:
         return None
     perdite = sum(1 for x in anni if x["utile"] < 0)

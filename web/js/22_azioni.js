@@ -555,7 +555,7 @@ try{(function(){const el=$("azioni");if(!el)return;
      <div><span>${u.dn!=null&&u.dn<0?"Liquidit&agrave; netta":"Debito netto"}</span><b>${u.dn==null?"n/d":dollari(Math.abs(u.dn))}</b><em>${u.dn!=null&&u.utile>0&&u.dn>0?fx(u.dn/u.utile,1)+" anni di utile":""}</em></div></div>
     <div class="bbox"><svg viewBox="0 0 ${W} ${H}" class="bsvg" preserveAspectRatio="none" role="img" aria-label="Ricavi e utile per anno"><line x1="0" x2="${W}" y1="${Y0}" y2="${Y0}" class="pm0"/>${barre}
      ${A.map((y,i)=>`<rect x="${(i*bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H}" class="bzona" data-i="${i}"/>`).join("")}</svg><div class="btip" hidden></div></div>
-    <div class="pmasse bleg"><span><i class="bric"></i>ricavi</span><span><i class="butu"></i>utile</span><span><i class="bper"></i>perdita</span></div>${trimestrali(b)}`;
+    <div class="pmasse bleg"><span><i class="bric"></i>ricavi</span><span><i class="butu"></i>utile</span><span><i class="bper"></i>perdita</span></div>${dupont(A,t)}${trimestrali(b)}`;
    /* v6.52: tocco (telefono) o passaggio del mouse su un anno = fumetto con ricavi, utile e margine di quell'anno */
    const bb=box.querySelector(".bbox"),tip=bb.querySelector(".btip");
    const mostra=e=>{const z=e.target.closest(".bzona");if(!z)return;const y=A[+z.dataset.i];
@@ -565,6 +565,21 @@ try{(function(){const el=$("azioni");if(!el)return;
     tip.style.left=Math.max(0,Math.min(r.width-w,zr.left-r.left+zr.width/2-w/2))+"px";};
    bb.addEventListener("pointerover",mostra);bb.addEventListener("click",mostra);
    bb.addEventListener("pointerleave",e=>{if(e.pointerType=="mouse"){tip.hidden=true;bb.querySelectorAll(".bzona").forEach(q=>q.classList.remove("on"));}});});}
+
+ // --- v8.43 DA DOVE VIENE IL ROE (scomposizione DuPont, libro CFA Vol. 4 cap. 11). Solo lettura, nessun giudizio.
+ //     ROE = margine (utile/ricavi) x rotazione dell'attivo (ricavi/attivo) x leva (attivo/patrimonio netto).
+ //     Anteprima: per ora la vede solo l'admin (classe eb-admin, 36_account.js). Esclusi banche e immobiliari.
+ function dupont(A,t){if(!admin()||t.s=="fin"||t.s=="imm")return "";
+  const ok=y=>y&&y.attivo>0&&y.pn>0&&y.ricavi>0&&y.utile!=null;const u=A[A.length-1];if(!ok(u))return "";
+  const p=A.slice(0,-1).reverse().find(ok);                       // anno prima utile per il confronto
+  const m=y=>y.utile/y.ricavi*100,r=y=>y.ricavi/y.attivo,l=y=>y.attivo/y.pn,roe=y=>y.utile/y.pn*100;
+  const pz=(nome,val,sotto,prima)=>`<div><span>${nome}</span><b>${val}</b>${prima||""}<small>${sotto}</small></div>`;
+  return `<div class="bdup"><h5>Da dove viene il ROE <span class="small">${u.a}</span>
+   <details class="info"><summary title="Come si legge" aria-label="Informazioni">i</summary><div>Il <b>ROE</b> (utile diviso patrimonio netto) si scompone in tre parti che moltiplicate lo ricostruiscono: <b>margine</b> (quanto resta di ogni 100 dollari di vendite), <b>rotazione dell'attivo</b> (quanti dollari di vendite per ogni dollaro investito nell'azienda) e <b>leva</b> (quanto dell'attivo &egrave; finanziato con i debiti invece che con il capitale dei soci: 1 = nessun debito). Un ROE alto che viene dalla leva &egrave; pi&ugrave; fragile di uno che viene da margine e rotazione. Confronto con ${p?p.a:"l'anno prima"}. Bilanci 10-K, valori di fine anno. Solo lettura: non entra in nessun punteggio (scomposizione DuPont, libro CFA &laquo;Financial Statement Analysis&raquo;).</div></details></h5>
+   <div class="bdupr"><div class="bdroe"><span>ROE</span><b class="${roe(u)>=0?"up":"down"}">${fx(roe(u),1)}%</b>${p?`<em class="${roe(u)>=roe(p)?"up":"down"}">${roe(u)>=roe(p)?"&#9650;":"&#9660;"} da ${fx(roe(p),1)}%</em>`:""}</div><i>=</i>
+    ${pz("Margine",fx(m(u),1)+"%","utile su ricavi",p?`<em class="${m(u)>=m(p)?"up":"down"}">${m(u)>=m(p)?"&#9650;":"&#9660;"} da ${fx(m(p),1)}%</em>`:"")}<i>&times;</i>
+    ${pz("Rotazione",fx(r(u),2),"ricavi su attivo",p?`<em class="${r(u)>=r(p)?"up":"down"}">${r(u)>=r(p)?"&#9650;":"&#9660;"} da ${fx(r(p),2)}</em>`:"")}<i>&times;</i>
+    ${pz("Leva",fx(l(u),2),"attivo su patrimonio",p?`<em class="mute">${l(u)>=l(p)?"&#9650;":"&#9660;"} da ${fx(l(p),2)}</em>`:"")}</div></div>`;}
 
  // --- RISULTATI TRIMESTRALI (v6.54, cot_radar/fondamentali.py): ultimi 4 trimestri dai 10-Q/10-K della SEC con la
  //     variazione sullo stesso trimestre dell'anno prima, data degli ultimi conti e stima dei prossimi (dagli 8-K).
