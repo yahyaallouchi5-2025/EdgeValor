@@ -12,6 +12,14 @@
   {d:"2026-11-17",t:"Nuova scheda Bitcoin",x:"Bussola macro (Premium) e termometro del sentiment: cosa muove Bitcoin, con grafici.",s:"btc",h:"mercati"},
   {d:"2026-11-17",t:"Assistenza",x:"Abbonamento, segnalazioni e call live con il team, con il numero della richiesta.",s:""},
 ];
+ // v8.40 CAMBI DI STATO DEI MERCATI nelle novita' (idea di Ya, 20/11/2026): solo cambi CONFERMATI (vedi modalita.py),
+ //   per 30 giorni dalla conferma. "Mostrami" apre la Dashboard, il dettaglio USA e illumina la modalita' di mercato.
+ try{const m=D.economie&&D.economie.modalita,NM={PESSIMISMO:"Pessimismo",NORMALE:"Normale",ECCESSO:"Eccesso"};
+  if(m&&m.conf&&m.prima&&(Date.now()-new Date(m.conf+"T12:00:00"))/864e5<=30)
+   NOVITA.push({d:m.conf,t:`Modalità di mercato: ${NM[m.prima]} → ${NM[m.modo]}`,
+    x:`Confermata dopo ${m.n||7} giorni di borsa di fila (dal ${m.da.slice(8,10)}/${m.da.slice(5,7)}). Solo contesto, non un segnale.`,
+    s:"sig",q:".mm-fasi",lab:"Modalità di mercato",apri:'#quadro .qe-card[data-id="usa"]:not(.on)',cambio:1});
+  NOVITA.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:(b.cambio||0)-(a.cambio||0));}catch(e){}   // a parita' di data prima i mercati
  window.EB_NOVITA=NOVITA;                 // v8.06: la usa anche la chat delle novita' (39b_novita_chat.js)
  const btn=document.getElementById("novapri");if(!btn)return;
  const punto=btn.querySelector(".novpunto"),pf=document.getElementById("pfapri");

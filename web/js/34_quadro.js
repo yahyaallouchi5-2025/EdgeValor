@@ -89,16 +89,22 @@ try{(function(){
  const MMF=["S&amp;P 500 sotto la media a 200 giorni","S&amp;P 500 sopra la media, nei livelli abituali","S&amp;P 500 molto sopra la media, oltre i livelli abituali"];
  function modalitaHTML(){const m=E.modalita;if(!m||!m.modo)return "";
   const k=MM.indexOf(m.modo),s=m.storico;
+  // v8.40 cambio CONFERMATO di recente: etichetta "Nuovo" (14 giorni) con lo stato di prima; stato del giorno non
+  // ancora confermato: una riga discreta sotto (la modalita' cambia solo dopo m.n giorni di borsa di fila)
+  const gg=d=>d.slice(8,10)+"/"+d.slice(5,7),fresco=m.conf&&(Date.now()-new Date(m.conf+"T12:00:00"))/864e5<=14;
+  const nuovo=fresco&&m.prima?`<span class="stnuovo" title="Prima: ${MMN[MM.indexOf(m.prima)]}"><i></i>Nuovo dal ${gg(m.da)}</span>`:"";
+  const attesa=m.attesa?`<p class="stattesa">Oggi ${MMN[MM.indexOf(m.attesa.modo)].toLowerCase()} da ${m.attesa.giorni} ${m.attesa.giorni==1?"giorno":"giorni"} di borsa: la modalit&agrave; cambia dopo ${m.n||7} di fila.</p>`:"";
   const tabM=s?`<table class="qe-tab"><tr><th>Modalit&agrave;</th><th class="num">3 mesi</th><th class="num">Positivi</th><th class="num">Drawdown</th><th class="num">Casi</th></tr>${MM.filter(x=>s[x]).map((x,i)=>`<tr><td>${MMN[MM.indexOf(x)]}</td><td class="num ${s[x][0]>=0?"up":"down"}">${pc(s[x][0])}</td><td class="num">${s[x][1]}%</td><td class="num down">${pc(s[x][2])}</td><td class="num">${s[x][3]}</td></tr>`).join("")}</table>`:"";
   return `<div class="qe-sez"><div class="qe-st"><h4>Modalit&agrave; di mercato</h4>${info(`Lo stato d'animo del mercato USA, dal prezzo dell'S&amp;P 500. Regole fisse:<br>
     <b>Pessimismo</b>: prezzo sotto la media dei 200 giorni.<br>
     <b>Eccesso</b>: prezzo sopra la media pi&ugrave; dell'80% delle volte negli ultimi 5 anni (oggi la soglia &egrave; ${pc(m.soglia)}).<br>
-    <b>Normale</b>: tutti gli altri casi.<br><br>
+    <b>Normale</b>: tutti gli altri casi.<br>
+    Un cambio vale solo dopo ${m.n||7} giorni di borsa di fila nello stesso stato: cos&igrave; la modalit&agrave; non va avanti e indietro quando il prezzo &egrave; vicino alla soglia.${m.prima&&m.da?` Prima di ${MMN[k].toLowerCase()} (dal ${gg(m.da)}): ${MMN[MM.indexOf(m.prima)].toLowerCase()}.`:""}<br><br>
     ${tabM?`<b>Com'&egrave; andata dal ${(m.dal||"").slice(0,4)}</b>: a ogni fine mese, S&amp;P 500 con dividendi nei 3 mesi dopo${m.liquidita?" oltre la liquidit&agrave;":""}, quota di casi positivi e drawdown medio nei 3 mesi.${tabM}`:""}
     <b>Solo contesto, non un segnale</b>: nelle nostre prove ridurre in eccesso non ha aiutato e il pessimismo si &egrave; capovolto (fino al 2010 conveniva stare fuori, dal 2011 sono stati i mesi migliori, con drawdown pi&ugrave; ampi).`)}
-    <span class="cd-da">S&amp;P 500 ${pc(m.dist)} dalla media</span></div>
+    ${nuovo}<span class="cd-da">S&amp;P 500 ${pc(m.dist)} dalla media</span></div>
    <div class="cd-fasi mm-fasi" role="img" aria-label="Modalit&agrave; di mercato: ${MMN[k]}">${MM.map((x,i)=>`<div class="cd-f ${MMC[i]}${i==k?" on":""}"><b>${MMN[i]}</b>${i==k?'<i class="cd-fr" aria-hidden="true">&#9660;</i>':""}</div>`).join("")}</div>
-   <p class="cd-frase"><b class="${MMC[k]}">${MMN[k]}</b>: ${MMF[k]}.</p></div>`;}
+   <p class="cd-frase"><b class="${MMC[k]}">${MMN[k]}</b>: ${MMF[k]}.</p>${attesa}</div>`;}
  // v7.22d: il dettaglio (mappa, indicatori, ciambelle) si apre SOLO al click su una card; un secondo click lo chiude
  let sel=null;
  let borsa=null;                                           // top.json "economie": arriva dopo, se c'e'

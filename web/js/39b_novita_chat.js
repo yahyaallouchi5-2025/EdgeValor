@@ -32,7 +32,7 @@
   chat.innerHTML=`<div class="nvtesta"><span class="nvav">${STELLA}</span><div><b>Novità</b><small>Aggiornamenti di EdgeValor</small></div>
    <button type="button" class="nvx" aria-label="Chiudi">&#x2715;</button></div>
    <div class="nvcorpo">${N.slice(0,6).map((n,i)=>`<div class="nvmsg${n.d>vista?" nvnew":""}" style="--i:${i}">
-    <div class="nvmeta"><time>${gg(n.d)}</time>${n.d>vista?'<em>Nuovo</em>':""}${n.p?'<em class="p">Premium</em>':""}</div>
+    <div class="nvmeta"><time>${gg(n.d)}</time>${n.d>vista?'<em>Nuovo</em>':""}${n.p?'<em class="p">Premium</em>':""}${n.cambio?'<em class="c">Mercati</em>':""}</div>
     <b>${esc(n.t)}</b><p>${esc(n.x)}</p>${n.s?`<button type="button" class="nvvai" data-i="${i}">Mostrami <span aria-hidden="true">→</span></button>`:""}</div>`).join("")}</div>`;
   document.body.appendChild(chat);requestAnimationFrame(()=>chat.classList.add("on"));fab.classList.add("aperto");
   chat.querySelector(".nvx").onclick=chiudi;
@@ -46,12 +46,13 @@
  fab.onclick=apri;
  // --- faro sull'elemento nuovo ---
  function mostra(n){if(typeof go=="function"&&n.s)go(n.s);
-  setTimeout(()=>{const el=n.q&&document.querySelector(n.q)||document.getElementById(n.s);if(!el)return;
+  setTimeout(()=>{if(n.apri){const a=document.querySelector(n.apri);if(a)a.click();}   // v8.40 apre prima il dettaglio che contiene l'elemento
+   const el=n.q&&document.querySelector(n.q)||document.getElementById(n.s);if(!el)return;
    const y=el.getBoundingClientRect().top+scrollY-Math.max(120,innerHeight*.3);scrollTo({top:y,behavior:"smooth"});
    setTimeout(()=>{const r=el.getBoundingClientRect(),p=8;
     const f=document.createElement("div");f.className="nvfaro";
     f.style.cssText=`left:${r.left-p}px;top:${r.top-p}px;width:${r.width+2*p}px;height:${Math.min(r.height+2*p,innerHeight*.45)}px`;if(r.top<90)f.classList.add("giu");
-    f.innerHTML=`<span class="nvlab">${STELLA}Novità · ${esc(n.t)}</span>`;document.body.appendChild(f);
+    f.innerHTML=`<span class="nvlab">${STELLA}Novità · ${esc(n.lab||n.t)}</span>`;document.body.appendChild(f);
     requestAnimationFrame(()=>f.classList.add("on"));
     const via=()=>{f.classList.remove("on");setTimeout(()=>f.remove(),300);removeEventListener("scroll",via,true);document.removeEventListener("mousedown",via);};
     setTimeout(()=>{addEventListener("scroll",via,true);document.addEventListener("mousedown",via);},400);setTimeout(via,6000);},650);},250);}
