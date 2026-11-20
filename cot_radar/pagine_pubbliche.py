@@ -67,7 +67,7 @@ CSS = """
 
 
 def testata(qui):
-    v = [("/#pilastri", "Il terminale", ""), ("/metodo/", "Il metodo", "metodo"), ("/prezzi/", "Prezzi", "prezzi"), ("/faq/", "Domande", "faq")]
+    v = [("/#pilastri", "Il terminale", ""), ("/metodo/", "Il metodo", "metodo"), ("/cot/", "Report COT", "cot"), ("/prezzi/", "Prezzi", "prezzi"), ("/faq/", "Domande", "faq")]
     return ('<header id="testata" class="su"><div class="box"><a class="blogo" href="/" aria-label="EdgeValor"><i></i><b>EDGE<br><span class="g">VALOR</span></b></a>'
             '<nav class="voci">' + "".join(f'<a href="{u}"{" class=qui" if k == qui else ""}>{t}</a>' for u, t, k in v) +
             f'<a href="{TG}" target="_blank" rel="noopener">Telegram</a></nav><a class="btn pri pic" href="/accedi/">Accedi</a></div></header>')
@@ -153,33 +153,51 @@ JS_ACCEDI = """<script>(function(){var f=document.getElementById("facc");if(!f)r
   .catch(function(s){b.disabled=false;b.innerHTML=t;es.textContent=s==429?"Troppe richieste: riprova tra qualche minuto.":"Invio non riuscito. Riprova tra poco.";});});});})();</script>"""
 
 
-def crea(cartella, home):
-    """Scrive le 4 pagine in cartella/<nome>/index.html partendo dall'HTML della home. -> elenco degli indirizzi (sitemap)."""
+def cornice(home):
+    """(testa, piede) della home gia' costruita: le pagine pubbliche riusano stile, sfondo e pie' di pagina.
+    None se la home non ha la forma attesa."""
     try:
         testa = home[:home.index("</head>")]
         piede = home[home.index("<footer>"):home.index("</footer>") + 9]
     except ValueError:
+        return None
+    piede = piede.replace('href="#', 'href="/#')
+    # v8.39 tutti i collegamenti relativi della home (faq/, prezzi/, cot/...) diventano assoluti: nelle pagine interne
+    # "faq/" portava a /prezzi/faq/ (pagina inesistente)
+    piede = re.sub(r'href="(?![a-z]+:|/|\{)', 'href="/', piede)
+    piede = piede.replace('href="/#faq"', 'href="/faq/"').replace('href="/#metodo"', 'href="/metodo/"').replace('href="/#accesso"', 'href="/prezzi/"')
+    return testa, piede
+
+
+def scrivi(cartella, percorso, titolo, desc, corpo, testa, piede, qui="", extra="", css="", head=""):
+    """Scrive cartella/<percorso>/index.html con la cornice della home. percorso senza slash ("cot/2026-11-10").
+    css = regole in piu' per questa pagina, head = blocchi in piu' nella <head> (es. dati strutturati)."""
+    t = re.sub(r"<title>.*?</title>", lambda m: f"<title>{titolo}</title>", testa, count=1, flags=re.S)
+    t = re.sub(r'<meta name="description" content="[^"]*">', lambda m: f'<meta name="description" content="{desc}">', t, count=1)
+    t = re.sub(r'<link rel="canonical" href="[^"]*">', lambda m: f'<link rel="canonical" href="{SITO_PUBBLICO}{percorso}/">', t, count=1)
+    t = re.sub(r'<script type="application/ld\+json">.*?</script>', "", t, flags=re.S)       # i dati strutturati sono della home
+    t = re.sub(r'<meta property="og:(title|description|url)" content="[^"]*">', "", t)
+    t = t.replace("</style>", CSS + css + "</style>", 1) + head
+    html = (t + '</head>\n<body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>\n' + testata(qui) +
+            f'\n<main><div class="box pag">{corpo}</div></main>\n' + piede + "\n" + extra + "</body></html>")
+    os.makedirs(os.path.join(cartella, percorso), exist_ok=True)
+    with open(os.path.join(cartella, percorso, "index.html"), "w", encoding="utf-8") as fh:
+        fh.write(html)
+    return SITO_PUBBLICO + percorso + "/"
+
+
+def crea(cartella, home):
+    """Scrive le 4 pagine in cartella/<nome>/index.html partendo dall'HTML della home. -> elenco degli indirizzi (sitemap)."""
+    c = cornice(home)
+    if not c:
         log.warning("pagine pubbliche non create: la home non ha la forma attesa")
         return []
-    piede = piede.replace('href="#', 'href="/#').replace('href="legale/', 'href="/legale/').replace('href="terminale/', 'href="/terminale/')
-    piede = piede.replace('href="/#faq"', 'href="/faq/"').replace('href="/#metodo"', 'href="/metodo/"').replace('href="/#accesso"', 'href="/prezzi/"')
+    testa, piede = c
     extra = {"accedi": JS_ACCEDI.replace("__API__", SUPABASE_URL).replace("__PUB__", SUPABASE_PUBBLICA).replace("__TERM__", SITO_PUBBLICO + "terminale/")}
     from . import domande                                    # v8.30 domande frequenti (fonte unica)
     fatte = []
     for nome, (titolo, desc, corpo) in PAGINE.items():
         corpo = corpo.replace("__FAQ__", domande.html(aperta=True))
-        t = re.sub(r"<title>.*?</title>", lambda m: f"<title>{titolo}</title>", testa, count=1, flags=re.S)
-        t = re.sub(r'<meta name="description" content="[^"]*">', lambda m: f'<meta name="description" content="{desc}">', t, count=1)
-        t = re.sub(r'<link rel="canonical" href="[^"]*">', lambda m: f'<link rel="canonical" href="{SITO_PUBBLICO}{nome}/">', t, count=1)
-        t = re.sub(r'<script type="application/ld\+json">.*?</script>', "", t, flags=re.S)       # i dati strutturati sono della home
-        t = re.sub(r'<meta property="og:(title|description|url)" content="[^"]*">', "", t)
-        t = t.replace("</style>", CSS + "</style>", 1)
-        if nome == "faq":
-            t += domande.dati_strutturati()                  # v8.30 FAQPage anche sulla pagina /faq/
-        html = (t + '</head>\n<body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>\n' + testata(nome) +
-                f'\n<main><div class="box pag">{corpo}</div></main>\n' + piede + "\n" + extra.get(nome, "") + "</body></html>")
-        os.makedirs(os.path.join(cartella, nome), exist_ok=True)
-        with open(os.path.join(cartella, nome, "index.html"), "w", encoding="utf-8") as fh:
-            fh.write(html)
-        fatte.append(SITO_PUBBLICO + nome + "/")
+        fatte.append(scrivi(cartella, nome, titolo, desc, corpo, testa, piede, qui=nome, extra=extra.get(nome, ""),
+                            head=domande.dati_strutturati() if nome == "faq" else ""))   # v8.30 FAQPage anche su /faq/
     return fatte
