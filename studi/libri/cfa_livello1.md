@@ -33,3 +33,14 @@ fuori campione, con le regole decise prima di guardare i risultati.
 - Provato (studi/studio_roic.py, risultati_roic.txt): ROIC >= 10% per 2 anni e copertura interessi < 3 NON anticipano
   rendimenti migliori (crea valore meno tutti -0,3% sviluppo, -2,1% verifica) -> non entrano come segnale.
 - Saltato: forme societarie, stakeholder/ESG descrittivo, teoria di Modigliani-Miller (nessun dato operativo).
+
+## Vol. 4 — Financial Statement Analysis (letto il 20/11/2026)
+- Utile per la scheda Azionario (bilanci SEC gia' in cot_radar/fondamentali.py):
+  cap. 10 "segnali d'allarme" sulla qualita' dei conti: crediti che crescono piu' dei ricavi (giorni di incasso in
+  salita), magazzino che cresce piu' dei ricavi, flusso di cassa operativo sotto l'utile per piu' anni (accrual),
+  rotazione dell'attivo in calo; cap. 11 rapporti (liquidita', solvibilita', redditivita') e scomposizione DuPont
+  del ROE (margine x rotazione dell'attivo x leva).
+- Provato sui titoli di oggi (studi/studio_allarmi.py, risultati_allarmi.txt): i segnali NON anticipano rendimenti
+  peggiori (bias dei sopravvissuti). Da rifare sull'universo completo con le delistate prima di decidere.
+- Saltato: principi contabili IFRS/US GAAP (leasing, pensioni, imposte differite, metodi di magazzino), modelli di
+  previsione dei bilanci (servono stime a mano per azienda).

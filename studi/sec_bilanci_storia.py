@@ -41,6 +41,13 @@ VOCI = {
     "NetCashProvidedByUsedInOperatingActivities": "fco",
     "LongTermDebt": "debito", "LongTermDebtNoncurrent": "debito_lungo",
     "CashAndCashEquivalentsAtCarryingValue": "cassa", "StockholdersEquity": "pn",
+    # v8.42 voci in piu' per gli studi del libro CFA (Vol. 3 ROIC e copertura interessi, Vol. 4 segnali d'allarme):
+    # ricavi, utile operativo, interessi, imposte, utile ante imposte, crediti, magazzino, attivo totale
+    "RevenueFromContractWithCustomerExcludingAssessedTax": "ricavi", "Revenues": "ricavi2", "SalesRevenueNet": "ricavi3",
+    "OperatingIncomeLoss": "ebit", "InterestExpense": "interessi", "InterestExpenseNonoperating": "interessi2",
+    "IncomeTaxExpenseBenefit": "tasse",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest": "ante",
+    "AccountsReceivableNetCurrent": "crediti", "InventoryNet": "magazzino", "Assets": "attivo",
 }
 MODULI = ("10-K", "10-Q")
 

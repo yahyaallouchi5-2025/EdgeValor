@@ -1,0 +1,25 @@
+STUDIO SEGNALI D'ALLARME SUI CONTI (studi/studio_allarmi.py, libro CFA Vol. 4 cap. 10) - 20/11/2026
+Universo: 411 titoli USA presenti OGGI negli indici (sopravvissuti). Regole fissate prima: testa dello script.
+
+2010 {'allarme': 12, 'crediti': 47, 'magazzino': 19, 'cassa': 2, 'rotazione': 2, 'tutti': 130} {'allarme_meno_tutti': 2.5, 'crediti_meno_tutti': 3.0, 'magazzino_meno_tutti': -0.8}
+2011 {'allarme': 17, 'crediti': 29, 'magazzino': 32, 'cassa': 1, 'rotazione': 31, 'tutti': 217} {'allarme_meno_tutti': -4.3, 'crediti_meno_tutti': -2.6, 'magazzino_meno_tutti': 1.2, 'rotazione_meno_tutti': 0.8}
+2012 {'allarme': 24, 'crediti': 50, 'magazzino': 41, 'cassa': 6, 'rotazione': 24, 'tutti': 260} {'allarme_meno_tutti': 5.9, 'crediti_meno_tutti': 5.9, 'magazzino_meno_tutti': -5.5, 'cassa_meno_tutti': 2.1, 'rotazione_meno_tutti': 5.6}
+2013 {'allarme': 35, 'crediti': 52, 'magazzino': 42, 'cassa': 11, 'rotazione': 38, 'tutti': 265} {'allarme_meno_tutti': 6.4, 'crediti_meno_tutti': 9.8, 'magazzino_meno_tutti': 9.9, 'cassa_meno_tutti': -16.6, 'rotazione_meno_tutti': -4.6}
+2014 {'allarme': 28, 'crediti': 47, 'magazzino': 29, 'cassa': 7, 'rotazione': 63, 'tutti': 282} {'allarme_meno_tutti': -2.2, 'crediti_meno_tutti': 0.3, 'magazzino_meno_tutti': 2.6, 'cassa_meno_tutti': 10.4, 'rotazione_meno_tutti': -4.8}
+2015 {'allarme': 24, 'crediti': 38, 'magazzino': 35, 'cassa': 7, 'rotazione': 49, 'tutti': 290} {'allarme_meno_tutti': -6.3, 'crediti_meno_tutti': -8.6, 'magazzino_meno_tutti': -2.0, 'cassa_meno_tutti': 7.5, 'rotazione_meno_tutti': -1.2}
+2016 {'allarme': 36, 'crediti': 54, 'magazzino': 48, 'cassa': 7, 'rotazione': 48, 'tutti': 295} {'allarme_meno_tutti': -1.9, 'crediti_meno_tutti': -2.0, 'magazzino_meno_tutti': 11.1, 'cassa_meno_tutti': -8.8, 'rotazione_meno_tutti': -1.9}
+2017 {'allarme': 43, 'crediti': 69, 'magazzino': 40, 'cassa': 5, 'rotazione': 70, 'tutti': 298} {'allarme_meno_tutti': -1.2, 'crediti_meno_tutti': 0.4, 'magazzino_meno_tutti': -2.8, 'cassa_meno_tutti': 21.5, 'rotazione_meno_tutti': -2.4}
+2018 {'allarme': 15, 'crediti': 28, 'magazzino': 19, 'cassa': 2, 'rotazione': 31, 'tutti': 151} {'allarme_meno_tutti': -0.3, 'crediti_meno_tutti': 4.2, 'magazzino_meno_tutti': -1.8, 'rotazione_meno_tutti': -2.6}
+2019 {'allarme': 19, 'crediti': 46, 'magazzino': 34, 'cassa': 3, 'rotazione': 26, 'tutti': 281} {'allarme_meno_tutti': 13.4, 'crediti_meno_tutti': 8.8, 'magazzino_meno_tutti': 5.7, 'rotazione_meno_tutti': 9.8}
+2020 {'allarme': 34, 'crediti': 56, 'magazzino': 59, 'cassa': 8, 'rotazione': 49, 'tutti': 357} {'allarme_meno_tutti': 0.4, 'crediti_meno_tutti': 17.1, 'magazzino_meno_tutti': -0.6, 'cassa_meno_tutti': -3.6, 'rotazione_meno_tutti': -5.7}
+2021 {'allarme': 119, 'crediti': 108, 'magazzino': 114, 'cassa': 8, 'rotazione': 166, 'tutti': 365} {'allarme_meno_tutti': -0.0, 'crediti_meno_tutti': -1.2, 'magazzino_meno_tutti': 2.1, 'cassa_meno_tutti': -10.6, 'rotazione_meno_tutti': -0.7}
+2022 {'allarme': 59, 'crediti': 79, 'magazzino': 75, 'cassa': 11, 'rotazione': 67, 'tutti': 372} {'allarme_meno_tutti': 1.7, 'crediti_meno_tutti': -1.1, 'magazzino_meno_tutti': 1.6, 'cassa_meno_tutti': 20.6, 'rotazione_meno_tutti': -0.1}
+2023 {'allarme': 53, 'crediti': 81, 'magazzino': 127, 'cassa': 18, 'rotazione': 17, 'tutti': 371} {'allarme_meno_tutti': 5.0, 'crediti_meno_tutti': 17.0, 'magazzino_meno_tutti': -3.9, 'cassa_meno_tutti': 7.7, 'rotazione_meno_tutti': 27.0}
+2024 {'allarme': 35, 'crediti': 59, 'magazzino': 80, 'cassa': 14, 'rotazione': 30, 'tutti': 375} {'allarme_meno_tutti': -4.0, 'crediti_meno_tutti': 10.5, 'magazzino_meno_tutti': -7.6, 'cassa_meno_tutti': -7.8, 'rotazione_meno_tutti': -6.3}
+2025 {'allarme': 51, 'crediti': 63, 'magazzino': 54, 'cassa': 11, 'rotazione': 87, 'tutti': 392} {'allarme_meno_tutti': 27.5, 'crediti_meno_tutti': 4.3, 'magazzino_meno_tutti': 31.8, 'cassa_meno_tutti': -6.5, 'rotazione_meno_tutti': 18.6}
+
+allarme meno tutti: sviluppo -0,12%, verifica +5,47%, intero periodo IC95 [-3,1; +8,5]; 8 anni meglio, 8 peggio.
+crediti +0,8 / +7,5; magazzino +1,7 / +3,4; cassa +2,7 / 0,0; rotazione -1,2 / +5,0 (sviluppo / verifica).
+ESITO: AVVISO = NO. Sui sopravvissuti i titoli con i segnali NON fanno peggio (anzi meglio): chi e' finito male
+per i conti non e' nell'elenco di oggi. Prova onesta: stesso studio sull'universo completo con le delistate
+(rami studio-buffett + studio-delistate), dopo aver aggiunto le voci a sec_bilanci_storia.py (v8.42).
