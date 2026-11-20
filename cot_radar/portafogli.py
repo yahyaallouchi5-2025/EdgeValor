@@ -22,6 +22,7 @@ REGOLE, VERSIONE 3 (dal 28/10/2026; la base e' la versione 2, scelta guardando S
      storico 2006-2015 il filtro COT (da solo, come conferma o come veto) peggiorava il rendimento a parita'
      di rischio, mentre il filtro di trend dimezzava le cadute (vedi README, "Portafogli modello").
   4. Costi: 0,10% sul capitale che cambia a ogni ribilanciamento.
+  5. (v8.33) Ribilanciamento con soglia: si corregge solo uno strumento lontano di almeno 2 punti dal suo peso.
   VERSIONE 1 (ritirata): ingresso solo con COT da BUY + trend e pesi a volatilita' obiettivo. Fuori campione
   rendeva 1-2% l'anno contro l'8% del 60/40, quasi sempre in liquidita'. Le sue rotazioni restano in
   storico/portafogli/rotazioni.json; la versione 2 in rotazioni_v2.json; la versione 3 registra in rotazioni_v3.json.
@@ -197,6 +198,11 @@ INIZIO = "2006-01-01"          # primo ribilanciamento (prima i dati degli ETF s
 OOS_DAL = "2016-01-01"         # da qui in poi: fuori campione
 COSTO = 0.001                  # 0,10% del capitale scambiato
 ORDINE_MIN = 0.005             # v8.30 sotto 0,5 punti di peso il ribilanciamento non vale un ordine (si lascia com'e')
+# v8.33 RIBILANCIAMENTO CON SOGLIA (Ya, 20/11/2026; studio studi/studio_banda.py, risultati_banda.txt): a ogni
+# ribilanciamento uno strumento GIA' tenuto si corregge solo se e' lontano dal suo peso di almeno SOGLIA (2 punti);
+# un mercato che entra o esce si compra/vende sempre per intero. Fuori campione (2016-oggi) circa un terzo di ordini
+# in meno, rendimento netto uguale o migliore, drawdown quasi uguale, in tutti e tre i profili.
+SOGLIA = 0.02
 SMA = 200                      # media mobile del filtro di trend (giorni di borsa)
 VOL_GIORNI = 63                # finestra della volatilita' (circa 3 mesi)
 MIN_STORIA = 260               # giorni di prezzo minimi perche' un mercato sia ammesso
@@ -615,10 +621,31 @@ def _ticker(k):
     return TUTTI[k][1] if k in TUTTI else k
 
 
+def con_soglia(vecchi, obiettivo, soglia=SOGLIA):
+    """v8.33 Pesi DOPO il ribilanciamento con la soglia. vecchi = pesi attuali (somma 1), obiettivo = pesi del modello.
+    Gli strumenti gia' tenuti e lontani meno della soglia restano come sono; la differenza si distribuisce tra quelli
+    da correggere (in proporzione al loro obiettivo). Se esce un mercato e tutti gli altri sono vicini, si ribilancia
+    tutto (la vendita va comunque fatta). Primo acquisto (vecchi vuoto) = obiettivo."""
+    if not vecchi or soglia <= 0:
+        return dict(obiettivo)
+    fermi = {k: vecchi[k] for k in obiettivo if k in vecchi and abs(vecchi[k] - obiettivo[k]) < soglia}
+    muovi = {k: w for k, w in obiettivo.items() if k not in fermi}
+    if not muovi:
+        if set(vecchi) - set(obiettivo):
+            return dict(obiettivo)
+        return {k: vecchi[k] for k in obiettivo}
+    resto, tot = 1.0 - sum(fermi.values()), sum(muovi.values()) or 1.0
+    out = dict(fermi)
+    out.update({k: resto * w / tot for k, w in muovi.items()})
+    return out
+
+
 def _ribilancia(valore, quote, nuovi):
-    """Nuove quote dopo il ribilanciamento (costo sul capitale scambiato). -> (valore, quote)."""
+    """Nuove quote dopo il ribilanciamento (costo sul capitale scambiato). -> (valore, quote).
+    v8.33: nuovi = obiettivo del modello, corretto con la soglia (con_soglia)."""
     tot = sum(quote.values()) or 1.0
     vecchi = {k: v / tot for k, v in quote.items()}
+    nuovi = con_soglia(vecchi, nuovi)
     scambio = sum(abs(nuovi.get(k, 0) - vecchi.get(k, 0)) for k in set(nuovi) | set(vecchi))
     valore *= (1 - COSTO * scambio)
     return valore, {k: valore * w for k, w in nuovi.items()}
@@ -662,7 +689,8 @@ def simula_prudente(g, pianificati, dal_i, al_i=None, sostituisci=None, fx=None,
         if i in pianificati:                       # acquisto alla chiusura del giorno di rotazione
             if scambi is not None:                 # v7.51 capitale scambiato (quota del portafoglio, 1 = 100%)
                 tot = sum(quote.values()) or 1.0
-                vec, nuo = {k: v / tot for k, v in quote.items()}, pianificati[i]
+                vec = {k: v / tot for k, v in quote.items()}
+                nuo = con_soglia(vec, pianificati[i])     # v8.33 pesi veri dopo la soglia
                 scambi.append((g.date[i], sum(abs(nuo.get(k, 0) - vec.get(k, 0)) for k in set(nuo) | set(vec)) if quote else None,
                                # v8.30 ORDINI al broker: strumenti con un cambio di peso di almeno 0,5 punti (con la
                                # commissione fissa conta il numero di ordini, non solo il capitale scambiato)
@@ -864,6 +892,9 @@ def simula_tasse(g, pianificati, dal_i, sostituisci=None, fx=None, tassi=None):
                 pagate += b
         if i in pianificati:
             nuovi = pianificati[i]
+            if quote:                                          # v8.33 soglia di ribilanciamento
+                _t = sum(quote.values()) or 1.0
+                nuovi = con_soglia({k: v / _t for k, v in quote.items()}, nuovi)
             if not quote:                                      # primo acquisto
                 quote = {k: 100.0 * w for k, w in nuovi.items()}
                 costo = dict(quote)
@@ -1155,9 +1186,9 @@ def simula(g, pianificati, dal_i, al_i=None):
     valore, curva, quote = 100.0, [], {}
     for i in range(dal_i, al_i + 1):
         if i in pianificati:
-            nuovi = pianificati[i]
             tot = sum(quote.values()) or 1.0
             vecchi = {k: v / tot for k, v in quote.items()}
+            nuovi = con_soglia(vecchi, pianificati[i])          # v8.33 soglia di ribilanciamento
             scambio = sum(abs(nuovi.get(k, 0) - vecchi.get(k, 0)) for k in set(nuovi) | set(vecchi))
             valore *= (1 - COSTO * scambio)
             quote = {k: valore * w for k, w in nuovi.items()}
@@ -1275,9 +1306,9 @@ def simula_eur(g, piani, dal_i, fx, tassi):
         tasso.append(ult_t)
     for i in range(dal_i, len(g.date)):
         if i in piani:
-            nuovi = piani[i]
             tot = sum(quote.values()) or 1.0
             vecchi = {k: v / tot for k, v in quote.items()}
+            nuovi = con_soglia(vecchi, piani[i])                # v8.33 soglia di ribilanciamento
             scambio = sum(abs(nuovi.get(k, 0) - vecchi.get(k, 0)) for k in set(nuovi) | set(vecchi))
             valore *= (1 - COSTO * scambio)
             quote = {k: valore * w for k, w in nuovi.items()}
@@ -1539,8 +1570,9 @@ def dettaglio_mesi(g, piani, giorni, curva, sat=None, n=12):
     I pesi sono quelli REALI a inizio mese (le quote derivano tra un ribilanciamento e l'altro, come in simula)."""
     tutti_g, quote, pesi = set(giorni), {}, {}
     for i in range(giorni[0], len(g.date)):
-        if i in piani:
-            quote = dict(piani[i])
+        if i in piani:                       # v8.33 con la soglia di ribilanciamento (pesi veri, come in simula)
+            _t = sum(quote.values()) or 1.0
+            quote = con_soglia({k: v / _t for k, v in quote.items()}, piani[i]) if quote else dict(piani[i])
         if i in tutti_g:                     # pesi a inizio mese: alla chiusura del giorno prima (v6.69)
             tot = sum(quote.values()) or 1.0
             pesi[i] = {k: v / tot for k, v in quote.items()}
