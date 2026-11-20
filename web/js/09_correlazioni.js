@@ -38,6 +38,11 @@ try{(function(){const C=D.corr_px,el=$("cpx");if(!el)return;
  const cv=v=>v==null?"n/d":(v>0?"+":v<0?"&minus;":"")+fx(Math.abs(v),2);
  const sfondo=v=>{if(v==null)return"transparent";const a=Math.min(1,Math.abs(v));return v>0?`rgba(34,163,90,${a})`:`rgba(224,82,77,${a})`;};
  const pall=g=>`<i class="cpall" style="background:${GC[g]||"var(--c3)"}"></i>`;
+ // v8.36 CORRELAZIONE PER RANGHI (Spearman, libro CFA Vol. 1): come la normale ma sui ranghi dei rendimenti, quindi
+ // pochi giorni estremi non la gonfiano. Se le due si scostano di almeno DIV, il legame dipende da pochi giorni:
+ // pallino giallo sulla cella / sulla coppia, valore per ranghi nel fumetto al passaggio del mouse.
+ const DIV=0.15,div=(p,s)=>p!=null&&s!=null&&Math.abs(p-s)>=DIV;
+ const pdiv=(p,s)=>div(p,s)?`<i class="cdiv" title="Legame che dipende da pochi giorni estremi: per ranghi ${cv(s)}"></i>`:"";
  // barra divergente: centro = 0, verso destra verde (insieme), verso sinistra rosso (al contrario)
  const barra=v=>v==null?`<span class="cbar"></span>`:`<span class="cbar"><s class="${v>=0?"su":"giu"}" style="${v>=0?"left:50%":"right:50%"};width:${Math.min(50,Math.abs(v)*50)}%"></s></span>`;
  // mini linea della correlazione mobile a 3 mesi con l'S&P 500 (linea dello zero tratteggiata)
@@ -49,12 +54,13 @@ try{(function(){const C=D.corr_px,el=$("cpx");if(!el)return;
  function coppia(x,tipo){const del=tipo=="cambio";
   // i due nomi su due righe (il secondo preceduto dal simbolo: frecce parallele = insieme, opposte = al contrario)
   return `<div class="crow"><span class="cpair"><span><span class="ce" aria-hidden="true" style="visibility:hidden">&#8644;</span>${pall(grp(x.a))}<b>${esc(nome(x.a))}</b></span><span><span class="ce">${tipo=="giu"?"&#8646;":"&#8644;"}</span>${pall(grp(x.b))}<b>${esc(nome(x.b))}</b></span></span>
-   <span class="cval ${x.c63>=0?"up":"down"}">${cv(x.c63)}</span>${barra(x.c63)}
+   <span class="cval ${x.c63>=0?"up":"down"}">${cv(x.c63)}${pdiv(x.c63,x.s63)}</span>${barra(x.c63)}
    <em>${del?`un anno fa ${cv(x.c252)} &rarr; oggi ${cv(x.c63)}`:`ultimo anno ${cv(x.c252)}`}</em></div>`;}
  function heat(){const g=vista=="gruppi",K=g?C.gruppi:A.map(a=>a.k),M=g?C["g"+fin]:C[fin];
   const et=k=>g?k:nome(k);
   return `<table class="heat cheat${g?" cgr":""}"><tr><th></th>${K.map(k=>`<th title="${esc(et(k))}">${esc(et(k))}</th>`).join("")}</tr>${K.map((r,i)=>`<tr><th class="r">${g?pall(r):pall(grp(r))}${esc(et(r))}</th>${K.map((c,j)=>{const v=M[i][j];const diag=!g&&i==j;
-   return `<td title="${esc(et(r))} / ${esc(et(c))}: ${diag?"":cv(v)}" style="background:${diag?"var(--soft)":sfondo(v)};color:${v!=null&&Math.abs(v)>.55?"#fff":"var(--ink)"}">${diag||v==null?"":cv(v)}</td>`;}).join("")}</tr>`).join("")}</table>`;}
+   const sv=!g&&C["s"+fin.slice(1)]?C["s"+fin.slice(1)][i][j]:null,dv=!diag&&div(v,sv);   // v8.36 per ranghi
+   return `<td title="${esc(et(r))} / ${esc(et(c))}: ${diag?"":cv(v)}${sv!=null&&!diag?` (per ranghi ${cv(sv)})`:""}" class="${dv?"cdivc":""}" style="background:${diag?"var(--soft)":sfondo(v)};color:${v!=null&&Math.abs(v)>.55?"#fff":"var(--ink)"}">${diag||v==null?"":cv(v)}</td>`;}).join("")}</tr>`).join("")}</table>`;}
  function disegna(){const op=C.opposti[0],ins=C.insieme[0];
   const sp=[...C.spx].sort((a,b)=>(b[fin=="m63"?"c63":"c252"]??-2)-(a[fin=="m63"?"c63":"c252"]??-2));
   el.innerHTML=`<div class="azbar"><span class="azdata"><i></i>Prezzi al <b>${fd(C.aggiornato)}</b></span>
@@ -68,7 +74,7 @@ try{(function(){const C=D.corr_px,el=$("cpx");if(!el)return;
    <div class="card cspx">${sp.map(x=>{const v=x[fin=="m63"?"c63":"c252"];return `<div class="csr"><span class="cnomi">${pall(grp(x.k))}<b>${esc(nome(x.k))}</b><small>${esc(grp(x.k))}</small></span>${barra(v)}<span class="cval ${v>=0?"up":"down"}">${cv(v)}</span>${mini(x.serie)}</div>`;}).join("")}</div>
    <h3 class="vft">Mappa di calore <span class="small">(${vista=="gruppi"?"media tra gli strumenti di ogni gruppo":"ogni strumento con ogni altro"}, ${fin=="m63"?"ultimi 3 mesi":"ultimo anno"}: verde = insieme, rosso = al contrario)</span></h3>
    <div class="tablewrap" style="padding:16px">${heat()}</div>
-   <div class="cleg">${C.gruppi.map(g=>`<span>${pall(g)}${esc(g)}</span>`).join("")}</div>`;
+   <div class="cleg">${C.gruppi.map(g=>`<span>${pall(g)}${esc(g)}</span>`).join("")}${C.s63&&vista=="tutti"?`<span><i class="cdiv"></i>legame dovuto a pochi giorni estremi</span>`:""}</div>`;
   el.querySelectorAll(".cfin button").forEach(b=>b.onclick=()=>{fin=b.dataset.f;disegna();});
   el.querySelectorAll(".cvis button").forEach(b=>b.onclick=()=>{vista=b.dataset.v;disegna();});}
  disegna();

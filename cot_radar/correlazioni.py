@@ -17,7 +17,7 @@ DATI
 USCITA (per la pagina, D.corr_px)
   {"aggiornato", "asset": [{k, nome, g}], "gruppi": [...], "m63", "m252" (matrici), "insieme", "opposti",
    "cambiati" (coppie piu' forti / che cambiano di piu'), "spx": [{k, c63, c252, serie}] legame con l'S&P 500,
-   "gm63", "gm252" (matrici medie tra gruppi)}
+   "gm63", "gm252" (matrici medie tra gruppi), "s63", "s252" (v8.36: stesse matrici per ranghi, Spearman)}
 
 DEBUG: python -c "from cot_radar import correlazioni; help(correlazioni.calcola)"
 """
@@ -73,6 +73,31 @@ def corr(a, b):
     return round(sxy / (sx * sy), 2) if sx and sy else None
 
 
+def _ranghi(v):
+    """Ranghi (1 = piu' piccolo; pari merito = rango medio) di una lista senza None."""
+    ordine = sorted(range(len(v)), key=lambda i: v[i])
+    rg = [0.0] * len(v)
+    i = 0
+    while i < len(ordine):
+        j = i
+        while j + 1 < len(ordine) and v[ordine[j + 1]] == v[ordine[i]]:
+            j += 1
+        for k in range(i, j + 1):
+            rg[ordine[k]] = (i + j) / 2 + 1
+        i = j + 1
+    return rg
+
+
+def spearman(a, b):
+    """v8.36 CORRELAZIONE PER RANGHI (Spearman; libro CFA Vol. 1, cap. 9): come Pearson ma sui ranghi dei rendimenti,
+    quindi pochi giorni estremi non la gonfiano. Se si discosta molto da Pearson, il legame dipende da pochi giorni."""
+    xy = [(x, y) for x, y in zip(a, b) if x is not None and y is not None]
+    if len(xy) < 20:
+        return None
+    rx, ry = _ranghi([x for x, _ in xy]), _ranghi([y for _, y in xy])
+    return corr(rx, ry)
+
+
 def calcola(px):
     """Dati della parte "Prezzi" della scheda Correlazioni, oppure None se mancano i prezzi dello SPY."""
     if not px or "SPY" not in px:
@@ -84,6 +109,8 @@ def calcola(px):
     for nome, giorni in (("m63", BREVE), ("m252", LUNGA)):
         fin = {k: r[k][-giorni:] for k in ks}
         m[nome] = [[1.0 if i == j else corr(fin[a], fin[b]) for j, b in enumerate(ks)] for i, a in enumerate(ks)]
+        # v8.36 stessa matrice per ranghi (Spearman): "s63" e "s252"
+        m["s" + nome[1:]] = [[1.0 if i == j else spearman(fin[a], fin[b]) for j, b in enumerate(ks)] for i, a in enumerate(ks)]
     # coppie per le tre liste (insieme, al contrario, stanno cambiando)
     coppie = []
     for i, a in enumerate(asset):
@@ -93,7 +120,8 @@ def calcola(px):
             # niente coppie dello stesso "mondo" (es. S&P 500 e Tecnologia: ovvio che vadano insieme)
             if c is None or FAMIGLIA.get(a["g"], a["g"]) == FAMIGLIA.get(b["g"], b["g"]):
                 continue
-            coppie.append({"a": a["k"], "b": b["k"], "c63": c, "c252": l, "delta": round(c - l, 2) if l is not None else None})
+            coppie.append({"a": a["k"], "b": b["k"], "c63": c, "c252": l, "delta": round(c - l, 2) if l is not None else None,
+                           "s63": m["s63"][i][j]})                 # v8.36 per ranghi, ultimi 3 mesi
     insieme = sorted(coppie, key=lambda x: -x["c63"])[:TOP]
     opposti = sorted(coppie, key=lambda x: x["c63"])[:TOP]
     cambiati = sorted([x for x in coppie if x["delta"] is not None], key=lambda x: -abs(x["delta"]))[:TOP]

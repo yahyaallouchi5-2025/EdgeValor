@@ -3441,3 +3441,7 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 /* v8.35 Quadro economico: con un numero dispari di schede (USA con il PIL stimato) l'ultima occupa tutta la riga,
    cosi' la griglia resta allineata sia a 2 sia a 4 colonne */
 .qe-main>.qe-ind .qe-i:last-child:nth-child(odd){grid-column:1/-1}
+/* v8.36 correlazione per ranghi: pallino giallo dove il legame dipende da pochi giorni estremi */
+.cdiv{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-left:5px;vertical-align:middle;box-shadow:0 0 6px rgba(233,180,76,.5)}
+.cheat td.cdivc{position:relative}
+.cheat td.cdivc::after{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 1px rgba(0,0,0,.35)}
