@@ -1,0 +1,27 @@
+STUDI OBBLIGAZIONI (studi/studio_obbligazioni.py, libro CFA Vol. 6 Fixed Income) - 21/11/2026
+A) DURATION EMPIRICA: variazione % dell'ETF per +1 punto di rendimento (settimanale)
+  SHY su DGS2  fino al 2009   -1.64% per +1 punto (+-0.05), R2 0.92, 371 settimane
+  SHY su DGS2  2010-oggi      -1.81% per +1 punto (+-0.04), R2 0.92, 842 settimane
+  SHY su DGS2  ultimi 3 anni  -1.74% per +1 punto (+-0.07), R2 0.94, 151 settimane
+  IEF su DGS10 fino al 2009   -6.80% per +1 punto (+-0.11), R2 0.97, 371 settimane
+  IEF su DGS10 2010-oggi      -7.57% per +1 punto (+-0.07), R2 0.98, 842 settimane
+  IEF su DGS10 ultimi 3 anni  -7.37% per +1 punto (+-0.13), R2 0.99, 151 settimane
+  TLT su DGS10 fino al 2009   -11.76% per +1 punto (+-0.45), R2 0.87, 371 settimane
+  TLT su DGS10 2010-oggi      -15.42% per +1 punto (+-0.41), R2 0.87, 842 settimane
+  TLT su DGS10 ultimi 3 anni  -14.33% per +1 punto (+-0.74), R2 0.91, 151 settimane
+
+B) RENDIMENTO DEL TREASURY 10 ANNI A FINE MESE CONTRO RENDIMENTO ANNUO DI IEF NEI 7 ANNI DOPO
+  209 partenze (2002-07 - 2019-11): correlazione 0.87, errore medio +0.50 punti, errore tipico 1.70 punti l'anno
+  esempi: [('2002-07', 4.51, 5.56), ('2004-07', 4.5, 6.39), ('2006-07', 4.99, 6.74), ('2008-07', 3.99, 5.43), ('2010-07', 2.94, 3.6), ('2012-07', 1.51, 2.03), ('2014-07', 2.58, 3.71), ('2016-07', 1.46, -0.64), ('2018-07', 2.96, 1.22)]
+  ESITO B: NO
+
+C) TLT CON FILTRO DI TREND (10 mesi) CONTRO TREND + CURVA POSITIVA (10 anni - 3 mesi > 0); altrimenti SHY
+  in campione fino al 2009: solo trend 1.02% annuo, drawdown -21.3% | trend + curva 1.14% annuo, drawdown -21.3% | coppie media +0.09% annuo, p 0.92 (79 mesi)
+  fuori campione 2010-oggi: solo trend 2.80% annuo, drawdown -26.6% | trend + curva 3.04% annuo, drawdown -17.1% | coppie media +0.12% annuo, p 0.91 (203 mesi)
+
+C2) IEF (il Treasury dei portafogli, tenuto sempre) solo con curva positiva, altrimenti SHY:
+  fino al 2009: 5,13% -> 5,04%, drawdown -6,7% uguale; 2010-oggi: 2,47% -> 2,52%, drawdown -23,2% -> -21,2%, coppie +0,00 (p 1,00).
+
+ESITI: A) duration empirica stabile e precisa (R2 0,92-0,99): utile come dato descrittivo.
+B) il rendimento di partenza spiega bene la direzione (correlazione 0,87) ma l'errore tipico e' 1,70 punti > 1,5: non si mostra.
+C) curva + TLT: miglioria dovuta a un solo episodio (2022-24), TLT non e' nei portafogli; C2 su IEF: nessun effetto. Nessuna modifica ai portafogli.

@@ -56,3 +56,11 @@ fuori campione, con le regole decise prima di guardare i risultati.
   pesi (portafogli), efficienza dei mercati (il metodo stesso: solo cio' che regge fuori campione).
 - Saltato: organizzazione dei mercati e tipi di ordini, azioni privilegiate e ricevute di deposito, analisi
   qualitativa del settore (Porter) e modelli di previsione e valutazione (DDM, multipli) che richiedono stime per azienda.
+
+## Vol. 6 — Fixed Income (letto il 21/11/2026)
+- Provato (studio_obbligazioni.py): duration empirica degli ETF di Treasury dai dati (SHY -1,8%, IEF -7,4%,
+  TLT -14,3% per +1 punto di rendimento, ultimi 3 anni, R2 >= 0,91): dato descrittivo affidabile.
+- Provato: rendimento di partenza del 10 anni come previsione dei 7 anni dopo di IEF: correlazione 0,87 ma errore
+  tipico 1,7 punti: non mostrato. Curva dei tassi (10a-3m) come filtro per TLT/IEF: nessun vantaggio stabile.
+- Gia' provati prima: spread di credito e curva come anticipatori (Vol. 2, scartati).
+- Saltato: emissione e negoziazione, cartolarizzazioni (ABS/MBS), analisi del credito di singoli emittenti.
