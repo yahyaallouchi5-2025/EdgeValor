@@ -180,6 +180,10 @@ FRED_IDS = {
     "CPIAUCSL": 1,       # prezzi al consumo USA (indice): inflazione annua = variazione su 12 mesi
     "UNRATE": 1,         # tasso di disoccupazione USA (%): regola di Sahm (segnale d'inizio recessione)
     "INDPRO": 1,         # produzione industriale USA (indice): crescita dell'economia reale
+    # v8.35 (libro CFA Vol. 2, nowcasting; ok di Ya 20/11/2026): stima IN TEMPO REALE della crescita del PIL USA del
+    # trimestre in corso (Fed di Atlanta, % annualizzata). Trimestrale: l'ultimo valore si aggiorna piu' volte al mese.
+    # Studio: sugli ultimi 61 trimestri la stima finale sbaglia in media di circa 1,7 punti (studi/risultati_anticipatore_usa.txt).
+    "GDPNOW": 1,
 }
 
 # --------------------------------------------------------------------------- serie BCE (tassi euro)

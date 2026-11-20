@@ -239,6 +239,10 @@ def calcola(fred, cartella=None, scarica=True):
         st.update({"id": eid, "nome": nome, "valuta": valuta})
         if eid == "usa" and usa_fred:
             st.update({k: usa_fred.get(k) for k in ("curva", "invertita", "hy", "prod")})
+            gn = sorted(fred.get("GDPNOW") or [])     # v8.35 GDPNow: [data inizio trimestre, % annualizzata]
+            if gn:
+                d0, v0 = gn[-1]
+                st["gdpnow"] = {"v": round(v0, 1), "trim": f"T{(int(d0[5:7]) - 1) // 3 + 1} {d0[:4]}"}
             st["allarme"] = bool(st.get("allarme") or usa_fred.get("allarme"))
         out.append(st)
     if not out:

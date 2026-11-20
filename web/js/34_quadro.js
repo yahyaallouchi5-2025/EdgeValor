@@ -48,7 +48,7 @@ try{(function(){
  const tab=st?`<table class="qe-tab"><tr><th>Fase</th><th class="num">S&amp;P 500</th><th class="num">Treasury</th><th class="num">Oro</th></tr>${ORD.filter(r=>st[r]).map(r=>`<tr><td>${r}</td>${cel(st[r].sp)}${cel(st[r].tr)}${cel(st[r].oro)}</tr>`).join("")}</table>`:"";
  const infoSez=info(`<b>Fase del ciclo</b> di ogni economia, con la stessa regola per tutte. <b>Crescita</b>: in salita se l'indicatore anticipatore dell'OCSE (CLI) &egrave; pi&ugrave; alto di 3 mesi prima (Eurozona: media di Germania, Francia, Italia e Spagna pesata per il PIL). <b>Inflazione</b>: in salita se quella annua &egrave; pi&ugrave; alta di 6 mesi prima.<br><br>
    <b>Ripresa</b> (Recovery): cresce, inflazione in calo. <b>Espansione</b> (Overheat): cresce, inflazione in salita. <b>Stagflazione</b>: rallenta, inflazione in salita. <b>Recessione</b> (Reflation): rallenta, inflazione in calo.<br><br>
-   <b>Allarme recessione</b>: regola di Sahm, cio&egrave; la disoccupazione (media 3 mesi) salita di almeno 0,5 punti dal minimo dell'ultimo anno; per gli USA anche curva dei tassi invertita con spread delle aziende pi&ugrave; indebitate in salita.<br><br>
+   <b>Allarme recessione</b>: regola di Sahm, cio&egrave; la disoccupazione (media 3 mesi) salita di almeno 0,5 punti dal minimo dell'ultimo anno; per gli USA anche curva dei tassi invertita con spread delle aziende pi&ugrave; indebitate in salita.<br><br><b>PIL stimato</b> (solo USA): GDPNow della Fed di Atlanta, la crescita del trimestre in corso stimata in tempo reale (annualizzata). Si aggiorna con i dati della settimana; di solito si scosta dal PIL ufficiale di circa 1,7 punti.<br><br>
    ${tab?`<b>USA, com'&egrave; andata</b>: rendimento medio annuo del mese dopo, per fase, dal 1990 (oro dal 2004).${tab}`:""}
    <b>Solo contesto, non un segnale</b>: i mercati si muovono prima dei dati economici (in recessione l'S&amp;P 500 ha spesso gi&agrave; ripreso a salire). I portafogli seguono il filtro di trend sui prezzi.`,"qe-is");
  // v7.40 CICLO DEL DEBITO (solo USA): E.debito da cot_radar/debito.py = {fase, da, debito, deb3, deb1, rata, rata_media,
@@ -117,6 +117,8 @@ try{(function(){
    ind("Inflazione",fx(x.infl,1)+"%",`<em class="qe-ti">${x.tipo_infl}</em> &middot; 6 mesi fa ${fx(x.infl6,1)}%`,fr(x.infl,x.infl6,"male"))];
   if(x.disoc!=null)tiles.push(ind("Disoccupazione",fx(x.disoc,1)+"%",x.sahm!=null?`Sahm ${fx(x.sahm,2)} su 0,50`:"",""));
   if(x.curva!=null)tiles.push(ind("Curva 10-2 anni",(x.curva>0?"+":"")+fx(x.curva,2),x.curva<0?"invertita":"normale",""));
+  // v8.35 GDPNow (solo USA): stima in tempo reale del PIL del trimestre in corso; spiegazione nel fumetto (i) in alto
+  if(x.gdpnow)tiles.push(ind("PIL stimato",(x.gdpnow.v>0?"+":"")+fx(x.gdpnow.v,1)+"%",`${esc(x.gdpnow.trim)} &middot; GDPNow`,""));
   // settori di borsa: % di titoli in trend rialzista (ciambella), sotto il numero di titoli
   const sett=b&&b.settori?Object.entries(b.settori).filter(([,s])=>s.n).sort((p,q)=>q[1].su/q[1].n-p[1].su/p[1].n):[];
   const settHTML=sett.length?`<div class="qe-sez"><div class="qe-st"><h4>Borsa per settore</h4>${info("Per ogni settore, la quota di titoli dell'Azionario di questa economia in <b>trend rialzista</b> (prezzo e SMA 50 sopra la SMA 200). Verde da 60% in su, giallo tra 40 e 60%, rosso sotto il 40%. Dice <b>dove si muove il denaro</b>: i settori verdi stanno guidando, quelli rossi sono evitati. Con pochi titoli (numero sotto la ciambella) il dato &egrave; meno solido. L'immobiliare &egrave; uno dei settori.")}</div>
