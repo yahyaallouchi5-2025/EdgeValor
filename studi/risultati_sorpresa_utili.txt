@@ -1,0 +1,15 @@
+STUDIO SORPRESA DEGLI UTILI (studi/studio_sorpresa_utili.py, libro CFA Vol. 5 cap. 3) - 21/11/2026
+Universo com'era (delistate incluse), SUE sulla storia dell'azienda, 10-Q per data di deposito.
+
+aziende con utili trimestrali: 7266, con SUE: 5417
+mesi: 129, aziende con 10-Q nel mese: media 103
+  FORTI meno tutti, mese dopo    sviluppo 2011-2017   media -0.04%  t -0.18  p 0.860  IC95 [-0.53, +0.40]  (47 mesi)
+  FORTI meno tutti, mese dopo    verifica 2018-oggi   media +0.20%  t +0.76  p 0.446  IC95 [-0.33, +0.72]  (82 mesi)
+  DEBOLI meno tutti, mese dopo   sviluppo 2011-2017   media -0.05%  t -0.16  p 0.870  IC95 [-0.65, +0.56]  (47 mesi)
+  DEBOLI meno tutti, mese dopo   verifica 2018-oggi   media -0.78%  t -2.53  p 0.011  IC95 [-1.36, -0.17]  (82 mesi)
+  FORTI meno tutti, 3 mesi       sviluppo 2011-2017   media -0.06%  t -0.14  p 0.891  IC95 [-1.01, +0.81]  (47 mesi)
+  FORTI meno tutti, 3 mesi       verifica 2018-oggi   media +1.16%  t +1.89  p 0.058  IC95 [+0.02, +2.48]  (82 mesi)
+
+ESITO: FORTI (sorpresa positiva) NON confermato (sviluppo -0,04%, verifica +0,20% al mese, t 0,76).
+DEBOLI meno tutti: -0,78% il mese dopo solo in verifica (p 0,011), nullo in sviluppo: non stabile, non usato.
+Nessuna modifica al sito.

@@ -46,3 +46,13 @@ fuori campione, con le regole decise prima di guardare i risultati.
   per il ROIC del Vol. 3: nessun vantaggio significativo.
 - Saltato: principi contabili IFRS/US GAAP (leasing, pensioni, imposte differite, metodi di magazzino), modelli di
   previsione dei bilanci (servono stime a mano per azienda).
+
+## Vol. 5 — Equity Investments (letto il 21/11/2026)
+- Provato: anomalie di calendario del cap. 3 (turn-of-the-month, giorno prima dei festivi, lunedi', gennaio) su
+  S&P 500 dal 1970 e 6 ETF (studio_calendario.py): nessuna regge fuori campione 2010-oggi, come dice il libro.
+- Provato: sorpresa degli utili / drift dopo i conti (studio_sorpresa_utili.py, universo con le delistate): la
+  sorpresa positiva non anticipa rendimenti migliori; quella negativa solo dal 2018, non stabile. Non usato.
+- Gia' nel terminale: momentum (filtri delle azioni scelte), valore (studio_valore / GARP, scartato), indici e
+  pesi (portafogli), efficienza dei mercati (il metodo stesso: solo cio' che regge fuori campione).
+- Saltato: organizzazione dei mercati e tipi di ordini, azioni privilegiate e ricevute di deposito, analisi
+  qualitativa del settore (Porter) e modelli di previsione e valutazione (DDM, multipli) che richiedono stime per azienda.
