@@ -35,8 +35,8 @@ DOMANDE = [
      "grandi speculatori come hedge fund e gestori, e ne ricava la <b>direzione</b> su ogni mercato: se stanno "
      "comprando o vendendo, con quanta forza e se il movimento si conferma settimana dopo settimana."),
     ("Come funzionano stagionalità e correlazioni?",
-     "La stagionalità di EdgeValor mostra cosa ha fatto di solito un mercato nelle prossime settimane, mese per mese "
-     "e anche per giorno e ora di Roma: un effetto è indicato solo se supera filtri statistici sugli anni passati. "
+     "La stagionalità di EdgeValor misura come si è comportato di solito un mercato per giorno, settimana o mese, "
+     "in ora di Roma (ora legale compresa): un effetto compare solo se supera i filtri statistici sugli anni passati. "
      "Le correlazioni mostrano quali mercati si muovono insieme o in direzione opposta, sia sui prezzi giornalieri "
      "sia sui flussi COT delle ultime 52 settimane."),
     ("Come tratta l'azionario EdgeValor?",
@@ -51,9 +51,10 @@ DOMANDE = [
      "Markets, tra cui Cina, India, Brasile, Messico, Arabia Saudita, Sudafrica, Turchia e Polonia: per ognuno "
      "crescita del PIL, previsione del Fondo Monetario, inflazione, se l'economia accelera o rallenta e "
      "l'andamento della sua borsa."),
-    ("Ci sono prezzi in tempo reale?",
-     "Sì. La scheda Live di EdgeValor aggiorna i prezzi durante le ore di borsa con un ritardo di 15-20 minuti, "
-     "mentre le analisi e le decisioni dei portafogli usano i prezzi di chiusura."),
+    ("Cosa mostra la scheda Live?",
+     "La scheda Live di EdgeValor monitora l'andamento delle analisi swing fuori campione: ogni segnale viene "
+     "registrato con data e ora nel momento in cui nasce, in un registro che non si può modificare, e poi seguito "
+     "fino alla chiusura. Non è un backtest: sono risultati misurati dopo, su dati che il modello non aveva visto."),
     ("Cosa sono i portafogli modello?",
      "Sono tre portafogli di ETF (conservativo, moderato e aggressivo) costruiti con un filtro di trend e provati "
      "sullo storico, con costi e tasse italiane inclusi e il drawdown sempre accanto al rendimento. Ruotano una volta "
