@@ -3482,3 +3482,5 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 .bdupr .bdroe{background:rgba(46,196,182,.07);border-color:rgba(46,196,182,.3)}
 .bdupr>i{align-self:center;font-style:normal;color:var(--mute);font-weight:700}
 @media (max-width:600px){.bdupr{grid-template-columns:1fr 1fr}.bdupr>i{display:none}.bdupr>div b{font-size:16px}}
+.rnv{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.rnv em{font-style:normal;font-weight:700}.rnv span{flex-basis:100%;font-size:13px;color:var(--mute)}   /* v8.50 rinnovo dei future */
