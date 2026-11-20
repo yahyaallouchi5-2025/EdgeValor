@@ -126,22 +126,15 @@ METODO = f"""
 <div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="/prezzi/">Vedi i piani</a></div>
 """
 
-DOMANDE = [("Devo avere esperienza?", "No. Ogni scheda ha testi brevi e una (i) che spiega come leggerla. Si parte dal profilo e dal portafoglio del mese."),
-           ("Quanto tempo richiede?", "Al massimo 10 minuti. I portafogli modello cambiano una volta al mese: alla rotazione guardi cosa è cambiato e hai finito."),
-           ("Quanto costa?", f"La registrazione è gratuita e comprende 14 giorni di Premium, senza carta. Poi resti in Basic, gratis. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese con il piano annuale, {eu(ANNO_TOT)} € all'anno (−{RISP}%). Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
-           ("Come attivo Premium?", "Entra nel terminale e scegli «Passa a Premium», oppure parti dalla pagina <a href=\"/prezzi/\">Prezzi</a>. Paghi con PayPal o carta e Premium si attiva subito. L'abbonamento si rinnova da solo e lo disdici quando vuoi dal tuo profilo."),
-           ("È una consulenza finanziaria?", "No. EdgeValor pubblica analisi statistiche di dati pubblici con finalità esclusivamente educative. Ogni decisione resta tua. Dettagli nelle <a href=\"/legale/#rischi\">avvertenze sui rischi</a>."),
-           ("Posso perdere denaro?", "Sì. Ogni investimento può perdere in parte o del tutto il capitale, anche senza leva. Per questo il terminale mostra sempre il drawdown accanto al rendimento."),
-           ("Da dove provengono i dati?", "Da fonti pubbliche e da un fornitore di dati di mercato. L'elenco completo è nelle <a href=\"/legale/#fonti\">fonti dei dati</a>."),
-           ("Che cos'è il report COT?", "È il report settimanale dell'autorità statunitense dei mercati futures: dice come sono posizionati i grandi operatori. Nel terminale è contesto, non un'indicazione operativa.")]
-FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, prima di entrare.</h1></div><div class="faq">' +
-       "".join(f"<details{' open' if i == 0 else ''}><summary>{d}</summary><p>{r}</p></details>" for i, (d, r) in enumerate(DOMANDE)) +
-       f'</div><div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="{TG}" target="_blank" rel="noopener">Scrivimi su Telegram</a></div>')
+# v8.30 le domande stanno in domande.py (una sola fonte per home, /faq/ e dati strutturati per Google):
+#       qui resta solo la cornice; "__FAQ__" si sostituisce in crea() (import li', per evitare il giro di import)
+FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, prima di entrare.</h1></div><div class="faq">__FAQ__' +
+       f'</div><div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="{TG}" target="_blank" rel="noopener">Iscriviti al canale Telegram</a></div>')
 
 PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Basic gratis per sempre. Premium a 27,00 € al mese o 19,99 € al mese con il piano annuale. 14 giorni di prova senza carta.", PREZZI),
           "accedi": ("Accedi o registrati · EdgeValor", "Entra nel terminale EdgeValor con la tua email: nessuna password, 14 giorni di Premium in prova.", ACCEDI),
           "metodo": ("Il metodo · EdgeValor", "Come nascono i portafogli modello di EdgeValor: dati pubblici, filtro di trend, prova su vent'anni di storico e rotazione mensile.", METODO),
-          "faq": ("Domande frequenti · EdgeValor", "Costi, tempo richiesto, rischi e fonti dei dati: le risposte alle domande più comuni su EdgeValor.", FAQ)}
+          "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi emergenti), canale Telegram gratuito, prezzi e rischi.", FAQ)}
 
 
 # --- script del modulo di accesso (ES5, come la home). v8.19: tolto il vecchio modulo "Richiesta Premium"
@@ -171,14 +164,18 @@ def crea(cartella, home):
     piede = piede.replace('href="#', 'href="/#').replace('href="legale/', 'href="/legale/').replace('href="terminale/', 'href="/terminale/')
     piede = piede.replace('href="/#faq"', 'href="/faq/"').replace('href="/#metodo"', 'href="/metodo/"').replace('href="/#accesso"', 'href="/prezzi/"')
     extra = {"accedi": JS_ACCEDI.replace("__API__", SUPABASE_URL).replace("__PUB__", SUPABASE_PUBBLICA).replace("__TERM__", SITO_PUBBLICO + "terminale/")}
+    from . import domande                                    # v8.30 domande frequenti (fonte unica)
     fatte = []
     for nome, (titolo, desc, corpo) in PAGINE.items():
+        corpo = corpo.replace("__FAQ__", domande.html(aperta=True))
         t = re.sub(r"<title>.*?</title>", lambda m: f"<title>{titolo}</title>", testa, count=1, flags=re.S)
         t = re.sub(r'<meta name="description" content="[^"]*">', lambda m: f'<meta name="description" content="{desc}">', t, count=1)
         t = re.sub(r'<link rel="canonical" href="[^"]*">', lambda m: f'<link rel="canonical" href="{SITO_PUBBLICO}{nome}/">', t, count=1)
         t = re.sub(r'<script type="application/ld\+json">.*?</script>', "", t, flags=re.S)       # i dati strutturati sono della home
         t = re.sub(r'<meta property="og:(title|description|url)" content="[^"]*">', "", t)
         t = t.replace("</style>", CSS + "</style>", 1)
+        if nome == "faq":
+            t += domande.dati_strutturati()                  # v8.30 FAQPage anche sulla pagina /faq/
         html = (t + '</head>\n<body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>\n' + testata(nome) +
                 f'\n<main><div class="box pag">{corpo}</div></main>\n' + piede + "\n" + extra.get(nome, "") + "</body></html>")
         os.makedirs(os.path.join(cartella, nome), exist_ok=True)

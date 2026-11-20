@@ -17,7 +17,7 @@ import urllib.request
 from datetime import datetime, timezone
 from html import escape, unescape
 
-from . import pagina, riepilogo
+from . import domande, pagina, riepilogo
 from .config import CONTATTO_EMAIL, FEEDBACK_CHIAVE, NORMAL, SECTORS, SITO_PUBBLICO, STRONG, TELEGRAM_CANALE, TITOLARE, WEB_DIR
 from .log import log
 
@@ -237,7 +237,9 @@ def html(ultimi, cartella=None):
         "{{N_COPPIE}}": str(len(dati.get("pairs") or [])),
         "{{BT_DAL}}": dal or "n.d.",
         "{{ANNI_BT}}": str(datetime.now().year - int(dal)) if dal.isdigit() else "0",
-        "{{AGGIORNATO}}": datetime.now().strftime("%d/%m/%Y"),
+        # v8.30 domande frequenti e dati strutturati FAQPage da domande.py (fonte unica); niente piu' "Aggiornato il"
+        "{{FAQ_HTML}}": domande.html(radice=True),
+        "{{FAQ_LD}}": domande.dati_strutturati(),
         "{{ANNO}}": str(datetime.now().year),
         "{{NASTRO}}": nastro(dati),
         # "</" spezzato: dentro <script> chiuderebbe il tag
