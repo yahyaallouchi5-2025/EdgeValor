@@ -1,0 +1,15 @@
+ALFA E BETA DEI PORTAFOGLI CONTRO IL 60/40 (libro CFA Vol. 9 "Portfolio Management", cap. 2 CAPM / alfa di Jensen)
+Calcolo del 21/11/2026 sulle curve pubblicate dal sito (D.port.profili[].curva e D.port.bench.curva, fine mese).
+Regressione dei rendimenti mensili del profilo su quelli del 60/40; alfa annuo con il suo t.
+
+profilo       periodo     mesi  beta  alfa annuo  t alfa  corr  rend.  60/40  vol.  vol 60/40
+conservativo  2006-2015   119   0,31   +2,67%     2,13   0,64  5,3%   8,4%   5,0%  10,2%
+conservativo  2016-oggi   131   0,29   +2,42%     2,62   0,71  5,0%   9,0%   4,1%  10,0%
+moderato      2006-2015   119   0,38   +3,14%     2,24   0,67  6,3%   8,4%   5,8%  10,2%
+moderato      2016-oggi   131   0,43   +2,77%     2,21   0,73  6,6%   9,0%   5,9%  10,0%
+aggressivo    2006-2015   119   0,60   +6,01%     1,82   0,52  11,0%  8,4%  11,8%  10,2%
+aggressivo    2016-oggi   131   0,59   +7,82%     3,63   0,65  13,1%  9,0%   9,1%  10,0%
+
+LETTURA: i profili prendono dal 60/40 solo il 30-60% del suo rischio di mercato (beta) e aggiungono un rendimento
+proprio (alfa) positivo in entrambi i periodi, con t >= 2 in 5 casi su 6 (aggressivo 2006-2015: 1,82).
+LIMITI: e' un backtest (le regole sono state scelte guardando anche il 2006-2015); 2016-oggi e' la verifica.

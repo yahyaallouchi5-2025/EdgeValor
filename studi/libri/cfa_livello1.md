@@ -83,3 +83,12 @@ fuori campione, con le regole decise prima di guardare i risultati.
 - Gia' nel terminale: Bitcoin e crypto (schede BTC e Crypto), materie prime e costo del rinnovo (Vol. 7).
 - Saltato: private equity e debito privato, immobili e infrastrutture dirette, terreni e foreste, hedge fund e
   strutture delle commissioni (non investibili dal pubblico del terminale con dati gratuiti affidabili).
+
+## Vol. 9 — Portfolio Management (letto il 21/11/2026)
+- Calcolato (risultati_alfa_beta.txt): beta e alfa di Jensen dei 3 profili contro il 60/40: beta 0,3-0,6 e alfa
+  positivo in sviluppo e verifica (t >= 2 in 5 casi su 6). Candidato a dato descrittivo in "Rischio e costi".
+- Gia' nel terminale: rendimento/rischio, drawdown, Sortino, Calmar, CVaR (cap. 1-2 e 6), costi e tasse.
+- NON fatto per scelta: questionario "quale profilo fa per te" (cap. 4, IPS): consigliare un profilo in base alla
+  situazione della persona e' consulenza personalizzata (MiFID II), che EdgeValor non fa.
+- Possibile contenuto educativo: errori comportamentali (cap. 5: avversione alle perdite, eccesso di fiducia, effetto
+  gregge) nella Guida, legati ai momenti in cui il terminale li vede (es. vendere nel drawdown).
