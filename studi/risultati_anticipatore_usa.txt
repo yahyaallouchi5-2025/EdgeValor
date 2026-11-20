@@ -1,0 +1,29 @@
+mesi analizzati: 400 (1993-07 - 2026-10); ultimo clima: 88% delle componenti in miglioramento
+
+===== IN CAMPIONE 1993-2009 (198 mesi) =====
+A) recessione nei 6 mesi: con clima sfavorevole 25/74 mesi, con clima favorevole 1/124  -> chi2 p = 0.0000
+B) S&P 500 il mese dopo: favorevole 11.7% annuo (124 mesi), sfavorevole 2.6% annuo (74 mesi)
+C) S&P 500 comprato e tenuto: 7.3% annuo
+   solo trend (10 mesi):  11.7% annuo, drawdown -15.3%, rend/dd 0.76
+   trend + clima macro:   9.1% annuo, drawdown -15.3%, rend/dd 0.59
+   coppie (trend+clima meno trend): media -2.41% annuo, p = 0.03, IC95 [-4.71, -0.32]% annuo
+
+===== FUORI CAMPIONE 2010-oggi (202 mesi) =====
+A) recessione nei 6 mesi: con clima sfavorevole 1/53 mesi, con clima favorevole 2/149  -> chi2 p = 1.0000
+B) S&P 500 il mese dopo: favorevole 12.7% annuo (149 mesi), sfavorevole 18.0% annuo (53 mesi)
+C) S&P 500 comprato e tenuto: 13.9% annuo
+   solo trend (10 mesi):  8.1% annuo, drawdown -21.7%, rend/dd 0.37
+   trend + clima macro:   7.1% annuo, drawdown -16.6%, rend/dd 0.43
+   coppie (trend+clima meno trend): media -1.14% annuo, p = 0.41, IC95 [-3.76, 1.56]% annuo
+
+--- verifiche aggiuntive (stesse regole: decise prima, in campione 1990-2009, fuori campione 2010-oggi) ---
+CICLO DEL CREDITO (SLOOS DRTSCILM > 20% di banche che stringono, noto 1 mese dopo):
+1990-2009 recessione 12m: allarme 32/67, senza 1/167, p=0.0000; S&P 500 con allarme -5.0% annuo, normale 14.2%
+2010-oggi recessione 12m: allarme 0/27, senza 3/163, p=1.0000; S&P 500 con allarme 23.9% annuo, normale 12.9%
+-> fuori campione non regge: NON si usa come allarme.
+GDPNow (stima finale del trimestre contro il PIL USA): 61 trimestri, errore medio -0.24, errore tipico 1.73 punti.
+
+CONCLUSIONE (regole prefissate): l'indicatore anticipatore e il ciclo del credito funzionavano fino al 2009 ma non
+fuori campione (dal 2010 una sola recessione, quella improvvisa del 2020) e non migliorano il filtro di trend dei
+portafogli. Nessuno dei due entra nel terminale. GDPNow e' una misura (non un segnale): mostrabile come stima con
+il suo errore tipico, solo con l'ok di Ya.
