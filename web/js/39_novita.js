@@ -19,6 +19,18 @@
    NOVITA.push({d:m.conf,t:`Modalità di mercato: ${NM[m.prima]} → ${NM[m.modo]}`,
     x:`Confermata dopo ${m.n||7} giorni di borsa di fila (dal ${m.da.slice(8,10)}/${m.da.slice(5,7)}). Solo contesto, non un segnale.`,
     s:"sig",q:".mm-fasi",lab:"Modalità di mercato",apri:'#quadro .qe-card[data-id="usa"]:not(.on)',cambio:1});
+  // v8.44 fase del ciclo economico (per economia, confermata dopo 2 mesi: economie.py) e ciclo del debito USA
+  //   (confermato dopo 2 trimestri di fila). Solo l'avviso aspetta la conferma: la scheda mostra sempre la fase di oggi.
+  const E=D.economie||{},vic=d=>(Date.now()-new Date(d+"T12:00:00"))/864e5<=75,mm1=m=>{let[a,b]=m.split("-").map(Number);b++;if(b>12){a++;b=1;}return a+"-"+String(b).padStart(2,"0")+"-01";};
+  (E.economie||[]).forEach(x=>{const c=x.cambio;if(!c)return;const d=mm1(c.mese);if(!vic(d))return;
+   NOVITA.push({d,t:`Ciclo economico ${x.nome}: ${c.prima} → ${c.dopo}`,x:`Fase confermata per 2 mesi di fila. Solo contesto, non un segnale.`,
+    s:"sig",q:".qe-mappa",lab:"Ciclo economico "+x.nome,apri:`#quadro .qe-card[data-id="${x.id}"]:not(.on)`,cambio:1});});
+  const db=E.debito,CDN=["Espansione","Bolla","Picco","Crisi","Riduzione del debito"];
+  if(db&&db.storia&&db.storia.length>2){const S=db.storia;let cur=null,serie=0,ult=null;
+   S.forEach(([q,k],i)=>{serie=i&&S[i-1][1]==k?serie+1:1;if(k!==cur&&serie>=2){if(cur!==null)ult={prima:cur,dopo:k,i,q};cur=k;}});
+   if(ult&&ult.i>=S.length-2){const [a,t]=ult.q.split("-T"),d=a+"-"+String((+t-1)*3+1).padStart(2,"0")+"-01";
+    NOVITA.push({d,t:`Ciclo del debito: ${CDN[ult.prima]} → ${CDN[ult.dopo]}`,x:`Fase confermata per 2 trimestri di fila. Solo contesto, non un segnale.`,
+     s:"sig",q:".cd-fasi:not(.mm-fasi)",lab:"Ciclo del debito",apri:'#quadro .qe-card[data-id="usa"]:not(.on)',cambio:1});}}
   NOVITA.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:(b.cambio||0)-(a.cambio||0));}catch(e){}   // a parita' di data prima i mercati
  window.EB_NOVITA=NOVITA;                 // v8.06: la usa anche la chat delle novita' (39b_novita_chat.js)
  const btn=document.getElementById("novapri");if(!btn)return;

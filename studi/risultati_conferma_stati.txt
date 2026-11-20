@@ -9,3 +9,11 @@ giorni: 7014 (1999-01-04 - 2026-11-19), anni 27.8
 N=1: ultimi cambi [('2026-06-05', 'NORMALE'), ('2026-08-13', 'ECCESSO'), ('2026-08-14', 'NORMALE'), ('2026-11-19', 'PESSIMISMO')]
 N=3: ultimi cambi [('2026-03-24', 'PESSIMISMO'), ('2026-04-10', 'NORMALE'), ('2026-06-01', 'ECCESSO'), ('2026-06-09', 'NORMALE')]
 SCELTA (regola fissata prima): N = 7 giorni di borsa (ritorni lampo 7%, <= 10%). Applicata in cot_radar/modalita.py (CONFERMA).
+
+v8.44 CICLO ECONOMICO USA (CLI OCSE + inflazione, mensile, dal 1990; stessa regola: il piu' piccolo N con cambi
+"lampo" <= 10%, qui lampo = durata sotto 3 mesi):
+  N=1: 3,0 cambi l'anno, 43% durano meno di 3 mesi, durata mediana 3 mesi
+  N=2: 1,9 cambi l'anno, 10% durano meno di 3 mesi, durata mediana 6 mesi   <- SCELTA
+  N=3: 1,5 cambi l'anno,  0%,                       durata mediana 7 mesi
+CICLO DEL DEBITO (trimestrale, storia dal 2012): circa 6 cambi su 14 durano un solo trimestre -> conferma 2 trimestri.
+Decisione di Ya (20/11/2026, opzione a): la conferma vale SOLO per l'avviso nelle Novita'; la scheda mostra la fase di oggi.

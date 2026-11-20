@@ -159,6 +159,9 @@ def solo_mesi(serie):
     return {k: v for k, v in (serie or {}).items() if _MESE.match(str(k))}
 
 
+CONFERMA_MESI = 2
+
+
 def fase(cli, cpi, une, oggi_mese=None):
     """Stato di un'economia con le sue serie mensili {'AAAA-MM': v}. None se mancano i dati essenziali."""
     cli, cpi, une = solo_mesi(cli), solo_mesi(cpi), solo_mesi(une)
@@ -177,6 +180,23 @@ def fase(cli, cpi, une, oggi_mese=None):
            "mese": min(m_cli, m_cpi), "mese_cli": m_cli, "mese_cpi": m_cpi,
            "cli": round(cli[m_cli], 2), "cli3": round(cli[Q.mm(m_cli, -3)], 2),
            "infl": round(infl, 1), "infl6": round(infl6, 1)}
+    # v8.44 ULTIMO CAMBIO DI FASE CONFERMATO (avviso nelle Novita'): la fase del mese deve restare uguale CONFERMA_MESI
+    #   mesi di fila (studi/risultati_conferma_stati.txt: con 2 mesi i cambi che durano meno di 3 mesi scendono dal
+    #   43% al 10%). Solo per l'avviso: la scheda mostra sempre la fase di oggi.
+    try:
+        storia = [(m, Q.REGIMI[(cli[m] > cli[Q.mm(m, -3)], cpi[m] > cpi[Q.mm(m, -6)])])
+                  for m in sorted(cli) if m in cpi and Q.mm(m, -3) in cli and Q.mm(m, -6) in cpi][-36:]
+        cur, serie, ultimo = None, 0, None
+        for i, (m, r) in enumerate(storia):
+            serie = serie + 1 if i and storia[i - 1][1] == r else 1
+            if r != cur and serie >= CONFERMA_MESI:
+                if cur is not None:
+                    ultimo = {"prima": cur, "dopo": r, "mese": m}
+                cur = r
+        if ultimo:
+            out["cambio"] = ultimo
+    except (KeyError, TypeError):
+        pass
     if une:
         u = max(une)
         s = Q.sahm(une, u)
