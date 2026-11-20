@@ -64,3 +64,13 @@ fuori campione, con le regole decise prima di guardare i risultati.
   tipico 1,7 punti: non mostrato. Curva dei tassi (10a-3m) come filtro per TLT/IEF: nessun vantaggio stabile.
 - Gia' provati prima: spread di credito e curva come anticipatori (Vol. 2, scartati).
 - Saltato: emissione e negoziazione, cartolarizzazioni (ABS/MBS), analisi del credito di singoli emittenti.
+
+## Vol. 7 — Derivatives (letto il 21/11/2026)
+- Controllo fatto (costo di mantenimento / rinnovo dei future, cap. 4-6): i portafogli misurano rame e petrolio con
+  i prezzi degli ETF sui future (CPER, USO), quindi il costo del rinnovo e' GIA' dentro i risultati. Quanto pesa:
+  USO contro petrolio spot -10,5 punti l'anno nel 2010-2017 (contango), -0,2 nel 2018-oggi; CPER contro future
+  continuo -1,2 punti l'anno dal 2011. Il terminale lo dice gia' nella nota degli strumenti.
+- Gia' provati prima: carry delle valute (parita' dei tassi, tolto), vendita di opzioni (studio_opzioni.py) e premio
+  del VIX (studio_vix.py). Il segnale "carry" delle materie prime (backwardation) richiede la curva dei future, che
+  non abbiamo: non provato.
+- Saltato: valutazione di forward, swap e opzioni (binomiale, parita' put-call): teoria dei prezzi senza uso nel terminale.
