@@ -40,7 +40,9 @@ fuori campione, con le regole decise prima di guardare i risultati.
   salita), magazzino che cresce piu' dei ricavi, flusso di cassa operativo sotto l'utile per piu' anni (accrual),
   rotazione dell'attivo in calo; cap. 11 rapporti (liquidita', solvibilita', redditivita') e scomposizione DuPont
   del ROE (margine x rotazione dell'attivo x leva).
-- Provato sui titoli di oggi (studi/studio_allarmi.py, risultati_allarmi.txt): i segnali NON anticipano rendimenti
-  peggiori (bias dei sopravvissuti). Da rifare sull'universo completo con le delistate prima di decidere.
+- Provato sui titoli di oggi (studio_allarmi.py) e sull'universo completo con le delistate (studio_bilanci_onesto.py,
+  risultati_bilanci_onesto.txt): sulle 500 azioni piu' scambiate i segnali indicano soprattutto aziende in crescita e
+  hanno reso PIU' della media (p = 0,016). Nessun avviso sui conti, giudizio SOLIDA invariato. Stessa prova onesta
+  per il ROIC del Vol. 3: nessun vantaggio significativo.
 - Saltato: principi contabili IFRS/US GAAP (leasing, pensioni, imposte differite, metodi di magazzino), modelli di
   previsione dei bilanci (servono stime a mano per azienda).

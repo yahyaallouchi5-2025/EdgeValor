@@ -1,0 +1,42 @@
+PROVA ONESTA (universo com'era, delistate incluse) - studi/studio_bilanci_onesto.py - 20/11/2026
+Bilanci: ramo studio-buffett rigenerato con sec_bilanci_storia.py v8.42. Prezzi: ramo studio-delistate.
+Universo ogni 31/3: le 500 azioni piu' scambiate dei 12 mesi prima, con bilancio abbinato (esclusi banche/assicurazioni/immobiliari per nome).
+
+titoli abbinati: 7504 (usciti dalla borsa: 4362)
+2010 {'crea': 0, 'distrugge': 17, 'fragile': 11, 'allarme': 0, 'crediti': 0, 'magazzino': 0, 'cassa': 0, 'rotazione': 0, 'tutti': 188} {'distrugge': -5.8, 'fragile': -5.2}
+2011 {'crea': 64, 'distrugge': 9, 'fragile': 8, 'allarme': 6, 'crediti': 18, 'magazzino': 20, 'cassa': 3, 'rotazione': 0, 'tutti': 245} {'crea': 7.5, 'distrugge': -22.4, 'fragile': -15.7, 'allarme': 19.0, 'crediti': -0.7, 'magazzino': 8.8}
+2012 {'crea': 107, 'distrugge': 9, 'fragile': 8, 'allarme': 20, 'crediti': 34, 'magazzino': 35, 'cassa': 7, 'rotazione': 13, 'tutti': 261} {'crea': -4.9, 'distrugge': 9.6, 'fragile': 5.7, 'allarme': 18.1, 'crediti': 4.1, 'magazzino': -0.1, 'cassa': 3.3, 'rotazione': 14.6}
+2013 {'crea': 105, 'distrugge': 27, 'fragile': 15, 'allarme': 17, 'crediti': 31, 'magazzino': 39, 'cassa': 8, 'rotazione': 30, 'tutti': 254} {'crea': 0.1, 'distrugge': 20.7, 'fragile': 31.6, 'allarme': 15.0, 'crediti': 13.1, 'magazzino': 6.2, 'cassa': -13.6, 'rotazione': 1.5}
+2014 {'crea': 105, 'distrugge': 24, 'fragile': 14, 'allarme': 27, 'crediti': 31, 'magazzino': 34, 'cassa': 6, 'rotazione': 51, 'tutti': 256} {'crea': 1.7, 'distrugge': -11.7, 'fragile': 1.4, 'allarme': 0.0, 'crediti': 1.1, 'magazzino': 1.9, 'cassa': -7.4, 'rotazione': -3.9}
+2015 {'crea': 110, 'distrugge': 34, 'fragile': 12, 'allarme': 22, 'crediti': 33, 'magazzino': 25, 'cassa': 11, 'rotazione': 44, 'tutti': 264} {'crea': 4.8, 'distrugge': -15.5, 'fragile': 10.4, 'allarme': 4.2, 'crediti': 5.0, 'magazzino': -1.1, 'cassa': 3.5, 'rotazione': -0.8}
+2016 {'crea': 114, 'distrugge': 35, 'fragile': 16, 'allarme': 25, 'crediti': 24, 'magazzino': 41, 'cassa': 7, 'rotazione': 46, 'tutti': 269} {'crea': -2.2, 'distrugge': 5.6, 'fragile': 8.8, 'allarme': -0.4, 'crediti': -2.1, 'magazzino': 0.8, 'cassa': -5.1, 'rotazione': 5.0}
+2017 {'crea': 117, 'distrugge': 35, 'fragile': 16, 'allarme': 38, 'crediti': 49, 'magazzino': 30, 'cassa': 3, 'rotazione': 72, 'tutti': 258} {'crea': 4.1, 'distrugge': -9.1, 'fragile': -16.4, 'allarme': -2.8, 'crediti': -2.0, 'magazzino': -5.6, 'rotazione': -2.1}
+2018 {'crea': 110, 'distrugge': 25, 'fragile': 12, 'allarme': 22, 'crediti': 29, 'magazzino': 43, 'cassa': 4, 'rotazione': 49, 'tutti': 264} {'crea': 1.1, 'distrugge': 3.3, 'fragile': 21.7, 'allarme': -3.7, 'crediti': -0.7, 'magazzino': -1.9, 'rotazione': -1.9}
+2019 {'crea': 127, 'distrugge': 32, 'fragile': 16, 'allarme': 14, 'crediti': 27, 'magazzino': 34, 'cassa': 1, 'rotazione': 32, 'tutti': 311} {'crea': 2.6, 'distrugge': -0.1, 'fragile': -9.6, 'allarme': 14.1, 'crediti': 13.9, 'magazzino': 0.0, 'rotazione': 2.2}
+2020 {'crea': 137, 'distrugge': 45, 'fragile': 19, 'allarme': 31, 'crediti': 47, 'magazzino': 48, 'cassa': 8, 'rotazione': 48, 'tutti': 331} {'crea': -7.7, 'distrugge': 47.8, 'fragile': 2.9, 'allarme': 0.5, 'crediti': 13.0, 'magazzino': -11.0, 'cassa': 7.7, 'rotazione': 9.0}
+2021 {'crea': 117, 'distrugge': 64, 'fragile': 24, 'allarme': 71, 'crediti': 60, 'magazzino': 69, 'cassa': 3, 'rotazione': 123, 'tutti': 319} {'crea': 2.8, 'distrugge': -15.6, 'fragile': -5.5, 'allarme': 8.6, 'crediti': -2.4, 'magazzino': 8.3, 'rotazione': 4.5}
+2022 {'crea': 112, 'distrugge': 50, 'fragile': 15, 'allarme': 28, 'crediti': 31, 'magazzino': 49, 'cassa': 11, 'rotazione': 44, 'tutti': 321} {'crea': 6.5, 'distrugge': -19.5, 'fragile': -11.9, 'allarme': -1.6, 'crediti': -5.1, 'magazzino': 2.8, 'cassa': 23.1, 'rotazione': -2.4}
+2023 {'crea': 135, 'distrugge': 54, 'fragile': 15, 'allarme': 35, 'crediti': 58, 'magazzino': 85, 'cassa': 14, 'rotazione': 13, 'tutti': 335} {'crea': 2.7, 'distrugge': 6.6, 'fragile': 11.5, 'allarme': 16.6, 'crediti': 13.1, 'magazzino': -9.3, 'cassa': 3.5, 'rotazione': 63.4}
+2024 {'crea': 129, 'distrugge': 56, 'fragile': 13, 'allarme': 22, 'crediti': 33, 'magazzino': 59, 'cassa': 11, 'rotazione': 26, 'tutti': 345} {'crea': -3.3, 'distrugge': -9.1, 'fragile': 4.2, 'allarme': -6.4, 'crediti': 9.5, 'magazzino': -7.1, 'cassa': -8.0, 'rotazione': -1.0}
+2025 {'crea': 139, 'distrugge': 45, 'fragile': 14, 'allarme': 27, 'crediti': 38, 'magazzino': 34, 'cassa': 11, 'rotazione': 54, 'tutti': 342} {'crea': -2.5, 'distrugge': 27.0, 'fragile': 62.8, 'allarme': 15.6, 'crediti': 14.4, 'magazzino': 31.3, 'cassa': 3.5, 'rotazione': 7.2}
+titoli dell'universo usciti dalla borsa entro 12 mesi, per anno: {2010: 1, 2011: 6, 2012: 4, 2013: 4, 2014: 3, 2015: 7, 2016: 9, 2017: 8, 2018: 11, 2019: 10, 2020: 10, 2021: 10, 2022: 11, 2023: 5, 2024: 5, 2025: 3}
+
+MEDIA (sviluppo / verifica, punti % a 12 mesi rispetto a tutti) e IC95 sull'intero periodo:
+  crea_meno_tutti           +1.58 /  +0.28   IC95 [-2.23, 4.01]   coppie {'p_t': 0.4363, 'meglio': 10, 'peggio': 5}
+  distrugge_meno_tutti      -3.57 /  +5.07   IC95 [-12.47, 13.98]   coppie {'p_t': 0.8751, 'meglio': 7, 'peggio': 9}
+  fragile_meno_tutti        +2.58 /  +9.50   IC95 [-8.02, 20.1]   coppie {'p_t': 0.246, 'meglio': 10, 'peggio': 6}
+  allarme_meno_tutti        +7.58 /  +5.46   IC95 [-0.16, 13.07]   coppie {'p_t': 0.0159, 'meglio': 10, 'peggio': 5}
+  crediti_meno_tutti        +2.64 /  +6.97   IC95 [-0.25, 10.15]   coppie {'p_t': 0.0181, 'meglio': 9, 'peggio': 6}
+  magazzino_meno_tutti      +1.56 /  +1.64   IC95 [-5.73, 8.93]   coppie {'p_t': 0.5495, 'meglio': 8, 'peggio': 7}
+  cassa_meno_tutti          -3.83 /  +5.94   IC95 [-8.1, 10.22]   coppie {'p_t': 0.7531, 'meglio': 6, 'peggio': 4}
+  rotazione_meno_tutti      +2.36 / +10.11   IC95 [-6.06, 19.64]   coppie {'p_t': 0.1613, 'meglio': 8, 'peggio': 6}
+  ESITO_crea False
+  ESITO_allarme False
+  ESITO_fragile False
+  ESITO_distrugge False
+
+ESITO: nessuna regola passa. I segnali d'allarme del libro, sulle 500 azioni piu' scambiate, indicano piu' spesso
+aziende in CRESCITA (crediti e magazzino che salgono con le vendite) che conti truccati: hanno reso PIU' della media
+(allarme +7,6 / +5,5 punti, test sulle coppie p = 0,016). ROIC alto: +1,6 / +0,3, non significativo.
+DECISIONE: niente avvisi sui conti e nessuna rettifica del giudizio SOLIDA. NOTA: il rifacimento del ramo studio-buffett
+ha tolto cap_prezzi.json.gz (studio Buffett del 13/11): si rigenera con il workflow 'Studio Buffett - capitalizzazione'.
