@@ -428,8 +428,9 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  //     "ebConto"), confrontate con il profilo scelto: valore, risultato (se c'e' il prezzo di carico), distanza dal
  //     modello e ordini a quote intere per riallinearsi alla rotazione. Strumenti equivalenti (Vanguard S&P 500 = S&P 500)
  //     contano come lo stesso mercato: non si vende uno per comprare l'altro (costi e tasse inutili).
- let mioConto={righe:[],altri:[],liq:0,vers:0},contoEdit=false;
- try{const c=JSON.parse(localStorage.getItem("ebConto")||"null");if(c&&Array.isArray(c.righe))mioConto=Object.assign({righe:[],altri:[],liq:0,vers:0},c);}catch(e){}
+ // v8.37 flussi = versamenti dell'utente [{d:"AAAA-MM-GG", v:euro}] per il RENDIMENTO REALE (vedi rendHTML)
+ let mioConto={righe:[],altri:[],liq:0,vers:0,flussi:[]},contoEdit=false,flAdd=false;
+ try{const c=JSON.parse(localStorage.getItem("ebConto")||"null");if(c&&Array.isArray(c.righe))mioConto=Object.assign({righe:[],altri:[],liq:0,vers:0,flussi:[]},c);}catch(e){}
  const salvaConto=()=>{try{localStorage.setItem("ebConto",JSON.stringify(mioConto));}catch(e){}};
  const EQUIV={SP500C:"SP500"};                       // strumento -> mercato del modello
  const strum=k=>(P.strumenti||{})[k]||null;
@@ -502,6 +503,44 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    <label class="pcap pconto-liq pconto-vers">Versamento (facoltativo) <input inputmode="decimal" value="${val(mioConto.vers)}" aria-label="Versamento in euro"> &euro;</label>
    <div class="pconto-b"><button type="button" class="pconto-ok">Salva</button><button type="button" class="pconto-no">Annulla</button></div>
    <template data-t="r">${riga({})}</template><template data-t="a">${altro({})}</template></div>`;}
+ // --- v8.37 RENDIMENTO REALE (libro CFA Vol. 1, cap. 1: rendimento ponderato per il denaro).
+ //   Il tuo conto: tasso r che rende uguali i versamenti (con le loro date) al valore di oggi del conto (TIR / XIRR).
+ //   Modello: STESSI versamenti investiti nel profilo alle stesse date (curva settimanale del sito, euro, costi
+ //   inclusi), poi stesso calcolo. Cosi' il confronto e' alla pari: la differenza sono commissioni, quote intere,
+ //   prezzi e date reali d'acquisto. Sotto un anno si mostra il rendimento DEL PERIODO (il libro avverte di non
+ //   annualizzare periodi brevi): (1+r)^(giorni/365)-1. I versamenti restano solo nel browser (come le quote).
+ const GG=d=>Date.parse(d+"T12:00:00Z")/864e5;
+ function tir(fl,valore,oggi){                 // fl=[{d,v}] versamenti; risolve sum(v*(1+r)^((oggi-t)/365)) = valore
+  const f=r=>fl.reduce((a,x)=>a+x.v*Math.pow(1+r,(oggi-GG(x.d))/365),0)-valore;
+  let lo=-0.99,hi=10;if(f(lo)>0||f(hi)<0)return null;
+  for(let i=0;i<200;i++){const m=(lo+hi)/2;if(f(m)>0)hi=m;else lo=m;}return (lo+hi)/2;}
+ function rendCalc(p,valore){const fl=(mioConto.flussi||[]).filter(x=>x.d&&x.v>0).sort((a,b)=>a.d<b.d?-1:1);
+  if(!fl.length||!(valore>0)||!p.curva||!p.curva.length)return null;
+  const oggi=Math.floor(Date.now()/864e5),gg=oggi-GG(fl[0].d);if(gg<7)return {pochi:true,dal:fl[0].d};
+  const cv=p.curva,ult=cv[cv.length-1][1],alla=d=>{let x=cv[0][1];for(const q of cv){if(q[0]>d)break;x=q[1];}return x;};
+  const mod=fl.reduce((a,x)=>a+x.v*ult/alla(x.d),0);           // valore di oggi dei versamenti nel modello
+  const rt=tir(fl,valore,oggi),rm=tir(fl,mod,oggi);if(rt==null||rm==null)return null;
+  const per=r=>gg<365?(Math.pow(1+r,gg/365)-1)*100:r*100;
+  return {dal:fl[0].d,anno:gg>=365,tuo:per(rt),mod:per(rm),fl};}
+ function rendHTML(p,valore){const fl=(mioConto.flussi||[]).slice().sort((a,b)=>a.d<b.d?-1:1),R=rendCalc(p,valore);
+  const gd=d=>d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4);
+  const k=(t,v,sotto)=>`<div><small>${t}</small><b class="${v>=0?"up":"down"}">${pc(v)}</b><span class="prr-s">${sotto}</span></div>`;
+  return `<div class="prr"><div class="prr-t"><h4>Rendimento reale</h4><details class="info"><summary title="Come si calcola" aria-label="Come si calcola">i</summary><div><b>Il tuo conto</b>: il rendimento vero dei tuoi soldi, tenendo conto di <b>quando</b> e <b>quanto</b> hai versato (rendimento ponderato per il denaro). Usa il valore del conto qui sopra.<br><br><b>Modello</b>: gli stessi versamenti, alle stesse date, investiti nel profilo scelto (euro, costi del modello inclusi).<br><br><b>Differenza</b>: quello che il conto reale ha guadagnato o perso rispetto al modello: commissioni del broker, spread, quote intere, prezzi e date d'acquisto. Sotto un anno &egrave; il risultato del periodo, da un anno in su &egrave; annuo.<br><br>I versamenti restano solo in questo browser.</div></details></div>
+   <div class="prr-v">${fl.map((x,i)=>`<span class="prr-c">${gd(x.d)} <b>${eur(x.v)}</b><button type="button" class="prr-del" data-i="${mioConto.flussi.indexOf(x)}" aria-label="Togli il versamento del ${gd(x.d)}">&#x2715;</button></span>`).join("")}
+    ${flAdd?`<span class="prr-f"><input type="date" class="prr-fd" aria-label="Data del versamento" max="${new Date().toISOString().slice(0,10)}"><input type="text" inputmode="decimal" class="prr-fv" placeholder="importo €" aria-label="Importo del versamento in euro"><button type="button" class="prr-ok">Aggiungi</button><button type="button" class="prr-no" aria-label="Annulla">&#x2715;</button></span>`
+     :`<button type="button" class="prr-add">+ ${fl.length?"Aggiungi versamento":"Inserisci il primo versamento"}</button>`}</div>
+   ${R&&R.pochi?`<p class="small">Il calcolo parte una settimana dopo il primo versamento.</p>`
+    :R?`<div class="pmc-k prr-k">${k("Il tuo conto",R.tuo,(R.anno?"l'anno ":"")+"dal "+gd(R.dal))}${k("Modello",R.mod,"stessi versamenti")}
+      <div><small>Differenza</small><b class="${R.tuo-R.mod>=0?"up":"down"}">${(R.tuo-R.mod>=0?"+":"&minus;")+fx(Math.abs(R.tuo-R.mod),1)}</b><span class="prr-s">punti &middot; costi e date</span></div></div>`:""}</div>`;}
+ function rendEventi(box,p,ridis){
+  box.querySelectorAll(".prr-del").forEach(b=>b.onclick=()=>{mioConto.flussi.splice(+b.dataset.i,1);salvaConto();ridis();});
+  const a=box.querySelector(".prr-add");if(a)a.onclick=()=>{flAdd=true;ridis();const d=box.querySelector(".prr-fd");if(d)d.focus();};
+  const no=box.querySelector(".prr-no");if(no)no.onclick=()=>{flAdd=false;ridis();};
+  const ok=box.querySelector(".prr-ok");if(ok)ok.onclick=()=>{const d=box.querySelector(".prr-fd").value,v=num(box.querySelector(".prr-fv").value);
+   if(!d||!v||d>new Date().toISOString().slice(0,10)){box.querySelector(".prr-fv").focus();return;}
+   (mioConto.flussi=mioConto.flussi||[]).push({d,v});flAdd=false;salvaConto();ridis();};
+  const fv=box.querySelector(".prr-fv");if(fv)fv.onkeydown=e=>{if(e.key=="Enter")ok.click();};}
+
  function contoHTML(p){const vuoto=!mioConto.righe.length&&!mioConto.altri.length&&!(+mioConto.liq);
   const testa=`<div class="pconto-t"><h3>Il mio conto <span class="pbprof">${esc(p.nome)}</span></h3>
    <details class="info"><summary title="Come funziona" aria-label="Come funziona">i</summary><div>Inserisci le quote che hai sul conto: restano <b>solo in questo browser</b>, non vengono inviate a nessuno. Il conto si confronta con il profilo scelto (con meno di ${eur((P.compatto||{}).sotto||10000)} la versione compatta).<br><br><b>Risultato</b>: guadagno o perdita sulle righe con il prezzo di carico. <b>Distanza dal modello</b>: quanta parte del conto &egrave; in posti diversi dal modello (0% = identico).<br><br><b>Prima l'acquisto</b>: il conto si riallinea comprando. La liquidit&agrave; (e l'eventuale versamento) va ai mercati <b>sotto il loro peso</b>, a quote intere; quello in sovrappeso non si vende. Un titolo <b>fuori dal modello</b> si vende solo se &egrave; in perdita (la perdita va nello zainetto e riduce le tasse future); se &egrave; in guadagno si tiene, perch&eacute; venderlo costerebbe il 26%.<br><br>Scarti sotto il 2% del conto si lasciano. Vanguard S&amp;P 500 e iShares S&amp;P 500 contano come lo stesso mercato. Prezzi indicativi: controllali sul broker.</div></details>
@@ -512,6 +551,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   return testa+`<div class="pmc-k pconto-k"><div><small>Valore del conto</small><b>${eur(c.T)}</b></div>
     <div><small>Risultato</small><b class="${c.gain>=0?"up":"down"}">${c.cst?(c.gain>=0?"+":"&minus;")+eur(Math.abs(c.gain))+` <em>${pc(perc)}</em>`:"n/d"}</b></div>
     <div><small>Distanza dal modello</small><b class="${c.dist<=5?"up":c.dist<=15?"":"down"}">${fx(c.dist,0)}%</b></div></div>
+   ${rendHTML(p,c.T)}
    <span class="pconto-lab">${c.ord.some(o=>o.t=="c"||o.t=="v")?"Ordini &middot; prima l'acquisto":"Nessun ordine da fare"}</span>
    ${c.ord.length?`<div class="pconto-o">${c.ord.sort((a,b)=>"vctr".indexOf(a.t)-"vctr".indexOf(b.t)).map(o=>{
     const cl={v:"ven",c:"com",t:"tie",r:""}[o.t],et={v:"Vendi",c:"Compra",t:"Tieni",r:"Conto"}[o.t];
@@ -527,7 +567,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   const b=sel=>box.querySelector(sel);
   if(b(".pconto-ins"))b(".pconto-ins").onclick=()=>{contoEdit=true;ridis();};
   if(b(".pconto-mod"))b(".pconto-mod").onclick=()=>{contoEdit=true;ridis();};
-  if(!contoEdit)return;
+  if(!contoEdit){rendEventi(box,p,ridis);return;}           // v8.37 versamenti del rendimento reale
   box.querySelectorAll("[data-add]").forEach(x=>x.onclick=()=>{const t=b(`template[data-t="${x.dataset.add}"]`),g=b(`[data-g="${x.dataset.add}"]`);
    g.appendChild(t.content.firstElementChild.cloneNode(true));lega();});
   const lega=()=>box.querySelectorAll(".pconto-x").forEach(x=>x.onclick=()=>x.parentElement.remove());lega();

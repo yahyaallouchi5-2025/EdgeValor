@@ -3445,3 +3445,20 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 .cdiv{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-left:5px;vertical-align:middle;box-shadow:0 0 6px rgba(233,180,76,.5)}
 .cheat td.cdivc{position:relative}
 .cheat td.cdivc::after{content:"";position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+
+/* v8.37 "Il mio conto" -> RENDIMENTO REALE: versamenti come chip, modulo in linea, tre schede come le altre (.pmc-k) */
+.prr{margin:4px 0 16px;padding-top:14px;border-top:1px solid var(--line)}
+.prr-t{display:flex;align-items:center;gap:8px;margin-bottom:10px}.prr-t h4{margin:0;font-size:14px;color:var(--ink)}
+.prr-v{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+.prr-c{display:inline-flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border:1px solid var(--line);border-radius:999px;font-size:12.5px;color:var(--ink2);transition:border-color .15s}
+.prr-c:hover{border-color:var(--mute)}.prr-c b{color:var(--ink);font-variant-numeric:tabular-nums}
+.prr-c button,.prr-no{width:22px;height:22px;border-radius:50%;border:0;background:none;color:var(--mute);cursor:pointer;font-size:12px;transition:background .15s,color .15s}
+.prr-c button:hover,.prr-no:hover{background:var(--soft);color:var(--ink)}
+.prr-add{display:inline-flex;align-items:center;padding:6px 14px;border:1px dashed var(--line);border-radius:999px;background:none;color:var(--acc);font:600 12.5px system-ui;cursor:pointer;transition:border-color .15s,background .15s}
+.prr-add:hover{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,transparent)}
+.prr-f{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}
+.prr-f input{height:34px;padding:0 10px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--ink);font:500 13px system-ui;color-scheme:dark;transition:border-color .15s}
+.prr-f input:focus{outline:none;border-color:var(--acc)}.prr-fv{width:110px;text-align:right}
+.prr-ok{height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--acc);background:var(--acc);color:#04211e;font:700 13px system-ui;cursor:pointer}
+.prr-ok:hover{box-shadow:0 6px 18px rgba(46,196,182,.3)}
+.prr-k .prr-s{display:block;font-size:12px;color:var(--mute);margin-top:2px}
