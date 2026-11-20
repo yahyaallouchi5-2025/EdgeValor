@@ -75,6 +75,19 @@ DOMANDE = [
      f"La registrazione a EdgeValor è gratuita e comprende 14 giorni di Premium, senza carta. Finita la prova resti "
      f"nel piano Basic, gratis per sempre. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese "
      f"con il piano annuale ({eu(ANNO_TOT)} € all'anno); si disdice quando vuoi. Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
+    ("I risultati includono commissioni, spread e slippage?",
+     "In parte, e EdgeValor lo dice in chiaro. I risultati dei portafogli includono un costo dello 0,10% sul capitale "
+     "scambiato, le tasse italiane del regime amministrato e l'acquisto prudente alla chiusura del giorno di rotazione. "
+     "Nella realtà ogni broker aggiunge i propri costi: la <b>commissione fissa per ordine</b> (spesso 1-2 €, che su "
+     "capitali piccoli pesa molto), lo <b>spread</b> tra prezzo di acquisto e di vendita e lo <b>slippage</b>, cioè lo "
+     "scarto tra il prezzo visto e quello eseguito. Per questo il terminale calcola le commissioni sul tuo capitale "
+     "e mostra il rendimento stimato sul tuo conto: con capitali piccoli conviene un broker a commissioni basse o zero."),
+    ("EdgeValor gestisce denaro o contatta gli utenti?",
+     "No. EdgeValor non è un broker né un consulente: non apre conti, non esegue ordini, non custodisce denaro e non "
+     "chiede mai soldi da investire, bonifici, criptovalute o password. L'unico pagamento è l'abbonamento Premium, "
+     "fatto dall'utente nel terminale tramite PayPal. EdgeValor scrive via email solo a chi si è registrato, per "
+     "accesso e abbonamento, e non contatta nessuno per telefono, WhatsApp o messaggi privati: chi lo fa a nome di "
+     "EdgeValor non è EdgeValor. Dettagli in <a href=\"/legale/#cosa-non-e\">cosa EdgeValor non è</a>."),
     ("È una consulenza finanziaria? Posso perdere denaro?",
      "No, EdgeValor non è una consulenza finanziaria: pubblica analisi statistiche con finalità educative e ogni "
      "decisione resta tua. Ogni investimento può perdere in parte o del tutto il capitale e i risultati passati non "
