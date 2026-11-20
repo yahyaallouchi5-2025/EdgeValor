@@ -39,7 +39,7 @@
    <div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
     <div><h3 id="adt">Admin · Iscritti <button type="button" class="info" data-apri="adinfo" data-k="admin" aria-expanded="false" aria-label="Come funziona">i</button></h3><p class="adsott">Attiva Premium dopo il pagamento PayPal.</p></div>
     <button type="button" class="fbx" aria-label="Chiudi">&#x2715;</button></div>
-   <p id="adinfo" class="sub infotesto">+1 mese aggiunge 30 giorni, +1 anno 365: se l'utente è ancora Premium si sommano alla scadenza, altrimenti partono da oggi. Il calendario imposta una scadenza precisa. Revoca riporta subito a Basic. Alla scadenza l'utente torna Basic da solo. Ogni azione resta registrata.</p>
+   <p id="adinfo" class="sub infotesto">+1 mese aggiunge 30 giorni, +1 anno 365: se l'utente è ancora Premium si sommano alla scadenza, altrimenti partono da oggi. Revoca riporta subito a Basic. Alla scadenza l'utente torna Basic da solo. Ogni azione resta registrata.</p>
    <div class="adnum"></div>
    <input type="search" class="adcerca" placeholder="Cerca email o ID" aria-label="Cerca email o ID">
    <div class="adlista" aria-live="polite"><p class="advuoto">Carico gli iscritti…</p></div></div>`;
@@ -67,12 +67,9 @@
       <small>Iscritto il ${data(u.creato)} · ultimo accesso ${data(u.ultimo_accesso)}</small></div>
      <div class="adst"><span class="adpill ${s[0]}">${s[1]}</span><small class="${inScadenza(u)?"adwarn":""}">${scad}</small></div>
      <div class="adazioni">${fisso?`<small class="admuto">Gestito dal sistema</small>`:
-      `<button type="button" class="adb pri" data-a="mese">+1 mese</button><button type="button" class="adb" data-a="anno">+1 anno</button><button type="button" class="adb adcal" data-a="data" title="Scegli la data di scadenza" aria-label="Scegli la data di scadenza">${CAL}<input type="date" tabindex="-1" aria-hidden="true" min="${ymd(Date.now()+GIORNO)}" value="${s[0]=="premium"?ymd(Date.parse(s[2])):""}"></button>${s[0]=="premium"||s[0]=="prova"?`<button type="button" class="adb ko" data-a="revoca">Revoca</button>`:`<span class="adb vuoto" aria-hidden="true">Revoca</span>`}`}</div></div>`;}).join("");
-   lista.querySelectorAll(".adb:not(.adcal)").forEach(b=>b.onclick=()=>azione(b));
-   // calendario: il tocco apre il selettore di data; scelta la data, Premium fino a quel giorno alle 23:59
-   lista.querySelectorAll(".adcal").forEach(b=>{const i=b.querySelector("input");
-    b.onclick=e=>{if(e.target==i)return;try{i.showPicker();}catch(_){i.focus();i.click();}};
-    i.onchange=()=>{if(!i.value)return;const [a,m,g]=i.value.split("-").map(Number);azione(b,new Date(a,m-1,g,23,59,0).toISOString());};});}
+      `<button type="button" class="adb pri" data-a="mese">+1 mese</button><button type="button" class="adb" data-a="anno">+1 anno</button>${s[0]=="premium"||s[0]=="prova"?`<button type="button" class="adb ko" data-a="revoca">Revoca</button>`:`<span class="adb vuoto" aria-hidden="true">Revoca</span>`}`}</div></div>`;}).join("");
+   // v8.41 tolto il calendario (decisione di Ya, 20/11/2026): bastano +1 mese e +1 anno
+   lista.querySelectorAll("button.adb").forEach(b=>b.onclick=()=>azione(b));}
 
   // (in Basic al posto di Revoca c'e' uno spazio invisibile: i pulsanti restano allineati in colonna)
   // azione su un iscritto: la revoca chiede conferma sul pulsante stesso (secondo tocco entro 4 s)
