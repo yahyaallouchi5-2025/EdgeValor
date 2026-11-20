@@ -1781,6 +1781,39 @@ def serie_satellite(sat, date_borsa):
     return out
 
 
+def duration_empirica(px, cartella=CARTELLA, anni=3):
+    """v8.46 di quanto si muove l'ETF se il rendimento del Treasury di riferimento sale di 1 punto (in %), dalla
+    regressione dei rendimenti settimanali degli ultimi `anni` anni (libro CFA Vol. 6, studi/risultati_obbligazioni.txt:
+    IEF circa -7,4%, SHY circa -1,7%, R2 > 0,9). {chiave del portafoglio: valore}; vuoto se mancano i dati."""
+    out = {}
+    for k, etf, tasso in (("US10Y", "IEF", "DGS10"), ("CASH", "SHY", "DGS2")):
+        f = os.path.join(cartella or "", tasso + ".csv")
+        if not os.path.exists(f) or not px.get(etf):
+            continue
+        tassi = {}
+        with open(f, encoding="utf-8") as fh:
+            for r in csv.reader(fh):
+                try:
+                    tassi[r[0][:10]] = float(r[-1])
+                except (ValueError, IndexError):
+                    pass
+        prezzi = dict(px[etf])
+        giorni = sorted(d for d in prezzi if d in tassi)
+        if not giorni:
+            continue
+        dal = f"{int(giorni[-1][:4]) - anni}{giorni[-1][4:]}"
+        sett = [d for d in giorni if d >= dal][::5]
+        x = [tassi[sett[i]] - tassi[sett[i - 1]] for i in range(1, len(sett))]
+        y = [(prezzi[sett[i]] / prezzi[sett[i - 1]] - 1) * 100 for i in range(1, len(sett))]
+        if len(x) < 100:
+            continue
+        mx, my = sum(x) / len(x), sum(y) / len(y)
+        sxx = sum((a - mx) ** 2 for a in x)
+        if sxx > 0:
+            out[k] = round(sum((a - mx) * (c - my) for a, c in zip(x, y)) / sxx, 1)
+    return out
+
+
 def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, pue=None):
     """righe_cot = archivio COT; px = prezzi() (ticker -> punti); sat = satellite.json delle azioni scelte (o None:
     la quota va in liquidita'). Restituisce i dati della scheda "Portafogli" oppure None se mancano i prezzi di base
@@ -2033,6 +2066,7 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
                      "sp500": {"nome": STRUMENTI_UE["SP500C"][0], "isin": STRUMENTI_UE["SP500C"][1],
                                **({"prezzo": pue["SP500C"]["p"], "pd": pue["SP500C"]["d"]} if (pue or {}).get("SP500C") else {})}},
         "avviso": avviso,
+        "duration": duration_empirica(px, cartella),           # v8.46 rischio tassi di Treasury e liquidita'
         "azioni": {"live_dal": (sat or {}).get("live_dal"), "nota": (sat or {}).get("nota"),
                    "disponibili": bool(ss)},
     }

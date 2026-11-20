@@ -98,6 +98,10 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   const mot=c.k=="CASH"?"Liquidit&agrave; fissa del profilo + pesi dei mercati in pausa."
    :c.k=="AZ"?`filtro di mercato: S&amp;P 500 ${pc(c.trend)} sopra la media a 200 giorni`
    :`trend ${pc(c.trend)} sopra la media a 200 giorni · volatilit&agrave; ${fx(c.vol,0)}% · COT ${c.score!=null?sg(c.score,0):"n/d"} (informativo)`;
+  // v8.46 rischio tassi (anteprima admin): di quanto si muove l'ETF se il rendimento sale di 1 punto, dai dati degli
+  //   ultimi 3 anni (portafogli.duration_empirica, libro CFA Vol. 6)
+  const du=document.documentElement.classList.contains("eb-admin")&&(P.duration||{})[c.k];
+  const motD=du?mot+` · <span title="Stima dai movimenti degli ultimi 3 anni (duration empirica): con i tassi in discesa vale al contrario">se i tassi salgono di 1 punto &asymp; ${fx(du,1)}%</span>`:mot;
   const ue=c.ue?`<div class="pue"><span class="pue-n">${esc(c.ue.nome)}</span><button class="pisin" data-isin="${esc(c.ue.isin)}" title="Copia l'ISIN da cercare nell'app del broker"><code>${esc(c.ue.isin)}</code><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>`
    :`<span>${esc(c.strumento)}</span>`;
   let tit="";
@@ -109,7 +113,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
      <span class="paz-id"><b>${esc(x.t)}</b><span class="paz-n">${esc(x.n)}</span>${x.sost?`<span class="paz-sost" title="${esc(x.sost_n||x.sost)} (${esc(x.sost)}) non si compra su Scalable: sostituito dal candidato acquistabile successivo, stessi filtri">al posto di ${esc(x.sost_n||x.sost)}</span>`:""}<span class="paz-isin" data-isinaz="${esc(x.t)}" hidden></span></span><span class="paz-s">${esc(sett)}</span><span class="paz-b${b[1]?"":" no"}" title="${b[1]?"Borsa di quotazione":"Di solito non acquistabile dai broker europei per privati"}">${b[0]}</span><span class="paz-p"><b>${fx(quota,quota<1?2:1)}%</b><em data-peso="${quota}">${eur(capitale*quota/100)}</em></span></button>${ix==VISIBILI-1&&lista.length>VISIBILI+1?`<details class="paz-piu"><summary>Altre ${lista.length-VISIBILI} azioni</summary><div class="paz">`:""}${ix==lista.length-1&&lista.length>VISIBILI+1?"</div></details>":""}`;}).join("")}</div>`;
    else tit=`<div class="small paz-vuoto">Le azioni (fino a 20) si scelgono l'ultimo giorno di borsa del mese, dopo la chiusura, ed entrano con la rotazione del ${gg(P.prossima)}.</div>`;}
   // l'elenco dei titoli sta su una riga a parte della griglia, a tutta larghezza (leggibile anche su telefono)
-  return `<div class="prow${c.k=="AZ"?" prow-az":""}"><i style="background:${col}"></i><div class="pnome"><b>${esc(c.nome)}<details class="info pmot"><summary title="Perch&eacute; &egrave; in portafoglio" aria-label="Perch&eacute; &egrave; in portafoglio">i</summary><div>${mot}${c.ue&&c.ue.nota?`<br>${esc(c.ue.nota)}`:""}</div></details></b>${ue}</div>
+  return `<div class="prow${c.k=="AZ"?" prow-az":""}"><i style="background:${col}"></i><div class="pnome"><b>${esc(c.nome)}<details class="info pmot"><summary title="Perch&eacute; &egrave; in portafoglio" aria-label="Perch&eacute; &egrave; in portafoglio">i</summary><div>${motD}${c.ue&&c.ue.nota?`<br>${esc(c.ue.nota)}`:""}</div></details></b>${ue}</div>
    <div class="ppeso"><b>${fx(c.peso,1)}%</b><span class="peur">${eur(capitale*c.peso/100)}</span><span class="pbar"><i style="width:${Math.min(100,c.peso*2.5)}%;background:${col}"></i></span></div>${tit}</div>`;}
 
  // --- composizione del mese raggruppata per macro-classe (Azionario, Obbligazionario, Materie prime, Cripto, Liquidita')
