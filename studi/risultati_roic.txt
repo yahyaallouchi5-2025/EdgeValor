@@ -1,0 +1,159 @@
+STUDIO ROIC E COPERTURA DEGLI INTERESSI (studi/studio_roic.py, libro CFA Vol. 3) - 20/11/2026
+Dati: SEC companyfacts (prima pubblicazione 10-K, solo depositi <= 31/3), prezzi mensili EODHD del sito. Regole fissate prima: vedi testa dello script.
+
+titoli con bilanci e prezzi: 411
+2010 {'crea': 60, 'distrugge': 16, 'fragile': 20, 'tutti': 112} {'crea_meno_tutti': 4.7, 'distrugge_meno_tutti': -8.4, 'fragile_meno_tutti': -7.3, 'crea_meno_distrugge': 13.1}
+2011 {'crea': 104, 'distrugge': 15, 'fragile': 24, 'tutti': 202} {'crea_meno_tutti': 4.8, 'distrugge_meno_tutti': -12.6, 'fragile_meno_tutti': -6.2, 'crea_meno_distrugge': 17.3}
+2012 {'crea': 157, 'distrugge': 26, 'fragile': 34, 'tutti': 258} {'crea_meno_tutti': -5.1, 'distrugge_meno_tutti': 13.8, 'fragile_meno_tutti': 5.2, 'crea_meno_distrugge': -18.9}
+2013 {'crea': 159, 'distrugge': 44, 'fragile': 46, 'tutti': 272} {'crea_meno_tutti': -5.5, 'distrugge_meno_tutti': 25.1, 'fragile_meno_tutti': 17.6, 'crea_meno_distrugge': -30.5}
+2014 {'crea': 153, 'distrugge': 31, 'fragile': 37, 'tutti': 275} {'crea_meno_tutti': -0.4, 'distrugge_meno_tutti': 1.5, 'fragile_meno_tutti': 0.1, 'crea_meno_distrugge': -1.9}
+2015 {'crea': 170, 'distrugge': 31, 'fragile': 26, 'tutti': 285} {'crea_meno_tutti': -0.7, 'distrugge_meno_tutti': -3.2, 'fragile_meno_tutti': 0.1, 'crea_meno_distrugge': 2.5}
+2016 {'crea': 165, 'distrugge': 46, 'fragile': 35, 'tutti': 297} {'crea_meno_tutti': -1.7, 'distrugge_meno_tutti': 12.5, 'fragile_meno_tutti': 15.9, 'crea_meno_distrugge': -14.2}
+2017 {'crea': 160, 'distrugge': 48, 'fragile': 40, 'tutti': 296} {'crea_meno_tutti': 1.5, 'distrugge_meno_tutti': 5.0, 'fragile_meno_tutti': -0.1, 'crea_meno_distrugge': -3.5}
+2018 {'crea': 158, 'distrugge': 43, 'fragile': 40, 'tutti': 295} {'crea_meno_tutti': -1.9, 'distrugge_meno_tutti': 6.4, 'fragile_meno_tutti': 6.4, 'crea_meno_distrugge': -8.3}
+2019 {'crea': 162, 'distrugge': 42, 'fragile': 40, 'tutti': 303} {'crea_meno_tutti': 2.7, 'distrugge_meno_tutti': -3.0, 'fragile_meno_tutti': -4.1, 'crea_meno_distrugge': 5.7}
+2020 {'crea': 167, 'distrugge': 53, 'fragile': 47, 'tutti': 315} {'crea_meno_tutti': -3.6, 'distrugge_meno_tutti': 41.1, 'fragile_meno_tutti': -0.6, 'crea_meno_distrugge': -44.7}
+2021 {'crea': 143, 'distrugge': 75, 'fragile': 76, 'tutti': 310} {'crea_meno_tutti': -2.3, 'distrugge_meno_tutti': 0.6, 'fragile_meno_tutti': 3.5, 'crea_meno_distrugge': -2.9}
+2022 {'crea': 150, 'distrugge': 62, 'fragile': 52, 'tutti': 323} {'crea_meno_tutti': 2.6, 'distrugge_meno_tutti': -8.3, 'fragile_meno_tutti': -3.9, 'crea_meno_distrugge': 10.9}
+2023 {'crea': 181, 'distrugge': 55, 'fragile': 41, 'tutti': 323} {'crea_meno_tutti': 2.0, 'distrugge_meno_tutti': 13.4, 'fragile_meno_tutti': 2.8, 'crea_meno_distrugge': -11.4}
+2024 {'crea': 173, 'distrugge': 49, 'fragile': 48, 'tutti': 326} {'crea_meno_tutti': -6.5, 'distrugge_meno_tutti': 11.7, 'fragile_meno_tutti': 4.6, 'crea_meno_distrugge': -18.2}
+2025 {'crea': 179, 'distrugge': 52, 'fragile': 58, 'tutti': 337} {'crea_meno_tutti': -9.7, 'distrugge_meno_tutti': 60.7, 'fragile_meno_tutti': 27.1, 'crea_meno_distrugge': -70.4}
+{
+ "crea_meno_tutti": {
+  "sviluppo": {
+   "anni": 8,
+   "media_%": -0.31,
+   "ic_%": [
+    -4.17,
+    3.55
+   ]
+  },
+  "verifica": {
+   "anni": 8,
+   "media_%": -2.09,
+   "ic_%": [
+    -6.57,
+    2.4
+   ]
+  },
+  "tutto": {
+   "anni": 16,
+   "media_%": -1.2,
+   "ic_%": [
+    -4.12,
+    1.73
+   ]
+  },
+  "coppie": {
+   "p_t": 0.2695,
+   "p_segni": 0.3173,
+   "meglio": 6,
+   "peggio": 10
+  }
+ },
+ "distrugge_meno_tutti": {
+  "sviluppo": {
+   "anni": 8,
+   "media_%": 4.22,
+   "ic_%": [
+    -8.23,
+    16.67
+   ]
+  },
+  "verifica": {
+   "anni": 8,
+   "media_%": 15.33,
+   "ic_%": [
+    -8.21,
+    38.87
+   ]
+  },
+  "tutto": {
+   "anni": 16,
+   "media_%": 9.78,
+   "ic_%": [
+    -3.7,
+    23.26
+   ]
+  },
+  "coppie": {
+   "p_t": 0.0596,
+   "p_segni": 0.1336,
+   "meglio": 11,
+   "peggio": 5
+  }
+ },
+ "fragile_meno_tutti": {
+  "sviluppo": {
+   "anni": 8,
+   "media_%": 3.16,
+   "ic_%": [
+    -6.05,
+    12.37
+   ]
+  },
+  "verifica": {
+   "anni": 8,
+   "media_%": 4.48,
+   "ic_%": [
+    -5.38,
+    14.35
+   ]
+  },
+  "tutto": {
+   "anni": 16,
+   "media_%": 3.82,
+   "ic_%": [
+    -2.72,
+    10.36
+   ]
+  },
+  "coppie": {
+   "p_t": 0.1215,
+   "p_segni": 0.3173,
+   "meglio": 10,
+   "peggio": 6
+  }
+ },
+ "crea_meno_distrugge": {
+  "sviluppo": {
+   "anni": 8,
+   "media_%": -4.53,
+   "ic_%": [
+    -20.55,
+    11.5
+   ]
+  },
+  "verifica": {
+   "anni": 8,
+   "media_%": -17.42,
+   "ic_%": [
+    -44.55,
+    9.72
+   ]
+  },
+  "tutto": {
+   "anni": 16,
+   "media_%": -10.97,
+   "ic_%": [
+    -26.9,
+    4.95
+   ]
+  },
+  "coppie": {
+   "p_t": 0.0719,
+   "p_segni": 0.1336,
+   "meglio": 5,
+   "peggio": 11
+  }
+ },
+ "VANTAGGIO_ROIC": false,
+ "AVVISO_FRAGILE": false
+}
+
+ESITO: VANTAGGIO_ROIC = NO (crea valore meno tutti: -0,31% sviluppo, -2,09% verifica, 6 anni meglio su 16).
+AVVISO_FRAGILE = NO (le fragili hanno fatto MEGLIO della media: +3,2% e +4,5%, non significativo).
+Lettura: il ROIC alto e' gia' nel prezzo (come il punteggio qualita' di studio_qualita); i titoli deboli che
+fanno meglio risentono del bias dei sopravvissuti (sono nell'indice oggi perche' si sono ripresi).
+Limite dei dati: alcune aziende non riportano debito o interessi con i tag standard (es. Ford, Apple 2024).
+DECISIONE: ROIC e copertura NON entrano nel sito come segnale.

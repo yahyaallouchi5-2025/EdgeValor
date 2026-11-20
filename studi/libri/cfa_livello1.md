@@ -30,6 +30,6 @@ fuori campione, con le regole decise prima di guardare i risultati.
   ROIC contro costo del capitale (crea o distrugge valore), copertura degli interessi, liquidita' (indice corrente,
   ciclo di conversione della cassa), errori tipici di allocazione del capitale, governance (azionista di controllo,
   azioni a voto multiplo), modelli di business con effetti di rete.
-- Da fare: studio "ROIC > costo del capitale" e "copertura interessi" con le regole di studio_qualita (decisione al
-  31 marzo, solo bilanci gia' depositati, sviluppo 2010-2017 / verifica 2018-2025).
+- Provato (studi/studio_roic.py, risultati_roic.txt): ROIC >= 10% per 2 anni e copertura interessi < 3 NON anticipano
+  rendimenti migliori (crea valore meno tutti -0,3% sviluppo, -2,1% verifica) -> non entrano come segnale.
 - Saltato: forme societarie, stakeholder/ESG descrittivo, teoria di Modigliani-Miller (nessun dato operativo).
