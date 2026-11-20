@@ -75,3 +75,11 @@ fuori campione, con le regole decise prima di guardare i risultati.
   realizzato (ETF sui future contro prezzo senza rinnovo, studio_carry_materie.py): aiuta il drawdown soprattutto
   perche' tiene fuori piu' spesso; sul petrolio dei portafogli rende meno. Portafogli invariati.
 - Saltato: valutazione di forward, swap e opzioni (binomiale, parita' put-call): teoria dei prezzi senza uso nel terminale.
+
+## Vol. 8 — Alternative Investments (letto il 21/11/2026)
+- Provato (studio_inflazione.py): la frase dei portafogli "rame e petrolio contro l'inflazione" e' vera sui dati
+  (beta d'inflazione positivo fino al 2009 e dal 2010; con inflazione in salita forte rendono piu' di azioni e
+  Treasury). L'oro ha protetto dall'inflazione fino al 2009, non dal 2010: nel terminale e' "cuscinetto", corretto.
+- Gia' nel terminale: Bitcoin e crypto (schede BTC e Crypto), materie prime e costo del rinnovo (Vol. 7).
+- Saltato: private equity e debito privato, immobili e infrastrutture dirette, terreni e foreste, hedge fund e
+  strutture delle commissioni (non investibili dal pubblico del terminale con dati gratuiti affidabili).

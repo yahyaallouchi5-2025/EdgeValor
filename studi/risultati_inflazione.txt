@@ -1,0 +1,29 @@
+STUDIO INFLAZIONE (studi/studio_inflazione.py, libro CFA Vol. 8 cap. 5) - 21/11/2026
+
+===== FINO AL 2009 =====
+strumento                   beta   corr  rend. 12m in salita forte  rend. 12m medio  casi
+Petrolio a pronti          +13.7   0.66                     +51.3%           +11.7%    62
+Rame (future vicino)        +8.3   0.43                     +36.1%           +21.3%    31
+Oro (GLD)                   +3.4   0.58                     +34.4%           +22.0%    17
+S&P 500                     +0.4   0.05                      +5.6%            +9.2%    77
+Treasury 10a (IEF)          -0.4  -0.22                      +5.2%            +5.3%    28
+Petrolio ETF (USO)        dati insufficienti
+Rame ETF (CPER)           dati insufficienti
+
+===== DAL 2010 =====
+strumento                   beta   corr  rend. 12m in salita forte  rend. 12m medio  casi
+Petrolio a pronti          +11.9   0.63                     +44.2%            +7.5%    55
+Rame (future vicino)        +4.8   0.38                     +22.9%            +8.4%    55
+Oro (GLD)                   +0.0   0.00                     +11.5%           +10.3%    55
+S&P 500                     +1.1   0.18                     +15.8%           +13.5%    55
+Treasury 10a (IEF)          -0.7  -0.20                      +0.5%            +2.7%    55
+Petrolio ETF (USO)         +10.4   0.55                     +30.4%            +2.3%    55
+Rame ETF (CPER)             +3.2   0.31                     +15.3%            +4.7%    36
+
+Nota: 12 mesi sovrapposti (le osservazioni non sono indipendenti): leggere la direzione e l'ordine di grandezza.
+
+ESITO: la frase dei portafogli 'rame e petrolio contro l'inflazione' e' VERA sui dati: beta positivo in entrambi i periodi
+e, con l'inflazione in salita forte, petrolio (+51%/+44%, ETF USO +30%) e rame (+36%/+23%) rendono piu' di S&P 500 e
+Treasury. Il fondo sul rame (CPER) da solo dal 2010 e' pari all'S&P 500 (+15,3% contro +15,8%): conta la coppia.
+Oro: protezione dall'inflazione fino al 2009, nulla dal 2010 (beta 0,0): nel terminale e' descritto come 'cuscinetto'
+nelle crisi, non come protezione dall'inflazione: corretto. Nessuna modifica.
