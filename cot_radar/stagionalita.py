@@ -186,6 +186,8 @@ def mesi(s):
         return None, None
     ultimo = max(fine)
     rend.pop(ultimo, None)                                # il mese in corso non e' ancora finito
+    if not rend:                                          # v8.38 un solo mese di storia: niente divisione per zero
+        return None, None
     der = sum(rend.values()) / len(rend)
     out = []
     for m in range(1, 13):

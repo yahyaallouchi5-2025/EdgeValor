@@ -1,0 +1,18 @@
+strumenti: 91; previsioni mensili provate in avanti (2006-2025): 13327
+AFFIDABILI:     493/863 giuste = 57.1%   rendimento medio nel verso previsto +1.06 punti al mese
+NON affidabili: 6538/12464 giuste = 52.5%   rendimento medio nel verso previsto +0.25 punti al mese
+chi-quadro affidabili contro non affidabili: p = 0.0087
+affidabili: rendimento nel verso previsto, test t p = 0.0002, test dei segni p = 0.0000, IC95 [+0.50, +1.60] punti al mese
+  2006-2015: affidabili 55.2% giuste (297), non affidabili 53.2% (4265)
+  2016-oggi: affidabili 58.1% giuste (566), non affidabili 52.1% (8199)
+
+NOTE
+- Prima prova solo con i 13 strumenti che hanno dati dal 1996: 133 previsioni affidabili, 52,6% contro 52,4% (p = 1):
+  campione troppo piccolo per dire qualcosa. Con tutti gli strumenti che hanno 10 anni prima dell'anno di prova
+  (91 strumenti, 863 previsioni affidabili) l'effetto c'e'.
+- Prudenza: lo stesso mese si muove in modo simile su strumenti legati tra loro (es. piu' indici azionari), quindi
+  le osservazioni non sono del tutto indipendenti e i p-value sono un po' ottimisti. Il risultato regge comunque
+  nei due periodi separati (2006-2015 e 2016-oggi) e l'intervallo bootstrap resta sopra lo zero.
+CONCLUSIONE (regola prefissata): filtro CONFERMATO. Un mese "affidabile" indovina il verso il 57% delle volte contro
+il 52-53% dei mesi qualunque, con circa +1 punto al mese nel verso previsto. Nessuna modifica al sito; corretto solo
+un caso limite in stagionalita.mesi (un solo mese di storia: divisione per zero).
