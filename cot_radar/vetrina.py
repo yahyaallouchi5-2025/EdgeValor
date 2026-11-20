@@ -284,6 +284,14 @@ def crea(cartella):
     # v8.07 pagine pubbliche vere (prezzi, accedi, metodo, domande): servono a Google per le sotto-voci del risultato
     from . import pagine_pubbliche
     altre = pagine_pubbliche.crea(cartella, home)
+    # v8.39 archivio pubblico dei report COT: la settimana nuova si salva nel ramo "storico" (solo su GitHub), poi le pagine
+    try:
+        from . import archivio_cot
+        if os.environ.get("GITHUB_ACTIONS"):
+            archivio_cot.salva(pagina.ULTIMI.get("data") or {})
+        altre += archivio_cot.crea(cartella, home)
+    except Exception as e:
+        log.warning("archivio COT non creato (%s: %s)", type(e).__name__, e)
     # v8.06 icona del sito come file (per Google: favicon nei risultati e logo dell'organizzazione)
     with open(os.path.join(cartella, "favicon.svg"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(FAVICON_SVG)

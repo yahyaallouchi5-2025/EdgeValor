@@ -168,6 +168,8 @@ def testi(dati, sito, test=False, verifica=None):
                        "\n".join(f"■ {escape(c['nome'])}: era {escape(c['prima'])}, ora NEUTRO" for c in chiusi))
     if len(blocchi) == 1:
         blocchi.append("Nessun segnale attivo questa settimana.")
+    from .archivio_cot import indirizzo                    # v8.39 la stessa settimana resta online in /cot/<data>/
     piede = "\n\n" + (f'<a href="{_escape(sito.rstrip("/"))}/">Apri il terminale EdgeValor</a>\n' if sito else "") + \
+        (f'<a href="{_escape(indirizzo(cot))}">Questa settimana sul sito</a>\n' if cot and n and not test else "") + \
         "<i>Informazione statistica dalla dashboard pubblica, non consulenza finanziaria.</i>"
     return impagina(testa, blocchi, piede)
