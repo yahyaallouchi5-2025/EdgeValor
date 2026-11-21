@@ -8,6 +8,12 @@
    DEBUG: F12 -> Console -> localStorage.removeItem("ebNovita") fa ricomparire il pallino. */
 (function(){try{
  const NOVITA=[
+  // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
+  {d:"2026-11-21",t:"Aggiornamento scheda Mercati",x:"Schede in un nuovo ordine: Macro, COT, Stagionalità, Volatilità, Correlazioni, Forex, Crypto, Live.",s:"mercati"},
+  {d:"2026-11-21",t:"Aggiornamento scheda Macro",x:"Lo spread high yield ora dice se si allarga, è stabile o si restringe.",s:"mkt",h:"mercati",p:true},
+  {d:"2026-11-21",t:"Aggiornamento scheda Dashboard",x:"Avviso più chiaro quando una festività USA sposta il report COT.",s:"sig"},
+  {d:"2026-11-21",t:"Aggiornamento scheda Portafogli",x:"Confronto con un riferimento per ogni profilo e sezioni da aprire solo quando servono.",s:"port",p:true},
+  {d:"2026-11-21",t:"Aggiornamento Guida",x:"Nuova sezione Registro del metodo: ogni modifica alle regole, con la data.",s:""},
   {d:"2026-11-18",t:"Scheda Crypto",x:"Bitcoin e le principali altcoin: prezzi, volumi, drawdown dal massimo e profilo di ogni moneta.",s:"btc",q:"#btc .cysez",h:"mercati"},
   {d:"2026-11-17",t:"Nuova scheda Bitcoin",x:"Bussola macro (Premium) e termometro del sentiment: cosa muove Bitcoin, con grafici.",s:"btc",h:"mercati"},
   {d:"2026-11-17",t:"Assistenza",x:"Abbonamento, segnalazioni e call live con il team, con il numero della richiesta.",s:""},
