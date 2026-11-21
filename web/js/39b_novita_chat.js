@@ -31,7 +31,7 @@
   chat=document.createElement("div");chat.className="nvchat";chat.setAttribute("role","dialog");chat.setAttribute("aria-label","Novità");
   chat.innerHTML=`<div class="nvtesta"><span class="nvav">${STELLA}</span><div><b>Novità</b><small>Aggiornamenti di EdgeValor</small></div>
    <button type="button" class="nvx" aria-label="Chiudi">&#x2715;</button></div>
-   <div class="nvcorpo">${N.slice(0,6).map((n,i)=>`<div class="nvmsg${n.d>vista?" nvnew":""}" style="--i:${i}">
+   <div class="nvcorpo">${N.slice(0,10).map((n,i)=>`<div class="nvmsg${n.d>vista?" nvnew":""}" style="--i:${i}">
     <div class="nvmeta"><time>${gg(n.d)}</time>${n.d>vista?'<em>Nuovo</em>':""}${n.p?'<em class="p">Premium</em>':""}${n.cambio?'<em class="c">Mercati</em>':""}</div>
     <b>${esc(n.t)}</b><p>${esc(n.x)}</p>${n.s?`<button type="button" class="nvvai" data-i="${i}">Mostrami <span aria-hidden="true">→</span></button>`:""}</div>`).join("")}</div>`;
   document.body.appendChild(chat);requestAnimationFrame(()=>chat.classList.add("on"));fab.classList.add("aperto");

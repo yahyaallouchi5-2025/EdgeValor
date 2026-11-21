@@ -39,6 +39,9 @@
     NOVITA.push({d,t:`Ciclo del debito: ${CDN[ult.prima]} → ${CDN[ult.dopo]}`,x:`Fase confermata per 2 trimestri di fila. Solo contesto, non un segnale.`,
      s:"sig",q:".cd-fasi:not(.mm-fasi)",lab:"Ciclo del debito",apri:'#quadro .qe-card[data-id="usa"]:not(.on)',cambio:1});}}
   NOVITA.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:(b.cambio||0)-(a.cambio||0));}catch(e){}   // a parita' di data prima i mercati
+ // v8.67 (Ya, 22/11/2026): al massimo 10 novita'. Dall'11esima esce la piu' vecchia, in ciclo continuo
+ //   (l'elenco e' gia' ordinato dalla piu' recente: si tengono le prime 10).
+ const MAX_NOVITA=10;NOVITA.splice(MAX_NOVITA);
  window.EB_NOVITA=NOVITA;                 // v8.06: la usa anche la chat delle novita' (39b_novita_chat.js)
  const btn=document.getElementById("novapri");if(!btn)return;
  const punto=btn.querySelector(".novpunto"),pf=document.getElementById("pfapri");
@@ -49,7 +52,7 @@
   box.innerHTML=`<div class="cmodal-box novbox" role="dialog" aria-modal="true" aria-labelledby="novt">
    <div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg></span>
     <div><h3 id="novt">Novità</h3><p>Novità e aggiornamenti in EdgeValor.</p></div><button type="button" class="fbx" aria-label="Chiudi">&#x2715;</button></div>
-   <ol class="novlista">${NOVITA.slice(0,5).map(n=>`<li class="${n.d>vista?"nuova":""}"><div class="novtesta"><b>${esc(n.t)}</b>${n.p?'<em class="novp">Premium</em>':""}${n.d>vista?'<em class="novn">Nuovo</em>':""}<time>${gg(n.d)}</time></div>
+   <ol class="novlista">${NOVITA.slice(0,MAX_NOVITA).map(n=>`<li class="${n.d>vista?"nuova":""}"><div class="novtesta"><b>${esc(n.t)}</b>${n.p?'<em class="novp">Premium</em>':""}${n.d>vista?'<em class="novn">Nuovo</em>':""}<time>${gg(n.d)}</time></div>
     <p>${esc(n.x)}</p>${n.s?`<button type="button" class="novvai" data-s="${n.s}">Vai</button>`:""}</li>`).join("")}</ol></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
   const chiudi=()=>{box.classList.remove("on");setTimeout(()=>box.remove(),220);document.removeEventListener("keydown",tasto);};
