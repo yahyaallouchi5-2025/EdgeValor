@@ -10,7 +10,11 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  // unita' del grafico del drawdown ("pct" = in %, "vol" = in settimane tipiche di quel mercato)
  const V={fin:"live",d:5,per:"tutti",asset:"EURUSD",strum:"tutti",unita:"pct"};
  try{const s=JSON.parse(localStorage.getItem("ebVerifica")||"{}");if(s.fin)V.fin=s.fin;if(s.d=="fine"||(s.d>=1&&s.d<=20))V.d=s.d;if(s.per)V.per=s.per;if(s.asset)V.asset=s.asset;
-  if(s.strum)V.strum=s.strum;if(s.unita=="vol")V.unita="vol";}catch(e){}
+  if(s.strum)V.strum=s.strum;if(s.unita=="vol")V.unita="vol";if(s.sl)V.sl=s.sl;}catch(e){}
+ // v8.62 LIVE "A SCREENER" (prima solo per il fondatore): si sceglie lo strumento e si vedono solo i suoi dati.
+ //   V.sl = strumento scelto nella Live ("" = nessuno: nessun numero finche' non si sceglie).
+ const NUOVA=()=>document.documentElement.classList.contains("eb-admin");
+ V.sl=V.sl||"";
  if(solaVol)V.fin="vol";else if(!["live","bt"].includes(V.fin))V.fin="live";   // v7.48 viste rimaste
  const salva=()=>{try{const s=Object.assign({},V);if(solaVol)delete s.fin;            // la scheda Volatilita' non cambia la vista della Verifica
   localStorage.setItem("ebVerifica",JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("ebVerifica")||"{}"),s)));}catch(e){}};
@@ -329,6 +333,61 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
     +varianti(P.riass)+barre
     +tabella(`Per strumento <span class="small">(${nomeP}, almeno ${V.per=="holdout"?5:20} segnali)</span>`,P.strumento,ordS,V.per=="holdout"?5:20,B.profilo));}
 
+ /* ---- v8.62 LIVE A SCREENER ----
+    1) barra unica: strumento (menu + chip per famiglia, con il numero di segnali) e durata del trade (chip, niente cursore);
+    2) senza strumento: nessun numero ("—"), solo l'invito a scegliere; il confronto di tutti gli strumenti sta chiuso in fondo;
+    3) con lo strumento: 4 numeri, grafico giorno per giorno del solo strumento, sezioni chiudibili, i suoi segnali.
+    Dati identici a prima (R.stat): cambia solo l'ordine. Sotto i 10 trade le statistiche di coda (P90, fasce) non si mostrano. */
+ const MIN_STAT=10;
+ const FAM=k=>["BTC","ETH"].includes(k)?"Crypto":["WTI","BRENT","NATGAS","GOLD","SILVER","PLATINUM","COPPER","PALLADIUM"].includes(k)?"Materie prime"
+   :["SP500","NASDAQ","DOW","RUSSELL","EM","EAFE","DAX","NIKKEI","VIX"].includes(k)?"Indici":/^[A-Z]{6}$/.test(k)?"Cambi":"Indici";
+ const segnaliDi=k=>(R.aperti||[]).concat(R.chiusi||[]).filter(x=>x.strumento==k);
+ function comandiLive(){const P=R.stat,ks=Object.keys(P.strumento||{});if(V.sl&&!ks.includes(V.sl))V.sl="";
+  const fam=["Cambi","Indici","Materie prime","Crypto"].map(f=>[f,ks.filter(k=>FAM(k)==f).sort()]).filter(x=>x[1].length);
+  const opt=fam.map(([f,l])=>`<optgroup label="${f}">${l.map(k=>`<option value="${k}"${k==V.sl?" selected":""}>${k}</option>`).join("")}</optgroup>`).join("");
+  return `<div class="card vfsc"><div class="vfsc-r"><div class="vfsc-s"><span class="vfetich">Strumento</span><select id="vfsl" class="vfsel"><option value=""${V.sl?"":" selected"}>Scegli uno strumento&hellip;</option>${opt}</select></div>
+   <div><span class="vfetich">Durata del trade ${infoBtn("vfinfodurata","Come si misura la durata")}</span><div class="vfchip vforz">${[[5,"1 sett."],[10,"2 sett."],[15,"3 sett."],[20,"4 sett."],["fine","Al cambio segnale"]].map(([k,t])=>`<button data-h="${k}" class="${String(V.d)==String(k)?"on":""}">${t}</button>`).join("")}</div></div></div>
+   ${infoP("vfinfodurata",`I giorni sono <b>giorni di mercato</b> (5 per settimana). L'ingresso &egrave; la prima chiusura dopo il segnale; risultato, guadagno e drawdown sono misurati <b id="vfdurtesto">${nomeD()}</b> dall'ingresso. "Al cambio segnale" = il trade si chiude quando il segnale cambia (al massimo 12 settimane).`)}
+   <div class="vfsc-g">${fam.map(([f,l])=>`<div><small>${f}</small><div class="vfchip vfchip-s">${l.map(k=>`<button data-sl="${k}" class="${k==V.sl?"on":""}">${k}<i>${segnaliDi(k).length}</i></button>`).join("")}</div></div>`).join("")}</div></div>`;}
+ // sezione chiudibile: titolo, riepilogo a destra, contenuto (si ricorda se l'utente l'ha aperta)
+ const SEZ=new Set();
+ const sezione=(id,titolo,destra,dentro)=>`<details class="vfx" data-x="${id}"${SEZ.has(id)?" open":""}><summary><b>${titolo}</b><span>${destra||""}</span></summary><div class="vfx-c">${dentro}</div></details>`;
+ function confronto(){const P=R.stat;
+  return sezione("tutti","Tutti gli strumenti a confronto",`${Object.keys(P.strumento||{}).length} strumenti &middot; ${R.n_chiusi} trade chiusi`,
+   tabella("Per strumento",P.strumento,null,1,R.profilo)+tabella("Per etichetta",P.etichetta,["STRONG BUY","BUY","SELL","STRONG SELL"])
+   +tabella("Per volatilit&agrave; al momento del segnale",P.vol,["calma","normale","agitata"])+varianti(P.riass));}
+ function datiLiveNuova(){const P=R.stat;
+  if(!V.sl)return `<div class="card vfvuoto2"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><b>Scegli uno strumento</b><p>Vedrai come sono andati i suoi segnali, giorno per giorno.</p></div>
+   <div class="grid k4 vfkpi vfghost">${["Risultato","In guadagno","Guadagno max","Drawdown"].map(t=>`<div class="card kpi"><h3>${t}</h3><div class="big">&mdash;</div><div class="note">&nbsp;</div></div>`).join("")}</div>`+confronto();
+  const k=V.sl,x=st(P.strumento[k]),lista=((P.dd||{}).strumento||{})[k],o=ddRiga(lista,R.dd_campi),u=(R.unita||{})[k];
+  const sg=segnaliDi(k),misurati=x?x.n:0;
+  const testa=`<div class="vfsl-t"><span class="vfsl-n">${esc(k)}</span><span class="tag">${sg.length} segnal${sg.length==1?"e":"i"} &middot; ${misurati} trade misurat${misurati==1?"o":"i"}</span>${misurati<MIN_STAT?`<span class="tag ko">Pochi trade: leggili come esempi, non come statistica</span>`:""}</div>`;
+  const kp=x?`<div class="grid k4 vfkpi">
+   ${kcard("vlk1","Risultato",pc(x.resa),"medio, al netto dei costi",`Risultato medio dei trade ${nomeD()}, tolti i costi stimati di ingresso e uscita.`,col(x.resa))}
+   ${kcard("vlk2","In guadagno",`${x.vinti} su ${x.n}`,"trade chiusi in positivo","")}
+   ${kcard("vlk3","Guadagno max",pc(x.mfe),"medio, lungo il trade",`Il punto pi&ugrave; alto raggiunto in media durante il trade, prima dell'uscita.`,"up")}
+   ${kcard("vlk4","Drawdown",pc(x.mae),"medio, sotto l'ingresso",`Quanto il trade &egrave; sceso in media sotto il prezzo d'ingresso prima dell'uscita.`,x.mae<0?"down":"")}</div>`
+   :`<div class="card vfvuoto small">Nessun trade su ${esc(k)} gi&agrave; concluso con questa durata. Prova &laquo;Al cambio segnale&raquo; o una durata pi&ugrave; breve.</div>`;
+  // grafico del solo strumento: si dice fino a quando e quando restano meno trade
+  let gr=graficoDD(lista,R.dd_campi);
+  if(gr){const righe=[];for(let d=1;d<=20;d++){const r=ddRiga(lista,R.dd_campi,d);if(r)righe.push([d,r.n]);}
+   const cala=righe.find(([d,n])=>n<righe[0][1]);
+   gr=gr.replace('<p id="vfgrinfo"',`<p class="small vfgnota">Se il trade fosse tenuto fino a 4 settimane${cala?`. Dal giorno ${cala[0]} restano ${cala[1]} trade`:""}.</p><p id="vfgrinfo"`);}
+  else gr=`<div class="card vfvuoto small">Percorso giorno per giorno non ancora disponibile per ${esc(k)}.</div>`;
+  const coda=o&&o.n>=MIN_STAT?kpiDD(o,u)+fasce(o):`<p class="small">Servono almeno ${MIN_STAT} trade per misurare la coda del drawdown (P90) e le fasce in volatilit&agrave;: per ora ${o?o.n:0}.</p>`;
+  const ann=o?annunci(o):`<p class="small">Dati non disponibili per questa scelta.</p>`;
+  const f2=v=>v==null?"&mdash;":pc(v);
+  const righeS=sg.sort((a,b)=>(b.generato||"").localeCompare(a.generato||"")).map(z=>{const m=z.m||{},f=(m.A||{}).fine,ing=m.ingresso,aperto=!z.chiuso&&!(m.fine||{}).motivo;
+   const dur=f&&ing?Math.max(1,Math.round((new Date(f.data)-new Date(ing.data))/864e5*5/7))+" g":"&mdash;";
+   return `<tr><td>${badge(z.etichetta)}${z.iniziale?' <span class="tag" title="Era gi&agrave; attivo quando il registro &egrave; partito">escluso</span>':""}</td><td>${esc((z.generato_it||"").slice(0,5))}</td>
+    <td class="num"><b class="${f&&!z.iniziale?col(f.res):""}">${z.iniziale||!f?(aperto&&ing?"in corso":"&mdash;"):(aperto?"in corso ":"")+f2(f.res)}</b></td><td class="num up vfnt">${z.iniziale||!f?"&mdash;":f2(f.mfe)}</td><td class="num down vfnt">${z.iniziale||!f?"&mdash;":f2(f.mae)}</td><td class="num">${z.iniziale?"&mdash;":dur}</td></tr>`;}).join("");
+  const tabS=`<div class="tablewrap"><table class="compatta vfslt"><tr><th>Segnale</th><th>Data</th><th class="num">Al cambio</th><th class="num vfnt">Guadagno max</th><th class="num vfnt">Drawdown</th><th class="num">Durata</th></tr>${righeS}</table></div>`;
+  return testa+kp+gr
+   +sezione("coda","Quanto va contro",o&&o.n>=MIN_STAT?`${o.n} trade`:`servono almeno ${MIN_STAT} trade`,coda)
+   +sezione("ann","Annunci macro USA",V.d=="fine"?"solo durate da 1 a 4 settimane":"",ann)
+   +sezione("seg",`I segnali di ${esc(k)}`,String(sg.length),tabS)
+   +confronto();}
+
  function live(){if(!R)return `<div class="card vfvuoto">Registro non disponibile in questo aggiornamento.</div>`;
   /* v7.97 STATO DEL REGISTRO: un badge chiaro al posto della riga tecnica con il codice lungo (sembrava un errore).
      Verde "Registro verificato" se la catena di impronte e' integra, rosso se no. L'impronta (hash SHA-256) resta
@@ -341,6 +400,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
     ${R.completi?"":`<span class="small" style="color:var(--warn)">Ultimo aggiornamento con dati incompleti: registro fermo</span>`}</div>
   ${hs?`<p id="vfcatena" class="sub infotesto${infoAperte.has("vfcatena")?" aperta":""}">Ogni segnale &egrave; legato al precedente con un'impronta digitale: se qualcuno cambiasse il passato, il registro risulterebbe non integro. Impronta attuale <code class="vfhash" title="${esc(hs)}">${corto}</code> <button type="button" class="vfcopia" data-hash="${esc(hs)}">Copia</button></p>`:""}`;
   if(!R.eventi)return testa+`<div class="card vfvuoto"><b>Il registro parte con il prossimo aggiornamento completo.</b><p class="small">Da quel momento ogni segnale viene salvato con data e ora, prezzo d'ingresso e risultati. Gli eventi non si possono modificare: ognuno contiene l'impronta del precedente.</p></div>`;
+  if(NUOVA())return testa+comandiLive()+`<div id="vfdati">${datiLiveNuova()}</div>`;   // v8.62 prima solo il fondatore
   return testa+comandi(R.stat)+`<div id="vfdati">${datiLive()}</div>`;}
 
  function backtest(){if(!B)return `<div class="card vfvuoto">Backtest non disponibile in questo aggiornamento.</div>`;
@@ -356,7 +416,11 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    ${blocco(4,"I segnali uno per uno","Gli ultimi segnali simulati conclusi, con ingresso e risultato alle varie durate.",`<div class="grid vfgrid">${(B.ultimi||[]).slice(0,12).map(s=>scheda(s,true)).join("")}</div>`)}`;}
 
  /* aggiorna SOLO i numeri (non i comandi): cosi' il cursore delle sedute si puo' trascinare senza scatti */
- function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="live"?datiLive():V.fin=="vol"?datiVol():datiBt();
+ function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="live"?(NUOVA()?datiLiveNuova():datiLive()):V.fin=="vol"?datiVol():datiBt();
+  box.querySelectorAll("details.vfx").forEach(d=>d.addEventListener("toggle",()=>{d.open?SEZ.add(d.dataset.x):SEZ.delete(d.dataset.x);}));
+  el.querySelectorAll("[data-sl]").forEach(b=>b.classList.toggle("on",b.dataset.sl==V.sl));
+  const sl=$("vfsl");if(sl)sl.value=V.sl;
+  const sc=el.querySelector(".vfsc");if(sc)sc.classList.toggle("scelto",!!V.sl);   // telefono: chip nascosti dopo la scelta (resta il menu)
   el.querySelectorAll(".vforz button").forEach(b=>b.classList.toggle("on",b.dataset.h==String(V.d)));
   const t=$("vfgtesto");if(t)t.textContent=durata(V.d);
   const dt=$("vfdurtesto");if(dt)dt.textContent=nomeD();
@@ -377,8 +441,15 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const r=$("vfgiorni");if(r){r.oninput=()=>{V.d=+r.value;aggiorna();};r.onchange=salva;}
   const sa=$("vfasset");if(sa)sa.onchange=()=>{V.asset=sa.value;salva();aggiorna();};
   const ss=$("vfstrum");if(ss)ss.onchange=()=>{V.strum=ss.value;salva();aggiorna();};
+  // v8.62 scelta dello strumento nella Live (menu o chip): stessa variabile, un solo ridisegno dei dati
+  const scegli=k=>{V.sl=k;salva();aggiorna();};
+  const sl=$("vfsl");if(sl)sl.onchange=()=>scegli(sl.value);
+  el.querySelectorAll("[data-sl]").forEach(b=>b.onclick=()=>scegli(b.dataset.sl==V.sl?"":b.dataset.sl));
   aggiorna();}
- disegna();})();}catch(e){fail(dove=="vol"?"Volatilit\u00e0":"Verifica dei segnali",dove=="vol"?"volat":"verifica",e);}}
+ disegna();
+ // v8.62 il riconoscimento del fondatore arriva dal database dopo il primo disegno: se cambia, si ridisegna la Live
+ if(!solaVol){let era=NUOVA();new MutationObserver(()=>{const ora=NUOVA();if(ora!=era){era=ora;if(V.fin=="live")disegna();}}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
+ })();}catch(e){fail(dove=="vol"?"Volatilit\u00e0":"Verifica dei segnali",dove=="vol"?"volat":"verifica",e);}}
 ebVerifica("vol");                                       // v7.48 scheda Volatilita' (dati gia' nella pagina)
 
 /* CARICAMENTO A RICHIESTA (v6.35): sul sito registro live + backtest (~600 KB, piu' di meta' della pagina) stanno in
