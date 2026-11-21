@@ -354,6 +354,84 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  // v7.38 mese in corso: al posto della scritta "mese in corso" il risultato PROVVISORIO (stessi numeri del riquadro del mese)
  // v7.39 ogni mese chiuso dice da dove viene il numero: "Live" = mese seguito dal vivo (registro chiusure, i suoi
  //   numeri hanno la precedenza), "Simulato" = calcolato dal modello con le stesse regole e i prezzi reali.
+ /* v8.54 CONFRONTO CON L'S&P 500 (richiesta di Ya): sotto il risultato di ogni mese una riga con l'indice nello
+    stesso periodo, in cima un riepilogo dei mesi mostrati e un pulsante "Grafico" che apre una finestra con le due
+    linee giorno per giorno. Dati da portafogli.py (confronto_sp, riepilogo_sp): stessa base del risultato del mese.
+    Colori come il grafico dello Storico: portafoglio = linea turchese piena, S&P 500 = linea tratteggiata. */
+ let cfrDati={};                                   // chiave -> dati della finestra (riempito da rotazioni())
+ const ICO_GRAF='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 4 3 8-8M15 7h5v5"/></svg>';
+ // etichetta breve: mette in evidenza il dato in cui il portafoglio ha fatto meglio; se l'indice ha fatto meglio
+ // su tutti e due lo dice (onesta': il confronto vale anche quando non conviene)
+ function verdetto(m,sp){const dd=m.dd-sp.dd,r=m.r-sp.r;
+  if(dd>=0.5)return `<em class="pcf-v ok">drawdown ${fx(dd,1)} punti pi&ugrave; basso</em>`;
+  if(r>=0.5)return `<em class="pcf-v ok">${fx(r,1)} punti sopra l'indice</em>`;
+  if(dd<=-0.5&&r<=-0.5)return `<em class="pcf-v">indice meglio di ${fx(-r,1)} punti</em>`;
+  return `<em class="pcf-v">in linea con l'indice</em>`;}
+ // risultato del mese: etichetta (In corso / Live / Simulato) e, se c'e' il dato dell'indice, una tabellina allineata
+ //   Portafoglio / S&P 500 x Risultato / Drawdown, poi l'etichetta del confronto e il pulsante del grafico.
+ //   Senza dato dell'indice resta la riga di prima (stessa struttura per mese in corso e mesi chiusi).
+ // tabellina Portafoglio / S&P 500 (righe) x rendimento / drawdown (colonne): uguale nei mesi e nel riepilogo
+ function tabCfr(p,sp,t1,t2){const r=(nome,cls,x)=>`<tr><th><i class="${cls}"></i>${nome}</th><td class="num"><b class="${x.r>=0?"up":"down"}">${pc(x.r)}</b></td><td class="num"><b class="down">${pc(x.dd)}</b></td></tr>`;
+  return `<table class="pcmt"><tr><th></th><th class="num">${t1}</th><th class="num">${t2}</th></tr>${r("Portafoglio","lp",p)}${r("S&amp;P 500","lb",sp)}</table>`;}
+ function risultato(tag,m,extra,k){
+  if(!m.sp)return `<div class="prisul">${tag}<span>Risultato <b class="${m.r>=0?"up":"down"}">${pc(m.r)}</b></span><span>drawdown <b class="down">${pc(m.dd)}</b></span>${extra}</div>`;
+  return `<div class="prisul pmcr"><div class="pmcr-h">${tag}${extra}</div>
+   ${tabCfr(m,m.sp,"Risultato","Drawdown")}
+   <div class="pmcr-b">${verdetto(m,m.sp)}${m.serie&&m.serie.length>2?`<button type="button" class="pcf-apri" data-k="${k}" aria-label="Grafico: portafoglio e S&amp;P 500 nel periodo">${ICO_GRAF}Grafico</button>`:""}</div></div>`;}
+ // riepilogo dei mesi mostrati (dal piu' vecchio al mese in corso)
+ function cfrTesta(p){const c=p.cfr_sp;if(!c)return "";
+  // stessa griglia delle righe delle rotazioni (colonna della data a sinistra): le tabelline restano in colonna
+  return `<div class="pcfs"><div class="pcfs-t"><b>Ultimi ${c.n} mesi</b><span>contro l'S&amp;P 500</span><span class="pcfs-d">dal ${gg(c.dal)} <br>al ${gg(c.al)}</span></div>
+   <div class="pcfs-c">${tabCfr(c.port,c.sp,"Risultato","Drawdown")}
+   <div class="pmcr-b"><p class="pcfs-n">Drawdown pi&ugrave; basso in <b>${c.meglio_dd} mesi su ${c.n}</b><br>Risultato pi&ugrave; alto in <b>${c.meglio_r} su ${c.n}</b></p>
+    <button type="button" class="pcf-apri" data-k="tot" aria-label="Grafico degli ultimi ${c.n} mesi">${ICO_GRAF}Grafico</button></div></div></div>`;}
+ // serie degli ultimi n mesi concatenati (ogni mese riparte dal valore a cui e' finito il precedente)
+ function serieTot(mesi){const out=[];let vp=1,vs=1;
+  mesi.forEach(m=>{const bp=vp,bs=vs;m.serie.forEach((x,i)=>{if(i==0&&out.length)return;vp=bp*(1+x[1]/100);vs=bs*(1+x[2]/100);out.push([x[0],(vp-1)*100,(vs-1)*100]);});});
+  return out;}
+ // grafico a linee (SVG): asse in % dall'inizio, griglia su valori tondi, etichette di fine linea, cursore al passaggio
+ function graficoCfr(serie,W,H){const L=46,R=14,T=38,B=28;   // T alto: fascia libera per il riquadro del cursore   // W,H = misure reali in pixel: testo sempre leggibile
+  const v=serie.flatMap(x=>[x[1],x[2]]).concat([0]),lo0=Math.min(...v),hi0=Math.max(...v),pad=Math.max(.6,(hi0-lo0)*.08),lo=lo0-pad,hi=hi0+pad;
+  const n=serie.length,X=i=>L+i/(n-1)*(W-L-R),Y=y=>T+(hi-y)/(hi-lo)*(H-T-B);
+  const passo=[.5,1,2,2.5,5,10,20,25,50].find(q=>(hi-lo)/q<=6)||100,righe=[];
+  for(let y=Math.ceil(lo/passo)*passo;y<=hi;y+=passo)righe.push(y);
+  const lin=c=>serie.map((x,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(x[c]).toFixed(1)).join("");
+  const area=lin(1)+`L${X(n-1).toFixed(1)} ${Y(0).toFixed(1)}L${X(0).toFixed(1)} ${Y(0).toFixed(1)}Z`;
+  const lungo=n>60,MB=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+  const ix=lungo?[0,.25,.5,.75,1].map(q=>Math.round(q*(n-1))):[0,Math.round((n-1)/2),n-1];
+  const dt=d=>lungo?MB[+d.slice(5,7)-1]+" "+d.slice(2,4):gg(d).slice(0,5);
+  return `<div class="pcfg"><svg viewBox="0 0 ${W} ${H}" class="pcfg-svg" role="img" aria-label="Portafoglio e S&amp;P 500 giorno per giorno">
+   <defs><linearGradient id="pcfga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--acc)" stop-opacity=".22"/><stop offset="1" stop-color="var(--acc)" stop-opacity="0"/></linearGradient></defs>
+   ${righe.map(y=>`<line x1="${L}" x2="${W-R}" y1="${Y(y)}" y2="${Y(y)}" class="${Math.abs(y)<1e-9?"pcfg-0":"pcfg-g"}"/><text x="${L-8}" y="${Y(y)+4}" text-anchor="end" class="pax">${(y>0?"+":"")+fx(y,passo<1?1:0)}%</text>`).join("")}
+   ${ix.map((i,j)=>`<text x="${X(i)}" y="${H-8}" text-anchor="${j==0?"start":j==ix.length-1?"end":"middle"}" class="pax">${dt(serie[i][0])}</text>`).join("")}
+   <path d="${area}" fill="url(#pcfga)"/><path d="${lin(2)}" class="pcfg-s"/><path d="${lin(1)}" class="pcfg-p"/>
+   <circle cx="${X(n-1)}" cy="${Y(serie[n-1][2])}" r="3.5" class="pcfg-ds"/><circle cx="${X(n-1)}" cy="${Y(serie[n-1][1])}" r="4" class="pcfg-dp"/>
+
+   <line class="pcfg-c" x1="0" x2="0" y1="${T}" y2="${H-B}" style="display:none"/></svg><div class="pcfg-tip" hidden></div></div>`;}
+ function apriCfr(d){if(!d)return;const prima=document.activeElement;
+  // larghezza del grafico = larghezza della finestra (niente ridimensionamento del testo su telefono)
+  const W=Math.round(Math.min(684,window.innerWidth-66)),H=window.innerWidth<600?230:280;
+  const box=document.createElement("div");box.className="pmodal pcfm";box.setAttribute("role","dialog");box.setAttribute("aria-modal","true");box.setAttribute("aria-label",d.titolo);
+  const mini=(et,x,cls)=>`<div class="${cls}"><span>${et}</span><b class="${x.r>=0?"up":"down"}">${pc(x.r)}</b><em>drawdown <b class="down">${pc(x.dd)}</b></em></div>`;
+  box.innerHTML=`<div class="pcfm-box" tabindex="-1"><div class="pcfm-h"><div><b>${d.titolo}</b><span>${d.sotto}</span></div><button type="button" class="pcfm-x" aria-label="Chiudi">&times;</button></div>
+   <div class="pleg pcfm-leg"><span><i class="lp"></i>${esc(d.nome)}</span><span><i class="lb"></i>S&amp;P 500</span></div>
+   ${graficoCfr(d.serie,W,H)}
+   <div class="pcfm-k">${mini("Portafoglio",d.port,"pcfm-p")}${mini("S&amp;P 500",d.sp,"pcfm-s")}</div>
+   <p class="pcfm-n">Variazione dall'inizio del periodo. S&amp;P 500 comprato e tenuto, dividendi compresi; il portafoglio con i suoi costi. Risultati passati, non indicativi di quelli futuri.</p></div>`;
+  document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
+  const chiudi=()=>{box.classList.remove("on");document.removeEventListener("keydown",tasto);setTimeout(()=>box.remove(),200);if(prima&&prima.focus)prima.focus();};
+  const tasto=e=>{if(e.key=="Escape")chiudi();};document.addEventListener("keydown",tasto);
+  box.onclick=e=>{if(e.target==box)chiudi();};box.querySelector(".pcfm-x").onclick=chiudi;box.querySelector(".pcfm-box").focus();
+  // cursore: data e valori del giorno piu' vicino al puntatore (mouse e dito)
+  const svg=box.querySelector(".pcfg-svg"),tip=box.querySelector(".pcfg-tip"),cur=box.querySelector(".pcfg-c"),n=d.serie.length;
+  const muovi=e=>{const r=svg.getBoundingClientRect(),px=((e.touches?e.touches[0].clientX:e.clientX)-r.left)/r.width*W;
+   const i=Math.max(0,Math.min(n-1,Math.round((px-46)/(W-46-14)*(n-1)))),x=46+i/(n-1)*(W-46-14),s=d.serie[i];
+   cur.setAttribute("x1",x);cur.setAttribute("x2",x);cur.style.display="";tip.hidden=false;
+   tip.innerHTML=`<span>${gg(s[0])}</span><i class="lp"></i><b class="${s[1]>=0?"up":"down"}">${pc(s[1])}</b><i class="lb"></i><b class="${s[2]>=0?"up":"down"}">${pc(s[2])}</b>`;
+   const xp=x/W*r.width;tip.style.left=Math.max(4,Math.min(r.width-tip.offsetWidth-4,xp-tip.offsetWidth/2))+"px";};
+  const via=()=>{cur.style.display="none";tip.hidden=true;};
+  svg.addEventListener("mousemove",muovi);svg.addEventListener("touchmove",muovi,{passive:true});svg.addEventListener("touchstart",muovi,{passive:true});svg.addEventListener("mouseleave",via);}
+ 
  function fonteMese(mese,pid){const x=(P.chiusure||[]).find(z=>z.mese==mese&&z.profili&&z.profili[pid]);return x?x.profili[pid]:null;}
  const tagFonte=live=>live?`<span class="pfonte live" title="Mese seguito dal vivo: rotazione e prezzi registrati in tempo reale">Live</span>`
   :`<span class="pfonte sim" title="Calcolato dal modello con le stesse regole e i prezzi reali, prima dell'avvio del live (novembre 2026)">Simulato</span>`;
