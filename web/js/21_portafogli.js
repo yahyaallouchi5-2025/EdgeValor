@@ -65,8 +65,10 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   return `<svg viewBox="0 0 160 160" class="ptorta" role="img" aria-label="Composizione del portafoglio">${archi}<text x="80" y="76" text-anchor="middle" class="ptn">${n}</text><text x="80" y="96" text-anchor="middle" class="ptl">${n==1?"mercato":"mercati"}</text></svg>`;}
 
  // --- curva del capitale (SVG, scala logaritmica: le percentuali hanno la stessa altezza in ogni epoca)
+ // v8.55 riferimento del profilo (p.bench_p: stessa quota di azioni) al posto di quello unico; se manca, quello generale
+ const rifP=p=>p.bench_p||P.bench||{};
  function curva(p){const W=900,H=300,L=52,Rm=14,T=16,B=30;
-  let pts=p.curva,bench=(P.bench||{}).curva||[];
+  let pts=p.curva,bench=rifP(p).curva||[];
   const dal=per=="oos"?P.oos_dal:per=="live"?(p.live_dal||P.oos_dal):null;
   if(dal){pts=pts.filter(x=>x[0]>=dal);bench=bench.filter(x=>x[0]>=dal);}
   if(pts.length<2)return `<div class="small" style="padding:30px;text-align:center">Dati non ancora sufficienti per questo periodo.</div>`;
@@ -90,7 +92,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    ${sb.length?`<path d="${path(sb)}" class="pbench"/>`:""}<path d="${path(s)}" class="plinea"/>${live.length>1?`<path d="${path(live)}" class="plive"/>`:""}
    <line class="pcur" x1="0" x2="0" y1="${T}" y2="${H-B}" style="display:none"/><circle class="pcurp" r="4.5" style="display:none"/></svg>
    <div class="ptip" hidden></div>
-   <div class="pleg"><span><i class="lp"></i>Portafoglio ${esc(p.nome.toLowerCase())}</span><span><i class="lb"></i>${esc((P.bench||{}).nome||"S&P 500")}</span>${p.live_dal?'<span><i class="ll"></i>Live</span>':""}</div>`;}
+   <div class="pleg"><span><i class="lp"></i>Portafoglio ${esc(p.nome.toLowerCase())}</span><span><i class="lb"></i>${esc(rifP(p).nome||"S&P 500")}</span>${p.live_dal?'<span><i class="ll"></i>Live</span>':""}</div>`;}
 
  // --- una riga del portafoglio: nome, strumento UCITS da comprare (ISIN copiabile), motivo, peso, importo in euro.
  //     Per "Azioni scelte": elenco dei 5 titoli (registrati, oppure ANTEPRIMA provvisoria del mese prossimo).
@@ -326,11 +328,11 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    ${chiusi.length?`<div class="pmc-h"><div class="pmc-ht">Mesi chiusi (live)</div>${chiusi.map(x=>{const r=x.profili[p.id];return `<div class="pmc-hr"><span>${MES(MESI[+x.mese.slice(5)-1])} ${x.mese.slice(0,4)}</span><b class="${r.r>=0?"up":"down"}">${pc(r.r)}</b><em>drawdown ${pc(r.dd)}</em></div>`;}).join("")}</div>`:""}
 </div>`;}
 
- function tabella(p){const st=p.stat,b=(P.bench||{}).stat||{};
+ function tabella(p){const st=p.stat,R=rifP(p),b=R.stat||{};
   // v6.52: la colonna Live compare solo quando ci sono dati live (prima era una colonna di "in arrivo")
-  const col=[["Storico",st.storico,`fino al 2015`],["Verifica",st.oos,`dal 2016`]].concat(st.live?[["Live",st.live,p.live_dal?`dal ${gg(p.live_dal)}`:"dall'avvio"]]:[]).concat([["S&amp;P 500",b.oos,"dal 2016"]]);
+  const col=[["Storico",st.storico,`fino al 2015`],["Verifica",st.oos,`dal 2016`]].concat(st.live?[["Live",st.live,p.live_dal?`dal ${gg(p.live_dal)}`:"dall'avvio"]]:[]).concat([[R.corto?"Riferimento":"S&amp;P 500",b.oos,R.corto||"dal 2016"]]);
   const r=(t,f)=>`<tr><th>${t}</th>${col.map(c=>`<td>${c[1]?f(c[1]):'<span class="small">n/d</span>'}</td>`).join("")}</tr>`;
-  return `<div class="tablewrap ptab"><table><tr><th class="ptab0">Risultati<span>per periodo <details class="info pti"><summary title="Periodi" aria-label="Periodi">i</summary><div>Regole decise sui dati fino al 2015 e verificate dal 2016 in poi. S&amp;P 500 = riferimento di confronto, misurato con gli stessi costi e cambi del portafoglio.${p.robusto&&p.robusto[150]&&p.robusto[250]?`<br><br><b>Test di robustezza</b> (tutto lo storico): con la media a 150 giorni ${pc(p.robusto[150].cagr)} l'anno e drawdown ${pc(p.robusto[150].maxdd)}; a 250 giorni ${pc(p.robusto[250].cagr)} e ${pc(p.robusto[250].maxdd)}; con 200 giorni (il modello) ${pc((st.totale||{}).cagr)} e ${pc((st.totale||{}).maxdd)}. Il rendimento cambia poco: il modello non dipende da un numero scelto ad arte. Il drawdown varia di pi&ugrave;: considera il peggiore come quello realistico.`:""}${st.live?"":` La colonna Live compare dopo la prima rotazione con le regole attuali.`}</div></details></span></th>${col.map(c=>`<th>${c[0]}<span>${c[2]}</span></th>`).join("")}</tr>
+  return `<div class="tablewrap ptab"><table><tr><th class="ptab0">Risultati<span>per periodo <details class="info pti"><summary title="Periodi" aria-label="Periodi">i</summary><div>Regole decise sui dati fino al 2015 e verificate dal 2016 in poi. <b>Riferimento</b> = la stessa quota di azioni del profilo (30%, 50% o 80%) in azioni mondiali (USA, Europa/Asia, emergenti), il resto in Treasury 10 anni, ribilanciato ogni mese e misurato con gli stessi costi e cambi del portafoglio; i suoi numeri sono dal 2016, come la Verifica.${p.robusto&&p.robusto[150]&&p.robusto[250]?`<br><br><b>Test di robustezza</b> (tutto lo storico): con la media a 150 giorni ${pc(p.robusto[150].cagr)} l'anno e drawdown ${pc(p.robusto[150].maxdd)}; a 250 giorni ${pc(p.robusto[250].cagr)} e ${pc(p.robusto[250].maxdd)}; con 200 giorni (il modello) ${pc((st.totale||{}).cagr)} e ${pc((st.totale||{}).maxdd)}. Il rendimento cambia poco: il modello non dipende da un numero scelto ad arte. Il drawdown varia di pi&ugrave;: considera il peggiore come quello realistico.`:""}${st.live?"":` La colonna Live compare dopo la prima rotazione con le regole attuali.`}</div></details></span></th>${col.map(c=>`<th>${c[0]}<span>${c[2]}</span></th>`).join("")}</tr>
    ${r("Rendimento annuo",x=>x.cagr==null?pc(x.totale)+" tot.":pc(x.cagr))}
    ${r("Max drawdown",x=>`<b class="down">${pc(x.maxdd)}</b>`)}${r("Peggior mese",x=>x.peggior_mese?pc(x.peggior_mese[1]):"n/d")}${r("Mesi positivi",x=>(x.mesi_pos??"n/d")+"%")}</table></div>
    ${tasseHTML(p)}`;}
@@ -346,8 +348,8 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
     <span class="ptax-c"><small>Rende l'anno</small><b class="${x.netto>=0?"up":"down"}">${pc(x.netto)}</b></span>
     <span class="ptax-c ptax-dd"><small>Drawdown max</small>${x.dd!=null?`<b class="down">${pc(x.dd)}</b><i><em style="width:${Math.round(x.dd/peg*100)}%"></em></i>`:"<b>n/d</b>"}</span>
     <span class="ptax-c"><small>In pari dopo</small><b>${x.dd!=null?pari(x.rec):"n/d"}</b></span></div>`;
-  return `<div class="ptax"><div class="ptax-t"><span class="ptax-l">Dopo le tasse <small>dal ${t.dal.slice(0,4)}</small></span><details class="info"><summary title="Come si calcola" aria-label="Come si calcola">i</summary><div><b>Il confronto</b>: tre modi di investire lo stesso capitale dal primo ribilancio, quindi con la crisi del 2008 dentro. <b>Met&agrave; e met&agrave;</b> = met&agrave; nell'S&amp;P 500 comprato e tenuto e met&agrave; nel profilo, due parti separate del conto mai ribilanciate tra loro. <b>In pari dopo</b> = tempo dal picco prima del drawdown peggiore al ritorno sopra quel picco.<br><br><b>Regime amministrato</b> (il broker trattiene le tasse a ogni vendita, come Scalable): ETF azionari 26% sul guadagno, Treasury 12,5%, ETC, Bitcoin e azioni 26% con compensazione delle perdite dei 4 anni prima; le perdite sugli ETF non si compensano con guadagni di altri ETF. Interessi della liquidit&agrave; al 26%, bollo 0,2% l'anno. Il numero suppone di vendere tutto l'ultimo giorno.<br><br><b>Perch&eacute; il portafoglio perde di pi&ugrave; dell'S&amp;P 500</b>: il filtro di trend vende quando un mercato scende sotto la media a 200 giorni e paga le tasse sui guadagni accumulati; chi compra e tiene le paga solo alla fine. &Egrave; il prezzo della protezione: drawdown molto pi&ugrave; piccoli (nel 2008 l'S&amp;P 500 in euro ha perso il 50%).<br><br><b>Regime dichiarato</b> (broker esteri che non fanno da sostituto d'imposta): stesse aliquote, ma le tasse le calcoli e versi tu con la dichiarazione dei redditi e al posto del bollo c'&egrave; l'IVAFE (0,2%). Regole semplificate: per la tua situazione chiedi a un commercialista.</div></details></div>
-   ${cf.map(riga).join("")}</div>`;}
+  return `<details class="psez" data-sez="tasse"${SEZ.tasse?" open":""}><summary><h3 class="vft">Dopo le tasse</h3><details class="info prinfo" onclick="event.stopPropagation()"><summary title="Come si calcola" aria-label="Come si calcola">i</summary><div><b>Il confronto</b>: tre modi di investire lo stesso capitale dal primo ribilancio, quindi con la crisi del 2008 dentro. <b>Met&agrave; e met&agrave;</b> = met&agrave; nell'S&amp;P 500 comprato e tenuto e met&agrave; nel profilo, due parti separate del conto mai ribilanciate tra loro. <b>In pari dopo</b> = tempo dal picco prima del drawdown peggiore al ritorno sopra quel picco.<br><br><b>Regime amministrato</b> (il broker trattiene le tasse a ogni vendita, come Scalable): ETF azionari 26% sul guadagno, Treasury 12,5%, ETC, Bitcoin e azioni 26% con compensazione delle perdite dei 4 anni prima; le perdite sugli ETF non si compensano con guadagni di altri ETF. Interessi della liquidit&agrave; al 26%, bollo 0,2% l'anno. Il numero suppone di vendere tutto l'ultimo giorno.<br><br><b>Perch&eacute; il portafoglio perde di pi&ugrave; dell'S&amp;P 500</b>: il filtro di trend vende quando un mercato scende sotto la media a 200 giorni e paga le tasse sui guadagni accumulati; chi compra e tiene le paga solo alla fine. &Egrave; il prezzo della protezione: drawdown molto pi&ugrave; piccoli (nel 2008 l'S&amp;P 500 in euro ha perso il 50%).<br><br><b>Regime dichiarato</b> (broker esteri che non fanno da sostituto d'imposta): stesse aliquote, ma le tasse le calcoli e versi tu con la dichiarazione dei redditi e al posto del bollo c'&egrave; l'IVAFE (0,2%). Regole semplificate: per la tua situazione chiedi a un commercialista.</div></details><span class="small">dal ${t.dal.slice(0,4)}, tre modi di investire a confronto</span></summary><div class="ptax">
+   ${cf.map(riga).join("")}</div></details>`;}
 
  /* v6.52: ogni rotazione mostra com'e' andato il mese (netto e drawdown) e, aprendo "Dettaglio", ogni mercato con
     peso, rendimento, contributo al totale (punti %) e drawdown; per le Azioni scelte anche i singoli titoli. */
@@ -465,11 +467,10 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
 `;}
  function simulatoreHTML(p){if(!p.sim)return "";
   const b=(arr,cur,attr,lab)=>`<div class="vfswitch psim-s">${arr.map(x=>`<button data-${attr}="${x}" class="${x==cur?"on":""}">${lab(x)}</button>`).join("")}</div>`;
-  return `<div class="card psim" id="psim"><div class="psim-t"><h3>Simulatore <span class="pbprof">${esc(p.nome)}</span></h3>
-    <details class="info"><summary title="Come funziona" aria-label="Come funziona">i</summary><div><b>Cosa mostra.</b> Il capitale investito in questo profilo partendo in ogni mese dello storico (dal ${gg(p.sim.dal)}): il valore a fine periodo nel caso medio (mediana) e la fascia che contiene 9 casi su 10. Stessa misura del sito: euro, acquisto prudente, costi inclusi.<br><br><b>Leva.</b> 1,3&times; e 1,5&times; = investire anche denaro preso a prestito, con un costo stimato di tasso BCE + ${fx(p.sim.spread,1)} punti l'anno. Guadagni e drawdown crescono insieme; costi e condizioni reali dipendono dal broker.<br><br><b>Rendita.</b> Prelievo annuo massimo che, in 10 anni, avrebbe lasciato il capitale finale almeno uguale a quello iniziale.<br><br><b>Attenzione.</b> Le regole del portafoglio sono state riviste guardando anche questi anni: i numeri futuri possono essere peggiori.</div></details></div>
+  return `<details class="psez" data-sez="sim"${SEZ.sim?" open":""}><summary><h3 class="vft">Simulatore</h3><details class="info prinfo" onclick="event.stopPropagation()"><summary title="Come funziona" aria-label="Come funziona">i</summary><div><b>Cosa mostra.</b> Il capitale investito in questo profilo partendo in ogni mese dello storico (dal ${gg(p.sim.dal)}): il valore a fine periodo nel caso medio (mediana) e la fascia che contiene 9 casi su 10. Stessa misura del sito: euro, acquisto prudente, costi inclusi.<br><br><b>Leva.</b> 1,3&times; e 1,5&times; = investire anche denaro preso a prestito, con un costo stimato di tasso BCE + ${fx(p.sim.spread,1)} punti l'anno. Guadagni e drawdown crescono insieme; costi e condizioni reali dipendono dal broker.<br><br><b>Rendita.</b> Prelievo annuo massimo che, in 10 anni, avrebbe lasciato il capitale finale almeno uguale a quello iniziale.<br><br><b>Attenzione.</b> Le regole del portafoglio sono state riviste guardando anche questi anni: i numeri futuri possono essere peggiori.</div></details><span class="small">quanto sarebbe diventato il capitale</span></summary><div class="card psim" id="psim">
    <div class="psim-c"><label class="pcap">Capitale <input type="text" inputmode="numeric" value="${mil(simCap)}" aria-label="Capitale del simulatore in euro"> &euro;</label>
     ${b(["1","3","5","10"],simOrz,"orz",x=>x+(x=="1"?" anno":" anni"))}${b(["1.0","1.3","1.5"],simLeva,"leva",x=>x=="1.0"?"Senza leva":"Leva "+x.replace(".",",")+"&times;")}</div>
-   <div class="psim-b">${simCorpo(p)}</div></div>`;}
+   <div class="psim-b">${simCorpo(p)}</div></div></details>`;}
  function simEventi(p){const c=el.querySelector("#psim");if(!c)return;const corpo=()=>{c.querySelector(".psim-b").innerHTML=simCorpo(p);};
   const salva=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
   c.querySelectorAll("[data-orz]").forEach(x=>x.onclick=()=>{simOrz=x.dataset.orz;salva("ebSimOrz",simOrz);c.querySelectorAll("[data-orz]").forEach(y=>y.classList.toggle("on",y==x));corpo();});
@@ -495,13 +496,12 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  function crisiHTML(p){const C=(P.crisi||[]).slice().reverse();if(!C.length||!p.crisi)return "";
   if(!crSel||!C.some(c=>c.id==crSel))crSel=C[0].id;
   const mx=Math.max(1,...C.map(c=>Math.abs(c.sp.dd)));
-  return `<div class="card pcr" id="pcr"><div class="psim-t"><h3>Crisi storiche <span class="pbprof">${esc(p.nome)}</span></h3>
-    <details class="info"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div><b>Cosa mostra.</b> Le grandi crisi da quando esiste il modello: dal massimo dell'S&amp;P 500 al suo minimo (date fisse, scelte prima di guardare i risultati). Numero grande = drawdown massimo del portafoglio in quei giorni, accanto quello dell'S&amp;P 500. Tutto in euro, come la curva della pagina.<br><br><b>Contributo al risultato.</b> Guadagno o perdita di ogni parte del portafoglio, in punti percentuali del capitale a inizio crisi: la somma &egrave; il risultato della crisi.<br><br><b>Ogni crisi ha un motore diverso</b>: nelle crisi di crescita difendono Treasury e oro, in quelle di inflazione materie prime e oro, nei crolli improvvisi la liquidit&agrave; del filtro di trend. Nessuno le prevede: la diversificazione serve ad avere gi&agrave; in portafoglio l'ingrediente giusto. Statistica del passato, non un consiglio.</div></details></div>
+  return `<details class="psez" data-sez="crisi"${SEZ.crisi?" open":""}><summary><h3 class="vft">Crisi storiche</h3><details class="info prinfo" onclick="event.stopPropagation()"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div><b>Cosa mostra.</b> Le grandi crisi da quando esiste il modello: dal massimo dell'S&amp;P 500 al suo minimo (date fisse, scelte prima di guardare i risultati). Numero grande = drawdown massimo del portafoglio in quei giorni, accanto quello dell'S&amp;P 500. Tutto in euro, come la curva della pagina.<br><br><b>Contributo al risultato.</b> Guadagno o perdita di ogni parte del portafoglio, in punti percentuali del capitale a inizio crisi: la somma &egrave; il risultato della crisi.<br><br><b>Ogni crisi ha un motore diverso</b>: nelle crisi di crescita difendono Treasury e oro, in quelle di inflazione materie prime e oro, nei crolli improvvisi la liquidit&agrave; del filtro di trend. Nessuno le prevede: la diversificazione serve ad avere gi&agrave; in portafoglio l'ingrediente giusto. Statistica del passato, non un consiglio.</div></details><span class="small">come ha retto nelle grandi crisi</span></summary><div class="card pcr" id="pcr">
    <div class="pcr-l">${C.map(c=>{const x=(p.crisi||[]).find(y=>y.id==c.id)||{};
     return `<button type="button" class="pcr-r${c.id==crSel?" on":""}" data-cr="${c.id}" aria-expanded="${c.id==crSel}"><span class="pcr-n"><b>${esc(c.nome)}</b><small>${esc(c.id)} &middot; ${esc(c.motore)}</small></span>
      <span class="pcr-v"><small>Portafoglio</small><b class="${(x.dd||0)<0?"down":"up"}">${pc(x.dd)}</b><i><em style="width:${(Math.abs(x.dd||0)/mx*100).toFixed(1)}%"></em></i></span>
      <span class="pcr-v pcr-sp"><small>S&amp;P 500</small><b class="down">${pc(c.sp.dd)}</b><i><em style="width:${(Math.abs(c.sp.dd)/mx*100).toFixed(1)}%"></em></i></span></button>
-     ${c.id==crSel?crDett(p,c):""}`;}).join("")}</div></div>`;}
+     ${c.id==crSel?crDett(p,c):""}`;}).join("")}</div></div></details>`;}
  function crEventi(p){const c=el.querySelector("#pcr");if(!c)return;
   c.querySelectorAll("[data-cr]").forEach(b=>b.onclick=()=>{crSel=b.dataset.cr;const n=document.createElement("div");n.innerHTML=crisiHTML(p);
    c.querySelector(".pcr-l").replaceWith(n.querySelector(".pcr-l"));crEventi(p);});}
@@ -682,7 +682,8 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  let cfrSel=null;
  // v7.64 sezioni apribili dello Storico: lo stato aperto/chiuso resta quando la pagina si ridisegna (prima, cambiando
  //  profilo nel confronto, tutta la scheda si ridisegnava e "Confronto dei 3 profili" si richiudeva con uno scatto)
- const SEZ={rischio:true,confronto:false};
+ // v8.55 (richiesta di Ya: meno rumore) tutte le sezioni dello Storico partono CHIUSE: l'utente apre quella che gli interessa
+ const SEZ={rischio:false,confronto:false,sim:false,crisi:false,tasse:false};
  function legaSez(){el.querySelectorAll("details.psez[data-sez]").forEach(d=>d.addEventListener("toggle",()=>{SEZ[d.dataset.sez]=d.open;}));}
  // interruttore del profilo in evidenza nei due confronti: ridisegna SOLO le due tabelle, nessun salto di pagina
  function legaCfr(){el.querySelectorAll(".pcfsw button").forEach(b=>b.onclick=()=>{if(cfrSel==b.dataset.c)return;cfrSel=b.dataset.c;
@@ -866,7 +867,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   y+=d.paragrafo(M,y,"Strumenti UCITS / ETC / ETP acquistabili da un conto europeo: cerca l'ISIN nell'app del tuo broker.",LW,{s:8,c:C.mute});
 
   // curva del capitale (stesso periodo scelto nella pagina), scala logaritmica, base 100
-  let pts=p.curva,bench=(P.bench||{}).curva||[];const dal=per=="oos"?P.oos_dal:per=="live"?(p.live_dal||P.oos_dal):null;
+  let pts=p.curva,bench=rifP(p).curva||[];const dal=per=="oos"?P.oos_dal:per=="live"?(p.live_dal||P.oos_dal):null;
   if(dal){pts=pts.filter(x=>x[0]>=dal);bench=bench.filter(x=>x[0]>=dal);}
   if(pts.length>1){y=d.serve(y,280,T);y=E.sezione(d,y+26,"Andamento del capitale",per=="oos"?"dal 2016 · base 100, scala logaritmica":"base 100, scala logaritmica");
    const gx=M+34,gw=LW-42,gy=y+4,gh=190,passo=a=>a.filter((_,i)=>i%Math.max(1,Math.ceil(a.length/700))==0||i==a.length-1);
@@ -885,11 +886,11 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    d.poli(s.map(x=>[X(x[0]),Y(x[1])]),{s:C.acc,lw:1.4});
    const live=p.live_dal?s.filter(x=>x[0]>=p.live_dal):[];if(live.length>1)d.poli(live.map(x=>[X(x[0]),Y(x[1])]),{s:"#0b6b63",lw:2.2});
    y=gy+gh+26;let lx=M;const leg=(col,et,tr)=>{d.linea(lx,y-3,lx+18,y-3,{c:col,lw:tr?1:2,tratt:tr?[3,2]:null});lx+=24;lx+=d.testo(lx,y,et,{s:8,c:C.mute})+18;};
-   leg(C.acc,"Portafoglio "+p.nome.toLowerCase());leg("#8793a6",(P.bench||{}).nome||"S&P 500",true);if(p.live_dal)leg("#0b6b63","Live");y+=6;}
+   leg(C.acc,"Portafoglio "+p.nome.toLowerCase());leg("#8793a6",rifP(p).nome||"S&P 500",true);if(p.live_dal)leg("#0b6b63","Live");y+=6;}
 
   // risultati per periodo (come la tabella della pagina)
-  const st=p.stat,bs=(P.bench||{}).stat||{};
-  const col=[["Storico",st.storico,"fino al 2015"],["Verifica",st.oos,"dal 2016"]].concat(st.live?[["Live",st.live,p.live_dal?"dal "+gg(p.live_dal):"dall'avvio"]]:[]).concat([["S&P 500",bs.oos,"dal 2016"]]);
+  const st=p.stat,R=rifP(p),bs=R.stat||{};
+  const col=[["Storico",st.storico,"fino al 2015"],["Verifica",st.oos,"dal 2016"]].concat(st.live?[["Live",st.live,p.live_dal?"dal "+gg(p.live_dal):"dall'avvio"]]:[]).concat([[R.corto?"Riferimento "+R.corto:"S&P 500",bs.oos,"dal 2016"]]);
   const RIG=[["Rendimento annuo",x=>x.cagr==null?pc(x.totale)+" tot.":pc(x.cagr)],["Volatilità",x=>fx(x.vol,1)+"%"],["Max drawdown",x=>pc(x.maxdd),C.down],["Peggior mese",x=>x.peggior_mese?pc(x.peggior_mese[1]):"n/d"],["Win rate mensile",x=>(x.mesi_pos??"n/d")+"%"]];
   y=d.serve(y,150,T);y=E.sezione(d,y+26,"Risultati per periodo");
   const c0=150,cw=(LW-c0)/col.length;d.rett(M,y,LW,28,{f:C.navy,r:4});
@@ -1085,7 +1086,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    <div class="pgrid">${composizione(p)}${contro(p)}</div>`:`${ebBlocco("Cosa comprare e quanto","Ogni mercato del portafoglio con peso, ISIN e importo sul tuo capitale.",{velo:true,righe:6})}
    <div class="pgrid plkgrid">${contro(p)}</div>`}`:""}
    ${vista=="conto"?(PREM?`<div class="card pconto" id="pconto">${contoHTML(p)}</div>`:ebBlocco("Il mio conto","Confronta i tuoi investimenti con il portafoglio modello.",{velo:true,righe:5})):""}
-   ${vista=="storico"?`<h3 class="vft">Andamento del capitale <details class="info"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div>Base 100, scala logaritmica: la stessa percentuale ha la stessa altezza in ogni periodo. Linea turchese = portafoglio, tratteggio = S&amp;P 500 di confronto, linea luminosa = live dalla prima rotazione pubblicata.</div></details></h3>
+   ${vista=="storico"?`<h3 class="vft">Andamento del capitale <details class="info"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div>Base 100, scala logaritmica: la stessa percentuale ha la stessa altezza in ogni periodo. Linea turchese = portafoglio, tratteggio = riferimento del profilo (stessa quota di azioni, in azioni mondiali e Treasury), linea luminosa = live dalla prima rotazione pubblicata.</div></details></h3>
    <div class="vfswitch pper">${[["tutto","Tutto"],["oos","Dal 2016"]].map(x=>`<button data-per="${x[0]}" class="${per==x[0]?"on":""}">${x[1]}</button>`).join("")}</div>
    <div class="card pgraf">${curva(p)}</div>
    ${tabella(p)}
