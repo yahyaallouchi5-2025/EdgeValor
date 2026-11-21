@@ -92,3 +92,27 @@ fuori campione, con le regole decise prima di guardare i risultati.
   situazione della persona e' consulenza personalizzata (MiFID II), che EdgeValor non fa.
 - Possibile contenuto educativo: errori comportamentali (cap. 5: avversione alle perdite, eccesso di fiducia, effetto
   gregge) nella Guida, legati ai momenti in cui il terminale li vede (es. vendere nel drawdown).
+
+## Vol. 10 — Ethical and Professional Standards (letto il 21/11/2026)
+Contenuto: Codice etico e Standard I-VII del CFA Institute, introduzione ai GIPS (presentazione dei risultati),
+applicazione pratica. Niente da calcolare: serve come regola di comportamento del terminale. Cosa ne viene a EdgeValor:
+- III(D) Presentazione dei risultati: i risultati SIMULATI vanno detti chiaramente come tali (esempio 4 del libro).
+  FATTO v8.55: (i) della tabella e del grafico dello Storico e nota nel PDF dei portafogli ("Storico e Verifica sono
+  risultati simulati ... Live = rotazioni registrate in tempo reale"). Le Rotazioni avevano gia' "Simulato"/"Live".
+- I(C) Rappresentazione: un riferimento non confrontabile con la strategia e' fuorviante; scegliere il piu' adatto.
+  FATTO v8.55: riferimento per profilo (30/70, 50/50, 80/20) nello Storico. Le Rotazioni confrontano con l'S&P 500
+  dichiarato come "il mercato", non come riferimento del profilo.
+- I(C) Omissioni / scelta dei periodi (cherry picking): mostrare sempre tutti i profili e tutto lo storico.
+  Gia' cosi': 3 profili sempre visibili, storico dal 2006, simulatore su tutte le partenze, studi con le delistate.
+- V(B) Comunicazione: dire il metodo, i limiti e i rischi; separare fatti e stime; COMUNICARE SUBITO I CAMBI DEL METODO
+  (esempi 9-13). Proposta: "Registro del metodo" datato (cambi di regole che toccano i risultati).
+- V(A) Diligenza: modelli testati prima dell'uso, scenari negativi (crisi), criteri per valutare i fornitori di dati.
+  Gia' cosi': regole fissate prima dei risultati, verifica fuori campione, crisi storiche, sorveglianza dei dati.
+- VI(A)/VI(B) Conflitti e priorita' delle operazioni: chi pubblica segnali e investe negli stessi strumenti deve
+  dichiararlo e non operare prima della pubblicazione. Proposta (per il legale): nota nelle condizioni d'uso sul fondatore
+  che segue i portafogli modello alle stesse date pubblicate, mai prima.
+- GIPS: solo chi GESTISCE patrimoni puo' dichiararsi conforme; un software no. EdgeValor non deve mai citare i GIPS
+  (verificato: nessuna menzione nel sito). Ne prendiamo i principi: tutti i periodi, costi inclusi, nessuna selezione.
+- II(B) Manipolazione del mercato (pump and dump): mai segnali su titoli poco scambiati; l'Azionario usa solo le 500
+  azioni piu' scambiate e gli indici principali: rischio basso, da tenere cosi'.
+- I(C) Plagio: citare la fonte dei metodi presi da studi e libri (gia' nei file degli studi).
