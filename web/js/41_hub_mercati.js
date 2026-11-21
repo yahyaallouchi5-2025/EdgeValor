@@ -44,7 +44,12 @@
   // righe di registro
   registro:[...Array(6)].map((_,i)=>`<rect x="24" y="${18+i*21}" width="${150+((i*41)%110)}" height="7" rx="3.5" class="hbd"/>`).join("")};
  function disegna(){
-  const bt=[...document.querySelectorAll('#nav .nghub .ngm button[data-t]')].filter(b=>b.style.display!="none");
+  // v8.62 ORDINE deciso da Ya: Macro, COT, Stagionalita', Volatilita', Correlazioni, Forex, Crypto, Live, poi il resto.
+  //   Si riordinano anche i bottoni del menu nascosto, cosi' l'ordine e' lo stesso ovunque.
+  const ORD=["mkt","assets","stag","volat","corr","pairs","btc","verifica","eventi","registro"],pos=t=>{const i=ORD.indexOf(t);return i<0?99:i;};
+  const menu=document.querySelector('#nav .nghub .ngm');
+  if(menu){const tutti=[...menu.querySelectorAll('button[data-t]')].sort((x,y)=>pos(x.dataset.t)-pos(y.dataset.t));tutti.forEach(x=>x.parentElement.appendChild(x));}
+  const bt=[...document.querySelectorAll('#nav .nghub .ngm button[data-t]')].filter(b=>b.style.display!="none").sort((x,y)=>pos(x.dataset.t)-pos(y.dataset.t));
   el.innerHTML=`<h2>Mercati</h2>
    <div class="hbgrid">${bt.map(b=>{const t=b.dataset.t;return `<button type="button" class="hbcard" data-vai="${t}">
     <span class="hbart" aria-hidden="true"><svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">${ART[t]||""}</svg>
