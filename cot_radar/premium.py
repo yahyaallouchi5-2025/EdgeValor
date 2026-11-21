@@ -194,6 +194,7 @@ AZ_VIA = ("satellite.json", "bilanci.json")
 # campi di ogni titolo che restano in Basic (ricerca per nome, prezzo, carte dei settori); il resto e' Premium
 AZ_BASIC = ("t", "n", "s", "l", "val", "p", "data", "v1g", "v1m", "vytd", "t200", "dq", "ev", "spl")
 # parti di top.json che restano in Basic (quadro economico, stato dei dati); "titoli" e "sconto" sono Premium
+TOP_BASIC_N = 2          # v8.65 (Ya, 22/11/2026): aziende della "Selezione di oggi" visibili al Basic
 TOP_BASIC = ("aggiornato", "mese", "anomalia", "settori", "listini", "economie", "ampiezza")
 
 
@@ -242,7 +243,9 @@ def proteggi_azioni(dest):
     p = os.path.join(dest, "top.json")
     if os.path.isfile(p):
         d = _leggi(p)
-        _scrivi(p, file_premium(d, {k: d[k] for k in TOP_BASIC if k in d}))
+        basic = {k: d[k] for k in TOP_BASIC if k in d}
+        basic["titoli"] = (d.get("titoli") or [])[:TOP_BASIC_N]   # v8.65 il Basic vede le prime 2 della Selezione di oggi
+        _scrivi(p, file_premium(d, basic))
         n += 1
     log.info("premium: %d file delle azioni protetti%s", n, "" if pubblicazione() else " (SENZA chiave: solo Basic)")
     return n

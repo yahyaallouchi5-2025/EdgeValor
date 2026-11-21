@@ -80,7 +80,7 @@ class Premium(unittest.TestCase):
             os.makedirs(os.path.join(d, "titoli"))
             PR._scrivi(os.path.join(d, "titoli", "AAPL.json"), {"t": "AAPL", "c": [1, 2]})
             PR._scrivi(os.path.join(d, "indice.json"), {"settori": [1], "titoli": [{"t": "AAPL", "n": "Apple", "p": 1, "pt": 88, "rk": 1}]})
-            PR._scrivi(os.path.join(d, "top.json"), {"economie": {"usa": 1}, "titoli": [{"t": "AAPL"}]})
+            PR._scrivi(os.path.join(d, "top.json"), {"economie": {"usa": 1}, "titoli": [{"t": "AAPL"}, {"t": "MSFT"}, {"t": "NVDA"}]})
             PR._scrivi(os.path.join(d, "satellite.json"), {"storico": ["AAPL"]})
             PR.proteggi_azioni(d)
             tit = PR._leggi(os.path.join(d, "titoli", "AAPL.json"))
@@ -91,7 +91,8 @@ class Premium(unittest.TestCase):
             self.assertEqual(apri(ind["__p"])["titoli"][0]["pt"], 88)
             top = PR._leggi(os.path.join(d, "top.json"))
             self.assertEqual(top["economie"], {"usa": 1})
-            self.assertNotIn("titoli", top)
+            self.assertEqual(top["titoli"], [{"t": "AAPL"}, {"t": "MSFT"}])     # v8.65 il Basic vede le prime 2
+            self.assertEqual(len(apri(top["__p"])["titoli"]), 3)
             self.assertFalse(os.path.exists(os.path.join(d, "satellite.json")))
 
     def test_azioni_senza_chiave_solo_basic(self):

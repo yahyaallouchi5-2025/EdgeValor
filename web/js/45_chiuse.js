@@ -4,8 +4,8 @@
    qui si mette solo la grafica del lucchetto. Ultimo file: lavora dopo che le altre schede si sono disegnate.
    COSA FA:
      1) ogni scheda chiusa mostra titolo + lucchetto "Passa a Premium" (ebBlocco di 01_base.js);
-     2) DASHBOARD: "Posizionamento" e' aperta al Basic (solo i conteggi, v8.09); "Nuovi dati COT" resta visibile
-        con il lucchetto al posto dei numeri; tutta la parte dei segnali COT (Settori, Forex, Materie prime, Indici, Tassi, Crypto) diventa un
+     2) DASHBOARD: "Posizionamento" e' aperta al Basic (solo i conteggi, v8.09); "Nuovi dati COT" e' aperta (v8.65,
+        senza collegamento alla scheda COT); tutta la parte dei segnali COT (Settori, Forex, Materie prime, Indici, Tassi, Crypto) diventa un
         solo riquadro con lucchetto. Quadro economico, Clima, Prossima rotazione, Notizie e Paesi restano aperti;
      3) NIENTE PONTI: le card della pagina Mercati delle schede chiuse hanno il lucchetto, e nessun collegamento
         porta a contenuti veri (non ci sono nella pagina).
@@ -26,13 +26,9 @@
  // 1) schede chiuse
  for(const k in CHIUSE){const s=$(k);if(!s)continue;const [t,x]=CHIUSE[k];
   s.innerHTML=`<h2>${t}</h2>${ebBlocco(t,x,{velo:true,righe:7,cls:"plk-scheda"})}`;}
- // 2) Dashboard: card con lucchetto e blocco dei segnali
- const corpo=`<div class="kzlk"><span>${LUCCHETTO}</span><b>Premium</b></div>`;
- document.querySelectorAll("#kpis .kz4").forEach(a=>{
-  ["href","data-scorri","data-vai","title"].forEach(n=>a.removeAttribute(n));a.setAttribute("data-premium","");a.setAttribute("role","button");a.tabIndex=0;
-  a.classList.add("kzchiusa");a.onclick=null;
-  [...a.children].forEach(c=>{if(!c.classList.contains("kzt")&&!c.classList.contains("kzq"))c.remove();});
-  a.insertAdjacentHTML("beforeend",corpo);});
+ // 2) Dashboard. v8.65 (Ya, 22/11/2026): "Nuovi dati COT" e' aperta al Basic (conto alla rovescia e data del report:
+ //    nessun dato Premium). Resta solo senza collegamento alla scheda COT, che e' chiusa (niente ponti).
+ document.querySelectorAll("#kpis .kz4").forEach(a=>{["href","data-scorri","data-vai","title"].forEach(n=>a.removeAttribute(n));a.classList.add("kzferma");a.onclick=null;});
  const da=$("topaz"),a=$("peblocco");
  if(da&&a&&da.parentNode==a.parentNode){let n=da.nextSibling;while(n&&n!=a){const p=n.nextSibling;n.remove();n=p;}
   a.insertAdjacentHTML("beforebegin",`<h2>Posizionamento</h2>${ebBlocco("Dove puntano gli speculatori","Forex, materie prime, indici, tassi e crypto: i segnali attivi di questa settimana.",{velo:true,righe:6,cls:"plk-scheda"})}`);}

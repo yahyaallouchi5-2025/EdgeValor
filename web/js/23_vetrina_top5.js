@@ -35,7 +35,7 @@ try{(function(){const el=$("topaz");if(!el)return;
  // v7.22d il riquadro "In sconto" non e' piu' in Dashboard: i titoli scontati si trovano nell'Azionario (ordinando per
  //     Smart Discount). I dati "sconto" restano in top.json.
  // "Apri grafico" della vetrina: scheda Azionario con il dettaglio del titolo
- function apriSc(){el.querySelectorAll(".tzapri").forEach(b=>b.onclick=()=>{try{window.ebStat&&ebStat.ev("vetrina",{ticker:b.dataset.t});}catch(e){}window.ebApriTitolo&&ebApriTitolo(b.dataset.t);});}
+ function apriSc(){el.querySelectorAll(".tzapri[data-t]").forEach(b=>b.onclick=()=>{try{window.ebStat&&ebStat.ev("vetrina",{ticker:b.dataset.t});}catch(e){}window.ebApriTitolo&&ebApriTitolo(b.dataset.t);});}
  // v7.9 AMPIEZZA DEL MERCATO: dalla v7.21 non e' piu' mostrata (sostituita dalle ciambelle dei settori nel Quadro economico)
  function ampiezzaHTML(d){const a=d.ampiezza;if(!a||!a.tot||!a.tot.n)return "";
   const q=x=>x.n?Math.round(x.su/x.n*100):0,tot=q(a.tot),[parola,cls]=tot>=60?["Forte","up"]:tot>=40?["Misto","tzamp-m"]:["Debole","down"];
@@ -45,8 +45,10 @@ try{(function(){const el=$("topaz");if(!el)return;
    <div class="tzamp-aree">${(a.aree||[]).filter(x=>x.n).map(x=>`<div><span>${esc(x.nome)}</span>${barra(x)}<b>${q(x)}%</b></div>`).join("")}</div></div>`;}
  function disegna(d){
   // v7.93 Basic: la Selezione di oggi (nomi delle azioni con l'edge) e' Premium
-  if(!EB_PREMIUM){el.innerHTML=ebBlocco("Le 5 azioni di oggi","Le aziende che superano tutti i filtri di trend, forza e stagionalità, ricalcolate ogni sera.",{velo:true,righe:5});return;}
-  const T=d.titoli||[];const mese=MESI[(d.mese||oggiRoma().m+1)-1];
+  // v8.65 (Ya, 22/11/2026): il Basic vede le prime 2 aziende (premium.py manda solo quelle); le altre restano Premium.
+  //   Per il Basic niente collegamenti alle schede complete delle aziende (chiuse): i pulsanti aprono l'offerta Premium.
+  const BASIC=!EB_PREMIUM,T=d.titoli||[];
+  if(BASIC&&!T.length){el.innerHTML=ebBlocco("Le azioni di oggi","Le aziende che superano tutti i filtri di trend, forza e stagionalità, ricalcolate ogni sera.",{velo:true,righe:5});return;}const mese=MESI[(d.mese||oggiRoma().m+1)-1];
   if(!T.length){el.innerHTML=`<div class="card tz"><div class="tztesta"><div><span class="tzchip">Selezione di oggi</span><h3>Le azioni pi&ugrave; forti</h3></div></div><p class="small" style="margin:8px 0 0">Oggi nessun titolo supera tutti i filtri: la selezione torna appena trend, forza e stagionalit&agrave; si allineano.</p></div>`;apriSc();return;}
   const slide=(t,i)=>`<article class="tzs${i?"":" on"}" data-i="${i}" aria-roledescription="slide" aria-label="${i+1} di ${T.length}">
    <div class="tzinfo"><span class="tzpos">#${i+1} di ${T.length} &middot; ${esc((d.settori||{})[t.s]||t.s)}</span>
@@ -57,12 +59,13 @@ try{(function(){const el=$("topaz");if(!el)return;
     <li><i class="ok"></i><span>Sopra la media a 200 giorni del <b>${fx(t.t200,1)}%</b>${t.dmax!=null?` &middot; ${t.dmax>-0.5?"sui massimi dell'anno":"a "+fx(-t.dmax,1)+"% dal massimo dell'anno"}`:""}</span></li>
     <li><i class="ok"></i><span>${mese[0].toUpperCase()+mese.slice(1)} positivo nel <b>${t.st_pos}%</b> degli anni (${t.st_n} anni, media <b>${pc(t.st_media)}</b>)</span></li></ul>
    <div class="tzdx">${anello(t.pt)}<div class="tzgraf">${spark(t.sp)}<span class="small">ultimo anno</span></div>
-    <button class="tzapri" data-t="${esc(t.t)}">Apri grafico e stagionalit&agrave; <span aria-hidden="true">&rarr;</span></button></div></article>`;
+    ${BASIC?`<button class="tzapri tzprem" data-premium>Scheda completa con Premium <span aria-hidden="true">&rarr;</span></button>`
+     :`<button class="tzapri" data-t="${esc(t.t)}">Apri grafico e stagionalit&agrave; <span aria-hidden="true">&rarr;</span></button>`}</div></article>`;
   el.innerHTML=`<div class="card tz" tabindex="0" aria-roledescription="carosello" aria-label="Le azioni pi&ugrave; forti di oggi">
    <div class="tztesta"><div><span class="tzchip"><i></i>Selezione di oggi</span><h3>Le ${T.length} azioni pi&ugrave; forti <details class="info tzinf"><summary title="Da dove vengono" aria-label="Da dove vengono">i</summary><div>Solo titoli che si comprano davvero in euro su Scalable: <b>Wall Street ed Europa continentale</b>. Londra (imposta di bollo dello 0,5% in acquisto), Toronto, Sydney e Asia restano nell'Azionario per l'analisi ma non entrano qui n&eacute; nei portafogli. Le seconde quotazioni della stessa societ&agrave; (es. ASML ad Amsterdam e al Nasdaq) contano una volta sola.</div></details></h3>
     <span class="small">Una per settore, solo lato acquisto &middot; dati al ${gg(d.aggiornato)}</span></div>
     <div class="tzcom"><button class="tzfr" data-v="-1" aria-label="Precedente">&lsaquo;</button><div class="tzdots">${T.map((t,i)=>`<button class="${i?"":"on"}" data-i="${i}" aria-label="${esc(t.n)}"><i></i></button>`).join("")}</div><button class="tzfr" data-v="1" aria-label="Successiva">&rsaquo;</button>
-     <button class="tzvedi">Classifica completa</button></div></div>
+     ${BASIC?`<button class="tzvedi" data-premium>Tutte con Premium</button>`:`<button class="tzvedi">Classifica completa</button>`}</div></div>
    <div class="tzbox">${T.map(slide).join("")}</div></div>`;
   const box=el.querySelector(".tz"),sl=[...el.querySelectorAll(".tzs")],dots=[...el.querySelectorAll(".tzdots button")];
   let cur=0,tm=null,inizio=0,pausa=false;
@@ -77,7 +80,7 @@ try{(function(){const el=$("topaz");if(!el)return;
   el.querySelectorAll(".tzfr").forEach(b=>b.onclick=()=>vai(cur+ +b.dataset.v));
   dots.forEach(b=>b.onclick=()=>vai(+b.dataset.i));
   apriSc();
-  el.querySelector(".tzvedi").onclick=()=>{try{go("azioni");}catch(e){}};
+  if(!BASIC)el.querySelector(".tzvedi").onclick=()=>{try{go("azioni");}catch(e){}};
   // la vetrina scorre solo quando e' visibile (Dashboard aperta e pagina in primo piano)
   document.addEventListener("visibilitychange",()=>{if(document.hidden)clearTimeout(tm);else avvia();});
   avvia();}
