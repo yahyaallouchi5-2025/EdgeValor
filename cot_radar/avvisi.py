@@ -297,6 +297,6 @@ def testo_settimana(agenda, lunedi, prova=False):
     return (_testa(f"notizie della settimana {lunedi:%d/%m} – {fine:%d/%m}", prova) + "\n"
             + "\n".join(blocchi)
             + "\n\n<i>🔴 impatto alto · 🟠 medio · orari italiani. Il mercato reagisce alla sorpresa rispetto alle "
-              "attese degli analisti (non incluse nel calendario gratuito): il precedente è il riferimento. "
+              "attese degli analisti (non incluse nel calendario): il riferimento è il dato precedente. "
               "La sera prima arriva il pre-avviso, dopo l'uscita l'esito con la reazione del mercato.</i>"
             + f'\n<a href="{_escape((agenda or {}).get("credito") or "")}">Calendario: financecalendar.com</a>')

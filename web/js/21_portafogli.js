@@ -14,7 +14,7 @@
         storico, con rendimento e max drawdown dentro il mese anno per anno, esempio su 10.000 euro e
         stagionalita' del mese per ogni mercato (nessuna statistica per anno solare);
      3. la curva del capitale: storico, fuori campione (dal 2016) e live (dalla prima rotazione pubblicata),
-        con il confronto 60/40; passando il mouse si leggono data e valore;
+        con il confronto S&P 500 (v8.52, prima 60/40); passando il mouse si leggono data e valore;
      4. tabella dei periodi, ultime rotazioni (entrati / usciti / tenuti) e mercati esclusi con il motivo.
    Il profilo scelto resta salvato nel browser (localStorage "ebProfilo"). */
 try{(function(){const P=D.port,el=$("port");if(!el)return;
@@ -90,7 +90,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    ${sb.length?`<path d="${path(sb)}" class="pbench"/>`:""}<path d="${path(s)}" class="plinea"/>${live.length>1?`<path d="${path(live)}" class="plive"/>`:""}
    <line class="pcur" x1="0" x2="0" y1="${T}" y2="${H-B}" style="display:none"/><circle class="pcurp" r="4.5" style="display:none"/></svg>
    <div class="ptip" hidden></div>
-   <div class="pleg"><span><i class="lp"></i>Portafoglio ${esc(p.nome.toLowerCase())}</span><span><i class="lb"></i>${esc((P.bench||{}).nome||"60/40")}</span>${p.live_dal?'<span><i class="ll"></i>Live</span>':""}</div>`;}
+   <div class="pleg"><span><i class="lp"></i>Portafoglio ${esc(p.nome.toLowerCase())}</span><span><i class="lb"></i>${esc((P.bench||{}).nome||"S&P 500")}</span>${p.live_dal?'<span><i class="ll"></i>Live</span>':""}</div>`;}
 
  // --- una riga del portafoglio: nome, strumento UCITS da comprare (ISIN copiabile), motivo, peso, importo in euro.
  //     Per "Azioni scelte": elenco dei 5 titoli (registrati, oppure ANTEPRIMA provvisoria del mese prossimo).
@@ -328,9 +328,9 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
 
  function tabella(p){const st=p.stat,b=(P.bench||{}).stat||{};
   // v6.52: la colonna Live compare solo quando ci sono dati live (prima era una colonna di "in arrivo")
-  const col=[["Storico",st.storico,`fino al 2015`],["Verifica",st.oos,`dal 2016`]].concat(st.live?[["Live",st.live,p.live_dal?`dal ${gg(p.live_dal)}`:"dall'avvio"]]:[]).concat([["60/40",b.oos,"dal 2016"]]);
+  const col=[["Storico",st.storico,`fino al 2015`],["Verifica",st.oos,`dal 2016`]].concat(st.live?[["Live",st.live,p.live_dal?`dal ${gg(p.live_dal)}`:"dall'avvio"]]:[]).concat([["S&amp;P 500",b.oos,"dal 2016"]]);
   const r=(t,f)=>`<tr><th>${t}</th>${col.map(c=>`<td>${c[1]?f(c[1]):'<span class="small">n/d</span>'}</td>`).join("")}</tr>`;
-  return `<div class="tablewrap ptab"><table><tr><th class="ptab0">Risultati<span>per periodo <details class="info pti"><summary title="Periodi" aria-label="Periodi">i</summary><div>Regole decise sui dati fino al 2015 e verificate dal 2016 in poi. 60/40 = 60% azioni USA e 40% Treasury, per confronto.${p.robusto&&p.robusto[150]&&p.robusto[250]?`<br><br><b>Test di robustezza</b> (tutto lo storico): con la media a 150 giorni ${pc(p.robusto[150].cagr)} l'anno e drawdown ${pc(p.robusto[150].maxdd)}; a 250 giorni ${pc(p.robusto[250].cagr)} e ${pc(p.robusto[250].maxdd)}; con 200 giorni (il modello) ${pc((st.totale||{}).cagr)} e ${pc((st.totale||{}).maxdd)}. Il rendimento cambia poco: il modello non dipende da un numero scelto ad arte. Il drawdown varia di pi&ugrave;: considera il peggiore come quello realistico.`:""}${st.live?"":` La colonna Live compare dopo la prima rotazione con le regole attuali.`}</div></details></span></th>${col.map(c=>`<th>${c[0]}<span>${c[2]}</span></th>`).join("")}</tr>
+  return `<div class="tablewrap ptab"><table><tr><th class="ptab0">Risultati<span>per periodo <details class="info pti"><summary title="Periodi" aria-label="Periodi">i</summary><div>Regole decise sui dati fino al 2015 e verificate dal 2016 in poi. S&amp;P 500 = riferimento di confronto, misurato con gli stessi costi e cambi del portafoglio.${p.robusto&&p.robusto[150]&&p.robusto[250]?`<br><br><b>Test di robustezza</b> (tutto lo storico): con la media a 150 giorni ${pc(p.robusto[150].cagr)} l'anno e drawdown ${pc(p.robusto[150].maxdd)}; a 250 giorni ${pc(p.robusto[250].cagr)} e ${pc(p.robusto[250].maxdd)}; con 200 giorni (il modello) ${pc((st.totale||{}).cagr)} e ${pc((st.totale||{}).maxdd)}. Il rendimento cambia poco: il modello non dipende da un numero scelto ad arte. Il drawdown varia di pi&ugrave;: considera il peggiore come quello realistico.`:""}${st.live?"":` La colonna Live compare dopo la prima rotazione con le regole attuali.`}</div></details></span></th>${col.map(c=>`<th>${c[0]}<span>${c[2]}</span></th>`).join("")}</tr>
    ${r("Rendimento annuo",x=>x.cagr==null?pc(x.totale)+" tot.":pc(x.cagr))}
    ${r("Max drawdown",x=>`<b class="down">${pc(x.maxdd)}</b>`)}${r("Peggior mese",x=>x.peggior_mese?pc(x.peggior_mese[1]):"n/d")}${r("Mesi positivi",x=>(x.mesi_pos??"n/d")+"%")}</table></div>
    ${tasseHTML(p)}`;}
@@ -800,11 +800,11 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    d.poli(s.map(x=>[X(x[0]),Y(x[1])]),{s:C.acc,lw:1.4});
    const live=p.live_dal?s.filter(x=>x[0]>=p.live_dal):[];if(live.length>1)d.poli(live.map(x=>[X(x[0]),Y(x[1])]),{s:"#0b6b63",lw:2.2});
    y=gy+gh+26;let lx=M;const leg=(col,et,tr)=>{d.linea(lx,y-3,lx+18,y-3,{c:col,lw:tr?1:2,tratt:tr?[3,2]:null});lx+=24;lx+=d.testo(lx,y,et,{s:8,c:C.mute})+18;};
-   leg(C.acc,"Portafoglio "+p.nome.toLowerCase());leg("#8793a6",(P.bench||{}).nome||"60/40",true);if(p.live_dal)leg("#0b6b63","Live");y+=6;}
+   leg(C.acc,"Portafoglio "+p.nome.toLowerCase());leg("#8793a6",(P.bench||{}).nome||"S&P 500",true);if(p.live_dal)leg("#0b6b63","Live");y+=6;}
 
   // risultati per periodo (come la tabella della pagina)
   const st=p.stat,bs=(P.bench||{}).stat||{};
-  const col=[["Storico",st.storico,"fino al 2015"],["Verifica",st.oos,"dal 2016"]].concat(st.live?[["Live",st.live,p.live_dal?"dal "+gg(p.live_dal):"dall'avvio"]]:[]).concat([["60/40",bs.oos,"dal 2016"]]);
+  const col=[["Storico",st.storico,"fino al 2015"],["Verifica",st.oos,"dal 2016"]].concat(st.live?[["Live",st.live,p.live_dal?"dal "+gg(p.live_dal):"dall'avvio"]]:[]).concat([["S&P 500",bs.oos,"dal 2016"]]);
   const RIG=[["Rendimento annuo",x=>x.cagr==null?pc(x.totale)+" tot.":pc(x.cagr)],["Volatilità",x=>fx(x.vol,1)+"%"],["Max drawdown",x=>pc(x.maxdd),C.down],["Peggior mese",x=>x.peggior_mese?pc(x.peggior_mese[1]):"n/d"],["Win rate mensile",x=>(x.mesi_pos??"n/d")+"%"]];
   y=d.serve(y,150,T);y=E.sezione(d,y+26,"Risultati per periodo");
   const c0=150,cw=(LW-c0)/col.length;d.rett(M,y,LW,28,{f:C.navy,r:4});
@@ -1000,7 +1000,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    <div class="pgrid">${composizione(p)}${contro(p)}</div>`:`${ebBlocco("Cosa comprare e quanto","Ogni mercato del portafoglio con peso, ISIN e importo sul tuo capitale.",{velo:true,righe:6})}
    <div class="pgrid plkgrid">${contro(p)}</div>`}`:""}
    ${vista=="conto"?(PREM?`<div class="card pconto" id="pconto">${contoHTML(p)}</div>`:ebBlocco("Il mio conto","Confronta i tuoi investimenti con il portafoglio modello.",{velo:true,righe:5})):""}
-   ${vista=="storico"?`<h3 class="vft">Andamento del capitale <details class="info"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div>Base 100, scala logaritmica: la stessa percentuale ha la stessa altezza in ogni periodo. Linea turchese = portafoglio, tratteggio = 60/40 di confronto, linea luminosa = live dalla prima rotazione pubblicata.</div></details></h3>
+   ${vista=="storico"?`<h3 class="vft">Andamento del capitale <details class="info"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div>Base 100, scala logaritmica: la stessa percentuale ha la stessa altezza in ogni periodo. Linea turchese = portafoglio, tratteggio = S&amp;P 500 di confronto, linea luminosa = live dalla prima rotazione pubblicata.</div></details></h3>
    <div class="vfswitch pper">${[["tutto","Tutto"],["oos","Dal 2016"]].map(x=>`<button data-per="${x[0]}" class="${per==x[0]?"on":""}">${x[1]}</button>`).join("")}</div>
    <div class="card pgraf">${curva(p)}</div>
    ${tabella(p)}

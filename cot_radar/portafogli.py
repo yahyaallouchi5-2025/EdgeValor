@@ -2070,10 +2070,12 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
         "dal": g.date[giorni[0]], "oos_dal": OOS_DAL, "fonte": "Yahoo Finance (prezzi rettificati)",
         "profili": out_prof, "chiusure": chiusure,
         # v6.87: benchmark misurato come i portafogli (euro, acquisto prudente)
-        "bench": {"nome": "60/40 (S&P 500 + Treasury 10 anni)", "curva": _settimanale(bench_p),
-                  "stat": {"storico": statistiche(_tagli(bench_p, al=OOS_DAL), liq),
-                           "oos": statistiche(_tagli(bench_p, dal=OOS_DAL), liq), "totale": statistiche(bench_p, liq)},
-                  "stat_eur": {"totale": statistiche(bench_p, liq)} if eur_ok else None} if bench_p else None,
+        # v8.52 (decisione di Ya): il riferimento del grafico e della tabella e' l'S&P 500, non piu' il 60/40.
+        #   E' lo stesso riferimento di beta e alfa in "Rischio e costi": un solo metro di paragone in tutta la pagina.
+        "bench": {"nome": "S&P 500", "curva": _settimanale(sp_p),
+                  "stat": {"storico": statistiche(_tagli(sp_p, al=OOS_DAL), liq),
+                           "oos": statistiche(_tagli(sp_p, dal=OOS_DAL), liq), "totale": statistiche(sp_p, liq)},
+                  "stat_eur": {"totale": statistiche(sp_p, liq)} if eur_ok else None} if sp_p else None,
         "sp500": {"nome": "S&P 500", "stat": {"totale": statistiche(sp_p, liq)},
                   "rischio_ext": rischio_esteso(sp_p, liq, sp_sc)} if sp_p else None,
         "valuta": "EUR" if eur_ok else "USD",
