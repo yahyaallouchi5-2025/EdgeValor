@@ -25,6 +25,41 @@ try{
  <div class="card"><h3>Liquidita' netta</h3><div class="kpi"><div class="big">${fx(F.nl/1e6)} mila mld $</div><div class="note">Bilancio - conto del Tesoro - reverse repo &middot; 4 settimane ${sg(F.nl4)}%</div></div>${spark(F.spark_nl,F.nl4>0?"var(--b)":"var(--s)")}</div></div>`;
  el.innerHTML=h;
  const rows=Object.values(D.assets).filter(a=>a.mkt&&a.key!="USD").sort((a,b)=>Math.abs(b.mkt.score)-Math.abs(a.mkt.score));
+ // v8.62 SCREENER (prima solo il fondatore, come la Live): si sceglie lo strumento e si legge solo il suo dato;
+ //   la tabella completa resta, chiusa, sotto "Tutti gli strumenti". Stessi numeri, solo in ordine.
+ const isAdm=()=>document.documentElement.classList.contains("eb-admin");
+ const screener=()=>{
+  let sel="";try{sel=localStorage.getItem("ebMacroSel")||"";}catch(e){}
+  if(sel&&!rows.some(a=>a.key==sel))sel="";
+  const FAMM=a=>["BTC","ETH"].includes(a.key)?"Crypto":["WTI","BRENT","NATGAS","GOLD","SILVER","PLATINUM","COPPER"].includes(a.key)?"Materie prime"
+   :["SP500","NASDAQ","DOW","RUSSELL","EM","EAFE"].includes(a.key)?"Indici":"Valute";
+  const fam=["Valute","Indici","Materie prime","Crypto"].map(f=>[f,rows.filter(a=>FAMM(a)==f).sort((x,y)=>x.key.localeCompare(y.key))]).filter(x=>x[1].length);
+  const tab=$("mtable").closest(".tablewrap"),scr=document.createElement("div");tab.before(scr);
+  const det=document.createElement("details");det.className="vfx";det.innerHTML=`<summary><b>Tutti gli strumenti</b><span>${rows.length} strumenti</span></summary><div class="vfx-c"></div>`;
+  tab.before(det);det.querySelector(".vfx-c").appendChild(tab);
+  const lett=m=>m.r2<.05?["poco legato al macro",""]:Math.abs(m.gz)<.5?["gi&agrave; scontato",""]:m.gz>0?["spazio al rialzo","ok"]:["spazio al ribasso","ko"];
+  const disegnaSel=()=>{const a=rows.find(x=>x.key==sel);
+   const chip=`<div class="card vfsc"><div class="vfsc-r"><div class="vfsc-s"><span class="vfetich">Strumento</span><select class="vfsel mksel"><option value="">Scegli uno strumento&hellip;</option>${fam.map(([f,l])=>`<optgroup label="${f}">${l.map(x=>`<option value="${x.key}"${x.key==sel?" selected":""}>${esc(x.name)}</option>`).join("")}</optgroup>`).join("")}</select></div></div>
+    <div class="vfsc-g">${fam.map(([f,l])=>`<div><small>${f}</small><div class="vfchip vfchip-s">${l.map(x=>`<button data-mk="${x.key}" class="${x.key==sel?"on":""}">${x.key}</button>`).join("")}</div></div>`).join("")}</div></div>`;
+   let corpo;
+   if(!a)corpo=`<div class="card vfvuoto2"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><b>Scegli uno strumento</b><p>Vedrai quanto i driver macro hanno gi&agrave; spinto il suo prezzo.</p></div>`;
+   else{const m=a.mkt,t=m.top||[],l=lett(m);
+    corpo=`<div class="vfsl-t"><span class="vfsl-n">${esc(a.name)}</span><span class="tag ${l[1]}">${l[0]}</span></div>
+    <div class="grid k4 vfkpi">
+     <div class="card kpi"><h3>Punteggio</h3><div class="big ${m.score>=25?"up":m.score<=-25?"down":""}">${fmt(m.score)}</div><div class="note">da &minus;100 a +100</div></div>
+     <div class="card kpi"><h3>Mossa implicita 4s</h3><div class="big">${sg(m.impl)}%</div><div class="note">quanto spingevano i driver</div></div>
+     <div class="card kpi"><h3>Mossa reale 4s</h3><div class="big ${m.act>=0?"up":"down"}">${sg(m.act)}%</div><div class="note">quanto si &egrave; mosso il prezzo</div></div>
+     <div class="card kpi"><h3>Differenza</h3><div class="big">${sg(m.gap)}%</div><div class="note">R&sup2; ${fx(m.r2)} &middot; legame con il macro</div></div></div>
+    <div class="card"><h3>Driver che pesano di pi&ugrave;</h3><div class="kv">${t.map(x=>`<span>${esc(x.name)}</span><b class="${x.c>0?"up":"down"}">${sg(x.c)}%</b>`).join("")||"<span>n/d</span>"}</div></div>`;}
+   scr.innerHTML=chip+corpo;
+   const scegli=k=>{sel=k;try{localStorage.setItem("ebMacroSel",sel);}catch(e){}disegnaSel();};
+   scr.querySelector(".mksel").onchange=e=>scegli(e.target.value);
+   scr.querySelectorAll("[data-mk]").forEach(b=>b.onclick=()=>scegli(b.dataset.mk==sel?"":b.dataset.mk));
+   scr.querySelector(".vfsc").classList.toggle("scelto",!!sel);};
+  disegnaSel();};
+ // il riconoscimento del fondatore arriva dal database dopo il disegno: si aspetta la classe "eb-admin"
+ if(isAdm())setTimeout(screener,0);
+ else{const mo=new MutationObserver(()=>{if(isAdm()){mo.disconnect();screener();}});mo.observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
  $("mtable").innerHTML=`<tr><th>Strumento</th><th class="num">R²</th><th>Driver principale</th><th class="num">Mossa implicita 4s</th><th class="num">Mossa reale 4s</th><th class="num">Differenza</th><th>Lettura</th><th class="num">Punteggio</th></tr>`+
  rows.map(a=>{const m=a.mkt,t=m.top[0];const st=m.r2<.05?'<span class="small">poco legato al macro</span>':Math.abs(m.gz)<.5?'<span class="tag">gia\' scontato</span>':m.gz>0?'<span class="tag ok">spazio al rialzo</span>':'<span class="tag ko">spazio al ribasso</span>';
  return `<tr class="clic" data-tv="a:${a.key}"><td><b>${a.name}</b> <span class="small">${a.key}</span></td><td class="num">${fx(m.r2)}</td><td class="wrap-ok">${t?`${t.name} <span class="${t.c>0?'up':'down'}">${sg(t.c)}%</span>`:''}</td>

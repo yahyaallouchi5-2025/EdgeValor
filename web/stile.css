@@ -3577,3 +3577,37 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 
 /* v8.61 direzione dello spread high yield accanto al valore (scheda Macro) */
 .big .hydir{font-size:12.5px;letter-spacing:0;vertical-align:middle;margin-left:8px;white-space:nowrap}
+
+/* ===== v8.62 LIVE A SCREENER: scelta dello strumento, stato vuoto, scheda dello strumento, sezioni chiudibili ===== */
+.vfsc{padding:16px 20px;margin-bottom:18px}
+.vfsc-r{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:18px;align-items:end}
+.vfsc .vfetich{display:flex;align-items:center;margin-bottom:8px;min-width:0}
+.vfsc-s .vfsel{width:100%;min-width:0}
+.vfchip{display:flex;gap:6px;flex-wrap:wrap}
+.vfchip button{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:20px;padding:7px 13px;font:650 13.5px system-ui;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s}
+.vfchip button:hover{border-color:var(--acc)}
+.vfchip button.on{background:var(--acc);border-color:var(--acc);color:#04211e}
+.vfsc-g{display:grid;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.vfsc-g>div{display:grid;grid-template-columns:130px 1fr;gap:12px;align-items:start}
+.vfsc-g small{display:block;font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px;padding-top:7px}
+.vfchip-s button{padding:5px 10px;font-size:13px}
+.vfchip-s button i{font-style:normal;font-weight:500;color:var(--mute);margin-left:5px}
+.vfchip-s button.on i{color:#04211e}
+.vfvuoto2{text-align:center;padding:40px 20px;border-style:dashed;margin-bottom:12px}
+.vfvuoto2 svg{width:32px;height:32px;fill:none;stroke:var(--acc);stroke-width:1.8}
+.vfvuoto2 b{display:block;font-size:17px;margin:10px 0 4px}.vfvuoto2 p{margin:0;color:var(--mute)}
+.vfghost{opacity:.45;pointer-events:none}
+.vfsl-t{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 12px}
+.vfsl-n{font-size:24px;font-weight:800;letter-spacing:-.3px}
+.vfgnota{margin:2px 0 6px}
+details.vfx{margin-top:12px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+details.vfx>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:15px 20px;cursor:pointer}
+details.vfx>summary::-webkit-details-marker{display:none}
+details.vfx>summary span{margin-left:auto;color:var(--mute);font-size:13px;text-align:right}
+details.vfx>summary:after{content:"";flex:none;width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);margin:-4px 2px 0 6px;transition:transform .2s}
+details.vfx[open]>summary:after{transform:rotate(-135deg);margin-top:4px}
+details.vfx>summary:hover b{color:var(--acc)}
+.vfx-c{padding:0 20px 18px}
+.vfx-c>.vft:first-child{margin-top:4px}
+@media (max-width:760px){.vfsc-r{grid-template-columns:1fr}.vfsc-g>div{grid-template-columns:1fr;gap:6px}.vfsc-g small{padding-top:0}.vfsc.scelto .vfsc-g{display:none}.vfsl-n{font-size:21px}
+ details.vfx>summary{padding:14px 16px}.vfx-c{padding:0 14px 14px}.vfslt .vfnt{display:none}}
