@@ -4,7 +4,7 @@
       copia il link della pagina di presentazione e lo conferma con un piccolo avviso che sparisce da solo. */
 try{(function(){
  const LINK=EB_SITO;              // pagina di presentazione (landing)
- const TESTO="EdgeValor: analisi dei mercati (COT, forex, portafogli) gratis. Dai un'occhiata:";
+ const TESTO="EdgeValor: analisi quantitativa dei mercati (COT, forex, portafogli). Dai un'occhiata:";
  document.querySelectorAll(".blhome").forEach(a=>a.addEventListener("click",e=>{
   e.preventDefault();
   if(typeof go=="function")go("sig");                                       // stessa funzione delle schede

@@ -69,7 +69,7 @@ Object.assign(EB_EN,{
 "Valuta e mercati collegati":"Currency and related markets",
 "Punteggio finale della Dashboard (COT e mercato) da # a # verde comprato, rosso venduto, grigio neutro. La ciambella è piena a # e vuota a # Per l'Australia contano rame e oro, per il Canada il petrolio: sono le materie prime che muovono la loro economia e la valuta.":"Dashboard final score (COT and market) from # to # green bought, red sold, grey neutral. The ring is full at # and empty at # For Australia copper and gold matter, for Canada oil: they are the commodities that move their economy and currency.",
 "Nessun paese in questo gruppo.":"No country in this group.",
-"Ricevi l'analisi gratis su Telegram: il riepilogo ogni venerdì e il briefing del lunedì.":"Get the analysis free on Telegram: the summary every Friday and the Monday briefing.",
+"Ricevi l'analisi su Telegram: il riepilogo del venerdì e il briefing del lunedì.":"Get the analysis on Telegram: the Friday summary and the Monday briefing.",
 "Dove lo trovo?":"Where do I find it?",
 "Non ora":"Not now",
 "reazione non misurabile":"reaction not measurable",
