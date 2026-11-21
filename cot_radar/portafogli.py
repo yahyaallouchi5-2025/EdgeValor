@@ -95,6 +95,19 @@ EXTRA = ["XLK", "XLC", "XLY", "XLF", "XLI", "XLE", "XLB", "XLV", "XLP", "XLU", "
 from .paesi import ETF as _ETF_PAESI   # noqa: E402
 SOLO_ARCHIVIO = ["^GSPC"] + sorted(set(_ETF_PAESI.values()))
 BENCH = (("SPY", 0.6), ("IEF", 0.4))          # confronto: classico 60% azioni USA + 40% Treasury, ribilanciato
+# v8.55 RIFERIMENTO PER PROFILO (decisione di Ya): stessa quota di azioni del profilo, in azioni MONDIALI (USA,
+#   Europa/Asia, emergenti con pesi fissi vicini a quelli dell'indice mondiale) e il resto in Treasury 10 anni,
+#   ribilanciato ogni mese e misurato come i portafogli (euro, acquisto prudente). Grafico e tabella dello Storico;
+#   Rotazioni, beta e alfa restano contro l'S&P 500.
+AZ_MONDO = (("SPY", .65), ("EFA", .25), ("EEM", .10))
+BENCH_PROFILO = {"conservativo": .30, "moderato": .50, "aggressivo": .80}
+
+
+def bench_profilo(quota):
+    """Pesi del riferimento con 'quota' di azioni mondiali e il resto in Treasury 10 anni."""
+    pesi = {t: round(w * quota, 4) for t, w in AZ_MONDO}
+    pesi["IEF"] = round(1 - quota, 4)
+    return pesi
 TUTTI = {u[0]: u for u in UNIVERSO + [LIQUIDITA, AZIONI_SCELTE]}
 # STRUMENTI DA COMPRARE IN EUROPA: gli ETF USA usati per i calcoli (SPY, QQQ, ...) non si possono comprare da un
 # conto europeo (manca il documento KID), quindi per ogni mercato si indica un equivalente UCITS / ETC / ETP con ISIN
@@ -2068,6 +2081,14 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
         base_out = [{"k": k, "nome": TUTTI[k][2],
                      "peso": round((w * (1 - prof.get("az", 0)) + (prof.get("az", 0) - az_on if k == "SP500" else 0)) * 100)}
                     for k, w in prof["base"].items()]
+        # v8.55 riferimento del profilo (stessa quota di azioni): curva e statistiche come il benchmark generale
+        bp, q_az = None, BENCH_PROFILO.get(prof["id"])
+        if q_az is not None and all(t in px for t, _ in AZ_MONDO) and "IEF" in px:
+            c_rif = simula_prudente(g, {i: bench_profilo(q_az) for i in giorni}, giorni[0], fx=fxp, tassi=tep)
+            bp = {"nome": f"{round(q_az * 100)}% azioni mondiali e {round((1 - q_az) * 100)}% Treasury",
+                  "corto": f"{round(q_az * 100)}/{round((1 - q_az) * 100)}", "curva": _settimanale(c_rif),
+                  "stat": {"storico": statistiche(_tagli(c_rif, al=OOS_DAL), liq),
+                           "oos": statistiche(_tagli(c_rif, dal=OOS_DAL), liq), "totale": statistiche(c_rif, liq)}}
         # v8.54 mesi delle "Ultime rotazioni" (chiusi + in corso), dal piu' vecchio: base del riepilogo contro l'S&P 500
         mc = dettaglio_mesi(g, piani, giorni_c, curva, sat)
         righe_rot = {c["data"][:7] for c in cambi}
@@ -2109,6 +2130,7 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
             "rotazioni": list(reversed(cambi)),
             "mesi_chiusi": mc,
             "cfr_sp": riepilogo_sp(mostrati),        # v8.54 riepilogo contro l'S&P 500 dei mesi mostrati
+            "bench_p": bp,                           # v8.55 riferimento del profilo (Storico)
         })
     registra(rotazioni, g.date[ultimo_rib], comp_reg, cartella, scrivi=scrivi)
     da_salvare = [c for c in chiusi.values() if not (attesa and c["al"] == g.date[-1] and not chiusura_completa)]

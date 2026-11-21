@@ -36,7 +36,7 @@ from .log import log
 CRYPTO_BASIC = 5          # Crypto: le prime 5 monete restano in Basic, la tabella completa e' Premium
 PAESI_BASIC = 5           # Paesi emergenti: le 5 economie che crescono di piu' (PIL) restano in Basic, la tabella completa e' Premium
 # campi Premium di ogni portafoglio modello (l'andamento, le statistiche e i rischi restano in Basic)
-PORT_PREMIUM = ("composizione", "base", "ammessi", "esclusi", "rischio_quote", "rotazioni", "compatto")
+PORT_PREMIUM = ("composizione", "base", "ammessi", "esclusi", "rischio_quote", "rotazioni", "compatto", "cfr_sp")   # v8.55 + riepilogo S&P 500
 # campi Premium della stagionalita' di ogni strumento: "Adesso" (finestra, settimana) e dettaglio (mesi, giorni).
 # La mappa (mappa, da, al) resta in Basic.
 STAG_PREMIUM = ("finestra", "sett", "mesi", "giorni")
@@ -116,7 +116,11 @@ def separa(data):
             togli(p, ["port", "profili", i], c)
         for j, m in enumerate(p.get("mesi_chiusi") or []):
             togli(m, ["port", "profili", i, "mesi_chiusi", j], "asset")
+            togli(m, ["port", "profili", i, "mesi_chiusi", j], "serie")      # v8.55 confronto con l'S&P 500 (Rotazioni)
+            togli(m, ["port", "profili", i, "mesi_chiusi", j], "sp")
         togli(p.get("mese"), ["port", "profili", i, "mese"], "mercati")      # stagionalita' del mese PER MERCATO
+        togli(p.get("corrente"), ["port", "profili", i, "corrente"], "serie")   # v8.55 mese in corso contro l'S&P 500
+        togli(p.get("corrente"), ["port", "profili", i, "corrente"], "sp")
     togli(port, ["port"], "strumenti")                                        # ISIN degli strumenti (Il mio conto)
     togli(d, [], "btcmacro")                                                  # v7.94 bussola macro di Bitcoin
     for k, s in (d.get("stag") or {}).items():
