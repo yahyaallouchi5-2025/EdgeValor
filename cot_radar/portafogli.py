@@ -953,7 +953,7 @@ def robustezza(g, prof, sc, giorni, fx=None, tassi=None, liq=None):
     return out
 
 
-def rischio_esteso(curva, liq=None, scambi=None):
+def rischio_esteso(curva, liq=None, scambi=None, bench=None):
     """v7.51 RISCHIO E COSTI A CONFRONTO (tabella dei 3 profili). Idee dai libri studiati con Ya (11/2026):
       - Gregoriou, "Hedge Funds: Insights in Performance": volatilita' e Sharpe sottovalutano il rischio quando le
         perdite sono rare ma grandi (asimmetria negativa) -> SORTINO e ASIMMETRIA dei rendimenti mensili;
@@ -1015,7 +1015,29 @@ def rischio_esteso(curva, liq=None, scambi=None):
     # stimare la commissione FISSA del broker sul capitale dell'utente (es. 2 euro a ordine su 5.000 euro)
     od = [x[2] for x in (scambi or []) if len(x) > 2 and x[1] is not None]
     od0 = [x[2] for x in (scambi or []) if len(x) > 2 and x[1] is None]
-    return {"sortino": sortino, "asimmetria": round(asim, 2), "cvar_mese": round(cvar * 100, 1),
+    # v8.51 BETA e ALFA contro l'S&P 500 (libro CFA Vol. 9, CAPM / alfa di Jensen; studi/risultati_alfa_beta.txt):
+    #   regressione dei rendimenti mensili del profilo su quelli dell'S&P 500 misurato allo stesso modo (euro,
+    #   acquisto prudente). beta = quanta parte del rischio dell'S&P 500 il profilo prende; alfa = rendimento annuo in
+    #   piu' rispetto a quel rischio. t = quanto e' affidabile l'alfa (sopra 2 = difficilmente un caso).
+    ba = {}
+    if bench:
+        fb = {}
+        for d, x in bench:
+            fb[d[:7]] = x
+        cop = [(rm[i - 1], fb[mesi[i]] / fb[mesi[i - 1]] - 1) for i in range(1, len(mesi))
+               if mesi[i] in fb and mesi[i - 1] in fb]
+        if len(cop) >= 36:
+            ys, xs = [c[0] for c in cop], [c[1] for c in cop]
+            nx = len(xs)
+            mx, my = sum(xs) / nx, sum(ys) / nx
+            sxx = sum((q - mx) ** 2 for q in xs)
+            if sxx > 0:
+                bt = sum((q - mx) * (w - my) for q, w in zip(xs, ys)) / sxx
+                al = my - bt * mx
+                res = sum((w - al - bt * q) ** 2 for q, w in zip(xs, ys))
+                se = math.sqrt(res / (nx - 2) * (1 / nx + mx * mx / sxx)) if nx > 2 else 0
+                ba = {"beta": round(bt, 2), "alfa": round(al * 1200, 1), "alfa_t": round(al / se, 1) if se else None}
+    return {**ba, "sortino": sortino, "asimmetria": round(asim, 2), "cvar_mese": round(cvar * 100, 1),
             "dd_1su10": round(dd90 * 100, 1) if dd90 is not None else None,
             "peggiori12": [round(peg12[0] * 100, 1), peg12[1], peg12[2]] if peg12 else None,
             "scambiato_anno": round(giro * 100) if giro is not None else None,
@@ -2018,7 +2040,7 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
                      "live": statistiche(live, liq) if live else None},
             "stat_eur": {"totale": statistiche(cp, liq), "oos": statistiche(_tagli(cp, dal=OOS_DAL), liq)}
                         if eur_ok else None,
-            "rischio_ext": rischio_esteso(cp, liq, scambi_cp),     # v7.51 tabella "Rischio e costi a confronto"
+            "rischio_ext": rischio_esteso(cp, liq, scambi_cp, sp_p),     # v7.51 tabella "Rischio e costi a confronto"
             "stat_sel": {"totale": statistiche(c_sel, liq), "oos": statistiche(_tagli(c_sel, dal=OOS_DAL), liq)},
             "stat_usd": {"totale": statistiche(c_usd), "oos": statistiche(_tagli(c_usd, dal=OOS_DAL))},
             **({"senza_btc": senza_btc} if senza_btc else {}),        # v7.58
