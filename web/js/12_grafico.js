@@ -156,6 +156,19 @@ function lettura(spec,f,p,k,inv){
  if(rn){const pos=rn.v>=0;righe.push(`<div class="rnv"><b>Rinnovo dei future</b> <em style="color:${pos?verde:rosso}">${pos?"+":"&minus;"}${String(Math.abs(rn.v)).replace(".",",")}% in 12 mesi</em>
   <span>${pos?"I contratti lontani costano meno di quelli vicini: chi tiene un ETF sui future guadagna anche dal rinnovo.":"I contratti lontani costano di pi&ugrave;: un ETF sui future rende meno del prezzo che vedi."}</span>
   <details class="info"><summary title="Come si calcola" aria-label="Informazioni">i</summary><div>Rendimento a 12 mesi dell'ETF che compra i future e li rinnova, meno quello del prezzo senza rinnovo e meno l'interesse dei titoli a 3 mesi. Positivo = <b>backwardation</b>, negativo = <b>contango</b>. Nei portafogli il costo &egrave; gi&agrave; compreso nei risultati. Come segnale per comprare o vendere non ha dato un vantaggio stabile (studio sui dati dal 2007): &egrave; solo un'informazione.</div></details></div>`);}
+ // v8.54 S&P 500 SOTTO LA MEDIA A 200 GIORNI (cot_radar/sconto_sp.py, studio studi/studio_sp500_sconto.py): distanza di oggi
+ //   e, quando lo sconto supera una soglia, com'e' andata dopo gli episodi passati. Solo informativo, non un segnale.
+ const sp=k=="SP500"&&D.sconto_sp;
+ if(sp){const f1=pc1,s0=v=>"&minus;"+Math.abs(v)+"%";   // soglie senza decimali: oltre −15%
+  const at=sp.soglia!=null?sp.soglie.find(x=>x.s==sp.soglia):null;
+  const tab=`<table class="spsc-t"><tr><th>Sotto la media</th><th class="num">Volte</th><th class="num">24 mesi dopo</th><th class="num">Discesa dopo</th></tr>${sp.soglie.map(x=>`<tr${at&&x.s==at.s?' class="on"':""}><th>oltre ${s0(x.s)}</th><td class="num">${x.n}</td><td class="num">${x.r24==null?"n/d":`<b style="color:${x.r24>=0?verde:rosso}">${f1(x.r24)}</b> <span>(${x.p24} su ${x.n24})</span>`}</td><td class="num"><b style="color:${rosso}">${f1(x.dd)}</b></td></tr>`).join("")}</table>`;
+  righe.push(`<div class="rnv spsc"><b>Distanza dalla media a 200 giorni</b> <em style="color:${sp.dist>=0?verde:rosso}">${f1(sp.dist)}</em>
+   <details class="info"><summary title="Come si legge" aria-label="Informazioni">i</summary><div>Quanto il prezzo &egrave; sotto (o sopra) la media delle ultime 200 sedute. Ogni episodio conta una volta sola: il primo giorno oltre la soglia, poi di nuovo solo dopo il ritorno sopra la media. Dati dell'indice dal ${sp.dal}, senza dividendi.${at?"":tab}
+    <br><b>Come leggerlo</b>: pi&ugrave; lo sconto &egrave; profondo, pi&ugrave; in media l'indice ha reso nei 2 anni dopo. Ma non &egrave; il punto pi&ugrave; basso: dopo l'episodio il prezzo &egrave; spesso sceso ancora (nel 2008 oltre il 30%) e a 12 mesi la probabilit&agrave; di guadagno non &egrave; stata pi&ugrave; alta di un giorno qualsiasi (${sp.base12_pos}%). &Egrave; un'informazione ciclica, non un segnale di acquisto.</div></details>
+   <span>${at?`Sconto oltre ${s0(at.s)}: in passato ${at.n} episodi, 24 mesi dopo ${at.r24==null?"n/d":f1(at.r24)} in media, ma prima il prezzo &egrave; sceso in media di un altro ${f1(at.dd).replace("&minus;","")}.`
+    :`Nessuno sconto profondo. Sotto ${s0(-10)} &egrave; successo ${(sp.soglie[0]||{}).n||0} volte dal ${sp.dal}.`}</span>
+   ${at?tab:""}
+</div>`);}
  // --- riga riassuntiva (sempre visibile)
  const pezzi=[`Speculatori: <b style="color:${n3<2?"var(--ink)":compra?verde:rosso}">${dir}</b>`];
  if(cx){
