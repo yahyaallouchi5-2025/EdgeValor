@@ -1,0 +1,59 @@
+
+===== 2013-2019 (2556 giorni) =====
+  giorno qualsiasi 6 mesi: media +94%  positivi 61%  (n=2556)
+    MVRV <1   6 mesi: media +75%  positivi 82%  (n=438 giorni)
+    MVRV 1-2  6 mesi: media +55%  positivi 48%  (n=1354 giorni)
+    MVRV 2-3  6 mesi: media +204%  positivi 76%  (n=571 giorni)
+    MVRV >=3  6 mesi: media +78%  positivi 60%  (n=193 giorni)
+    hash ribbon 6 mesi: media +120%  positivi 83%  (n=6 episodi)
+  giorno qualsiasi 12 mesi: media +277%  positivi 75%  (n=2556)
+    MVRV <1   12 mesi: media +107%  positivi 99%  (n=438 giorni)
+    MVRV 1-2  12 mesi: media +254%  positivi 71%  (n=1354 giorni)
+    MVRV 2-3  12 mesi: media +498%  positivi 76%  (n=571 giorni)
+    MVRV >=3  12 mesi: media +177%  positivi 54%  (n=193 giorni)
+    hash ribbon 12 mesi: media +814%  positivi 100%  (n=6 episodi)
+  episodi ribbon: 2013-02-04, 2014-12-31, 2015-05-24, 2016-08-22, 2019-01-10, 2019-12-21
+
+===== dal 2020 (2516 giorni) =====
+  giorno qualsiasi 6 mesi: media +36%  positivi 65%  (n=2334)
+    MVRV <1   6 mesi: media +39%  positivi 81%  (n=185 giorni)
+    MVRV 1-2  6 mesi: media +53%  positivi 71%  (n=1289 giorni)
+    MVRV 2-3  6 mesi: media +14%  positivi 55%  (n=760 giorni)
+    MVRV >=3  6 mesi: media -7%  positivi 28%  (n=100 giorni)
+    hash ribbon 6 mesi: media +34%  positivi 64%  (n=14 episodi)
+  giorno qualsiasi 12 mesi: media +89%  positivi 60%  (n=2151)
+    MVRV <1   12 mesi: media +110%  positivi 100%  (n=185 giorni)
+    MVRV 1-2  12 mesi: media +145%  positivi 70%  (n=1106 giorni)
+    MVRV 2-3  12 mesi: media +15%  positivi 40%  (n=760 giorni)
+    MVRV >=3  12 mesi: media -6%  positivi 30%  (n=100 giorni)
+    hash ribbon 12 mesi: media +110%  positivi 73%  (n=11 episodi)
+  episodi ribbon: 2020-04-24, 2020-06-23, 2020-12-02, 2021-05-17, 2021-08-07, 2022-07-04, 2022-08-19, 2023-01-14, 2024-06-17, 2024-07-23, 2025-07-23, 2026-01-04, 2026-02-26, 2026-05-10, 2026-05-23, 2026-08-26
+
+===== tutto (5072 giorni) =====
+  giorno qualsiasi 6 mesi: media +66%  positivi 63%  (n=4890)
+    MVRV <1   6 mesi: media +64%  positivi 82%  (n=623 giorni)
+    MVRV 1-2  6 mesi: media +54%  positivi 59%  (n=2643 giorni)
+    MVRV 2-3  6 mesi: media +96%  positivi 64%  (n=1331 giorni)
+    MVRV >=3  6 mesi: media +49%  positivi 49%  (n=293 giorni)
+    hash ribbon 6 mesi: media +60%  positivi 70%  (n=20 episodi)
+  giorno qualsiasi 12 mesi: media +191%  positivi 68%  (n=4707)
+    MVRV <1   12 mesi: media +108%  positivi 99%  (n=623 giorni)
+    MVRV 1-2  12 mesi: media +205%  positivi 70%  (n=2460 giorni)
+    MVRV 2-3  12 mesi: media +222%  positivi 55%  (n=1331 giorni)
+    MVRV >=3  12 mesi: media +115%  positivi 46%  (n=293 giorni)
+    hash ribbon 12 mesi: media +358%  positivi 82%  (n=17 episodi)
+  episodi ribbon: 2013-02-04, 2014-12-31, 2015-05-24, 2016-08-22, 2019-01-10, 2019-12-21, 2020-04-24, 2020-06-23, 2020-12-02, 2021-05-17, 2021-08-07, 2022-07-04, 2022-08-19, 2023-01-14, 2024-06-17, 2024-07-23, 2025-07-23, 2026-01-04, 2026-02-26, 2026-05-10, 2026-05-23, 2026-08-26
+
+oggi 2026-11-20: MVRV 1.10
+
+VERDETTO (regole fissate prima, 21/11/2026)
+  - HASH RIBBON: VALE. Batte il giorno qualsiasi a 12 mesi per media e quota positiva in entrambe le meta'
+    (2013-2019: +814%, 6/6 positivi; dal 2020: +110%, 73% positivi, contro +89% e 60%). Episodi pochi (17 a 12 mesi):
+    va mostrato come contesto, con il numero di casi, non come segnale di acquisto.
+  - MVRV >= 3 (zona di euforia): VALE come avvertimento. Dopo, a 12 mesi, sempre peggio di un giorno qualsiasi
+    (2013-2019: +177% contro +277%; dal 2020: -6% e 30% positivi contro +89% e 60%).
+  - MVRV < 1 (prezzo sotto il costo medio): NON passa la regola. Quota positiva a 12 mesi quasi del 100% in entrambe
+    le meta', ma la media 2013-2019 (+107%) resta sotto il giorno qualsiasi (+277%). Si puo' mostrare solo come
+    informazione (rischio di perdita a 12 mesi storicamente basso), non come vantaggio sul rendimento.
+  - LICENZA: i dati community di Coin Metrics sono per uso NON commerciale: per pubblicarli in Premium serve
+    un'altra fonte o una licenza. Decisione di Ya prima di costruire la scheda.
