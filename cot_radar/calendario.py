@@ -123,8 +123,11 @@ def weekly_schedule(last_date, weekday, hh, mm, offset, tolleranza_ore=0, sposta
     nxt = d + timedelta(days=7)
     fine = et_to_utc(sposta(nxt), hh, mm)
     ms = int((fine - datetime(1970, 1, 1)).total_seconds() * 1000)   # per il JavaScript
+    # v8.60 orario NOMINALE (senza festivita'): l'avviso di rinvio in pagina compare solo nella settimana del rinvio
+    nom_ms = int((et_to_utc(nxt, hh, mm) - datetime(1970, 1, 1)).total_seconds() * 1000)
     return {"expected": exp, "late": (last_date or "") < exp, "last_pub": utc_to_it(et_to_utc(sposta(d), hh, mm)),
-            "next": utc_to_it(fine), "next_ms": ms, "next_nominale": nxt}
+            "next": utc_to_it(fine), "next_ms": ms, "next_nominale": nxt, "nominale_ms": nom_ms,
+            "nominale": fdt(utc_to_it(et_to_utc(nxt, hh, mm)))}
 
 
 def fd(s):
@@ -153,7 +156,7 @@ def sources_status(cache, status, errors, assets, mort, fred):
     # v7.64 AVVISO IN PAGINA: se la prossima uscita e' spostata da una festivita' USA, la Dashboard lo dice in chiaro
     festa = festa_cot(c["next_nominale"])
     out.append({"name": "COT (CFTC)", "last": fd(last_cot), "next": fdt(c["next"]), "next_ms": c["next_ms"],
-                "rinvio": festa or "",
+                "rinvio": festa or "", "nominale": c["nominale"], "nominale_ms": c["nominale_ms"],
                 "st": "late" if c["late"] else ("ok" if status["cot"] == "online" else "cache"),
                 "msg": (f"Il report con i dati al {fd(c['expected'])} doveva uscire {fdt(c['last_pub'])} ma la CFTC "
                         f"non l'ha ancora pubblicato (festivita' USA, shutdown o ritardo)." if c["late"] else "")})
@@ -163,6 +166,7 @@ def sources_status(cache, status, errors, assets, mort, fred):
         f = weekly_schedule(lf, 3, 16, 30, 1, tolleranza_ore=18, sposta=uscita_fed)       # giovedi' 16:30 NY, dati del mercoledi'; FRED entro la mattina dopo
         out.append({"name": "Bilancio Fed", "last": fd(lf), "next": fdt(f["next"]), "next_ms": f["next_ms"],
                     "rinvio": _feste3(f["next_nominale"].year).get(f["next_nominale"], ""),   # v7.65 festa di giovedi'
+                    "nominale": f["nominale"], "nominale_ms": f["nominale_ms"],
                     "st": "late" if f["late"] else ("ok" if status["fred"] == "online" else "cache"),
                     "msg": f"Il bilancio Fed del {fd(f['expected'])} non e' ancora su FRED." if f["late"] else ""})
 

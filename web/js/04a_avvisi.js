@@ -39,9 +39,15 @@ try{(function(){const ev=$("eventi");if(!ev)return;
  function sfasata(){const ora=new Date();if(scarto(ora)==6)return null;
   for(let k=1;k<=40;k++){const d=new Date(ora.getTime()+k*864e5);if(scarto(d)==6)return d;}return ora;}
  function disegna(){const righe=[],oggi=romaYmd(new Date());
-  // 1) dati rinviati da una festivita' USA (COT, bilancio Fed): fino all'ora di uscita
-  (D.sources||[]).forEach(f=>{if(!f.rinvio||!f.next_ms||Date.now()>=f.next_ms)return;const cot=/^COT/.test(f.name||"");
-   righe.push(`<b>${cot?"Report COT":esc(f.name)} rinviato</b> a ${esc(f.next||"")} per festivit&agrave; USA (${esc(f.rinvio)})${cot?": fino ad allora restano i segnali della settimana scorsa":""}.`);});
+  // 1) dati rinviati da una festivita' USA (COT, bilancio Fed). v8.60: l'avviso compare solo da 4 giorni prima
+  //    dell'uscita NORMALE (prima l'ultimo report era appena uscito e la frase confondeva) e resta fino all'uscita
+  //    rinviata. Dopo l'ora normale si dice che restano i segnali dell'ultimo report pubblicato.
+  (D.sources||[]).forEach(f=>{if(!f.rinvio||!f.next_ms||Date.now()>=f.next_ms)return;
+   if(f.nominale_ms&&Date.now()<f.nominale_ms-4*864e5)return;
+   const cot=/^COT/.test(f.name||""),passata=f.nominale_ms&&Date.now()>=f.nominale_ms,nome=cot?"Report COT":esc(f.name);
+   const quando=f.nominale?` invece di ${esc(f.nominale.replace(/ ore .*/,""))}`:"";
+   righe.push(passata?`<b>${nome} rinviato</b> a ${esc(f.next||"")} per festivit&agrave; USA (${esc(f.rinvio)})${cot?": fino ad allora restano i segnali dell'ultimo report":""}.`
+    :`<b>${nome} di questa settimana</b>: esce ${esc(f.next||"")}${quando} per festivit&agrave; USA (${esc(f.rinvio)}).`);});
   // 2) borse chiuse per festivita' (oggi e i prossimi 3 giorni)
   const chiuse=window.ebMercati&&ebMercati.feste?ebMercati.feste(3):[];
   chiuse.forEach(f=>righe.push(`<b>${giornoTxt(f.ymd)} ${f.mercati.length>1?"borse chiuse":"borsa chiusa"}</b>: ${f.mercati.join(", ")} (${nomeIt(f.nome)}).`));

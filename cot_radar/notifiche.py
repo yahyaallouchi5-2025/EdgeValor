@@ -43,6 +43,7 @@ import os
 import smtplib
 import ssl
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -248,17 +249,24 @@ def invia_telegram(token, chat, testo):
     testo = in_parole(testo)
     dati = urllib.parse.urlencode({"chat_id": chat, "text": testo, "parse_mode": "HTML",
                                    "disable_web_page_preview": "true"}).encode()
-    try:
-        with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", dati, timeout=30) as r:
-            return json.load(r).get("ok") is True
-    except urllib.error.HTTPError as e:
+    # v8.60 RIPROVA: il 21/11 un errore di rete momentaneo ha fatto saltare l'invio del mattino e il messaggio e'
+    # partito solo 7 ore dopo (al giro successivo del sito). Ora 3 tentativi (subito, dopo 20 e dopo 60 secondi),
+    # SOLO se Telegram non era raggiungibile: un rifiuto (HTTP) non si ripete, per non mandare doppioni.
+    for attesa in (0, 20, 60):
+        if attesa and "unittest" not in sys.modules:       # nei test niente attese
+            time.sleep(attesa)
         try:
-            motivo = json.load(e).get("description", "")
-        except Exception:
-            motivo = ""
-        log.error("Telegram ha rifiutato il messaggio (HTTP %s: %s)", e.code, motivo)
-    except (urllib.error.URLError, OSError, ValueError) as e:
-        log.error("Telegram non raggiungibile (%s)", type(e).__name__)
+            with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", dati, timeout=30) as r:
+                return json.load(r).get("ok") is True
+        except urllib.error.HTTPError as e:
+            try:
+                motivo = json.load(e).get("description", "")
+            except Exception:
+                motivo = ""
+            log.error("Telegram ha rifiutato il messaggio (HTTP %s: %s)", e.code, motivo)
+            return False
+        except (urllib.error.URLError, OSError, ValueError) as e:
+            log.error("Telegram non raggiungibile (%s), tentativo dopo %s s", type(e).__name__, attesa)
     return False
 
 
