@@ -3484,3 +3484,15 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 @media (max-width:600px){.bdupr{grid-template-columns:1fr 1fr}.bdupr>i{display:none}.bdupr>div b{font-size:16px}}
 .rnv{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
 .rnv em{font-style:normal;font-weight:700}.rnv span{flex-basis:100%;font-size:13px;color:var(--mute)}   /* v8.50 rinnovo dei future */
+/* v8.51 classifica Azionario da telefono (richiesta di Ya): meno spazio a sinistra, stella in una colonna sua con
+   nome e ticker allineati, etichette (Euforia, 2a quot.) su una riga loro sotto il ticker, forza leggibile senza tagli */
+@media (max-width:600px){
+ .aztab th,.aztab td{padding:11px 6px}
+ .aztab .azrk{width:18px;padding-left:12px}
+ .aztab td.aznome{position:relative;padding-left:38px}
+ .aztab .aznome .stl{position:absolute;left:4px;top:9px;float:none;margin:0}
+ .aztab .aznome b{max-width:185px}
+ .aztab .aznome>span{display:block;white-space:nowrap}
+ .aztab .aznome .az-st,.aztab .aznome .azdq{display:flex;width:max-content;margin:5px 0 0}
+ .azpt{gap:6px;min-width:0}.azptb{width:36px}
+}

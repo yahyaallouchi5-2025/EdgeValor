@@ -150,9 +150,9 @@ function lettura(spec,f,p,k,inv){
    ${riga(g0?`Settimana ${gg(s1.giorno)}&ndash;${gg(g7.toISOString().slice(0,10))}`:"Settimana",s1.su,s1.n,g1,s1.robusto?s1.med:null)}
    ${st4&&st4.n?riga("4 settimane",st4.su,st4.n,giudizio(st4.robusto,st4.score),null):""}</div>`;
   righe.push(stg);}
- // v8.50 RINNOVO DEI FUTURE (anteprima admin, cot_radar/rinnovo.py): quanto ha reso o costato in 12 mesi rinnovare i
+ // v8.50 RINNOVO DEI FUTURE (cot_radar/rinnovo.py, per tutti dal 21/11/2026): quanto ha reso o costato in 12 mesi rinnovare i
  //   contratti, per chi tiene la materia prima con un ETF/ETC sui future. Solo informativo, non entra nel punteggio.
- const rn=document.documentElement.classList.contains("eb-admin")&&D.rinnovo&&D.rinnovo[k];
+ const rn=D.rinnovo&&D.rinnovo[k];
  if(rn){const pos=rn.v>=0;righe.push(`<div class="rnv"><b>Rinnovo dei future</b> <em style="color:${pos?verde:rosso}">${pos?"+":"&minus;"}${String(Math.abs(rn.v)).replace(".",",")}% in 12 mesi</em>
   <span>${pos?"I contratti lontani costano meno di quelli vicini: chi tiene un ETF sui future guadagna anche dal rinnovo.":"I contratti lontani costano di pi&ugrave;: un ETF sui future rende meno del prezzo che vedi."}</span>
   <details class="info"><summary title="Come si calcola" aria-label="Informazioni">i</summary><div>Rendimento a 12 mesi dell'ETF che compra i future e li rinnova, meno quello del prezzo senza rinnovo e meno l'interesse dei titoli a 3 mesi. Positivo = <b>backwardation</b>, negativo = <b>contango</b>. Nei portafogli il costo &egrave; gi&agrave; compreso nei risultati. Come segnale per comprare o vendere non ha dato un vantaggio stabile (studio sui dati dal 2007): &egrave; solo un'informazione.</div></details></div>`);}

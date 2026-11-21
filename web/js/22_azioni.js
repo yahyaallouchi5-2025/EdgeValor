@@ -568,8 +568,8 @@ try{(function(){const el=$("azioni");if(!el)return;
 
  // --- v8.43 DA DOVE VIENE IL ROE (scomposizione DuPont, libro CFA Vol. 4 cap. 11). Solo lettura, nessun giudizio.
  //     ROE = margine (utile/ricavi) x rotazione dell'attivo (ricavi/attivo) x leva (attivo/patrimonio netto).
- //     Anteprima: per ora la vede solo l'admin (classe eb-admin, 36_account.js). Esclusi banche e immobiliari.
- function dupont(A,t){if(!admin()||t.s=="fin"||t.s=="imm")return "";
+ //     Per tutti dal 21/11/2026 (approvato da Ya). Esclusi banche e immobiliari.
+ function dupont(A,t){if(t.s=="fin"||t.s=="imm")return "";
   const ok=y=>y&&y.attivo>0&&y.pn>0&&y.ricavi>0&&y.utile!=null;const u=A[A.length-1];if(!ok(u))return "";
   const p=A.slice(0,-1).reverse().find(ok);                       // anno prima utile per il confronto
   const m=y=>y.utile/y.ricavi*100,r=y=>y.ricavi/y.attivo,l=y=>y.attivo/y.pn,roe=y=>y.utile/y.pn*100;
@@ -599,7 +599,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   const c=b.conti,oggi=new Date().toISOString().slice(0,10);
   const pross=c?(c.prossimo<=oggi?`<b>attesi a breve</b>`:`<b>~ ${dataIt(c.prossimo)}</b>`):"";
   return `<h4 class="aztit tritit">Risultati trimestrali
-    <details class="info"><summary title="Come leggere la tabella" aria-label="Informazioni">i</summary><div>Ricavi, utile netto e utile per azione (EPS diluito) dai bilanci trimestrali ufficiali (10-Q), con la variazione rispetto allo stesso trimestre dell'anno prima. Il 4&deg; trimestre non viene depositato da solo: &egrave; calcolato come anno intero meno i primi tre (*). La data dei prossimi conti &egrave; una stima basata sul calendario dell'anno precedente. Dati gratuiti con qualche giorno di ritardo; le stime degli analisti non sono incluse.</div></details></h4>
+    <details class="info"><summary title="Come leggere la tabella" aria-label="Informazioni">i</summary><div>Ricavi, utile netto e utile per azione (EPS diluito) dai bilanci trimestrali ufficiali (10-Q), con la variazione rispetto allo stesso trimestre dell'anno prima. Il 4&deg; trimestre non viene depositato da solo: &egrave; calcolato come anno intero meno i primi tre (*). La data dei prossimi conti &egrave; una stima basata sul calendario dell'anno precedente. Dati ufficiali della SEC, aggiornati pochi giorni dopo il deposito dei conti; le stime degli analisti non sono incluse.</div></details></h4>
    ${c?`<div class="tconti"><span>Ultimi conti <b>${dataIt(c.ultimo)}</b></span><span class="prox">Prossimi conti (stima) ${pross}</span></div>`:""}
    <div class="ttab"><table><thead><tr><th>Trimestre</th><th>Ricavi</th><th class="tut">Utile netto</th><th>EPS</th></tr></thead><tbody>${righe}</tbody></table></div>`;}
 

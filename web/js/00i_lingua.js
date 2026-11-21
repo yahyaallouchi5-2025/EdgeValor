@@ -9,7 +9,7 @@ Object.assign(EB_EN,{
 "Il sito si aggiorna da solo: venerdi' sera dopo il COT, ogni mattina feriale (mercati e BCE) e ogni sera feriale a fine giornata (fino a # tentativi a # minuti di distanza). Se una fonte non risponde restano online gli ultimi dati validi.":"The site updates itself: Friday evening after the COT, every weekday morning (markets and ECB) and every weekday evening at the end of the day (up to # attempts # minutes apart). If a source does not respond, the last valid data stays online.",
 "Sono stime statistiche, non certezze: le relazioni cambiano nel tempo.":"These are statistical estimates, not certainties: relationships change over time.",
 "Il COT ha # giorni di ritardo.":"The COT is # days late.",
-"Oro, materie agricole e altri strumenti senza prezzo gratuito su FRED usano solo il COT.":"Gold, agricultural commodities and other instruments without a free price on FRED use only the COT.",
+"Oro, materie agricole e altri strumenti senza una serie di prezzi ufficiale su FRED usano solo il COT.":"Gold, agricultural commodities and other instruments without an official price series on FRED use only the COT.",
 "Trascina per allargare o stringere il pannello COT (doppio clic: misura iniziale)":"Drag to widen or narrow the COT panel (double click: initial size)",
 "grafico quotato al contrario: posizionamento al RIALZO = grafico che SCENDE":"chart quoted the other way round: BULLISH positioning = chart that FALLS",
 "Mostra / nascondi il riepilogo":"Show / hide the summary",
