@@ -87,7 +87,7 @@ function testi(x: Riga): Mail {
         oggetto: `Il tuo Premium scade il ${d} · EdgeValor`,
         testa: "Il tuo Premium sta per scadere.",
         par: [`il tuo abbonamento ${P} scade il <b>${d}</b>.`,
-              "Per continuare scegli il piano e attivi in un minuto. Se non rinnovi, il tuo account passerà al piano <b>Basic</b> (gratis, nessun addebito)."],
+              "Per continuare scegli il piano e attivi in un minuto. Se non rinnovi, il tuo account passerà al piano <b>Basic</b>, senza addebiti."],
         btn: ["Rinnova Premium", PREMIUM],
         piede: "Ricevi questa email perché hai un account EdgeValor.",
       };
@@ -95,8 +95,8 @@ function testi(x: Riga): Mail {
       return {
         oggetto: `La tua prova Premium finisce il ${d} · EdgeValor`,
         testa: "La tua prova Premium sta per finire.",
-        par: [`la tua prova gratuita di ${P} finisce il <b>${d}</b>.`,
-              "Poi il tuo account passerà al piano <b>Basic</b>, gratis e senza addebiti. Per continuare con Premium scegli il piano e attivi in un minuto."],
+        par: [`la tua prova di ${P} finisce il <b>${d}</b>.`,
+              "Poi il tuo account passerà al piano <b>Basic</b>, senza addebiti. Per continuare con Premium scegli il piano e attivi in un minuto."],
         btn: ["Scopri i piani Premium", PREMIUM],
         piede: "Ricevi questa email perché hai un account EdgeValor.",
       };
@@ -109,7 +109,7 @@ function testi(x: Riga): Mail {
         par: ["ti confermiamo che la richiesta di disdetta del tuo abbonamento Premium è stata registrata correttamente. Il rinnovo automatico è stato disattivato e non verranno effettuati ulteriori addebiti."],
         riep,
         sez: [["Cosa succede ora?", [`Potrai continuare a utilizzare tutte le funzionalità Premium fino al ${breve(x.scadenza)}.`,
-                                     "Alla scadenza, il tuo account passerà automaticamente al piano Basic, gratuito.",
+                                     "Alla scadenza, il tuo account passerà automaticamente al piano Basic.",
                                      "Non sono previsti ulteriori addebiti."]],
               ["Hai cambiato idea?", []]],
         dopo: ["Puoi riattivare il tuo abbonamento in qualsiasi momento dalla sezione <b>Gestisci abbonamento</b>. Il nuovo addebito partirà solo alla fine del periodo già pagato."],
@@ -131,7 +131,7 @@ function testi(x: Riga): Mail {
       };
     case "premio_invito":  // v8.29 porta un amico: l'amico invitato si e' abbonato
       return {
-        oggetto: "Hai ricevuto 1 mese di Premium gratis · EdgeValor",
+        oggetto: "Hai ricevuto 1 mese di Premium in regalo · EdgeValor",
         testa: "Un amico che hai invitato si è abbonato.",
         par: [`grazie per aver fatto conoscere EdgeValor: come promesso, ti abbiamo regalato <b>1 mese di ${P}</b>.`],
         riep: [["Premio", "1 mese di Premium"], ["Premium attivo fino al", breve(x.scadenza)]],
@@ -145,7 +145,7 @@ function testi(x: Riga): Mail {
         testa: "Il tuo accesso Premium è terminato.",
         par: [pagato ? `il tuo abbonamento Premium è terminato il ${d}.` : `la tua prova Premium è terminata il ${d}.`,
               "Come previsto, il tuo account è passato automaticamente al piano Basic."],
-        sez: [["Cosa cambia?", ["Il piano Basic rimane gratuito.", "Non verranno effettuati ulteriori addebiti.",
+        sez: [["Cosa cambia?", ["Il piano Basic resta attivo.", "Non verranno effettuati ulteriori addebiti.",
                                 "Le funzionalità riservate a Premium non saranno più disponibili."]],
               ["Vuoi tornare a Premium?", []]],
         dopo: ["Puoi riattivare il tuo abbonamento quando vuoi, direttamente dal tuo account."],

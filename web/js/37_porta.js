@@ -42,7 +42,7 @@
   const vai={acc:"Accedi",reg:"Crea account",dim:"Mandami il link",nuova:"Salva e entra"}[modo];
   const nota={reg:`<p class="ptnota">Ti mandiamo un'email per confermare l'indirizzo.<br>Registrandoti accetti <a href="../legale/" target="_blank" rel="noopener">condizioni e privacy</a>.</p>`,
    dim:`<div class="ptriga ptc2"><button type="button" class="ptlink" data-va="acc">Torna all'accesso</button></div>`,acc:"",nuova:""}[modo];
-  return `<h1>${testa[0]}</h1>${testa[1]?`<p class="ptsub">${testa[1]}</p>`:""}${modo=="reg"?`<p class="ptprova">14 giorni gratis <b>·</b> senza carta</p>`:""}
+  return `<h1>${testa[0]}</h1>${testa[1]?`<p class="ptsub">${testa[1]}</p>`:""}${modo=="reg"?`<p class="ptprova">Premium gratis per 14 giorni <b>·</b> senza carta</p>`:""}
    ${tab}${goo}<form novalidate>${mail}${pw}${sotto}${err}<button type="submit" class="ptvai">${vai}</button></form>${nota}`;}
 
  function disegna(msg){if(!el)return;const c=el.querySelector(".ptcard");c.innerHTML=html(msg);

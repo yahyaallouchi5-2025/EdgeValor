@@ -164,7 +164,7 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   if(inviato){conto.innerHTML=`<div class="pfchi"><b>Controlla la posta</b><span class="pfst">Ho mandato un link a ${esc(inviato)}. Aprilo da questo dispositivo. Se non lo vedi, guarda nello spam.</span></div>
     <button type="button" class="sitem pfvoce pfaltra"><span>Usa un'altra email</span></button>`;
    box.querySelector(".pfaltra").onclick=()=>{inviato="";disegna();};return;}
-  conto.innerHTML=`<form class="pfform" novalidate><div class="pfchi"><b>Entra con la tua email</b><span class="pfst">Niente password: ti mando un link. La prima volta parte la prova gratuita di 14 giorni.</span></div>
+  conto.innerHTML=`<form class="pfform" novalidate><div class="pfchi"><b>Entra con la tua email</b><span class="pfst">Niente password: ti mando un link. La prima volta parte la prova Premium gratuita di 14 giorni.</span></div>
     ${msg?`<p class="pfko">${msg}</p>`:""}
     ${conGoogle()?`<button type="button" class="pfgoogle">${GICO}<span>Continua con Google</span></button><div class="pfoppure"><span>oppure</span></div>`:""}
     <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nome@esempio.it" aria-label="La tua email" required>

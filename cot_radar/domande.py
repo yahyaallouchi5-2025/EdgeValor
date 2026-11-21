@@ -72,8 +72,8 @@ DOMANDE = [
      "COT diviso per mercato, il lunedì il quadro della settimana con portafoglio, forex e banche centrali, e "
      "durante la settimana gli avvisi quando un mercato cambia direzione."),
     ("Quanto costa?",
-     f"La registrazione a EdgeValor comprende 14 giorni di Premium, senza carta. Finita la prova resti "
-     f"nel piano Basic, senza costi. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese "
+     f"La registrazione a EdgeValor comprende 14 giorni di Premium gratis, senza carta. Finita la prova resti "
+     f"nel piano Basic. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese "
      f"con il piano annuale ({eu(ANNO_TOT)} € all'anno); si disdice quando vuoi. Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
     ("I risultati includono commissioni, spread e slippage?",
      "In parte, e EdgeValor lo dice in chiaro. I risultati dei portafogli includono un costo dello 0,10% sul capitale "

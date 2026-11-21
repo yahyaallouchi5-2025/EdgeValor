@@ -76,14 +76,14 @@ def testata(qui):
 FRECCIA = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 
 PREZZI = f"""
-<div class="titsez"><small>Piani e prezzi</small><h1>Parti gratis. Premium quando vuoi.</h1>
- <p>Registrandoti con l'email otterrai 14 giorni di Premium. Nessuna carta di credito richiesta.</p></div>
+<div class="titsez"><small>Piani e prezzi</small><h1>Prova Premium gratis per 14 giorni.</h1>
+ <p>Ti registri con l'email, nessuna carta richiesta. Poi scegli tu.</p></div>
 <div class="cambio" role="group" aria-label="Durata"><button type="button" data-d="m">Mensile</button><button type="button" class="on" data-d="a">Annuale <em>&minus;{RISP}%</em></button></div>
 <div class="piani">
  <div class="piano"><span class="ptag">Basic</span><h3>Capire i mercati</h3>
   <div class="prezzo"><b>0 &euro;</b><span>per sempre</span></div><p class="sotto">Nessuna carta richiesta.</p>
   <ul><li>Quadro economico</li><li>Clima di mercato</li><li>Posizionamento COT</li><li>Notizie macro</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul>
-  <a class="btn sec" href="/accedi/">Inizia gratis</a></div>
+  <a class="btn sec" href="/accedi/">Crea il tuo account</a></div>
  <div class="piano pro"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
   <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
   <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; all'anno &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
@@ -131,7 +131,7 @@ METODO = f"""
 FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, prima di entrare.</h1></div><div class="faq">__FAQ__' +
        f'</div><div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="{TG}" target="_blank" rel="noopener">Iscriviti al canale Telegram</a></div>')
 
-PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Basic gratis per sempre. Premium a 27,00 € al mese o 19,99 € al mese con il piano annuale. 14 giorni di prova senza carta.", PREZZI),
+PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Prova Premium gratis per 14 giorni, senza carta. Poi Basic oppure Premium a 27,00 € al mese o 19,99 € al mese con il piano annuale. 14 giorni di prova senza carta.", PREZZI),
           "accedi": ("Accedi o registrati · EdgeValor", "Entra nel terminale EdgeValor con la tua email: nessuna password, 14 giorni di Premium in prova.", ACCEDI),
           "metodo": ("Il metodo · EdgeValor", "Come nascono i portafogli modello di EdgeValor: dati pubblici, filtro di trend, prova su vent'anni di storico e rotazione mensile.", METODO),
           "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi emergenti), canale Telegram, prezzi e rischi.", FAQ)}

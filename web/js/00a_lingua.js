@@ -46,7 +46,7 @@ const EB_EN={
  "Invio non riuscito (connessione o servizio). Riprova tra poco.":"Sending failed (connection or service). Try again shortly.",
  "L'email non sembra valida.":"The email doesn't look valid.","La sessione è scaduta: accedi di nuovo.":"Your session has expired: sign in again.",
  "La tua email":"Your email","Mandami il link":"Send me the link",
- "Niente password: ti mando un link. La prima volta parte la prova gratuita di 14 giorni.":"No password: I'll send you a link. The first time, your 14-day free trial starts.",
+ "Niente password: ti mando un link. La prima volta parte la prova Premium gratuita di 14 giorni.":"No password: I'll send you a link. The first time, your free 14-day Premium trial starts.",
  "Prova Premium":"Premium trial","Sei in Basic: le funzioni Basic restano attive.":"You're on Basic: Basic features stay active.",
  "Sei uscito dal profilo":"You've signed out","Sto leggendo il tuo profilo…":"Loading your profile…",
  "Ti ho appena mandato un link: aspetta un minuto.":"I just sent you a link: wait a minute.",
