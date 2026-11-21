@@ -335,7 +335,7 @@ LLMS = """# EdgeValor
 - Clima di mercato e fase delle grandi economie; posizionamento dei grandi operatori (report COT della CFTC).
 - Azionario per settore, schede delle aziende, stagionalita' degli strumenti.
 - Scheda Bitcoin: bussola macro (condizioni finanziarie, dollaro, credito) e termometro del sentiment.
-- Piano Basic (gratuito) e Premium, con 14 giorni di prova; canale Telegram con analisi gratuite.
+- Piano Basic e Premium, con 14 giorni di prova; canale Telegram pubblico con le analisi settimanali.
 
 ## Fonti dei dati
 CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale, prezzi di borsa da fornitori di dati di mercato.

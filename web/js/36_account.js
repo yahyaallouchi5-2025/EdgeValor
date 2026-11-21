@@ -73,8 +73,8 @@
  function piano(){if(!P)return ["","",""];const ora=Date.now(),g=d=>Math.max(0,Math.ceil((Date.parse(d)-ora)/864e5));
   if(P.sempre_premium)return ["Premium","Accesso completo, senza scadenza.","ok"];
   if(P.premium_fino&&Date.parse(P.premium_fino)>ora)return ["Premium",`Abbonamento attivo fino al ${new Date(P.premium_fino).toLocaleDateString(EB_LOC)}.`,"ok"];
-  if(P.prova_fino&&Date.parse(P.prova_fino)>ora){const n=g(P.prova_fino);return [`Prova · ${n} g`,`Prova gratuita: ${n==1?"ti resta 1 giorno":"ti restano "+n+" giorni"}.`,"prova"];}
-  return ["Basic","Sei in Basic: la parte gratuita resta tua.",""];}
+  if(P.prova_fino&&Date.parse(P.prova_fino)>ora){const n=g(P.prova_fino);return [`Prova · ${n} g`,`Prova Premium: ${n==1?"ti resta 1 giorno":"ti restano "+n+" giorni"}.`,"prova"];}
+  return ["Basic","Sei in Basic: le funzioni Basic restano attive.",""];}
  // v7.93 ID UTENTE leggibile (EV-0001...): numero progressivo dato dal database alla registrazione
  const idUtente=()=>P&&P.numero?"EV-"+String(P.numero).padStart(4,"0"):"";
  /* --- v7.92 RIEPILOGO DELLA PROVA (solo durante i 14 giorni): giorno X di 14, barra, data di fine e (i) con cosa resta
@@ -86,7 +86,7 @@
   return `<div class="pfprova"><div class="pfpt"><b>Prova Premium</b><button type="button" class="info" data-apri="pfprinfo" data-k="pfprova" aria-expanded="false" aria-label="Cosa succede dopo la prova">i</button></div>
    <div class="pfbar" role="progressbar" aria-valuemin="1" aria-valuemax="${PROVA}" aria-valuenow="${g}"><i style="width:${pc}%"></i></div>
    <div class="pfpg"><span>Giorno ${g} di ${PROVA}</span><span>fino al ${data}</span></div>
-   <p id="pfprinfo" class="sub infotesto">Fino al ${data} hai tutto Premium. Poi passi a Basic, gratis: le funzioni Premium si bloccano. Nessun pagamento automatico.</p></div>`;}
+   <p id="pfprinfo" class="sub infotesto">Fino al ${data} hai tutto Premium. Poi passi a Basic: le funzioni Premium si bloccano. Nessun pagamento automatico.</p></div>`;}
  function aggiorna(){const u=S&&chi();
   eti.textContent=u?(piano()[0]||"…"):"";eti.hidden=!u;eti.className="pfeti"+(u&&piano()[2]?" "+piano()[2]:"");
   btn.title=u?"Il tuo profilo: "+u.email:"Accedi o registrati con la tua email";}

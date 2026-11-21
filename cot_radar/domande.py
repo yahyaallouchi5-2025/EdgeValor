@@ -67,13 +67,13 @@ DOMANDE = [
      "Pochi minuti al giorno per il quadro dei mercati e delle notizie; il venerdì sera, all'uscita del nuovo report "
      "COT, uno sguardo a come si sono mossi i grandi speculatori; una volta al mese la rotazione dei portafogli. "
      "Il resto è lì quando vuoi approfondire."),
-    ("C'è un canale gratuito?",
-     "Sì. Il canale Telegram di EdgeValor è gratuito e aperto a tutti: ogni venerdì sera il riepilogo del report "
+    ("C'è un canale Telegram?",
+     "Sì. Il canale Telegram di EdgeValor è aperto a tutti: ogni venerdì sera il riepilogo del report "
      "COT diviso per mercato, il lunedì il quadro della settimana con portafoglio, forex e banche centrali, e "
      "durante la settimana gli avvisi quando un mercato cambia direzione."),
     ("Quanto costa?",
-     f"La registrazione a EdgeValor è gratuita e comprende 14 giorni di Premium, senza carta. Finita la prova resti "
-     f"nel piano Basic, gratis per sempre. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese "
+     f"La registrazione a EdgeValor comprende 14 giorni di Premium, senza carta. Finita la prova resti "
+     f"nel piano Basic, senza costi. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese "
      f"con il piano annuale ({eu(ANNO_TOT)} € all'anno); si disdice quando vuoi. Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
     ("I risultati includono commissioni, spread e slippage?",
      "In parte, e EdgeValor lo dice in chiaro. I risultati dei portafogli includono un costo dello 0,10% sul capitale "

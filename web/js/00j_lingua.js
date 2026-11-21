@@ -5,7 +5,7 @@ Object.assign(EB_EN,{
 ": variazione dei tassi a breve negli ultimi # mesi disponibili (dati mensili, ## mesi di ritardo): la valuta che alza di più (o taglia di meno) attira capitali. Verde = a favore del segnale COT, rosso = contro. Informativo: non cambia il punteggio.":": change in short-term rates over the last # available months (monthly data, ## months of delay): the currency that hikes more (or cuts less) attracts capital. Green = in favour of the COT signal, red = against. Informative: it does not change the score.",
 ": forza # settimane:":": # week strength:",
 "parte alta del canale":"upper part of the channel",
-"Fino al November # hai tutto Premium. Poi passi a Basic, gratis: le funzioni Premium si bloccano. Nessun pagamento automatico.":"Until November # you have full Premium. Then you move to Basic, free: Premium features are locked. No automatic payment.",
+"Fino al November # hai tutto Premium. Poi passi a Basic: le funzioni Premium si bloccano. Nessun pagamento automatico.":"Until November # you have full Premium. Then you move to Basic: Premium features are locked. No automatic payment.",
 "Bilancio Fed":"Fed balance sheet",
 "Mercati USA (FRED)":"US markets (FRED)",
 "Eventi":"Events",

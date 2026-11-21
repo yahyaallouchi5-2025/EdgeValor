@@ -134,7 +134,7 @@ FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, pri
 PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Basic gratis per sempre. Premium a 27,00 € al mese o 19,99 € al mese con il piano annuale. 14 giorni di prova senza carta.", PREZZI),
           "accedi": ("Accedi o registrati · EdgeValor", "Entra nel terminale EdgeValor con la tua email: nessuna password, 14 giorni di Premium in prova.", ACCEDI),
           "metodo": ("Il metodo · EdgeValor", "Come nascono i portafogli modello di EdgeValor: dati pubblici, filtro di trend, prova su vent'anni di storico e rotazione mensile.", METODO),
-          "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi emergenti), canale Telegram gratuito, prezzi e rischi.", FAQ)}
+          "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi emergenti), canale Telegram, prezzi e rischi.", FAQ)}
 
 
 # --- script del modulo di accesso (ES5, come la home). v8.19: tolto il vecchio modulo "Richiesta Premium"
