@@ -7,7 +7,11 @@ try{
  const r=X.risk,env=r>=30?["FAVOREVOLE agli asset di rischio","var(--sb)"]:r<=-30?["SFAVOREVOLE agli asset di rischio","var(--ss)"]:["NEUTRO per gli asset di rischio","var(--n)"];
  const dcard=d=>{const u=d.unit=="pb"?" pb":"";const val=d.unit=="pb"?fx(d.value)+"%":fx(d.value,1);const bad=["vix","hy","real"].includes(d.key);
   const cls=d.d4==null?'flat':(d.d4>0)==bad?'down':'up';
-  return `<div class="card"><h3>${d.name}</h3><div class="kpi"><div class="big">${val}</div></div>
+  // v8.61 SPREAD HIGH YIELD: direzione delle ultime 4 settimane in chiaro (si allarga / stabile / si restringe).
+  //   "Stabile" se la mossa e' debole (|z| < 0,75, stessa soglia di "Forza del movimento"), altrimenti il segno.
+  const dir=d.key=="hy"&&d.d4!=null?(Math.abs(d.z4)<.75?["Stabile",""]:d.d4>0?["Si allarga","ko"]:["Si restringe","ok"]):null;
+  const inf=dir?`<details class="info"><summary title="Come si legge" aria-label="Come si legge">i</summary><div><b>Spread high yield</b>: quanto rendono in pi&ugrave; dei titoli di Stato le obbligazioni delle aziende pi&ugrave; indebitate. <b>Si allarga</b>: il mercato chiede di pi&ugrave; per prestare soldi alle aziende, il credito diventa pi&ugrave; caro e il rischio sale. <b>Si restringe</b>: il credito torna pi&ugrave; facile. <b>Stabile</b>: la mossa delle ultime 4 settimane &egrave; piccola rispetto agli ultimi 2 anni.<br><br>Per questo si guarda insieme alla Borsa: dice se un ribasso resta nei prezzi delle azioni o arriva al costo con cui le aziende si finanziano.</div></details>`:"";
+  return `<div class="card"><h3>${d.name}${inf}</h3><div class="kpi"><div class="big">${val}${dir?` <span class="tag ${dir[1]} hydir">${dir[0]}</span>`:""}</div></div>
   <div class="kv"><span>1 settimana</span><b>${sg(d.d1,1)}${u}</b><span>4 settimane</span><b class="${cls}">${sg(d.d4,1)}${u}</b><span>Forza del movimento</span><b>${Math.abs(d.z4)>=1.5?'forte':Math.abs(d.z4)>=.75?'media':'debole'} (z ${sg(d.z4,1)})</b></div>${spark(d.spark,"var(--c1)")}</div>`;};
  let h=`<h2>Il mercato in questo momento</h2><p class="sub">Solo indicatori prezzati ogni giorno dal mercato: anticipano le notizie invece di inseguirle. Ultimo dato: ${fd(X.anchor)}.</p>
  <div class="env" style="--bc:${env[1]}"><b>Clima ${env[0]}</b>Combina VIX, spread delle obbligazioni high yield e rendimenti reali delle ultime 4 settimane (punteggio ${fmt(r)}).</div>

@@ -134,4 +134,7 @@ Object.assign(EB_EN,{
 "favorisce USD":"favours USD",
 "favorisce AUD":"favours AUD",
 "Valute:":"Currencies:",
+"Stabile":"Stable",
+"Si allarga":"Widening",
+"Si restringe":"Narrowing",
 });
