@@ -1,0 +1,32 @@
+1970-04-23  minimo  -25.9% il 1970-05-26  (  23 sedute dal -10%)  12 mesi dopo il -10%:  +24.5%  BEAR
+1971-08-04  minimo  -13.9% il 1971-11-23  (  78 sedute dal -10%)  12 mesi dopo il -10%:  +15.5%  correzione
+1973-04-27  minimo  -48.2% il 1974-10-03  ( 363 sedute dal -10%)  12 mesi dopo il -10%:  -15.9%  BEAR
+1981-08-24  minimo  -27.1% il 1982-08-12  ( 245 sedute dal -10%)  12 mesi dopo il -10%:   -7.5%  BEAR
+1984-02-13  minimo  -14.4% il 1984-07-24  ( 112 sedute dal -10%)  12 mesi dopo il -10%:  +16.5%  correzione
+1987-10-15  minimo  -33.5% il 1987-12-04  (  35 sedute dal -10%)  12 mesi dopo il -10%:   -7.7%  BEAR
+1990-01-30  minimo  -10.2% il 1990-01-30  (   0 sedute dal -10%)  12 mesi dopo il -10%:   +4.0%  correzione
+1990-08-17  minimo  -19.9% il 1990-10-11  (  38 sedute dal -10%)  12 mesi dopo il -10%:  +17.6%  correzione
+1997-10-27  minimo  -10.8% il 1997-10-27  (   0 sedute dal -10%)  12 mesi dopo il -10%:  +21.5%  correzione
+1998-08-14  minimo  -19.3% il 1998-08-31  (  11 sedute dal -10%)  12 mesi dopo il -10%:  +25.2%  correzione
+1999-09-29  minimo  -12.1% il 1999-10-15  (  12 sedute dal -10%)  12 mesi dopo il -10%:  +12.5%  correzione
+2000-04-14  minimo  -49.1% il 2002-10-09  ( 622 sedute dal -10%)  12 mesi dopo il -10%:  -12.1%  BEAR
+2007-11-26  minimo  -56.8% il 2009-03-09  ( 322 sedute dal -10%)  12 mesi dopo il -10%:  -39.5%  BEAR
+2015-08-24  minimo  -14.2% il 2016-02-11  ( 118 sedute dal -10%)  12 mesi dopo il -10%:  +15.5%  correzione
+2018-02-08  minimo  -10.2% il 2018-02-08  (   0 sedute dal -10%)  12 mesi dopo il -10%:   +5.0%  correzione
+2018-11-23  minimo  -19.8% il 2018-12-24  (  20 sedute dal -10%)  12 mesi dopo il -10%:  +19.0%  correzione
+2020-02-27  minimo  -33.9% il 2020-03-23  (  17 sedute dal -10%)  12 mesi dopo il -10%:  +27.9%  BEAR
+2022-02-22  minimo  -25.4% il 2022-10-12  ( 161 sedute dal -10%)  12 mesi dopo il -10%:   -6.8%  BEAR
+2025-03-13  minimo  -18.9% il 2025-04-08  (  18 sedute dal -10%)  12 mesi dopo il -10%:  +21.3%  correzione
+
+dal 1970: 19 episodi chiusi, 8 bear market (42%); drawdown massimo medio -24.4%; 12 mesi dopo il -10%: media +7.2%, positivi 13/19
+
+dal 1983: 15 episodi chiusi, 5 bear market (33%); drawdown massimo medio -23.2%; 12 mesi dopo il -10%: media +8.0%, positivi 11/15
+
+oggi 2026-11-19: -8.2% dal massimo storico
+
+VERDETTO
+  - Il dato citato nella newsletter torna con i nostri numeri: dal 1983, 15 correzioni del 10% chiuse, 5 diventate
+    bear market (33%). Dal 1970: 19 episodi, 8 bear market (42%).
+  - Comprare il giorno del -10% ha reso in media +8% a 12 mesi dal 1983 (11 casi su 15 positivi), ma i 5 bear market
+    hanno portato il drawdown fino al -57% (2007-2009): la statistica non dice in quale dei due casi siamo.
+  - Uso possibile: informazione nella scheda S&P 500 accanto alla distanza dalla media a 200 giorni, non un segnale.
