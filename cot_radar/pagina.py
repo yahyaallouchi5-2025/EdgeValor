@@ -69,6 +69,25 @@ def statistiche():
 ULTIMI = {}
 
 
+def neutri7(reg, adesso, giorni=7):
+    """v8.66 TORNATI NEUTRI (idea di Ya, 22/11/2026): posizionamenti chiusi negli ultimi 7 giorni perche' tornati
+    NEUTRI (non le inversioni), presi dal registro live: sono gli stessi che il canale Telegram annuncia come
+    "chiuso il posizionamento ... torna neutro". La Dashboard li mostra in una riga compatta in fondo a ogni famiglia,
+    con il perche' (calcolato nella pagina dai dati di oggi). Uno per strumento, il piu' recente."""
+    if not reg or not reg.get("chiusi"):
+        return []
+    from datetime import timedelta
+    limite = (adesso - timedelta(days=giorni)).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+    out, visti = [], set()
+    for r in reg["chiusi"]:                                   # gia' ordinati dal piu' recente
+        c = r.get("chiuso") or {}
+        if c.get("motivo") != "neutro" or (c.get("quando") or "") < limite or r.get("iniziale") or r["strumento"] in visti:
+            continue
+        visti.add(r["strumento"])
+        out.append({"s": r["strumento"], "prima": r.get("etichetta"), "q": c["quando"], "dal": r.get("generato")})
+    return out
+
+
 def build(data_source=load_all, demo=False, sito=False):
     """Scarica (o riceve) i dati, calcola tutto e restituisce (html, stato).
     data_source si puo' sostituire: la modalita' --demo passa dati finti invece di scaricarli.
@@ -341,7 +360,8 @@ def build(data_source=load_all, demo=False, sito=False):
             "order": [a[0] for a in ASSETS] + ["USD"], "sectors": SECTORS, "stato": pubblico(stato), "admin": "__ADMIN__", "eventi": news["prossimi"], "agenda": agenda_out,
             "stag": stag, "stag_meta": stag_meta, "reg": reg, "bt": bt, "vol": vol, "tat": tat, "port": port, "fore": fore,
             "carry": carry_pag, "carry_st": carry_st, "btcmacro": btcmacro, "btcsent": btcsent, "crypto": crypto_pag, "paesi": paesi_pag, "categorie": cat_pag, "economie": quadro_pag, "rinnovo": rinnovo_pag, "sconto_sp": sconto_pag,
-            "tv": {k: {"s": v[0], "inv": v[1]} for k, v in TV_SYMBOLS.items()}, "tvp": TV_PAIRS}
+            "tv": {k: {"s": v[0], "inv": v[1]} for k, v in TV_SYMBOLS.items()}, "tvp": TV_PAIRS,
+            "neutri7": neutri7(reg, t0_utc)}
     # "stato" pubblico = solo esito e fonti; "admin" = segnaposto che main.py sostituisce con il registro
     # completo (cifrato sul sito, in chiaro sul PC). Vedi cot_radar/admin.py
     # JSON compatto (senza spazi dopo virgole e due punti): stessa informazione, pagina piu' leggera

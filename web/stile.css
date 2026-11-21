@@ -3611,3 +3611,16 @@ details.vfx>summary:hover b{color:var(--acc)}
 .vfx-c>.vft:first-child{margin-top:4px}
 @media (max-width:760px){.vfsc-r{grid-template-columns:1fr}.vfsc-g>div{grid-template-columns:1fr;gap:6px}.vfsc-g small{padding-top:0}.vfsc.scelto .vfsc-g{display:none}.vfsl-n{font-size:21px}
  details.vfx>summary{padding:14px 16px}.vfx-c{padding:0 14px 14px}.vfslt .vfnt{display:none}}
+
+/* ===== v8.66 TORNATI NEUTRI: riga compatta in fondo a ogni famiglia della Dashboard ===== */
+.neu7{margin:12px 0 4px;border:1px dashed var(--line);border-radius:14px;padding:12px 14px}
+.neu7-t{font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+.neu7-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.neu7-i{border:1px solid var(--line);border-radius:11px;padding:9px 12px;cursor:pointer;transition:border-color .15s,background .15s}
+.neu7-i:hover{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 6%,transparent)}
+.neu7-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.neu7-h b{font-size:14.5px}
+.neu7-da{font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 7px;background:var(--soft);color:var(--mute)}
+.neu7-da.vsu{color:#8fe0bd}.neu7-da.vgiu{color:#f6a19c}
+.neu7-d{margin-left:auto;font-size:12px;color:var(--mute)}
+.neu7-i em{display:block;font-style:normal;font-size:13px;color:var(--mute);margin-top:4px;line-height:1.4}
+@media (max-width:600px){.neu7-l{grid-template-columns:1fr}}

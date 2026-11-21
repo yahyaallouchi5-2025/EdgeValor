@@ -262,5 +262,40 @@ FAM.forEach(([id,gr])=>{const el=$(id);if(!el)return;const v=oth.filter(a=>gr.in
  // requestAnimationFrame: la misura si applica al fotogramma dopo, cosi' il browser non entra in un ciclo di ridimensionamenti
  const ro=window.ResizeObserver?new ResizeObserver(v=>requestAnimationFrame(()=>v.forEach(x=>allinea(x.target)))):null;
  document.querySelectorAll(".pairhead").forEach(h=>{const sx=h.firstElementChild;if(!sx||!h.querySelector(".anello"))return;allinea(sx);if(ro)ro.observe(sx);});})();
+
+/* v8.66 TORNATI NEUTRI (Ya, 22/11/2026): in fondo a ogni famiglia una riga compatta con i posizionamenti chiusi negli
+   ultimi 7 giorni perche' tornati neutri (D.neutri7, dal registro: gli stessi annunciati su Telegram). Niente card
+   intere (31 neutri sarebbero rumore): nome, da cosa veniva, durata e IL PERCHE' in una riga. Clic = grafico.
+   Il perche' si legge dai dati di oggi: se il COT degli speculatori e' ancora nella stessa direzione la neutralita'
+   viene dalla parte di mercato; altrimenti si dice cosa hanno fatto gli speculatori (alleggeriscono, ricoprono,
+   aumentano le vendite, tornano ad acquistare) sulla valuta o sullo strumento che si e' mosso di piu'.
+   Prima solo per il fondatore (regola delle novita'), poi per tutti. */
+(function(){
+ const fai=()=>{const L=(D.neutri7||[]).filter(n=>{const p=D.pairs.find(x=>x.pair==n.s),a=D.assets[n.s];return (p||a)&&(p||a).label=="NEUTRO";});
+  document.querySelectorAll(".neu7").forEach(x=>x.remove());if(!L.length)return;
+  const ver=l=>/BUY/.test(l||"")?1:-1,ETI2={"STRONG BUY":"Forte rialzo",BUY:"Rialzo",SELL:"Ribasso","STRONG SELL":"Forte ribasso"};
+  const NOR=(D.meta||{}).normal||25;
+  // cosa hanno fatto gli speculatori su un singolo strumento/valuta nella direzione v
+  const flusso=(a,v,su)=>{if(!a)return "";const dl=a.d_long||0,ds=a.d_short||0,dove=su?" su "+esc(su):"";
+   if(v>0&&dl<0&&-dl>=Math.abs(ds))return "alleggeriscono gli acquisti"+dove;if(v>0&&ds>0)return "aumentano le vendite"+dove;
+   if(v<0&&ds<0&&-ds>=Math.abs(dl))return "ricoprono le vendite"+dove;if(v<0&&dl>0)return "tornano ad acquistare"+dove;
+   return "spinta esaurita"+dove;};
+  const perche=n=>{const v=ver(n.prima),p=D.pairs.find(x=>x.pair==n.s);
+   if(p){const cot=(p.cot||0)*v,mkt=(p.macro||0)*v;
+    if(cot>=NOR&&mkt<0)return `COT ancora a favore (${fmt(p.cot)}), il mercato spinge contro`;
+    const B=D.assets[p.base],Q=D.assets[p.quote],db=B?Math.abs((B.cot||0)-(B.cot_prev||0)):0,dq=Q?Math.abs((Q.cot||0)-(Q.cot_prev||0)):0;
+    return "Speculatori: "+(db>=dq?flusso(B,v,p.base):flusso(Q,-v,p.quote));}
+   const a=D.assets[n.s];if(!a)return "";const cot=(a.cot||0)*v,mkt=(a.macro||0)*v;
+   if(cot>=NOR&&mkt<0)return `COT ancora a favore (${fmt(a.cot)}), il mercato spinge contro`;
+   return "Speculatori: "+flusso(a,v,"");};
+  const dur=n=>{const g=(new Date(n.q.replace("Z",":00Z"))-new Date((n.dal||n.q).replace("Z",":00Z")))/864e5;return g<1?"meno di 1 giorno":Math.round(g)+(Math.round(g)==1?" giorno":" giorni");};
+  const riga=l=>`<div class="neu7"><div class="neu7-t">Tornati neutri negli ultimi 7 giorni</div><div class="neu7-l">${l.map(n=>{const p=D.pairs.find(x=>x.pair==n.s);
+   return `<div class="neu7-i clic" data-tv="${p?"p:":"a:"}${esc(n.s)}" title="Clic: grafico a candele"><div class="neu7-h"><b>${esc(p?n.s:accenti((D.assets[n.s]||{}).it||n.s))}</b><span class="neu7-da v${ver(n.prima)>0?"su":"giu"}">era ${ETI2[n.prima]||eti(n.prima)}</span><span class="neu7-d">${dur(n)}</span></div><em>${perche(n)}</em></div>`;}).join("")}</div></div>`;
+  const per={cards:[]};const FAMG=[["ac-mp",["Energia","Metalli","Cereali","Soft","Bestiame"]],["ac-ind",["Indici azionari"]],["ac-tas",["Tassi USA"]],["ac-cry",["Crypto"]]];
+  L.forEach(n=>{if(D.pairs.some(x=>x.pair==n.s)){per.cards.push(n);return;}const g=(D.assets[n.s]||{}).group,f=FAMG.find(x=>x[1].includes(g));if(f)(per[f[0]]=per[f[0]]||[]).push(n);});
+  Object.entries(per).forEach(([id,l])=>{const el=$(id);if(el&&l.length)el.insertAdjacentHTML("afterend",riga(l));});};
+ const adm=()=>document.documentElement.classList.contains("eb-admin");
+ if(adm())fai();else{const mo=new MutationObserver(()=>{if(adm()){mo.disconnect();fai();}});mo.observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
+})();
 }catch(e){fail('Dashboard','sig',e);}
 

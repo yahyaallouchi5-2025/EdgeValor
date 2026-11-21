@@ -43,7 +43,8 @@ STAG_PREMIUM = ("finestra", "sett", "mesi", "giorni")
 
 # v8.07 blocchi di dati interamente Premium -> valore vuoto lasciato al Basic (stessa forma, nessun dato)
 CHIUSE = {"assets": {}, "pairs": [], "order": [], "corr": {"keys": [], "m": []}, "corr_px": None, "stag": {}, "vol": {}, "tat": {},
-          "crypto": None, "btcsent": None, "carry": None, "categorie": None, "tv": {}, "tvp": {}, "fed": None}
+          "crypto": None, "btcsent": None, "carry": None, "categorie": None, "tv": {}, "tvp": {}, "fed": None,
+          "neutri7": []}                                     # v8.66 tornati neutri: parte del Posizionamento (Premium)
 
 _PUB = None               # (id, chiave) della costruzione in corso: una sola chiave per pagina e file delle azioni
 
