@@ -1632,8 +1632,12 @@ def dettaglio_mesi(g, piani, giorni, curva, sat=None, n=12):
                 elif m in reg:                               # live: i titoli registrati (rendimento non ancora disponibile)
                     v["titoli"] = [{"t": x["t"], "n": x.get("n", x["t"]), "r": None} for x in reg[m].get("titoli", [])]
             voci.append(v)
-        out.append({"mese": g.date[a][:7], "dal": g.date[a], "al": g.date[b - 1], "r": round(r_t, 1),
-                    "dd": round(dd_t, 1), "asset": voci})
+        m_out = {"mese": g.date[a][:7], "dal": g.date[a], "al": g.date[b - 1], "r": round(r_t, 1),
+                 "dd": round(dd_t, 1), "asset": voci}
+        cfr = confronto_sp(g, curva, giorni[0], a, b - 1)       # v8.54 S&P 500 nello stesso mese + serie del grafico
+        if cfr:
+            m_out["sp"], m_out["serie"] = cfr
+        out.append(m_out)
     return list(reversed(out))
 
 
@@ -1649,6 +1653,50 @@ def mese_tratto(curva, off, i0, i1):
         picco = max(picco, v)
         dd = min(dd, v / picco - 1)
     return (curva[i1 - off][1] / base - 1) * 100, dd * 100
+
+
+def confronto_sp(g, curva, off, i0, i1):
+    """v8.54 CONFRONTO CON L'S&P 500 nello STESSO tratto del mese (richiesta di Ya: "come sono andati i mercati
+    rispetto al portafoglio"). Stessa base di mese_tratto: chiusura del giorno prima di i0 -> chiusura di i1.
+    S&P 500 = SPY con prezzi rettificati (dividendi compresi), nella stessa valuta della curva del mese (dollari),
+    comprato e tenuto. Restituisce {"r", "dd"} dell'indice e la serie giornaliera [data, % portafoglio, % S&P 500]
+    per il grafico a comparsa delle Rotazioni. None se mancano i prezzi."""
+    col = g.p.get("SPY")
+    a0 = i0 - 1
+    if not col or a0 < off or col[a0] is None:
+        return None
+    b_p, b_s = curva[a0 - off][1], col[a0]
+    serie, picco, dd, ult = [[g.date[a0], 0.0, 0.0]], b_s, 0.0, b_s
+    for j in range(i0, i1 + 1):
+        v = col[j] if col[j] is not None else ult        # giorno senza prezzo: resta l'ultimo noto
+        ult = v
+        picco = max(picco, v)
+        dd = min(dd, v / picco - 1)
+        serie.append([g.date[j], round((curva[j - off][1] / b_p - 1) * 100, 2), round((v / b_s - 1) * 100, 2)])
+    return {"r": round((ult / b_s - 1) * 100, 1), "dd": round(dd * 100, 1)}, serie
+
+
+def riepilogo_sp(mesi):
+    """v8.54 RIEPILOGO in cima alle Rotazioni: i mesi mostrati (chiusi + in corso) messi in fila, portafoglio contro
+    S&P 500. Rendimento composto, drawdown peggiore sull'intero tratto (calcolato sulla serie giornaliera concatenata,
+    non il peggiore dei singoli mesi) e quanti mesi il portafoglio ha fatto meglio su rendimento e su drawdown."""
+    mesi = [m for m in mesi if m.get("serie") and m.get("sp")]
+    if len(mesi) < 2:
+        return None
+    out = {"dal": mesi[0]["serie"][0][0], "al": mesi[-1]["serie"][-1][0], "n": len(mesi)}
+    for k, col in (("port", 1), ("sp", 2)):
+        v, picco, dd = 1.0, 1.0, 0.0
+        for m in mesi:
+            base = v
+            for x in m["serie"][1:]:
+                w = base * (1 + x[col] / 100)
+                picco = max(picco, w)
+                dd = min(dd, w / picco - 1)
+            v = base * (1 + m["serie"][-1][col] / 100)
+        out[k] = {"r": round((v - 1) * 100, 1), "dd": round(dd * 100, 1)}
+    out["meglio_r"] = sum(1 for m in mesi if m["r"] > m["sp"]["r"])
+    out["meglio_dd"] = sum(1 for m in mesi if m["dd"] > m["sp"]["dd"])
+    return out
 
 
 def giorni_feriali(ym):
@@ -1963,8 +2011,10 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
         # MESE IN CORSO: dal giorno di rotazione (ingresso alla chiusura) a oggi, con i prezzi a fine giornata (EOD).
         # In attesa il mese nuovo non e' ancora iniziato: zero giorni, nessun risultato.
         r_m, dd_m = (0.0, 0.0) if attesa else mese_tratto(curva, giorni[0], ultimo_rib, len(g.date) - 1)
+        cfr = None if attesa else confronto_sp(g, curva, giorni[0], ultimo_rib, len(g.date) - 1)   # v8.54
         corrente.append((prof["id"], {"r": round(r_m, 1), "dd": round(dd_m, 1),
-                                      "rr": round(r_m / abs(dd_m), 1) if dd_m <= -0.3 else None}))
+                                      "rr": round(r_m / abs(dd_m), 1) if dd_m <= -0.3 else None,
+                                      **({"sp": cfr[0], "serie": cfr[1]} if cfr else {})}))
         # mesi CHIUSI: da una rotazione all'ultimo giorno di borsa prima della successiva
         for a, b in zip(giorni_c[:-1], giorni_c[1:]):
             if g.date[a] >= LIVE_V3_DAL:
@@ -2018,6 +2068,12 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
         base_out = [{"k": k, "nome": TUTTI[k][2],
                      "peso": round((w * (1 - prof.get("az", 0)) + (prof.get("az", 0) - az_on if k == "SP500" else 0)) * 100)}
                     for k, w in prof["base"].items()]
+        # v8.54 mesi delle "Ultime rotazioni" (chiusi + in corso), dal piu' vecchio: base del riepilogo contro l'S&P 500
+        mc = dettaglio_mesi(g, piani, giorni_c, curva, sat)
+        righe_rot = {c["data"][:7] for c in cambi}
+        mostrati = [m for m in reversed(mc) if m["mese"] in righe_rot]
+        if not attesa:
+            mostrati.append(dict(corrente)[prof["id"]])
         out_prof.append({
             "id": prof["id"], "nome": prof["nome"], "descr": prof.get("descr_dic") if dic else prof["descr"],
             "dd_rif": prof["dd"],
@@ -2051,7 +2107,8 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
             "tasse": tasse_profilo(g, piani, giorni[0], fxp, tep) if eur_ok else None,   # v7.8 dopo le tasse
             "robusto": robustezza(g, prof, sc, giorni, fxp, tep, liq),              # v7.11 media 150/250 giorni
             "rotazioni": list(reversed(cambi)),
-            "mesi_chiusi": dettaglio_mesi(g, piani, giorni_c, curva, sat),
+            "mesi_chiusi": mc,
+            "cfr_sp": riepilogo_sp(mostrati),        # v8.54 riepilogo contro l'S&P 500 dei mesi mostrati
         })
     registra(rotazioni, g.date[ultimo_rib], comp_reg, cartella, scrivi=scrivi)
     da_salvare = [c for c in chiusi.values() if not (attesa and c["al"] == g.date[-1] and not chiusura_completa)]

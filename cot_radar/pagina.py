@@ -297,6 +297,13 @@ def build(data_source=load_all, demo=False, sito=False):
         rinnovo_pag = rinnovo.calcola(storico.CARTELLA if os.path.isdir(storico.CARTELLA) else None) or None
     except Exception:
         log.warning("rinnovo dei future non calcolato:\n%s", traceback.format_exc())
+    # v8.54 S&P 500 SOTTO LA MEDIA A 200 GIORNI (sconto_sp.py): solo informativo nella scheda S&P 500. Isolato.
+    sconto_pag = None
+    try:
+        from . import sconto_sp
+        sconto_pag = sconto_sp.calcola(storico.CARTELLA if os.path.isdir(storico.CARTELLA) else None)
+    except Exception:
+        log.warning("sconto dell'S&P 500 non calcolato:\n%s", traceback.format_exc())
     # CORRELAZIONI DEI PREZZI (correlazioni.py): stessi prezzi dei portafogli + settori USA e dollaro. Isolate.
     corr_px = None
     try:
@@ -333,7 +340,7 @@ def build(data_source=load_all, demo=False, sito=False):
             "assets": assets, "pairs": pairs, "corr": corr, "corr_px": corr_px, "market": market, "fed": fed,
             "order": [a[0] for a in ASSETS] + ["USD"], "sectors": SECTORS, "stato": pubblico(stato), "admin": "__ADMIN__", "eventi": news["prossimi"], "agenda": agenda_out,
             "stag": stag, "stag_meta": stag_meta, "reg": reg, "bt": bt, "vol": vol, "tat": tat, "port": port, "fore": fore,
-            "carry": carry_pag, "carry_st": carry_st, "btcmacro": btcmacro, "btcsent": btcsent, "crypto": crypto_pag, "paesi": paesi_pag, "categorie": cat_pag, "economie": quadro_pag, "rinnovo": rinnovo_pag,
+            "carry": carry_pag, "carry_st": carry_st, "btcmacro": btcmacro, "btcsent": btcsent, "crypto": crypto_pag, "paesi": paesi_pag, "categorie": cat_pag, "economie": quadro_pag, "rinnovo": rinnovo_pag, "sconto_sp": sconto_pag,
             "tv": {k: {"s": v[0], "inv": v[1]} for k, v in TV_SYMBOLS.items()}, "tvp": TV_PAIRS}
     # "stato" pubblico = solo esito e fonti; "admin" = segnaposto che main.py sostituisce con il registro
     # completo (cifrato sul sito, in chiaro sul PC). Vedi cot_radar/admin.py
