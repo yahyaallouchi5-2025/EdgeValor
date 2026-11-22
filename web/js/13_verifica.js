@@ -1,11 +1,12 @@
-/* ---------- VERIFICA DEI SEGNALI: registro live + backtest simulato ----------
+/* ---------- SCHEDA LIVE: registro live + comportamento COT ----------
    Due finestre separate e mai mescolate:
-     LIVE     = segnali veri, con data e ora di generazione, salvati per sempre con una catena di hash (D.reg)
-     BACKTEST = segnali SIMULATI sulle settimane passate dal 1986 con le stesse regole (D.bt)
+     LIVE         = segnali veri, con data e ora di generazione, salvati per sempre con una catena di hash (D.reg)
+     COMPORTAMENTO = v8.71 cosa fa il prezzo quando gli speculatori spingono, su tutto lo storico (D.cmp, 13b_comportamento.js);
+                    sostituisce il Backtest SIMULATO (tolto). Prima solo per il fondatore (eb-admin), poi per tutti.
    Calcoli in cot_radar/motore.py; qui solo la presentazione. Ingresso = prima chiusura dopo il segnale. */
 // v7.48 dove = "vol": disegna solo la Volatilita' nella scheda #volat (menu Mercati, dati gia' nella pagina: D.vol);
-//       senza argomento: scheda "Verifica dei segnali" con le sole viste Registro live e Backtest (Carry tolto).
-function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol?"volat":"verifica"),R=D.reg,B=D.bt;if(!el)return;
+//       senza argomento: scheda Live con le viste Registro live e Comportamento COT.
+function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol?"volat":"verifica"),R=D.reg;if(!el)return;
  // finestra, durata del trade (giorni di mercato 1..20 o "fine"), storico usato, strumento (volatilita' e drawdown),
  // unita' del grafico del drawdown ("pct" = in %, "vol" = in settimane tipiche di quel mercato)
  const V={fin:"live",d:5,per:"tutti",asset:"EURUSD",strum:"tutti",unita:"pct"};
@@ -15,7 +16,9 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  //   V.sl = strumento scelto nella Live ("" = nessuno: nessun numero finche' non si sceglie).
  const NUOVA=()=>true;                     // v8.68 aperta a tutti (prima solo il fondatore)
  V.sl=V.sl||"";
- if(solaVol)V.fin="vol";else if(!["live"].includes(V.fin))V.fin="live";   // v8.71 il Backtest simulato si toglie   // v7.48 viste rimaste
+ // v8.71 Comportamento COT: prima solo il fondatore. Il Backtest simulato ("bt") non c'e' piu': si torna alla Live
+ const CMP=()=>!!(D.cmp&&D.cmp.str&&window.ebComportamento&&document.documentElement.classList.contains("eb-admin"));
+ if(solaVol)V.fin="vol";else if(!["live","cmp"].includes(V.fin))V.fin="live";
  const salva=()=>{try{const s=Object.assign({},V);if(solaVol)delete s.fin;            // la scheda Volatilita' non cambia la vista della Verifica
   localStorage.setItem("ebVerifica",JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("ebVerifica")||"{}"),s)));}catch(e){}};
  const pc=(x,d=2)=>x==null||isNaN(x)?"n/d":(x>0?"+":x<0?"−":"")+Math.abs(x).toLocaleString(EB_LOC,{minimumFractionDigits:d,maximumFractionDigits:d})+"%";
@@ -376,20 +379,8 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   if(NUOVA())return testa+comandiLive()+`<div id="vfdati">${datiLiveNuova()}</div>`;   // v8.62 prima solo il fondatore
   return testa+comandi(R.stat)+`<div id="vfdati">${datiLive()}</div>`;}
 
- function backtest(){if(!B)return `<div class="card vfvuoto">Backtest non disponibile in questo aggiornamento.</div>`;
-  return `<div class="vfsimulato"><b>SIMULATO</b> &middot; risultati ricostruiti sul passato, non segnali reali. Servono a capire se il metodo ha un vantaggio, non promettono risultati futuri.</div>
-   <div class="vfstato small">Dal <b>${fd(B.dal)}</b> al <b>${fd(B.al)}</b> &middot; ${B.n.toLocaleString(EB_LOC)} segnali (pi&ugrave; ${B.n_strong.toLocaleString(EB_LOC)} fasi forti) &middot; sviluppo ${(B.n_svil||0).toLocaleString(EB_LOC)} &middot; holdout dal ${fd(B.holdout_dal)}: ${(B.n_hold||0).toLocaleString(EB_LOC)}</div>
-   ${comandi(B.periodi.tutti)}<div id="vfdati">${datiBt()}</div>
-   <details class="vfdett"><summary>Come &egrave; costruito (e cosa manca rispetto al live)</summary><ul class="small">
-    <li>Ogni settimana il punteggio COT &egrave; ricalcolato con i <b>soli report disponibili allora</b>; il segnale nasce alla pubblicazione (venerd&igrave; 15:30 di New York, 21:30 in Italia) ed entra alla prima chiusura successiva: da l&igrave; partono il percorso e i risultati.</li>
-    <li>Stesse regole del sito per etichette, divergenza, dollaro composito, nascita/conferma/chiusura dei segnali.</li>
-    <li>Non incluse: la parte <b>Mercato e macro</b> (30% del punteggio live), le notizie e la stagionalit&agrave;.</li>
-    <li>Costi stimati andata e ritorno sottratti: cambi principali ${B.costi.major}%, incroci ${B.costi.cross}%, emergenti ${B.costi.em}%, indici ${B.costi.indici}%, petrolio ${B.costi.energia}%, gas ${B.costi.NATGAS}%, crypto ${B.costi.crypto}%. Swap e rollover esclusi.</li>
-    <li>Prezzi solo di chiusura giornaliera (FRED): guadagno e drawdown massimi sono misurati sulle chiusure.</li></ul></details>
-   ${blocco(4,"I segnali uno per uno","Gli ultimi segnali simulati conclusi, con ingresso e risultato alle varie durate.",`<div class="grid vfgrid">${(B.ultimi||[]).slice(0,12).map(s=>scheda(s,true)).join("")}</div>`)}`;}
-
  /* aggiorna SOLO i numeri (non i comandi): cosi' il cursore delle sedute si puo' trascinare senza scatti */
- function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="live"?(NUOVA()?datiLiveNuova():datiLive()):V.fin=="vol"?datiVol():(NUOVA()?datiLiveNuova():datiLive());
+ function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="vol"?datiVol():NUOVA()?datiLiveNuova():datiLive();
   box.querySelectorAll("details.vfx").forEach(d=>d.addEventListener("toggle",()=>{d.open?SEZ.add(d.dataset.x):SEZ.delete(d.dataset.x);}));
   el.querySelectorAll("[data-sl]").forEach(b=>b.classList.toggle("on",b.dataset.sl==V.sl));
   const sl=$("vfsl");if(sl)sl.value=V.sl;
@@ -405,9 +396,12 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    <div class="vfcorpo">${volatilitaVista()}</div>`;
    const sa=$("vfasset");if(sa)sa.onchange=()=>{V.asset=sa.value;salva();aggiorna();};
    aggiorna();return;}
-  el.innerHTML=`<h2>Live</h2><p class="sub"><b>Live</b>: ogni segnale del terminale viene registrato nel momento in cui nasce e poi misurato sui prezzi reali: quanto va contro (drawdown), quanto guadagna, come finisce. <b>Backtest</b>: le stesse regole applicate al passato dal 1986, simulate.</p>
-  <div class="vfswitch"><button data-f="live" class="${V.fin=="live"?"on":""}">Registro live</button><button data-f="bt" class="${V.fin=="bt"?"on":""}">Backtest <span class="vfsimtag">SIMULATO</span></button></div>
-  <div class="vfcorpo">${V.fin=="live"?live():backtest()}</div>`;
+  // vista mostrata: "cmp" solo se disponibile (la scelta salvata resta: torna quando arriva il riconoscimento del fondatore)
+  const vista=V.fin=="cmp"&&CMP()?"cmp":"live";
+  el.innerHTML=`<h2>Live</h2><p class="sub">${vista=="cmp"?"Cosa fa il prezzo quando gli speculatori iniziano a spingere, su tutto lo storico.":"Ogni segnale del terminale viene registrato nel momento in cui nasce e poi misurato sui prezzi reali: quanto va contro (drawdown), quanto guadagna, come finisce."}</p>
+  ${CMP()?`<div class="vfswitch"><button data-f="live" class="${vista=="live"?"on":""}">Registro live</button><button data-f="cmp" class="${vista=="cmp"?"on":""}">Comportamento COT</button></div>`:""}
+  <div class="vfcorpo">${vista=="cmp"?'<div id="cmpbox"></div>':live()}</div>`;
+  if(vista=="cmp"){ebComportamento($("cmpbox"));el.querySelectorAll(".vfswitch button").forEach(b=>b.onclick=()=>{V.fin=b.dataset.f;salva();disegna();});return;}
   el.querySelectorAll(".vfswitch button").forEach(b=>b.onclick=()=>{V.fin=b.dataset.f;salva();disegna();});
   el.querySelectorAll(".vforz button").forEach(b=>b.onclick=()=>{V.d=b.dataset.h=="fine"?"fine":+b.dataset.h;const r=$("vfgiorni");if(r&&V.d!="fine")r.value=V.d;salva();aggiorna();});
   el.querySelectorAll(".vfper button").forEach(b=>b.onclick=()=>{V.per=b.dataset.p;el.querySelectorAll(".vfper button").forEach(x=>x.classList.toggle("on",x==b));salva();aggiorna();});
@@ -421,7 +415,8 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   aggiorna();}
  disegna();
  // v8.62 il riconoscimento del fondatore arriva dal database dopo il primo disegno: se cambia, si ridisegna la Live
- if(!solaVol){let era=NUOVA();new MutationObserver(()=>{const ora=NUOVA();if(ora!=era){era=ora;if(V.fin=="live")disegna();}}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
+ // il riconoscimento del fondatore arriva dal database dopo il primo disegno: se cambia, si ridisegna (compare il selettore)
+ if(!solaVol){let era=CMP();new MutationObserver(()=>{const ora=CMP();if(ora!=era){era=ora;disegna();}}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
  })();}catch(e){fail(dove=="vol"?"Volatilit\u00e0":"Verifica dei segnali",dove=="vol"?"volat":"verifica",e);}}
 ebVerifica("vol");                                       // v7.48 scheda Volatilita' (dati gia' nella pagina)
 
@@ -430,14 +425,14 @@ ebVerifica("vol");                                       // v7.48 scheda Volatil
    questa scheda. Cosi' la dashboard si apre molto piu' in fretta, soprattutto da telefono. Sul PC (pagina locale
    aperta da file) i dati restano dentro la pagina: il browser non permette di leggere file vicini. */
 (function(){const el=$("verifica");if(!el)return;
- if(D.reg||D.bt||!D.verifica){ebVerifica();return;}
+ if(D.reg||D.cmp||!D.verifica){ebVerifica();return;}
  if(!EB_PREMIUM)return;                                  // v8.08 Live chiusa al Basic: lucchetto di 45_chiuse.js, niente download
  let stato="";                                           // "" = da caricare, "in corso", "ok"
  const sk=(w,h)=>`<i class="sk" style="width:${w};height:${h}px;display:block;margin-bottom:14px;border-radius:12px"></i>`;
  function carica(){if(stato)return;stato="in corso";
   el.innerHTML=`<h2>Live</h2>${sk("40%",16)}${sk("100%",120)}${sk("100%",320)}`;
   fetch(D.verifica,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(v=>window.ebPrem?ebPrem.apri(v):v)   // v8.08 file cifrato: si apre con la chiave Premium
-   .then(v=>{if(!v||(!v.reg&&!v.bt))throw new Error("file non aperto");D.reg=v.reg;D.bt=v.bt;D.carry_st=v.carry_st;stato="ok";el.innerHTML="";ebVerifica();})
+   .then(v=>{if(!v||(!v.reg&&!v.cmp))throw new Error("file non aperto");D.reg=v.reg;D.cmp=v.cmp;D.carry_st=v.carry_st;stato="ok";el.innerHTML="";ebVerifica();})
    .catch(e=>{stato="";console.warn("[EdgeValor] verifica.json:",e);
     el.innerHTML=`<h2>Live</h2><div class="card" style="padding:18px 20px"><p class="small">I dati della verifica non si sono caricati (connessione). </p><button class="tvbtn vfriprova">Riprova</button></div>`;
     const b=el.querySelector(".vfriprova");if(b)b.onclick=carica;});}
