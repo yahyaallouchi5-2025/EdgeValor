@@ -171,4 +171,6 @@ Object.assign(EB_EN,{
 "Gruppi.":"Groups.",
 " Sviluppati ed emergenti come li classifica MSCI. Frontiera = economie più piccole, con borse meno accessibili agli investitori esteri: crescono spesso di più, ma con rischi e liquidità diversi.":" Developed and emerging as classified by MSCI. Frontier = smaller economies whose stock markets are less accessible to foreign investors: they often grow faster, but with different risks and liquidity.",
 "Nessun paese in questo gruppo.":"No country in this group.",
+"Altri # paesi":"# more countries",
+"paesi nel mondo":"countries worldwide",
 });

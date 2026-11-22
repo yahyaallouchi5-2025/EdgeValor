@@ -1,4 +1,4 @@
-/* 31_paesi.js - PAESI EMERGENTI nella Dashboard: TABELLA economia + borsa (v7.67; prima erano schede col solo PIL)
+/* 31_paesi.js - PAESI (sviluppati, emergenti, frontiera) nella Dashboard: TABELLA economia + borsa (v7.67; prima erano schede col solo PIL)
    Dati: D.paesi da cot_radar/paesi.py = {anno, agg, copia, fonte, paesi:[{iso,nome,area,pil,prec,prox,tend,inf,stato,
          etf, b:{t,m1,a1,su,vb,vl,reg}}]}   (b = borsa del paese dall'ETF; manca se il paese non ha un ETF)
    Una riga per paese. Sul PC e' una tabella con le colonne ordinabili (clic sul titolo); sul telefono ogni riga
@@ -7,8 +7,8 @@
 try{(function(){
  const P0=D.paesi,blocco=$("peblocco");
  if(!P0||!P0.paesi||!P0.paesi.length){if(blocco)blocco.style.display="none";return;}
- // v8.69 TRE GRUPPI (Sviluppati, Emergenti, Frontiera, campo "gr" da paesi.py). Prima solo per il fondatore:
- //   gli altri vedono gli Emergenti come prima (stessa tabella). Un gruppo = un filtro in piu' sopra la tabella.
+ // v8.69 TRE GRUPPI (Sviluppati, Emergenti, Frontiera, campo "gr" da paesi.py): un filtro in piu' sopra la tabella.
+ //   v8.70 aperti a tutti. Il Basic vede 5 righe e il lucchetto: niente pulsanti dei gruppi (conterebbero solo 5 paesi).
  const GR=["Tutti","Sviluppati","Emergenti","Frontiera"];
  let gruppo="Tutti",P=P0;
  const A=P.anno,pct=v=>v==null?"&ndash;":(v>0?"+":"")+fx(v,1)+"%",vol=v=>v==null?"&ndash;":fx(v,0)+"%",cl=v=>v>0?"up":v<0?"down":"";
@@ -32,13 +32,10 @@ try{(function(){
    COL.map(c=>`<div class="pec pec-${c[0]}" data-l="${c[4]}">${c[3](r)}</div>`).join("")}</div>`;
  const testa=()=>`<div class="per peth"><div class="pen pegr"><span></span><em>Economia</em><em>Borsa</em><em>Volatilit&agrave;</em></div><div class="pen">Paese</div>${
    COL.map(c=>`<button class="pec pec-${c[0]}${ord==c[0]?" on":""}" data-o="${c[0]}" title="Ordina">${c[1]}<i>${ord==c[0]?(giu?"&#9662;":"&#9652;"):""}</i></button>`).join("")}</div>`;
- const adm=()=>document.documentElement.classList.contains("eb-admin");
- const vista=()=>{const tutti3=adm()&&P0.paesi.some(r=>r.gr&&r.gr!="Emergenti");
-  const l=tutti3?P0.paesi.filter(r=>gruppo=="Tutti"||r.gr==gruppo):P0.paesi.filter(r=>!r.gr||r.gr=="Emergenti");
+ const vista=()=>{const tutti3=P0.paesi.some(r=>r.gr)&&!(P0.n_tot>P0.paesi.length);
+  const l=tutti3?P0.paesi.filter(r=>gruppo=="Tutti"||r.gr==gruppo):P0.paesi;
   P=Object.assign({},P0,{paesi:l});return tutti3;};
  const disegna=()=>{const tre=vista();
-  const h=blocco.querySelector(".peh");if(h&&h.firstChild&&h.firstChild.nodeType==3)h.firstChild.nodeValue=tre?"Paesi ":"Paesi emergenti ";
-  const gi=$("pegrinfo");if(gi&&tre)gi.innerHTML="<b>Gruppi.</b> Sviluppati ed emergenti come li classifica MSCI. Frontiera = economie pi&ugrave; piccole, con borse meno accessibili agli investitori esteri: crescono spesso di pi&ugrave;, ma con rischi e liquidit&agrave; diversi.";
   let g=$("pegruppi");if(tre&&!g){$("pefiltri").insertAdjacentHTML("beforebegin",'<div class="filters pegruppi" id="pegruppi"></div>');g=$("pegruppi");}
   if(g){g.innerHTML=GR.map(x=>`<button data-g="${x}" class="${x==gruppo?"on":""}">${x} <small>${x=="Tutti"?P0.paesi.length:P0.paesi.filter(r=>r.gr==x).length}</small></button>`).join("");
    g.querySelectorAll("button").forEach(b=>b.onclick=()=>{gruppo=b.dataset.g;tutti=false;filtri();disegna();});}
@@ -49,7 +46,7 @@ try{(function(){
   const vis=tutti?v:v.slice(0,PRIMI);
   $("pegrid").innerHTML=v.length?testa()+vis.map(riga).join("")+(v.length>PRIMI?`<button class="pepiu" id="pepiu">${tutti?"Mostra meno":`Mostra tutti (${v.length})`}</button>`:""):`<div class="card vuota">Nessun paese in questo gruppo.</div>`;
   // v7.93 Basic: le prime 5 economie per PIL; la tabella completa e' Premium (P.n_tot = paesi in tutto)
-  if(!EB_PREMIUM&&P.n_tot>P.paesi.length)$("pegrid").insertAdjacentHTML("beforeend",ebBlocco(`Altri ${P.n_tot-P.paesi.length} paesi emergenti`,"Tabella completa con economia, borsa e volatilità di ogni paese.",{cls:"pelk"}));
+  if(!EB_PREMIUM&&P.n_tot>P.paesi.length)$("pegrid").insertAdjacentHTML("beforeend",ebBlocco(`Altri ${P.n_tot-P.paesi.length} paesi`,"Tabella completa con economia, borsa e volatilità di ogni paese.",{cls:"pelk"}));
   if($("pepiu"))$("pepiu").onclick=()=>{tutti=!tutti;disegna();};
   $("pegrid").querySelectorAll("button[data-o]").forEach(b=>b.onclick=()=>{if(ord==b.dataset.o)giu=!giu;else{ord=b.dataset.o;giu=true;}disegna();});};
  // i conteggi dei filtri seguono il gruppo scelto
@@ -59,6 +56,4 @@ try{(function(){
  const gg=d=>d?d.split("-").reverse().join("/"):"",ult=P.paesi.map(r=>B(r).t).filter(Boolean).sort().pop();
  $("pefonte").innerHTML=`${P.agg?`Economia: aggiornata il ${gg(P.agg)}`:""}${ult?`${P.agg?" &middot; ":""}Borsa: prezzi al ${gg(ult)}`:""}`;
  disegna();
- // il riconoscimento del fondatore arriva dal database dopo il disegno: si ridisegna quando arriva
- if(!adm()){const mo=new MutationObserver(()=>{if(adm()){mo.disconnect();filtri();disegna();}});mo.observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
-})();}catch(e){fail('Paesi emergenti','sig',e);}
+})();}catch(e){fail('Paesi','sig',e);}
