@@ -29,7 +29,8 @@ class Paesi(unittest.TestCase):
         copia = os.path.join(d, "paesi_fmi.json")
         with open(copia, "w") as f:
             json.dump({"pil": self.PIL, "inf": self.INF, "agg": "2026-10-20"}, f)
-        with mock.patch.object(PA, "COPIA", copia), mock.patch.object(PA, "_scarica", side_effect=OSError):
+        with mock.patch.object(PA, "COPIA", copia), mock.patch.object(PA, "_scarica", side_effect=OSError), \
+                mock.patch.object(PA, "_scarica_sdmx", side_effect=OSError):
             out = PA.carica(adesso=datetime(2026, 11, 1, tzinfo=timezone.utc))
         self.assertTrue(out["copia"])
         self.assertEqual(out["agg"], "2026-10-20")
@@ -44,6 +45,29 @@ class Paesi(unittest.TestCase):
             for anno in (2026, 2027):
                 out = PA.carica(scarica=False, adesso=datetime(anno, 6, 1, tzinfo=timezone.utc))
                 self.assertEqual(len(out["paesi"]), 24)
+
+    def test_tre_gruppi(self):
+        # v8.69 ogni riga dice il suo gruppo; un paese sta in un solo gruppo
+        pil = {"ITA": {"2026": 0.8, "2027": 0.7}, "IND": {"2026": 7.0, "2027": 7.0}, "MAR": {"2026": 4.5, "2027": 4.0}}
+        r = {x["iso"]: x["gr"] for x in PA.calcola(pil, {}, 2026)}
+        self.assertEqual(r, {"ITA": "Sviluppati", "IND": "Emergenti", "MAR": "Frontiera"})
+        tutti = [iso for _, l in PA.GRUPPI for iso, _, _ in l]
+        self.assertEqual(len(tutti), len(set(tutti)))
+
+    def test_sdmx_letto(self):
+        xml = (b'<m:StructureSpecificData xmlns:m="x"><m:DataSet><Series COUNTRY="ITA" INDICATOR="NGDP_RPCH">'
+               b'<Obs TIME_PERIOD="2026" OBS_VALUE="0.8"/><Obs TIME_PERIOD="2027" OBS_VALUE="NaN"/></Series>'
+               b'<Series COUNTRY="ITA" INDICATOR="ALTRO"><Obs TIME_PERIOD="2026" OBS_VALUE="9"/></Series>'
+               b'</m:DataSet></m:StructureSpecificData>')
+
+        class R:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def read(self): return xml
+        with mock.patch.object(PA.urllib.request, "urlopen", lambda req, timeout=0: R()):
+            out = PA._scarica_sdmx(["ITA"], 2026)
+        self.assertEqual(out["NGDP_RPCH"]["ITA"]["2026"], 0.8)
+        self.assertEqual(out["PCPIPCH"], {})
 
 
 if __name__ == "__main__":

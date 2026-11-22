@@ -93,7 +93,8 @@ EXTRA = ["XLK", "XLC", "XLY", "XLF", "XLI", "XLE", "XLB", "XLV", "XLP", "XLU", "
 # si scaricano ma non entrano nei prezzi dei portafogli. Prima nessuno aggiornava piu' quel file (fermo al 23/10/2026).
 #   v7.67: + gli ETF delle borse dei paesi emergenti (paesi.ETF), per la tabella "Paesi emergenti" della Dashboard.
 from .paesi import ETF as _ETF_PAESI   # noqa: E402
-SOLO_ARCHIVIO = ["^GSPC"] + sorted(set(_ETF_PAESI.values()))
+# v8.69 gli ETF dei paesi gia' usati dai portafogli (SPY) restano nella lista principale, non solo in archivio
+SOLO_ARCHIVIO = ["^GSPC"] + sorted(set(_ETF_PAESI.values()) - {u[1] for u in UNIVERSO} - {LIQUIDITA[1]} - set(EXTRA))
 BENCH = (("SPY", 0.6), ("IEF", 0.4))          # confronto: classico 60% azioni USA + 40% Treasury, ribilanciato
 # v8.55 RIFERIMENTO PER PROFILO (decisione di Ya): stessa quota di azioni del profilo, in azioni MONDIALI (USA,
 #   Europa/Asia, emergenti con pesi fissi vicini a quelli dell'indice mondiale) e il resto in Treasury 10 anni,

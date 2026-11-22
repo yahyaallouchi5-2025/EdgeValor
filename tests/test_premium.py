@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """v7.93 dati Premium: cosa resta in Basic, cifratura apribile con la chiave, chiusura senza chiave."""
 import base64
+import copy
 import json
 import os
 import tempfile
@@ -33,6 +34,15 @@ class Premium(unittest.TestCase):
 
     def tearDown(self):
         PR.azzera()
+
+    def test_basic_paesi_solo_emergenti(self):
+        # v8.69 con i 3 gruppi il Basic vede ancora le 5 economie emergenti che crescono di piu'
+        d = copy.deepcopy(DATI)
+        d["paesi"]["paesi"] += [{"iso": "S%d" % i, "pil": 50 + i, "gr": "Sviluppati"} for i in range(3)] + \
+                               [{"iso": "F1", "pil": 99, "gr": "Frontiera"}]
+        b, _ = PR.separa(d)
+        self.assertEqual([r["iso"] for r in b["paesi"]["paesi"]], ["8", "7", "6", "5", "4"])
+        self.assertEqual(b["paesi"]["n_tot"], 9)                                 # il lucchetto conta solo gli emergenti
 
     def test_basic_tiene_andamento_e_mappa(self):
         b, toppe = PR.separa(DATI)

@@ -159,9 +159,10 @@ def _stagionalita(timeout=20):
 
 def _paesi(extra):
     p = extra.get("paesi") or {}
+    em = [r for r in p.get("paesi") or [] if r.get("gr", "Emergenti") == "Emergenti"]   # v8.69 l'anteprima resta sugli emergenti
     righe = [{"n": r.get("nome"), "pil": r.get("pil"), "tend": r.get("tend"), "a1": r["b"].get("a1"),
-              "su": r["b"].get("su"), "reg": r["b"].get("reg")} for r in p.get("paesi") or [] if r.get("b")]
-    return {"righe": righe[:5], "tot": len(p.get("paesi") or []), "anno": p.get("anno")} if righe else None
+              "su": r["b"].get("su"), "reg": r["b"].get("reg")} for r in em if r.get("b")]
+    return {"righe": righe[:5], "tot": len(em), "anno": p.get("anno")} if righe else None
 
 
 def _frase(testo):

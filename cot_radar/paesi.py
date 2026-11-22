@@ -38,6 +38,28 @@ COPIA = os.path.join(ROOT, "dati", "paesi_fmi.json")
 # stessa API. Serve solo se mancano sia il download sia la copia (es. primo giro dopo un blocco del FMI).
 RISERVA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "paesi_riserva.json")
 
+# v8.69 TRE GRUPPI (idea di Ya, 22/11/2026), stessa classificazione di MSCI (la societa' degli indici):
+#   SVILUPPATI = mercati grandi, liquidi e aperti agli investitori esteri (indice MSCI World);
+#   EMERGENTI  = economie in crescita con borse gia' grandi e accessibili (indice MSCI Emerging Markets, come prima);
+#   FRONTIERA  = economie piu' piccole o borse poco sviluppate e meno accessibili (MSCI Frontier e simili).
+#   L'Algeria non e' classificata da MSCI (borsa minuscola): sta in Frontiera solo con i dati economici del FMI.
+SVILUPPATI = [
+    ("USA", "Stati Uniti", "America"), ("CAN", "Canada", "America"),
+    ("GBR", "Regno Unito", "Europa"), ("DEU", "Germania", "Europa"), ("FRA", "Francia", "Europa"),
+    ("ITA", "Italia", "Europa"), ("ESP", "Spagna", "Europa"), ("NLD", "Paesi Bassi", "Europa"),
+    ("BEL", "Belgio", "Europa"), ("CHE", "Svizzera", "Europa"), ("SWE", "Svezia", "Europa"),
+    ("NOR", "Norvegia", "Europa"), ("DNK", "Danimarca", "Europa"), ("FIN", "Finlandia", "Europa"),
+    ("AUT", "Austria", "Europa"), ("IRL", "Irlanda", "Europa"), ("PRT", "Portogallo", "Europa"),
+    ("ISR", "Israele", "Medio Oriente"), ("JPN", "Giappone", "Asia"), ("HKG", "Hong Kong", "Asia"),
+    ("SGP", "Singapore", "Asia"), ("AUS", "Australia", "Oceania"), ("NZL", "Nuova Zelanda", "Oceania"),
+]
+FRONTIERA = [
+    ("MAR", "Marocco", "Africa"), ("DZA", "Algeria", "Africa"), ("TUN", "Tunisia", "Africa"),
+    ("NGA", "Nigeria", "Africa"), ("KEN", "Kenya", "Africa"), ("CIV", "Costa d'Avorio", "Africa"),
+    ("VNM", "Vietnam", "Asia"), ("PAK", "Pakistan", "Asia"), ("BGD", "Bangladesh", "Asia"),
+    ("KAZ", "Kazakistan", "Asia"), ("JOR", "Giordania", "Medio Oriente"), ("ROU", "Romania", "Europa"),
+    ("ARG", "Argentina", "America Latina"),
+]
 # (codice ISO3 del FMI, nome in italiano, area) - indice MSCI Emerging Markets
 PAESI = [
     ("CHN", "Cina", "Asia"), ("IND", "India", "Asia"), ("TWN", "Taiwan", "Asia"), ("KOR", "Corea del Sud", "Asia"),
@@ -57,9 +79,18 @@ PAESI = [
 # affiancare all'economia (PIL) l'andamento della borsa e la sua volatilita'. 20 paesi su 24: Ungheria e Rep. Ceca non
 # hanno un ETF dedicato, quelli di Egitto e Colombia non sono piu' affidabili (restano senza dato, mai inventato).
 # I prezzi arrivano con il giro giornaliero di portafogli.prezzi() (archivio storico/yahoo/, fornitore + riserva).
+# v8.69 sviluppati e frontiera: ETF iShares MSCI del singolo paese (SPY per gli USA, VanEck per il Vietnam, Global X
+#   per l'Argentina). Marocco, Algeria, Tunisia, Nigeria, Kenya, Costa d'Avorio, Pakistan, Bangladesh, Kazakistan,
+#   Giordania e Romania non hanno un ETF del singolo paese affidabile: solo l'economia, mai un dato inventato.
+ETF_ALTRI = {"USA": "SPY", "CAN": "EWC", "GBR": "EWU", "DEU": "EWG", "FRA": "EWQ", "ITA": "EWI", "ESP": "EWP",
+             "NLD": "EWN", "BEL": "EWK", "CHE": "EWL", "SWE": "EWD", "NOR": "NORW", "DNK": "EDEN", "FIN": "EFNL",
+             "AUT": "EWO", "IRL": "EIRL", "ISR": "EIS", "JPN": "EWJ", "HKG": "EWH", "SGP": "EWS", "AUS": "EWA",
+             "NZL": "ENZL", "VNM": "VNM", "ARG": "ARGT"}
 ETF = {"CHN": "MCHI", "IND": "INDA", "TWN": "EWT", "KOR": "EWY", "IDN": "EIDO", "THA": "THD", "MYS": "EWM",
        "PHL": "EPHE", "BRA": "EWZ", "MEX": "EWW", "CHL": "ECH", "PER": "EPU", "SAU": "KSA", "ARE": "UAE",
        "QAT": "QAT", "KWT": "KWT", "ZAF": "EZA", "TUR": "TUR", "POL": "EPOL", "GRC": "GREK"}
+ETF.update(ETF_ALTRI)
+GRUPPI = (("Sviluppati", SVILUPPATI), ("Emergenti", PAESI), ("Frontiera", FRONTIERA))
 MESE, ANNO_B, MEDIA = 21, 252, 200      # sedute: un mese, un anno, media mobile della tendenza (come nei portafogli)
 VECCHIO = 10                            # giorni: oltre, i prezzi sono fermi e la borsa non si mostra
 
@@ -128,6 +159,44 @@ def _scarica(ind, timeout=30):
             time.sleep(2 * 3 ** n)
 
 
+# v8.69 FONTE NUOVA: dal 19/11/2026 il vecchio "DataMapper" del FMI risponde 403 ai server (portale legacy dismesso).
+#   Si usa l'API ufficiale SDMX del FMI (api.imf.org, dataset IMF.RES:WEO, stessa edizione del World Economic
+#   Outlook). Una richiesta sola per tutti i paesi e i due indicatori; il DataMapper resta come seconda prova.
+API_SDMX = ("https://api.imf.org/external/sdmx/2.1/data/IMF.RES,WEO/{paesi}.NGDP_RPCH+PCPIPCH.A"
+            "?startPeriod={da}&endPeriod={a}")
+
+
+def _scarica_sdmx(isos, anno, timeout=60):
+    """{"NGDP_RPCH": {ISO3: {anno: valore}}, "PCPIPCH": {...}} dall'API SDMX del FMI (XML structure-specific)."""
+    import xml.etree.ElementTree as ET
+    url = API_SDMX.format(paesi="+".join(sorted(isos)), da=anno - 2, a=anno + 2)
+    req = urllib.request.Request(url, headers={"User-Agent": "edgevalor/paesi", "Accept": "application/xml"})
+    for n in range(TENTATIVI):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                radice = ET.fromstring(r.read())
+            break
+        except Exception as e:
+            if n == TENTATIVI - 1:
+                raise
+            log.info("paesi: FMI SDMX non risponde (%s), nuovo tentativo %d/%d", type(e).__name__, n + 2, TENTATIVI)
+            time.sleep(2 * 3 ** n)
+    out = {"NGDP_RPCH": {}, "PCPIPCH": {}}
+    for serie in radice.iter():
+        if not serie.tag.endswith("Series"):
+            continue
+        ind, iso = serie.get("INDICATOR"), serie.get("COUNTRY")
+        if ind not in out or not iso:
+            continue
+        for o in serie:
+            v, t = o.get("OBS_VALUE"), o.get("TIME_PERIOD")
+            try:
+                out[ind].setdefault(iso, {})[str(t)] = float(v)
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
 def _leggi_copia():
     """Ultima copia scaricata (dati/), altrimenti la riserva nel codice; None se mancano entrambe."""
     for f_ in (COPIA, RISERVA):
@@ -142,12 +211,12 @@ def _leggi_copia():
 def calcola(pil, inf, anno):
     """Righe del riquadro, dalla crescita piu' alta alla piu' bassa (solo paesi con i tre valori del PIL)."""
     righe = []
-    for iso, nome, area in PAESI:
+    for gruppo, iso, nome, area in ((g, *p) for g, lista in GRUPPI for p in lista):
         p, i = pil.get(iso) or {}, inf.get(iso) or {}
         cur, prec, prox = p.get(str(anno)), p.get(str(anno - 1)), p.get(str(anno + 1))
         if cur is None or prox is None:
             continue                                   # paese senza stima FMI: meglio non mostrarlo che inventare
-        righe.append({"iso": iso, "nome": nome, "area": area, "pil": round(cur, 1),
+        righe.append({"iso": iso, "nome": nome, "area": area, "gr": gruppo, "pil": round(cur, 1),
                       "prec": None if prec is None else round(prec, 1), "prox": round(prox, 1),
                       "tend": round(prox - cur, 1), "inf": None if i.get(str(anno)) is None else round(i[str(anno)], 1),
                       "stato": "crescita" if cur > 0 else "decrescita"})
@@ -160,8 +229,14 @@ def carica(scarica=True, adesso=None):
     grezzi = None
     if scarica:
         try:
-            grezzi = {"pil": _scarica("NGDP_RPCH"), "inf": _scarica("PCPIPCH"),
-                      "agg": adesso.strftime("%Y-%m-%d")}
+            tutti = [iso for _, lista in GRUPPI for iso, _, _ in lista]
+            try:
+                x = _scarica_sdmx(tutti, adesso.year)
+                grezzi = {"pil": x["NGDP_RPCH"], "inf": x["PCPIPCH"], "agg": adesso.strftime("%Y-%m-%d"), "fonte": "sdmx"}
+            except Exception as e:                     # seconda prova: il vecchio DataMapper
+                log.warning("paesi: FMI SDMX non disponibile (%s), provo il DataMapper", type(e).__name__)
+                grezzi = {"pil": _scarica("NGDP_RPCH"), "inf": _scarica("PCPIPCH"),
+                          "agg": adesso.strftime("%Y-%m-%d")}
             if sum(1 for iso, _, _ in PAESI if iso in grezzi["pil"]) < 20:
                 raise ValueError("risposta FMI incompleta")
             os.makedirs(os.path.dirname(COPIA), exist_ok=True)

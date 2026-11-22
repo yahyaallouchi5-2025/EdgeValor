@@ -130,8 +130,10 @@ def separa(data):
     pa = d.get("paesi") or {}
     if isinstance(pa.get("paesi"), list) and len(pa["paesi"]) > PAESI_BASIC:
         toppe.append([["paesi", "paesi"], pa["paesi"]])
-        pa["paesi"] = sorted(pa["paesi"], key=lambda r: -(r.get("pil") if isinstance(r.get("pil"), (int, float)) else -1e9))[:PAESI_BASIC]
-        pa["n_tot"] = len(toppe[-1][1])               # quante righe ha la tabella completa (per il lucchetto)
+        # v8.69 il Basic vede le 5 economie emergenti che crescono di piu' (come prima), anche ora che ci sono 3 gruppi
+        em = [r for r in pa["paesi"] if r.get("gr", "Emergenti") == "Emergenti"] or pa["paesi"]
+        pa["paesi"] = sorted(em, key=lambda r: -(r.get("pil") if isinstance(r.get("pil"), (int, float)) else -1e9))[:PAESI_BASIC]
+        pa["n_tot"] = len(em)                          # quanti emergenti ha la tabella completa (per il lucchetto)
     # v8.01 Crypto: Basic vede le prime CRYPTO_BASIC monete (per capitalizzazione), la tabella completa e' Premium
     cr = d.get("crypto") or {}
     if isinstance(cr.get("monete"), list) and len(cr["monete"]) > CRYPTO_BASIC:
