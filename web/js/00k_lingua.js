@@ -176,6 +176,11 @@ Object.assign(EB_EN,{
 // ----- v8.73 Live > Comportamento COT (12c_comportamento.js)
 "Comportamento COT":"COT behaviour",
 "Giorno peggiore":"Worst day",
+"Tocca un segnale: ora vedi anche le sue candele orarie, con la spinta degli speculatori e gli annunci all'ora esatta.":"Tap a signal: you now also see its hourly candles, with the speculators' push and the announcements at their exact time.",
+"Candele orarie":"Hourly candles","A #":"O #","Max #":"H #","Min #":"L #","Passa sopra o tocca una candela per leggerla":"Hover over or tap a candle to read it","Sett. #":"Wk #","Spinta COT":"COT push","Ingresso":"Entry","Uscita":"Exit",
+"Caricamento…":"Loading…","Candele orarie non disponibili per questo strumento.":"Hourly candles not available for this instrument.",
+"Candele orarie non ancora disponibili per questa settimana (si aggiornano ogni notte).":"Hourly candles not yet available for this week (updated every night).",
+"ETF USO sul petrolio WTI":"USO ETF on WTI crude oil","ETF UNG sul gas naturale":"UNG ETF on natural gas","ETF CPER sul rame":"CPER ETF on copper",
 "Tocca un segnale: vedi gli annunci caduti durante il trade (Fed, BCE e le altre banche centrali) e il giorno peggiore.":"Tap a signal: see the announcements during the trade (Fed, ECB and the other central banks) and the worst day.","nessun annuncio":"no announcement","nessuna seduta contro":"no session against",
 "Annunci durante il trade":"Announcements during the trade","Nessun annuncio durante il trade":"No announcement during the trade",
 "Annunci non disponibili: il trade non ha ancora un prezzo d'ingresso.":"Announcements not available: the trade has no entry price yet.",

@@ -344,7 +344,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const lista=ev.length?`<div class="vfpq-ev">${ev.map(e=>`<span class="vfpq-c"><b>${esc(e.n)}</b><span>${gm(e.d)}</span><b class="${col(e.m)}">${pc(e.m)}</b></span>`).join("")}</div>`
    :`<div class="vfpq-ev"><span class="small">Nessun annuncio durante il trade</span></div>`;
   return `<div class="vfpq">${peg}<div class="vfpq-a"><small>Annunci durante il trade ${infoBtn("vfpqi-"+z.id,"Come si legge")}</small>${lista}</div>
-   ${infoP("vfpqi-"+z.id,"Per ogni annuncio: il giorno e quanto si è mosso il prezzo nella seduta in cui è caduto, nel verso del segnale (in % del prezzo d'ingresso). Contano NFP, CPI e Fed per tutti gli strumenti; BCE, Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ e SNB per le coppie con la loro valuta. Giorno peggiore = la seduta che è andata più contro.")}</div>`;}
+   ${infoP("vfpqi-"+z.id,"Per ogni annuncio: il giorno e quanto si è mosso il prezzo nella seduta in cui è caduto, nel verso del segnale (in % del prezzo d'ingresso). Contano NFP, CPI e Fed per tutti gli strumenti; BCE, Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ e SNB per le coppie con la loro valuta. Giorno peggiore = la seduta che è andata più contro.")}</div><div class="vfc" data-c="${esc(z.id)}"></div>`;}
  function datiLiveNuova(){const P=R.stat;
   if(!V.sl)return `<div class="card vfvuoto2"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><b>Scegli uno strumento</b><p>Vedrai come sono andati i suoi segnali, giorno per giorno.</p></div>
    <div class="grid k4 vfkpi vfghost">${["Risultato","In guadagno","Guadagno max","Drawdown"].map(t=>`<div class="card kpi"><h3>${t}</h3><div class="big">&mdash;</div><div class="note">&nbsp;</div></div>`).join("")}</div>`+confronto();
@@ -397,9 +397,14 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  /* aggiorna SOLO i numeri (non i comandi): cosi' il cursore delle sedute si puo' trascinare senza scatti */
  function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="vol"?datiVol():NUOVA()?datiLiveNuova():datiLive();
   box.querySelectorAll("details.vfx").forEach(d=>d.addEventListener("toggle",()=>{d.open?SEZ.add(d.dataset.x):SEZ.delete(d.dataset.x);}));
+  // v8.75 candele orarie del segnale (13c_candele.js): si disegnano solo quando la riga e' aperta, una volta sola
+  const candele=d=>{const c=d&&!d.hidden&&d.querySelector(".vfc");if(!c||c.dataset.ok||!window.ebCandele)return;
+   const z=segnaliDi(V.sl).find(x=>x.id==c.dataset.c);if(z){c.dataset.ok=1;ebCandele(c,z);}};
+  box.querySelectorAll("tr.vfdett:not([hidden])").forEach(candele);
   // v8.74 riga di un segnale: apre e chiude il suo "perche'" (si ricorda finche' la pagina resta aperta)
   box.querySelectorAll("tr.vfrow").forEach(tr=>{const apri=()=>{const on=!APERTI.has(tr.dataset.id);on?APERTI.add(tr.dataset.id):APERTI.delete(tr.dataset.id);
-    tr.classList.toggle("on",on);tr.setAttribute("aria-expanded",on);const d=tr.nextElementSibling;if(d&&d.classList.contains("vfdett"))d.hidden=!on;};
+    tr.classList.toggle("on",on);tr.setAttribute("aria-expanded",on);const d=tr.nextElementSibling;if(d&&d.classList.contains("vfdett"))d.hidden=!on;
+    candele(d);};
    tr.addEventListener("click",e=>{if(!e.target.closest("button,a"))apri();});
    tr.addEventListener("keydown",e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();apri();}});});
   el.querySelectorAll("[data-sl]").forEach(b=>b.classList.toggle("on",b.dataset.sl==V.sl));
