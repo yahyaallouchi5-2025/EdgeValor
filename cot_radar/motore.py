@@ -260,8 +260,15 @@ def applica(eventi):
 
 # --------------------------------------------------------------------------- 2) misura
 def _primo_dopo(pts, istante, cls, da=0):
-    """Indice della prima chiusura avvenuta DOPO 'istante' (UTC)."""
-    for i in range(da, len(pts)):
+    """Indice della prima chiusura avvenuta DOPO 'istante' (UTC).
+    v8.71 piu' veloce, stesso risultato: ogni chiusura cade nello STESSO giorno UTC della sua data (fra le 16:00 e le
+    23:59 UTC, vedi ORARI), quindi i giorni prima della data UTC di 'istante' non possono andare bene: si salta
+    con la ricerca binaria al primo giorno utile e da li' si controlla come prima. Prima si scorreva tutto da 'da'
+    (con lo studio sugli episodi COT: minuti invece di secondi)."""
+    i0 = _primo_dal(pts, istante.astimezone(timezone.utc).date().isoformat(), da)
+    if i0 is None:
+        return None
+    for i in range(max(da, i0), len(pts)):
         if chiusura_utc(pts[i][0], cls) > istante:
             return i
     return None

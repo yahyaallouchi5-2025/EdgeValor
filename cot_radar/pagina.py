@@ -174,6 +174,15 @@ def build(data_source=load_all, demo=False, sito=False):
                                  registro.strumenti(pairs, assets, prezzi), True, True)
     except Exception:
         log.warning("backtest non calcolato:\n%s", traceback.format_exc())
+    # v8.71 COMPORTAMENTO COT (comportamento.py): al posto del Backtest simulato nella scheda Live. Isolato: se non
+    # riesce manca solo quella vista. Stessi dati del backtest (archivio COT + prezzi), pochi secondi.
+    cmp_pag = None
+    try:
+        if righe_cot and prezzi:
+            from . import comportamento
+            cmp_pag = comportamento.calcola(righe_cot, prezzi)
+    except Exception:
+        log.warning("comportamento COT non calcolato:\n%s", traceback.format_exc())
     # ARCHIVI COT EXTRA (combined, TFF, Disaggregated): solo per il confronto nel backtest (confronto.py),
     # non cambiano nulla nella pagina. Ognuno isolato: se uno non arriva, gli altri e il sito vanno avanti.
     rie_extra, righe_extra = {}, {}
@@ -358,7 +367,7 @@ def build(data_source=load_all, demo=False, sito=False):
     data = {"meta": meta, "sources": sources,
             "assets": assets, "pairs": pairs, "corr": corr, "corr_px": corr_px, "market": market, "fed": fed,
             "order": [a[0] for a in ASSETS] + ["USD"], "sectors": SECTORS, "stato": pubblico(stato), "admin": "__ADMIN__", "eventi": news["prossimi"], "agenda": agenda_out,
-            "stag": stag, "stag_meta": stag_meta, "reg": reg, "bt": bt, "vol": vol, "tat": tat, "port": port, "fore": fore,
+            "stag": stag, "stag_meta": stag_meta, "reg": reg, "bt": bt, "cmp": cmp_pag, "vol": vol, "tat": tat, "port": port, "fore": fore,
             "carry": carry_pag, "carry_st": carry_st, "btcmacro": btcmacro, "btcsent": btcsent, "crypto": crypto_pag, "paesi": paesi_pag, "categorie": cat_pag, "economie": quadro_pag, "rinnovo": rinnovo_pag, "sconto_sp": sconto_pag,
             "tv": {k: {"s": v[0], "inv": v[1]} for k, v in TV_SYMBOLS.items()}, "tvp": TV_PAIRS,
             "neutri7": neutri7(reg, t0_utc)}
@@ -369,7 +378,9 @@ def build(data_source=load_all, demo=False, sito=False):
     # "Backtest storico" solo quando la si apre (web/js/13_verifica.js). main.py lo scrive accanto alla pagina.
     verifica = None
     if sito:
-        verifica = clean({"reg": data.pop("reg"), "bt": data.pop("bt"), "carry_st": data.pop("carry_st")})
+        # v8.71 il backtest simulato non si mostra piu' (sostituito da "Comportamento COT"): fuori dal file, piu' leggero
+        data.pop("bt")
+        verifica = clean({"reg": data.pop("reg"), "cmp": data.pop("cmp"), "carry_st": data.pop("carry_st")})
         data["verifica"] = "verifica.json?v=" + datetime.now().strftime("%Y%m%d%H%M")
     # v7.93 DATI PREMIUM (premium.py): sul sito escono cifrati; senza chiave del database resta solo la parte Basic
     blocco = None
