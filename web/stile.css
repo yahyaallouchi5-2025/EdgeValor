@@ -255,7 +255,9 @@ table.compatta th,table.compatta td{padding:9px 10px}
 html.guidaon,html.guidaon body{overflow:hidden}
 @media (max-width:600px){.gpannello{padding:0 16px 60px}.topdx{width:100%;justify-content:space-between}
  .gindice{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.gindice a{white-space:nowrap;flex:none}}
-.foot .legale{margin-bottom:8px;font-size:10px;line-height:1.5;color:var(--mute);opacity:.8;max-width:1100px}   /* avvertenza legale: piccola e discreta */
+.foot .legale{margin-bottom:8px;font-size:10px;line-height:1.5;color:var(--mute);opacity:.8;max-width:1100px}
+.foot .legale b{display:block;font-size:10px;letter-spacing:.04em;margin-bottom:3px}.foot .legale p{margin:0 0 3px;font-size:10px}   /* v8.78 avvertenza a paragrafi, sempre piccola */
+.foot>div:not(.legale){font-size:10px}   /* avvertenza legale: piccola e discreta */
 /* ===== SIDEBAR collassabile ===== */
 .app{display:flex;min-height:100vh}
 .app>.wrap{flex:1;min-width:0}
