@@ -47,7 +47,15 @@ CHIAMATE = {"n": 0, "errori": 0}   # contatore del giro (per il registro: quante
 
 
 def chiave():
-    return os.environ.get("EODHD_API_KEY", "").strip()
+    """v8.76 la chiave EODHD solo se il fornitore scelto e' EODHD (vedi fonte.py: "marketstack:..." spegne EODHD)."""
+    from .fonte import scelta
+    nome, k = scelta()
+    return k if nome == "eodhd" else ""
+
+
+# v8.76 cosa offre EODHD all'interruttore dei fornitori (fonte.py)
+CAPACITA = ("serie", "dividendi", "notizie", "intraday", "tempo_reale", "elenco_borsa", "frazionamenti",
+            "dettagli_borsa", "isin", "storico_orario", "crypto", "cambi", "indici")
 
 
 def attivo():
@@ -170,3 +178,36 @@ def ultimo_eur(sym):
     if isinstance(js, list) and js and js[-1].get("close"):
         return js[-1]["date"], float(js[-1]["close"])
     return None
+
+
+# ---------------------------------------------------------------- v8.76 funzioni comuni a tutti i fornitori (fonte.py)
+# Stesso risultato delle chiamate dirette che le schede facevano prima: nessun cambiamento per il sito.
+def dividendi(sym, dal):
+    return get("div/" + sym, {"from": dal}, timeout=30, tentativi=2)
+
+
+def notizie(sym, limite=20):
+    return get("news", {"s": sym, "limit": limite, "offset": 0}, timeout=30, tentativi=2)
+
+
+def intraday(sym, intervallo, da, a=None, timeout=30, tentativi=2):
+    q = {"interval": intervallo, "from": int(da)}
+    if a is not None:
+        q["to"] = int(a)
+    return get("intraday/" + sym, q, timeout=timeout, tentativi=tentativi)
+
+
+def tempo_reale(gruppo):
+    return get("real-time/" + gruppo[0], {"s": ",".join(gruppo[1:])} if len(gruppo) > 1 else None)
+
+
+def elenco_borsa(borsa, tolti=False):
+    return get("exchange-symbol-list/" + borsa, {"delisted": 1} if tolti else None, timeout=90, tentativi=2)
+
+
+def frazionamenti(borsa, giorno):
+    return get("eod-bulk-last-day/" + borsa, {"type": "splits", "date": giorno}, timeout=60, tentativi=2)
+
+
+def dettagli_borsa(borsa):
+    return get("exchange-details/" + borsa, timeout=30, tentativi=2)
