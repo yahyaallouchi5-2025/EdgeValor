@@ -23,5 +23,30 @@ class Ponte(unittest.TestCase):
         self.assertEqual(out["EUR"], [["2026-10-23", 1.11]])
 
 
+class PonteBce(unittest.TestCase):
+    """v8.76 prima i cambi ufficiali BCE (valuta per 1 euro -> dollari per 1 unita'), Yahoo solo se la BCE manca."""
+
+    def setUp(self):
+        R._bce_cache.clear()
+
+    def tearDown(self):
+        R._bce_cache.clear()
+
+    def test_conversione_bce(self):
+        finti = {"EXR.D.USD.EUR.SP00.A": [["2026-11-20", 1.10]], "EXR.D.JPY.EUR.SP00.A": [["2026-11-20", 176.0]]}
+        from unittest import mock
+        with mock.patch("cot_radar.fonti.get_ecb", return_value=finti):
+            self.assertEqual(R._bce_fx("EUR"), [("2026-11-20", 1.10)])
+            self.assertAlmostEqual(R._bce_fx("JPY")[0][1], 1.10 / 176.0)    # dollari per 1 yen
+            self.assertEqual(R._bce_fx("BRL"), [])
+
+    def test_yahoo_se_la_bce_non_risponde(self):
+        from unittest import mock
+        with mock.patch("cot_radar.fonti.get_ecb", side_effect=OSError("504")), \
+                mock.patch.object(R, "_yahoo_fx", return_value=[("2026-11-20", 1.2)]) as y:
+            self.assertEqual(R._fx_ponte("EUR"), [("2026-11-20", 1.2)])
+            y.assert_called_once_with("EUR")
+
+
 if __name__ == "__main__":
     unittest.main()

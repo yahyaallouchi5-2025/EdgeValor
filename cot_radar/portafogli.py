@@ -335,22 +335,22 @@ def prezzi_ue(cartella=CARTELLA, oggi=None, cerca=None, ultimo=None):
                for t, c in zip(res.get("timestamp") or [], res["indicators"]["quote"][0]["close"]) if c]
         return pts[-1] if pts else None
 
-    from . import eodhd
-    usa_eodhd = eodhd.attivo() and cerca is None and ultimo is None   # nei test (cerca/ultimo finti) solo quelli
+    from . import fonte                          # v8.76 il fornitore scelto (vedi fonte.py)
+    usa_eodhd = fonte.attivo() and cerca is None and ultimo is None   # nei test (cerca/ultimo finti) solo quelli
     cerca, ultimo = cerca or _cerca, ultimo or _ultimo
     for k, (_, isin, _) in STRUMENTI_UE.items():
         if k in prezzi and prezzi[k].get("d") and cache.get("giorno") == oggi:
             continue                             # questo l'abbiamo gia' oggi: si cercano solo i mancanti
         if usa_eodhd:                            # 1) EODHD: quotazione in euro su Xetra (poi Francoforte, Parigi...)
             try:
-                se = simboli_e.get(isin) or eodhd.cerca_eur(isin)
-                x = eodhd.ultimo_eur(se) if se else None
+                se = simboli_e.get(isin) or fonte.cerca_eur(isin)
+                x = fonte.ultimo_eur(se) if se else None
                 if x:
                     simboli_e[isin] = se
-                    prezzi[k] = {"sym": se, "p": round(float(x[1]), 4), "d": x[0], "fonte": "eodhd"}
+                    prezzi[k] = {"sym": se, "p": round(float(x[1]), 4), "d": x[0], "fonte": fonte.nome()}
                     continue
             except Exception as e:
-                log.warning("EODHD: prezzo in euro di %s non disponibile (%s): provo Yahoo", k, type(e).__name__)
+                log.warning("%s: prezzo in euro di %s non disponibile (%s): provo Yahoo", fonte.nome(), k, type(e).__name__)
         try:                                     # 2) Yahoo come riserva (es. Treasury 7-10 anni)
             sym = simboli.get(isin) or cerca(isin)
             if not sym:
@@ -410,12 +410,12 @@ def _scrivi(cartella, ticker, pts):
 def scarica_auto(ticker):
     """v6.97 EODHD come fonte principale degli ETF USA (SPY, QQQ, GLD...) e del Bitcoin; Yahoo per i future (=F)
     e come riserva se EODHD non risponde. Stesso formato di scarica_yahoo: [(data, prezzo rettificato)] o None."""
-    from . import eodhd
-    if eodhd.attivo() and eodhd.simbolo(ticker) and not ticker.startswith("^"):   # indici: sempre Yahoo (dal 1970)
-        pts = _valida(eodhd.scarica_etf(ticker))
+    from . import fonte                          # v8.76 il fornitore scelto (vedi fonte.py)
+    if fonte.attivo() and fonte.simbolo(ticker) and not ticker.startswith("^"):   # indici: sempre Yahoo (dal 1970)
+        pts = _valida(fonte.scarica_etf(ticker))
         if pts:
             return pts
-        log.info("EODHD %s non disponibile: provo Yahoo", ticker)
+        log.info("%s %s non disponibile: provo Yahoo", fonte.nome(), ticker)
     return scarica_yahoo(ticker)
 
 

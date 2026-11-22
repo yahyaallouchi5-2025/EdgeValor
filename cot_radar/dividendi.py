@@ -19,7 +19,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 
 from . import azioni as A
-from . import eodhd
+from . import fonte                    # v8.76 il fornitore scelto (vedi fonte.py)
 
 log = logging.getLogger(__name__)
 VERSIONE = 3              # v7.53: storia di 31 anni e anni di AUMENTI (rifare tutti i file). v7.22b: u12 senza stacchi futuri
@@ -96,7 +96,7 @@ def rendimento(cartella, t, prezzo, valuta=None):
 
 def aggiorna(cartella, el=None, oggi=None):
     """Aggiorna pubblico/dividendi/ per i titoli coperti da EODHD. Restituisce {"aggiornati", "saltati"}."""
-    if not eodhd.attivo():
+    if not fonte.puo("dividendi"):
         return {"aggiornati": 0, "saltati": 0}
     oggi = oggi or date.today()
     elenco = el if el is not None else A.elenco()
@@ -104,7 +104,7 @@ def aggiorna(cartella, el=None, oggi=None):
     dal = date(oggi.year - ANNI, 1, 1).isoformat()
     for x in elenco:
         t = x["t"]
-        sym = eodhd.simbolo(t)
+        sym = fonte.simbolo(t)
         if not sym:
             continue
         f = file_titolo(cartella, t)
@@ -119,7 +119,7 @@ def aggiorna(cartella, el=None, oggi=None):
         if time.time() - inizio > TEMPO_MAX:
             log.warning("dividendi: tempo massimo raggiunto, gli altri titoli al prossimo giro")
             break
-        js = eodhd.get("div/" + sym, {"from": dal}, timeout=30, tentativi=2)
+        js = fonte.dividendi(sym, dal)
         r = riassunto(js, oggi)
         if r is None:                               # EODHD non risponde: resta il file della volta prima
             continue

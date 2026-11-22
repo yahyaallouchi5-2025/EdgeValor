@@ -215,19 +215,19 @@ def scarica_auto(ticker, intervallo="1d", periodo="2y"):
     """v6.97 FONTE PRINCIPALE EODHD, Yahoo come riserva (stesso formato di scarica()).
     1) se c'e' la chiave e il titolo e' coperto (USA, Xetra, Parigi, Amsterdam..., indici) -> EODHD;
     2) altrimenti, o se EODHD non risponde/ha una serie non valida -> Yahoo come prima (Milano, Asia)."""
-    from . import eodhd
-    if eodhd.attivo() and eodhd.simbolo(ticker):
-        r = eodhd.scarica_azione(ticker, intervallo, periodo)
+    from . import fonte                                 # v8.76 il fornitore scelto (EODHD, Marketstack...): vedi fonte.py
+    if fonte.attivo() and fonte.simbolo(ticker):
+        r = fonte.scarica_azione(ticker, intervallo, periodo)
         if r and _valida(r[1], min_punti(intervallo, periodo)) and (intervallo != "1mo" or mensile_ok(r[1])):
             return r
-        log.info("EODHD %s (%s %s) non disponibile: provo Yahoo", ticker, intervallo, periodo)
+        log.info("%s %s (%s %s) non disponibile: provo Yahoo", fonte.nome(), ticker, intervallo, periodo)
     return scarica(ticker, intervallo, periodo)
 
 
 def pausa_per(ticker, pausa):
     """Pausa tra un titolo e l'altro: serve solo con Yahoo (anti-blocco). Con EODHD basta la sua pausa interna."""
-    from . import eodhd
-    return 0 if (eodhd.attivo() and eodhd.simbolo(ticker)) else pausa
+    from . import fonte
+    return 0 if (fonte.attivo() and fonte.simbolo(ticker)) else pausa
 
 
 def _mesi(x):

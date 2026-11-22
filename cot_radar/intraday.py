@@ -23,7 +23,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 from . import azioni as A
-from . import eodhd
+from . import eodhd, fonte              # v8.76 le barre arrivano dal fornitore scelto (vedi fonte.py)
 from .log import log
 
 GIORNI = 8                      # finestra richiesta (calendario): copre 5 sedute anche con un ponte festivo
@@ -54,7 +54,7 @@ def sedute(barre, n=SEDUTE):
 
 
 def da_eodhd(sym, fattore, adesso):
-    js = eodhd.get("intraday/" + sym, {"interval": "5m", "from": int(adesso - GIORNI * 86400)}, timeout=30, tentativi=2)
+    js = fonte.intraday(sym, "5m", int(adesso - GIORNI * 86400))
     if not isinstance(js, list):
         return None
     out = []
