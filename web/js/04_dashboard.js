@@ -269,7 +269,7 @@ FAM.forEach(([id,gr])=>{const el=$(id);if(!el)return;const v=oth.filter(a=>gr.in
    Il perche' si legge dai dati di oggi: se il COT degli speculatori e' ancora nella stessa direzione la neutralita'
    viene dalla parte di mercato; altrimenti si dice cosa hanno fatto gli speculatori (alleggeriscono, ricoprono,
    aumentano le vendite, tornano ad acquistare) sulla valuta o sullo strumento che si e' mosso di piu'.
-   Prima solo per il fondatore (regola delle novita'), poi per tutti. */
+   v8.68 aperta a tutti dopo la prova del fondatore. */
 (function(){
  const fai=()=>{const L=(D.neutri7||[]).filter(n=>{const p=D.pairs.find(x=>x.pair==n.s),a=D.assets[n.s];return (p||a)&&(p||a).label=="NEUTRO";});
   document.querySelectorAll(".neu7").forEach(x=>x.remove());if(!L.length)return;
@@ -294,8 +294,7 @@ FAM.forEach(([id,gr])=>{const el=$(id);if(!el)return;const v=oth.filter(a=>gr.in
   const per={cards:[]};const FAMG=[["ac-mp",["Energia","Metalli","Cereali","Soft","Bestiame"]],["ac-ind",["Indici azionari"]],["ac-tas",["Tassi USA"]],["ac-cry",["Crypto"]]];
   L.forEach(n=>{if(D.pairs.some(x=>x.pair==n.s)){per.cards.push(n);return;}const g=(D.assets[n.s]||{}).group,f=FAMG.find(x=>x[1].includes(g));if(f)(per[f[0]]=per[f[0]]||[]).push(n);});
   Object.entries(per).forEach(([id,l])=>{const el=$(id);if(el&&l.length)el.insertAdjacentHTML("afterend",riga(l));});};
- const adm=()=>document.documentElement.classList.contains("eb-admin");
- if(adm())fai();else{const mo=new MutationObserver(()=>{if(adm()){mo.disconnect();fai();}});mo.observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
+ fai();                                                  // v8.68 aperta a tutti (prima solo il fondatore)
 })();
 }catch(e){fail('Dashboard','sig',e);}
 

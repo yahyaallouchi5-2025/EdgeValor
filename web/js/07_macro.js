@@ -27,7 +27,6 @@ try{
  const rows=Object.values(D.assets).filter(a=>a.mkt&&a.key!="USD").sort((a,b)=>Math.abs(b.mkt.score)-Math.abs(a.mkt.score));
  // v8.62 SCREENER (prima solo il fondatore, come la Live): si sceglie lo strumento e si legge solo il suo dato;
  //   la tabella completa resta, chiusa, sotto "Tutti gli strumenti". Stessi numeri, solo in ordine.
- const isAdm=()=>document.documentElement.classList.contains("eb-admin");
  const screener=()=>{
   let sel="";try{sel=localStorage.getItem("ebMacroSel")||"";}catch(e){}
   if(sel&&!rows.some(a=>a.key==sel))sel="";
@@ -57,9 +56,7 @@ try{
    scr.querySelectorAll("[data-mk]").forEach(b=>b.onclick=()=>scegli(b.dataset.mk==sel?"":b.dataset.mk));
    scr.querySelector(".vfsc").classList.toggle("scelto",!!sel);};
   disegnaSel();};
- // il riconoscimento del fondatore arriva dal database dopo il disegno: si aspetta la classe "eb-admin"
- if(isAdm())setTimeout(screener,0);
- else{const mo=new MutationObserver(()=>{if(isAdm()){mo.disconnect();screener();}});mo.observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
+ setTimeout(screener,0);                                // v8.68 aperto a tutti (prima solo il fondatore)
  $("mtable").innerHTML=`<tr><th>Strumento</th><th class="num">R²</th><th>Driver principale</th><th class="num">Mossa implicita 4s</th><th class="num">Mossa reale 4s</th><th class="num">Differenza</th><th>Lettura</th><th class="num">Punteggio</th></tr>`+
  rows.map(a=>{const m=a.mkt,t=m.top[0];const st=m.r2<.05?'<span class="small">poco legato al macro</span>':Math.abs(m.gz)<.5?'<span class="tag">gia\' scontato</span>':m.gz>0?'<span class="tag ok">spazio al rialzo</span>':'<span class="tag ko">spazio al ribasso</span>';
  return `<tr class="clic" data-tv="a:${a.key}"><td><b>${a.name}</b> <span class="small">${a.key}</span></td><td class="num">${fx(m.r2)}</td><td class="wrap-ok">${t?`${t.name} <span class="${t.c>0?'up':'down'}">${sg(t.c)}%</span>`:''}</td>

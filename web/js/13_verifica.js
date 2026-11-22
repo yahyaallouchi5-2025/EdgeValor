@@ -13,7 +13,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   if(s.strum)V.strum=s.strum;if(s.unita=="vol")V.unita="vol";if(s.sl)V.sl=s.sl;}catch(e){}
  // v8.62 LIVE "A SCREENER" (prima solo per il fondatore): si sceglie lo strumento e si vedono solo i suoi dati.
  //   V.sl = strumento scelto nella Live ("" = nessuno: nessun numero finche' non si sceglie).
- const NUOVA=()=>document.documentElement.classList.contains("eb-admin");
+ const NUOVA=()=>true;                     // v8.68 aperta a tutti (prima solo il fondatore)
  V.sl=V.sl||"";
  if(solaVol)V.fin="vol";else if(!["live","bt"].includes(V.fin))V.fin="live";   // v7.48 viste rimaste
  const salva=()=>{try{const s=Object.assign({},V);if(solaVol)delete s.fin;            // la scheda Volatilita' non cambia la vista della Verifica

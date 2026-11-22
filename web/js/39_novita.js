@@ -9,6 +9,9 @@
 (function(){try{
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
+  {d:"2026-11-22",t:"Aggiornamento scheda Live",x:"Scegli lo strumento e vedi solo i suoi dati: numeri, grafico giorno per giorno e sezioni da aprire.",s:"verifica",h:"mercati",p:true},
+  {d:"2026-11-22",t:"Aggiornamento scheda Macro",x:"Scegli lo strumento e leggi quanto i driver macro hanno già spinto il suo prezzo.",s:"mkt",h:"mercati",p:true},
+  {d:"2026-11-22",t:"Aggiornamento scheda Dashboard",x:"In fondo a ogni famiglia i posizionamenti tornati neutri negli ultimi 7 giorni, con il perché.",s:"sig",p:true},
   {d:"2026-11-22",t:"Aggiornamento scheda Dashboard",x:"Nuovi dati COT e le prime 2 aziende della Selezione di oggi visibili in tutti i piani.",s:"sig"},
   {d:"2026-11-21",t:"Aggiornamento scheda Mercati",x:"Schede in un nuovo ordine: Macro, COT, Stagionalità, Volatilità, Correlazioni, Forex, Crypto, Live.",s:"mercati"},
   {d:"2026-11-21",t:"Aggiornamento scheda Macro",x:"Lo spread high yield ora dice se si allarga, è stabile o si restringe.",s:"mkt",h:"mercati",p:true},
