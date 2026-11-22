@@ -208,6 +208,16 @@ def salva():
     return len(eventi)
 
 
+def _perche(s, m):
+    """v8.74 annunci durante il trade e giorno peggiore (perche.py). Mai bloccante: senza, la riga resta com'era."""
+    try:
+        from . import perche
+        return perche.notizie_segnale(s, m)
+    except Exception as e:
+        log.warning("perche' del segnale %s non calcolato (%s)", s.get("strumento"), e)
+        return None
+
+
 def vista(eventi, strum, integra, completi):
     """Dati per la pagina: segnali misurati (aperti + ultimi chiusi), statistiche e stato della catena."""
     segnali, _ = motore.applica(eventi)
@@ -227,7 +237,7 @@ def vista(eventi, strum, integra, completi):
                       "generato": s["generato"], "generato_it": motore.ora_italia(s["generato"]),
                       "padre": s.get("padre"), "iniziale": s.get("iniziale", False), "conferme": s["conferme"],
                       "chiuso": dict(s["chiuso"], quando_it=motore.ora_italia(s["chiuso"]["quando"])) if s["chiuso"] else None,
-                      "cls": d["_cls"] if d else None, "m": m, "vol": s.get("vol")})
+                      "cls": d["_cls"] if d else None, "m": m, "vol": s.get("vol"), "nt": _perche(s, m)})
     aperti = [r for r in righe if not r["chiuso"]]
     chiusi = sorted([r for r in righe if r["chiuso"]], key=lambda r: r["chiuso"]["quando"], reverse=True)
     padri = [x for x in misurati if not x[0].get("padre")]

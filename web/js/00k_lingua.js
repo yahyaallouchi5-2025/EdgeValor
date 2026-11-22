@@ -175,6 +175,11 @@ Object.assign(EB_EN,{
 "paesi nel mondo":"countries worldwide",
 // ----- v8.73 Live > Comportamento COT (12c_comportamento.js)
 "Comportamento COT":"COT behaviour",
+"Giorno peggiore":"Worst day",
+"Tocca un segnale: vedi gli annunci caduti durante il trade (Fed, BCE e le altre banche centrali) e il giorno peggiore.":"Tap a signal: see the announcements during the trade (Fed, ECB and the other central banks) and the worst day.","nessun annuncio":"no announcement","nessuna seduta contro":"no session against",
+"Annunci durante il trade":"Announcements during the trade","Nessun annuncio durante il trade":"No announcement during the trade",
+"Annunci non disponibili: il trade non ha ancora un prezzo d'ingresso.":"Announcements not available: the trade has no entry price yet.",
+"Per ogni annuncio: il giorno e quanto si è mosso il prezzo nella seduta in cui è caduto, nel verso del segnale (in % del prezzo d'ingresso). Contano NFP, CPI e Fed per tutti gli strumenti; BCE, Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ e SNB per le coppie con la loro valuta. Giorno peggiore = la seduta che è andata più contro.":"For each announcement: the day and how much the price moved in the session it fell in, in the signal's direction (as % of the entry price). NFP, CPI and the Fed count for every instrument; ECB, Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ and SNB for the pairs with their currency. Worst day = the session that went most against.",
 "Il registro dei segnali veri e cosa fa il prezzo quando gli speculatori spingono.":"The log of real signals and what the price does when speculators push.","mostra solo le coppie con la spunta.":"shows only the pairs with the tick.",
 "Nuova vista Comportamento COT: strumento per strumento, cosa fa il prezzo quando gli speculatori iniziano a spingere.":"New COT behaviour view: instrument by instrument, what the price does when speculators start to push.",
 "Cosa fa il prezzo quando gli speculatori iniziano a spingere, su tutto lo storico.":"What the price does when speculators start to push, over the whole history.",
@@ -206,6 +211,7 @@ Object.assign(EB_EN,{
 // v8.73 frasi con il nome della famiglia (Comportamento COT)
 EB_RX.push(
  [/^Aggiornamento scheda (.+)$/,(m,x)=>(EB_EN[x]||x)+" tab update"],
+ [/^con ((?:Fed|BCE|BoE|BoJ|BoC|RBA|RBNZ|SNB|NFP USA|CPI USA)(?:, (?:Fed|BCE|BoE|BoJ|BoC|RBA|RBNZ|SNB|NFP USA|CPI USA))*)$/,(m,x)=>"with "+x.split(", ").map(n=>EB_EN[n]||n).join(", ")],
  [/^Nella famiglia (.+)$/,(m,f)=>"In the "+(EB_EN[f]||f)+" family"],
  [/^Confermate dalla verifica nella famiglia (.+):$/,(m,f)=>"Confirmed by the out-of-sample check in the "+(EB_EN[f]||f)+" family:"]
 );

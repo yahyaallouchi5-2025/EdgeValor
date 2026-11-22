@@ -107,15 +107,19 @@ def normalizza(e):
 FRED_RELEASE = {"us-cpi": 10, "us-ppi": 46, "us-nfp": 50, "us-retail-sales": 9, "us-gdp": 53, "us-pce": 54}
 FRED_DATE = "https://api.stlouisfed.org/fred/release/dates"
 BANCHE = {   # codice: (fuso, ora, minuti, date dell'annuncio)  fonti: siti ufficiali di ogni banca, novembre 2026
-    "boe": ("Europe/London", 12, 0, ["2026-12-17", "2027-02-04", "2027-03-18", "2027-04-29", "2027-06-17", "2027-07-29",
+    # v8.74 aggiunte le riunioni da fine ottobre 2026 (inizio del registro live): servono al "perche'" dei segnali (perche.py)
+    "boe": ("Europe/London", 12, 0, ["2026-11-05", "2026-12-17", "2027-02-04", "2027-03-18", "2027-04-29", "2027-06-17", "2027-07-29",
                                       "2027-09-16", "2027-11-04", "2027-12-16"]),
-    "boj": ("Asia/Tokyo", None, None, ["2026-12-18", "2027-01-22", "2027-03-18", "2027-04-28", "2027-06-11",
+    "boj": ("Asia/Tokyo", None, None, ["2026-10-30", "2026-12-18", "2027-01-22", "2027-03-18", "2027-04-28", "2027-06-11",
                                         "2027-07-22", "2027-09-22", "2027-10-29", "2027-12-17"]),
-    "boc": ("America/Toronto", 9, 45, ["2026-12-09", "2027-01-27", "2027-03-03", "2027-04-28", "2027-06-02",
+    "boc": ("America/Toronto", 9, 45, ["2026-10-28", "2026-12-09", "2027-01-27", "2027-03-03", "2027-04-28", "2027-06-02",
                                         "2027-07-21", "2027-09-08", "2027-10-27", "2027-12-08"]),
-    "rba": ("Australia/Sydney", 14, 30, ["2026-12-08", "2027-02-09", "2027-03-23", "2027-05-04", "2027-06-22",
+    "rba": ("Australia/Sydney", 14, 30, ["2026-11-03", "2026-12-08", "2027-02-09", "2027-03-23", "2027-05-04", "2027-06-22",
                                           "2027-08-10", "2027-09-21", "2027-11-02", "2027-12-14"]),
     "snb": ("Europe/Zurich", 9, 30, ["2026-12-10", "2027-03-18", "2027-06-24", "2027-09-23", "2027-12-16"]),
+    # v8.74 RBNZ (14:00 Wellington): date ufficiali fino a dicembre 2026. Dal 2027 la RBNZ passa a 8 decisioni l'anno
+    # e ha spostato quella di febbraio: le date 2027 si aggiungono quando sono verificate sul sito della RBNZ.
+    "rbnz": ("Pacific/Auckland", 14, 0, ["2026-10-28", "2026-12-09"]),
 }
 
 

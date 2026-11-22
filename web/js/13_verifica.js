@@ -332,6 +332,19 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   return sezione("tutti","Tutti gli strumenti a confronto",`${Object.keys(P.strumento||{}).length} strumenti &middot; ${R.n_chiusi} trade chiusi`,
    tabella("Per strumento",P.strumento,null,1,R.profilo)+tabella("Per etichetta",P.etichetta,["STRONG BUY","BUY","SELL","STRONG SELL"])
    +tabella("Per volatilit&agrave; al momento del segnale",P.vol,["calma","normale","agitata"])+varianti(P.riass));}
+ /* v8.74 IL PERCHE' DI UN SEGNALE (cot_radar/perche.py): un tocco sulla riga apre gli annunci caduti durante il trade
+    (con la mossa del prezzo in quella seduta, nel verso del segnale) e il giorno peggiore. Solo date e prezzi veri. */
+ const APERTI=new Set();
+ const gm=d=>d?d.slice(8,10)+"/"+d.slice(5,7):"";
+ function perche(z){const N=z.nt;
+  if(!N)return `<div class="vfpq vfpq-v small">Annunci non disponibili: il trade non ha ancora un prezzo d'ingresso.</div>`;
+  const pg=N.pg,ev=N.ev||[];
+  const peg=pg?`<div class="vfpq-pg"><small>Giorno peggiore</small><b>${gm(pg.d)}</b><b class="down">${pc(pg.m)}</b><span>${pg.ev.length?"con "+pg.ev.map(esc).join(", "):"nessun annuncio"}</span></div>`
+   :`<div class="vfpq-pg"><small>Giorno peggiore</small><span>nessuna seduta contro</span></div>`;
+  const lista=ev.length?`<div class="vfpq-ev">${ev.map(e=>`<span class="vfpq-c"><b>${esc(e.n)}</b><span>${gm(e.d)}</span><b class="${col(e.m)}">${pc(e.m)}</b></span>`).join("")}</div>`
+   :`<div class="vfpq-ev"><span class="small">Nessun annuncio durante il trade</span></div>`;
+  return `<div class="vfpq">${peg}<div class="vfpq-a"><small>Annunci durante il trade ${infoBtn("vfpqi-"+z.id,"Come si legge")}</small>${lista}</div>
+   ${infoP("vfpqi-"+z.id,"Per ogni annuncio: il giorno e quanto si è mosso il prezzo nella seduta in cui è caduto, nel verso del segnale (in % del prezzo d'ingresso). Contano NFP, CPI e Fed per tutti gli strumenti; BCE, Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ e SNB per le coppie con la loro valuta. Giorno peggiore = la seduta che è andata più contro.")}</div>`;}
  function datiLiveNuova(){const P=R.stat;
   if(!V.sl)return `<div class="card vfvuoto2"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><b>Scegli uno strumento</b><p>Vedrai come sono andati i suoi segnali, giorno per giorno.</p></div>
    <div class="grid k4 vfkpi vfghost">${["Risultato","In guadagno","Guadagno max","Drawdown"].map(t=>`<div class="card kpi"><h3>${t}</h3><div class="big">&mdash;</div><div class="note">&nbsp;</div></div>`).join("")}</div>`+confronto();
@@ -355,9 +368,11 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const f2=v=>v==null?"&mdash;":pc(v);
   const righeS=sg.sort((a,b)=>(b.generato||"").localeCompare(a.generato||"")).map(z=>{const m=z.m||{},f=(m.A||{}).fine,ing=m.ingresso,aperto=!z.chiuso&&!(m.fine||{}).motivo;
    const dur=f&&ing?Math.max(1,Math.round((new Date(f.data)-new Date(ing.data))/864e5*5/7))+" g":"&mdash;";
-   return `<tr><td>${badge(z.etichetta)}${z.iniziale?' <span class="tag" title="Era gi&agrave; attivo quando il registro &egrave; partito">escluso</span>':""}</td><td>${esc((z.generato_it||"").slice(0,5))}</td>
-    <td class="num"><b class="${f&&!z.iniziale?col(f.res):""}">${z.iniziale||!f?(aperto&&ing?"in corso":"&mdash;"):(aperto?"in corso ":"")+f2(f.res)}</b></td><td class="num up vfnt">${z.iniziale||!f?"&mdash;":f2(f.mfe)}</td><td class="num down vfnt">${z.iniziale||!f?"&mdash;":f2(f.mae)}</td><td class="num">${z.iniziale?"&mdash;":dur}</td></tr>`;}).join("");
-  const tabS=`<div class="tablewrap"><table class="compatta vfslt"><tr><th>Segnale</th><th>Data</th><th class="num">Al cambio</th><th class="num vfnt">Guadagno max</th><th class="num vfnt">Drawdown</th><th class="num">Durata</th></tr>${righeS}</table></div>`;
+   const ap=APERTI.has(z.id);
+   return `<tr class="vfrow${ap?" on":""}" data-id="${esc(z.id)}" tabindex="0" aria-expanded="${ap}"><td><i class="vfchev" aria-hidden="true"></i>${badge(z.etichetta)}${z.iniziale?' <span class="tag" title="Era gi&agrave; attivo quando il registro &egrave; partito">escluso</span>':""}</td><td>${esc((z.generato_it||"").slice(0,5))}</td>
+    <td class="num"><b class="${f&&!z.iniziale?col(f.res):""}">${z.iniziale||!f?(aperto&&ing?"in corso":"&mdash;"):(aperto?'<small class="vfic">in corso</small> ':"")+f2(f.res)}</b></td><td class="num up vfnt">${z.iniziale||!f?"&mdash;":f2(f.mfe)}</td><td class="num down vfnt">${z.iniziale||!f?"&mdash;":f2(f.mae)}</td><td class="num vfdur">${z.iniziale?"&mdash;":dur}</td></tr>
+    <tr class="vfdett"${ap?"":" hidden"}><td colspan="6">${perche(z)}</td></tr>`;}).join("");
+  const tabS=`<div class="tablewrap"><table class="compatta vfslt"><tr><th>Segnale</th><th>Data</th><th class="num">Al cambio</th><th class="num vfnt">Guadagno max</th><th class="num vfnt">Drawdown</th><th class="num vfdur">Durata</th></tr>${righeS}</table></div>`;
   return testa+kp+gr
    +sezione("coda","Quanto va contro",o&&o.n>=MIN_STAT?`${o.n} trade`:`servono almeno ${MIN_STAT} trade`,coda)
    +sezione("ann","Annunci macro USA",V.d=="fine"?"solo durate da 1 a 4 settimane":"",ann)
@@ -382,6 +397,11 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  /* aggiorna SOLO i numeri (non i comandi): cosi' il cursore delle sedute si puo' trascinare senza scatti */
  function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="vol"?datiVol():NUOVA()?datiLiveNuova():datiLive();
   box.querySelectorAll("details.vfx").forEach(d=>d.addEventListener("toggle",()=>{d.open?SEZ.add(d.dataset.x):SEZ.delete(d.dataset.x);}));
+  // v8.74 riga di un segnale: apre e chiude il suo "perche'" (si ricorda finche' la pagina resta aperta)
+  box.querySelectorAll("tr.vfrow").forEach(tr=>{const apri=()=>{const on=!APERTI.has(tr.dataset.id);on?APERTI.add(tr.dataset.id):APERTI.delete(tr.dataset.id);
+    tr.classList.toggle("on",on);tr.setAttribute("aria-expanded",on);const d=tr.nextElementSibling;if(d&&d.classList.contains("vfdett"))d.hidden=!on;};
+   tr.addEventListener("click",e=>{if(!e.target.closest("button,a"))apri();});
+   tr.addEventListener("keydown",e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();apri();}});});
   el.querySelectorAll("[data-sl]").forEach(b=>b.classList.toggle("on",b.dataset.sl==V.sl));
   const sl=$("vfsl");if(sl)sl.value=V.sl;
   const sc=el.querySelector(".vfsc");if(sc)sc.classList.toggle("scelto",!!V.sl);   // telefono: chip nascosti dopo la scelta (resta il menu)

@@ -3689,3 +3689,27 @@ details.vfx>summary:hover b{color:var(--acc)}
  .cm-nome{font-size:21px}.cm-v{font-size:22px}
  .cm-ep.cm-eh{display:none}.cm-ep{grid-template-columns:1fr auto auto;gap:2px 12px}.cm-e1{grid-column:1/-1;font-weight:650}.cm-e3{display:none}
 }
+/* v8.74 Live > I segnali di X: la riga si apre e mostra il "perche'" (annunci durante il trade e giorno peggiore) */
+.vfslt tr.vfrow{cursor:pointer;transition:background .15s}
+.vfslt tr.vfrow:hover,.vfslt tr.vfrow.on{background:var(--soft)}
+.vfslt tr.vfrow:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.vfchev{display:inline-block;width:7px;height:7px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(-45deg);margin:0 10px 1px 2px;transition:transform .2s}
+.vfrow.on .vfchev{transform:rotate(45deg);margin-bottom:3px}
+.vfrow:hover .vfchev,.vfrow.on .vfchev{border-color:var(--acc)}
+.vfslt tr.vfdett>td{padding:0 12px 14px;background:var(--soft);white-space:normal}
+.vfpq{display:grid;grid-template-columns:minmax(170px,auto) 1fr;gap:10px 22px;align-items:start;padding:12px 4px 0;border-top:1px solid var(--line)}
+.vfpq small{display:block;color:var(--mute);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.vfpq small .info{margin-left:4px;vertical-align:-3px}
+.vfpq-pg{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.vfpq-pg small{flex-basis:100%}
+.vfpq-pg span{color:var(--mute);font-size:13px}
+.vfpq-ev{display:flex;flex-wrap:wrap;gap:8px}
+.vfpq-c{display:inline-flex;align-items:baseline;gap:8px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px;background:var(--card)}
+.vfpq-c span{color:var(--mute)}
+.vfpq>.infotesto{grid-column:1/-1;margin:0}
+.vfpq-v{display:block;padding-top:12px;color:var(--mute)}
+@media (max-width:640px){.vfpq{grid-template-columns:1fr;gap:12px}.vfslt tr.vfdett>td{padding:0 8px 12px}}
+@media (max-width:640px){.vfslt{table-layout:fixed;width:100%}.vfslt .vfdur{display:none}
+ .vfslt tr>th:first-child{width:44%}.vfslt tr>th:nth-child(2){width:17%}.vfslt tr.vfrow>td{white-space:nowrap}
+ .vfslt th,.vfslt tr.vfrow>td{padding-left:6px;padding-right:6px}.vfslt .vfic{display:block;font-size:11px;line-height:1.2}
+ .vfslt .vfchev{margin-right:6px}}
