@@ -16,7 +16,7 @@
  const N=window.EB_NOVITA||[];if(!N.length)return;
  let vista="";try{vista=localStorage.getItem("ebNovita")||"";}catch(e){}
  const nuove=()=>N.filter(n=>n.d>vista);
- const gg=d=>new Date(d+"T12:00:00").toLocaleDateString(typeof EB_LOC=="string"?EB_LOC:"it-IT",{day:"numeric",month:"short"});
+ const gg=d=>new Date(d.slice(0,10)+"T12:00:00").toLocaleDateString(typeof EB_LOC=="string"?EB_LOC:"it-IT",{day:"numeric",month:"short"});
  const STELLA='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z"/></svg>';
  // --- bolla ---
  const fab=document.createElement("button");fab.type="button";fab.className="nvfab";fab.setAttribute("aria-label","Novità");

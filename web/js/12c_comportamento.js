@@ -2,7 +2,7 @@
    Cosa fa il prezzo quando i grandi speculatori iniziano a spingere uno strumento ("episodio": da quando comprano o
    vendono fino a quando cambiano direzione), su tutto lo storico. Dati: D.cmp da cot_radar/comportamento.py
    (regole fissate prima: studio fino al 2014, verifica dal 2015, costi inclusi), arrivano con verifica.json.
-   Disegnata da 13_verifica.js dentro #cmpbox con ebComportamento(box). Prima solo per il fondatore.
+   Disegnata da 13_verifica.js dentro #cmpbox con ebComportamento(box). v8.73 aperta a tutti i Premium (traduzioni in 00k_lingua.js).
    Struttura: famiglie (chip) -> elenco degli strumenti (PC: colonna a sinistra; telefono: i primi 6 + "Mostra tutti")
    -> dettaglio dello strumento scelto (lettura, 4 numeri, condizioni all'ingresso, ultimi episodi).
    DEBUG: F12 -> Console -> D.cmp.str.GOLD */
@@ -15,8 +15,9 @@ window.ebComportamento=function(box){try{
  const ORD={segue:0,contro:1,neutro:2,corto:3};
  const nome=k=>NOMI[k]||k.slice(0,3)+"/"+k.slice(3);
  const P=v=>Math.round(v);                                           // percentuali intere in pagina
- const num=v=>String(v).replace(".",",");
- const pct=(v,d=2)=>{const t=Math.abs(v).toFixed(d);return (+t===0?"":v>0?"+":"−")+t.replace(".",",")+"%";};   // niente "-0,00%"
+ const DEC=typeof EB_LANG!="undefined"&&EB_LANG=="en"?".":",";        // v8.73 decimali come la lingua scelta
+ const num=v=>String(v).replace(".",DEC);
+ const pct=(v,d=2)=>{const t=Math.abs(v).toFixed(d);return (+t===0?"":v>0?"+":"−")+t.replace(".",DEC)+"%";};   // niente "-0,00%"
  const gg=s=>s?s.split("-").reverse().join("/"):"";
  const info=(tit,testo)=>`<details class="info"><summary title="${tit}" aria-label="${tit}">i</summary><div>${testo}</div></details>`;
  // stato: famiglia e strumento scelti (ricordati nel browser), elenco aperto sul telefono
@@ -49,7 +50,7 @@ window.ebComportamento=function(box){try{
   return `<div class="cm-cond${ok.length==4?" due":""}">${ok.map(([t,a,b])=>`<div class="cm-cc"><small>${t}</small>${riga(a,C[a])}${riga(b,C[b])}${[C[a],C[b]].some(g=>!g||g.n<30)?'<div class="cm-poc">Pochi casi: solo indicativo</div>':""}</div>`).join("")}</div>`;}
 
  function verdetto(f){const ok=(FC[f]||[]).filter(r=>r.ok);
-  return ok.length?`Confermate dalla verifica nella famiglia ${f}: <b>${ok.map(r=>r.a).join(", ")}</b>.`
+  return ok.length?`Confermate dalla verifica nella famiglia ${f}: ${ok.map(r=>`<b>${r.a}</b>`).join(", ")}.`
    :`Nella famiglia ${f} <b>nessuna condizione ha superato la verifica</b>: leggile come descrizione, non come regola.`;}
 
  function dettaglio(){const k=V.k,x=S[k];if(!x)return "";const l=LETT[x.lett],d=x.durd;

@@ -1,8 +1,8 @@
 /* ---------- SCHEDA LIVE: registro live + comportamento COT ----------
    Due finestre separate e mai mescolate:
      LIVE         = segnali veri, con data e ora di generazione, salvati per sempre con una catena di hash (D.reg)
-     COMPORTAMENTO = v8.71 cosa fa il prezzo quando gli speculatori spingono, su tutto lo storico (D.cmp, 13b_comportamento.js);
-                    sostituisce il Backtest SIMULATO (tolto). Prima solo per il fondatore (eb-admin), poi per tutti.
+     COMPORTAMENTO = v8.71 cosa fa il prezzo quando gli speculatori spingono, su tutto lo storico (D.cmp, 12c_comportamento.js);
+                    sostituisce il Backtest SIMULATO (tolto). v8.73 aperto a tutti (prima solo per il fondatore, eb-admin).
    Calcoli in cot_radar/motore.py; qui solo la presentazione. Ingresso = prima chiusura dopo il segnale. */
 // v7.48 dove = "vol": disegna solo la Volatilita' nella scheda #volat (menu Mercati, dati gia' nella pagina: D.vol);
 //       senza argomento: scheda Live con le viste Registro live e Comportamento COT.
@@ -17,7 +17,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  const NUOVA=()=>true;                     // v8.68 aperta a tutti (prima solo il fondatore)
  V.sl=V.sl||"";
  // v8.71 Comportamento COT: prima solo il fondatore. Il Backtest simulato ("bt") non c'e' piu': si torna alla Live
- const CMP=()=>!!(D.cmp&&D.cmp.str&&window.ebComportamento&&document.documentElement.classList.contains("eb-admin"));
+ const CMP=()=>!!(D.cmp&&D.cmp.str&&window.ebComportamento);    // v8.73 per tutti (la scheda Live resta Premium)
  if(solaVol)V.fin="vol";else if(!["live","cmp"].includes(V.fin))V.fin="live";
  const salva=()=>{try{const s=Object.assign({},V);if(solaVol)delete s.fin;            // la scheda Volatilita' non cambia la vista della Verifica
   localStorage.setItem("ebVerifica",JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("ebVerifica")||"{}"),s)));}catch(e){}};
@@ -396,7 +396,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    <div class="vfcorpo">${volatilitaVista()}</div>`;
    const sa=$("vfasset");if(sa)sa.onchange=()=>{V.asset=sa.value;salva();aggiorna();};
    aggiorna();return;}
-  // vista mostrata: "cmp" solo se disponibile (la scelta salvata resta: torna quando arriva il riconoscimento del fondatore)
+  // vista mostrata: "cmp" solo se i dati ci sono (la scelta salvata resta)
   const vista=V.fin=="cmp"&&CMP()?"cmp":"live";
   el.innerHTML=`<h2>Live</h2><p class="sub">${vista=="cmp"?"Cosa fa il prezzo quando gli speculatori iniziano a spingere, su tutto lo storico.":"Ogni segnale del terminale viene registrato nel momento in cui nasce e poi misurato sui prezzi reali: quanto va contro (drawdown), quanto guadagna, come finisce."}</p>
   ${CMP()?`<div class="vfswitch"><button data-f="live" class="${vista=="live"?"on":""}">Registro live</button><button data-f="cmp" class="${vista=="cmp"?"on":""}">Comportamento COT</button></div>`:""}
@@ -414,9 +414,6 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   el.querySelectorAll("[data-sl]").forEach(b=>b.onclick=()=>scegli(b.dataset.sl==V.sl?"":b.dataset.sl));
   aggiorna();}
  disegna();
- // v8.62 il riconoscimento del fondatore arriva dal database dopo il primo disegno: se cambia, si ridisegna la Live
- // il riconoscimento del fondatore arriva dal database dopo il primo disegno: se cambia, si ridisegna (compare il selettore)
- if(!solaVol){let era=CMP();new MutationObserver(()=>{const ora=CMP();if(ora!=era){era=ora;disegna();}}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
  })();}catch(e){fail(dove=="vol"?"Volatilit\u00e0":"Verifica dei segnali",dove=="vol"?"volat":"verifica",e);}}
 ebVerifica("vol");                                       // v7.48 scheda Volatilita' (dati gia' nella pagina)
 
