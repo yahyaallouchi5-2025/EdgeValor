@@ -47,10 +47,14 @@ CHIAMATE = {"n": 0, "errori": 0}   # contatore del giro (per il registro: quante
 
 
 def chiave():
-    """v8.76 la chiave EODHD solo se il fornitore scelto e' EODHD (vedi fonte.py: "marketstack:..." spegne EODHD)."""
-    from .fonte import scelta
-    nome, k = scelta()
-    return k if nome == "eodhd" else ""
+    """v8.77 la chiave EODHD dal Secret (vedi fonte.py: anche insieme ad altri fornitori, "marketstack:..|eodhd:..")."""
+    from .fonte import chiave_di
+    return chiave_di("eodhd")
+
+
+def copre_ticker(t, canonico):
+    """Per fonte.simbolo: EODHD copre un ticker se ha un simbolo EODHD."""
+    return canonico is not None
 
 
 # v8.76 cosa offre EODHD all'interruttore dei fornitori (fonte.py)
