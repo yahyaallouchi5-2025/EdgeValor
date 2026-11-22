@@ -15,7 +15,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
  //   V.sl = strumento scelto nella Live ("" = nessuno: nessun numero finche' non si sceglie).
  const NUOVA=()=>true;                     // v8.68 aperta a tutti (prima solo il fondatore)
  V.sl=V.sl||"";
- if(solaVol)V.fin="vol";else if(!["live","bt"].includes(V.fin))V.fin="live";   // v7.48 viste rimaste
+ if(solaVol)V.fin="vol";else if(!["live"].includes(V.fin))V.fin="live";   // v8.71 il Backtest simulato si toglie   // v7.48 viste rimaste
  const salva=()=>{try{const s=Object.assign({},V);if(solaVol)delete s.fin;            // la scheda Volatilita' non cambia la vista della Verifica
   localStorage.setItem("ebVerifica",JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("ebVerifica")||"{}"),s)));}catch(e){}};
  const pc=(x,d=2)=>x==null||isNaN(x)?"n/d":(x>0?"+":x<0?"−":"")+Math.abs(x).toLocaleString(EB_LOC,{minimumFractionDigits:d,maximumFractionDigits:d})+"%";
@@ -306,33 +306,6 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
      <h3 class="vft">Chiusi <span class="small">(${R.n_chiusi})</span></h3><div class="grid vfgrid" id="vfchiusi">${ch.slice(0,12).map(s=>scheda(s)).join("")||'<div class="small">Ancora nessuno.</div>'}</div>
      ${ch.length>12?`<button class="vfaltro" id="vfaltro">Mostra tutti (${ch.length})</button>`:""}`);}
 
- function datiBt(){const P=B.periodi[V.per]||B.periodi.tutti,nomeP={tutti:"tutto il periodo",sviluppo:"sviluppo",holdout:"holdout"}[V.per];
-  const per={"Tutto il periodo":B.periodi.tutti.riass,"Sviluppo":B.periodi.sviluppo.riass,"Holdout (ultimi 2 anni)":B.periodi.holdout.riass};
-  const anni=Object.entries(B.anni||{}).map(([a,R])=>[a,st(R)]).filter(([a,x])=>x),mx=Math.max(0.5,...anni.map(([a,x])=>Math.abs(x.resa)));
-  const barre=anni.length?`<h3 class="vft">Anno per anno <span class="small">(resa media ${nomeD()})</span></h3><div class="vfanni">${anni.map(([a,x])=>{const h=Math.round(Math.abs(x.resa)/mx*100),hold=a>=B.holdout_dal.slice(0,4);
-   return `<div class="vfanno${hold?" vfhold":""}" title="${a}: ${x.n} segnali, vinti ${x.hit}%, resa media ${pc(x.resa)}"><div class="vfmeta">${x.resa>=0?`<i class="su" style="height:${h}%"></i>`:""}</div><div class="vfmeta giu">${x.resa<0?`<i class="giu" style="height:${h}%"></i>`:""}</div><span>${a.slice(2)}</span></div>`;}).join("")}</div>`:"";
-  // v6.59 VERDETTO ONESTO in cima: si giudica SOLO sull'holdout (ultimi 2 anni, mai usati per tarare).
-  //   dimostrato = resa media netta > 0 E anche il limite basso dell'intervallo dei vincenti sopra il 50%;
-  //   contrario  = resa < 0 E anche il limite alto sotto il 50%; altrimenti "non dimostrato".
-  const ho=st(B.periodi.holdout.riass),tu=st(B.periodi.tutti.riass);
-  const verd=!ho?null:(ho.resa>0&&ho.ic[0]>50)?["si","VANTAGGIO DIMOSTRATO"]:(ho.resa<0&&ho.ic[1]<50)?["ko","RISULTATO PEGGIORE DEL CASO"]:["no","NESSUN VANTAGGIO DIMOSTRATO"];
-  // v6.59b: una riga di numeri in pagina, la spiegazione nella (i)
-  const verdetto=verd?`<div class="card vfverd ${verd[0]}"><div class="ptsth"><span class="vfvb">${verd[1]}</span>
-   <span class="small">Holdout 2 anni: <b>${ho.hit}%</b> vinti (${ho.ic[0]}&ndash;${ho.ic[1]}%) &middot; resa <b class="${col(ho.resa)}">${pc(ho.resa)}</b>${tu?` &middot; dal ${esc(B.dal.slice(0,4))}: ${tu.hit}%, ${pc(tu.resa)}`:""}</span>
-   <button type="button" class="info" data-apri="vfinfo" data-k="vfverd" aria-label="Mostra o nascondi la spiegazione">i</button></div>
-   <p id="vfinfo" class="sub infotesto${infoAperte.has("vfverd")?" aperta":""}">Giudizio solo sugli ultimi 2 anni (${ho.n.toLocaleString(EB_LOC)} segnali), mai usati per costruire il metodo; resa al netto dei costi. ${verd[0]=="si"?"Il vantaggio regge fuori campione.":"Il segnale COT da solo non ha un vantaggio affidabile: usalo come contesto insieme a trend e rischio, non come ordine."} Il backtest non include &laquo;Mercato e macro&raquo; (30% del punteggio live): lo misura il registro live.</p></div>`:"";
-  const ordS=Object.keys(P.strumento||{}).sort((a,b)=>((st(P.strumento[b])||{}).resa??-99)-((st(P.strumento[a])||{}).resa??-99));
-  return verdetto+blocco(1,"Quanto va contro","Prima dei guadagni: quanto il trade simulato scende sotto l'ingresso, giorno per giorno.",
-    bloccoDD(P,B.dd_campi,B.unita))
-   +blocco(2,"Il controllo onesto","Gli anni tenuti da parte (holdout) messi a confronto con quelli su cui il metodo &egrave; stato costruito.",
-    tabella("Sviluppo e holdout a confronto",per,Object.keys(per))
-    +`<p class="small">Il periodo di <b>holdout</b> (ultimi 2 anni) non va mai usato per tarare pesi o soglie: &egrave; il controllo onesto. Se sviluppo e holdout dicono cose molto diverse, il risultato del passato non &egrave; affidabile.</p>`)
-   +blocco(3,"Com'&egrave; andata","Gli stessi segnali divisi per etichetta, per volatilit&agrave;, per anno e per strumento.",
-    tabella(`Per etichetta <span class="small">(${nomeP})</span>`,P.etichetta,["STRONG BUY","BUY","SELL","STRONG SELL"])
-    +tabella(`Per volatilit&agrave; al momento del segnale <span class="small">(${nomeP}: calma / normale / agitata rispetto ai 5 anni prima)</span>`,P.vol,["calma","normale","agitata"])
-    +varianti(P.riass)+barre
-    +tabella(`Per strumento <span class="small">(${nomeP}, almeno ${V.per=="holdout"?5:20} segnali)</span>`,P.strumento,ordS,V.per=="holdout"?5:20,B.profilo));}
-
  /* ---- v8.62 LIVE A SCREENER ----
     1) barra unica: strumento (menu + chip per famiglia, con il numero di segnali) e durata del trade (chip, niente cursore);
     2) senza strumento: nessun numero ("—"), solo l'invito a scegliere; il confronto di tutti gli strumenti sta chiuso in fondo;
@@ -416,7 +389,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    ${blocco(4,"I segnali uno per uno","Gli ultimi segnali simulati conclusi, con ingresso e risultato alle varie durate.",`<div class="grid vfgrid">${(B.ultimi||[]).slice(0,12).map(s=>scheda(s,true)).join("")}</div>`)}`;}
 
  /* aggiorna SOLO i numeri (non i comandi): cosi' il cursore delle sedute si puo' trascinare senza scatti */
- function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="live"?(NUOVA()?datiLiveNuova():datiLive()):V.fin=="vol"?datiVol():datiBt();
+ function aggiorna(){const box=$("vfdati");if(!box||V.fin=="carry")return;box.innerHTML=V.fin=="live"?(NUOVA()?datiLiveNuova():datiLive()):V.fin=="vol"?datiVol():(NUOVA()?datiLiveNuova():datiLive());
   box.querySelectorAll("details.vfx").forEach(d=>d.addEventListener("toggle",()=>{d.open?SEZ.add(d.dataset.x):SEZ.delete(d.dataset.x);}));
   el.querySelectorAll("[data-sl]").forEach(b=>b.classList.toggle("on",b.dataset.sl==V.sl));
   const sl=$("vfsl");if(sl)sl.value=V.sl;
