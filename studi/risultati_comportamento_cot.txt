@@ -1,0 +1,188 @@
+episodi chiusi 13870, strumenti 69
+
+===== ESITO A FINE EPISODIO (netto costi) =====
+
+TUTTI          base  studio {'n': 7276, 'pos': 45.4, 'media': -0.165, 't': -2.77}  verifica {'n': 6594, 'pos': 45.9, 'media': -0.216, 't': -2.87}
+   Flusso forte             S  3998  44.6%  -0.173 | V  3610  45.4%  -0.337   vs Flusso normale         S  46.4%  -0.155 | V  46.6%  -0.069   diff S {'d': -0.017, 't': -0.15} V {'d': -0.268, 't': -1.74} 
+   Mercato calmo            S  3347  45.7%   -0.16 | V  3084  47.3%  -0.038   vs Mercato agitato        S  46.9%  -0.027 | V  44.4%  -0.459   diff S {'d': -0.133, 't': -0.82} V {'d': 0.42, 't': 2.15} 
+   Prima spinta             S  4915  44.4%  -0.242 | V  4226  45.1%  -0.251   vs Ripetizione            S  47.4%  -0.005 | V  47.5%  -0.154   diff S {'d': -0.237, 't': -1.82} V {'d': -0.097, 't': -0.63} 
+   OI in aumento            S  2461  46.5%    0.02 | V  2680  46.9%  -0.196   vs OI in calo             S  44.7%  -0.324 | V  45.5%  -0.221   diff S {'d': 0.344, 't': 1.98} V {'d': 0.025, 't': 0.13} 
+   Prezzo gia' a favore     S  5837  45.4%  -0.192 | V  4791  45.6%  -0.244   vs Prezzo contro          S  45.3%  -0.036 | V  46.7%  -0.127   diff S {'d': -0.156, 't': -0.91} V {'d': -0.117, 't': -0.7} 
+   Denaro nuovo col prezzo  S  1955  46.6%  -0.025 | V  1969  47.3%  -0.199   vs Ricoperture            S  44.6%  -0.363 | V  44.7%  -0.277   diff S {'d': 0.339, 't': 1.79} V {'d': 0.078, 't': 0.34} 
+
+Valute         base  studio {'n': 3010, 'pos': 46.2, 'media': -0.119, 't': -3.09}  verifica {'n': 2070, 'pos': 44.8, 'media': -0.212, 't': -6.04}
+   Flusso forte             S  1830  46.2%   -0.14 | V  1299  44.2%  -0.223   vs Flusso normale         S  46.4%  -0.085 | V  45.9%  -0.193   diff S {'d': -0.055, 't': -0.68} V {'d': -0.03, 't': -0.43} 
+   Mercato calmo            S  1370  48.6%   0.013 | V   939  45.9%  -0.188   vs Mercato agitato        S  47.8%  -0.149 | V  42.5%  -0.304   diff S {'d': 0.162, 't': 1.58} V {'d': 0.116, 't': 1.3} 
+   Prima spinta             S  2288  45.8%  -0.135 | V  1554  44.2%  -0.228   vs Ripetizione            S  47.8%  -0.066 | V  46.7%  -0.163   diff S {'d': -0.07, 't': -0.86} V {'d': -0.064, 't': -0.8} 
+   OI in aumento            S   302  50.3%     0.2 | V   324  46.0%    -0.2   vs OI in calo             S  52.4%   0.147 | V  43.3%  -0.154   diff S {'d': 0.053, 't': 0.31} V {'d': -0.046, 't': -0.33} 
+   Prezzo gia' a favore     S  2558  46.4%  -0.113 | V  1579  44.0%  -0.255   vs Prezzo contro          S  45.7%  -0.124 | V  47.7%  -0.071   diff S {'d': 0.011, 't': 0.11} V {'d': -0.185, 't': -2.52} 
+   Denaro nuovo col prezzo  S   278  51.4%   0.251 | V   276  44.9%  -0.238   vs Ricoperture            S  52.0%   0.159 | V  42.2%  -0.203   diff S {'d': 0.092, 't': 0.5} V {'d': -0.035, 't': -0.21} 
+
+Materie prime  base  studio {'n': 3248, 'pos': 45.2, 'media': -0.241, 't': -1.97}  verifica {'n': 2922, 'pos': 46.3, 'media': -0.308, 't': -1.97}
+   Flusso forte             S  1682  42.7%  -0.206 | V  1540  45.0%    -0.6   vs Flusso normale         S  47.9%  -0.278 | V  47.8%   0.018   diff S {'d': 0.072, 't': 0.3} V {'d': -0.618, 't': -1.96} 
+   Mercato calmo            S  1521  43.9%  -0.334 | V  1395  47.5%   0.005   vs Mercato agitato        S  46.9%   0.007 | V  45.6%  -0.706   diff S {'d': -0.342, 't': -1.0} V {'d': 0.711, 't': 1.73} 
+   Prima spinta             S  2034  43.0%  -0.398 | V  1769  45.6%  -0.357   vs Ripetizione            S  48.9%   0.022 | V  47.5%  -0.232   diff S {'d': -0.42, 't': -1.71} V {'d': -0.125, 't': -0.4} 
+   OI in aumento            S  1597  46.1%  -0.006 | V  1483  47.9%  -0.204   vs OI in calo             S  44.3%  -0.472 | V  44.7%  -0.415   diff S {'d': 0.466, 't': 1.91} V {'d': 0.21, 't': 0.67} 
+   Prezzo gia' a favore     S  2636  45.2%  -0.283 | V  2354  46.2%  -0.356   vs Prezzo contro          S  45.1%  -0.065 | V  47.0%  -0.107   diff S {'d': -0.218, 't': -0.64} V {'d': -0.249, 't': -0.6} 
+   Denaro nuovo col prezzo  S  1322  46.1%  -0.099 | V  1235  48.2%  -0.268   vs Ricoperture            S  44.3%  -0.467 | V  44.0%  -0.454   diff S {'d': 0.368, 't': 1.38} V {'d': 0.187, 't': 0.53} 
+
+Indici         base  studio {'n': 299, 'pos': 47.5, 'media': 0.082, 't': 0.19}  verifica {'n': 744, 'pos': 48.8, 'media': 0.0, 't': 0.0}
+   Flusso forte             S   133  47.4%   -0.42 | V   366  51.1%    0.13   vs Flusso normale         S  47.6%   0.483 | V  46.6%  -0.125   diff S {'d': -0.903, 't': -1.14} V {'d': 0.255, 't': 0.98} 
+   Mercato calmo            S   135  52.6%   0.014 | V   366  51.4%   0.034   vs Mercato agitato        S  42.7%   0.866 | V  47.2%   0.134   diff S {'d': -0.853, 't': -0.64} V {'d': -0.099, 't': -0.25} 
+   Prima spinta             S   163  46.0%  -0.316 | V   431  49.4%   0.147   vs Ripetizione            S  49.3%   0.558 | V  47.9%  -0.202   diff S {'d': -0.873, 't': -0.97} V {'d': 0.349, 't': 1.31} 
+   OI in aumento            S   172  51.2%   0.142 | V   386  46.1%   -0.14   vs OI in calo             S  42.7%    0.09 | V  51.7%   0.152   diff S {'d': 0.052, 't': 0.05} V {'d': -0.292, 't': -1.12} 
+   Prezzo gia' a favore     S   189  48.1%  -0.123 | V   421  49.4%    -0.1   vs Prezzo contro          S  46.7%    0.55 | V  47.8%   0.139   diff S {'d': -0.672, 't': -0.61} V {'d': -0.239, 't': -0.96} 
+   Denaro nuovo col prezzo  S   109  50.5%    0.19 | V   198  46.5%  -0.345   vs Ricoperture            S  45.0%  -0.548 | V  52.0%   0.118   diff S {'d': 0.738, 't': 1.31} V {'d': -0.463, 't': -1.18} 
+
+Tassi          base  studio {'n': 719, 'pos': 41.7, 'media': -0.116, 't': -2.5}  verifica {'n': 705, 'pos': 43.7, 'media': 0.011, 't': 0.2}
+   Flusso forte             S   353  44.2%  -0.086 | V   333  43.8%   0.003   vs Flusso normale         S  39.3%  -0.145 | V  43.5%   0.019   diff S {'d': 0.058, 't': 0.63} V {'d': -0.016, 't': -0.15} 
+   Mercato calmo            S   321  39.3%  -0.143 | V   296  43.6%   0.039   vs Mercato agitato        S  45.2%  -0.062 | V  44.4%   0.102   diff S {'d': -0.081, 't': -0.63} V {'d': -0.063, 't': -0.44} 
+   Prima spinta             S   430  43.7%   -0.04 | V   383  40.5%  -0.102   vs Ripetizione            S  38.8%  -0.228 | V  47.5%   0.146   diff S {'d': 0.188, 't': 1.99} V {'d': -0.249, 't': -2.21} 
+   OI in aumento            S   390  42.8%  -0.071 | V   417  44.6%  -0.019   vs OI in calo             S  40.5%  -0.168 | V  42.4%   0.056   diff S {'d': 0.097, 't': 1.02} V {'d': -0.075, 't': -0.65} 
+   Prezzo gia' a favore     S   454  40.1%  -0.143 | V   383  44.6%    0.08   vs Prezzo contro          S  44.5%  -0.068 | V  42.5%  -0.071   diff S {'d': -0.075, 't': -0.76} V {'d': 0.151, 't': 1.34} 
+   Denaro nuovo col prezzo  S   246  42.3%  -0.031 | V   233  45.1%   0.085   vs Ricoperture            S  37.5%  -0.277 | V  44.0%   0.072   diff S {'d': 0.246, 't': 2.07} V {'d': 0.013, 't': 0.09} 
+
+Crypto         base  studio {'n': 0}  verifica {'n': 153, 'pos': 49.7, 'media': -0.62, 't': -0.64}
+   Flusso forte             S     0     -%       - | V    72  54.2%  -0.725   vs Flusso normale         S     -%       - | V  45.7%  -0.527   diff S None V {'d': -0.198, 't': -0.1} 
+   Mercato calmo            S     0     -%       - | V    88  53.4%   0.308   vs Mercato agitato        S     -%       - | V  36.1%  -4.144   diff S None V {'d': 4.452, 't': 1.85} 
+   Prima spinta             S     0     -%       - | V    89  48.3%  -1.107   vs Ripetizione            S     -%       - | V  51.6%   0.057   diff S None V {'d': -1.165, 't': -0.62} 
+   OI in aumento            S     0     -%       - | V    70  47.1%  -1.367   vs OI in calo             S     -%       - | V  53.8%   0.313   diff S None V {'d': -1.68, 't': -0.85} 
+   Prezzo gia' a favore     S     0     -%       - | V    54  50.0%   1.551   vs Prezzo contro          S     -%       - | V  51.0%  -1.608   diff S None V {'d': 3.16, 't': 1.63} 
+   Denaro nuovo col prezzo  S     0     -%       - | V    27  55.6%   1.944   vs Ricoperture            S     -%       - | V  44.4%   1.159   diff S None V {'d': 0.785, 't': 0.26} 
+
+===== ESITO A 1 SETTIMANA (netto costi) =====
+
+TUTTI          base  studio {'n': 7253, 'pos': 47.1, 'media': -0.108, 't': -2.47}  verifica {'n': 6586, 'pos': 47.1, 'media': -0.133, 't': -2.19}
+   Flusso forte             S  3986  46.4%  -0.106 | V  3609  47.3%  -0.184   vs Flusso normale         S  47.9%  -0.111 | V  46.7%  -0.071   diff S {'d': 0.005, 't': 0.06} V {'d': -0.113, 't': -0.9} 
+   Mercato calmo            S  3340  47.8%  -0.108 | V  3082  48.8%   0.048   vs Mercato agitato        S  48.1%  -0.056 | V  45.1%  -0.321   diff S {'d': -0.052, 't': -0.41} V {'d': 0.369, 't': 2.35} 
+   Prima spinta             S  4900  46.5%  -0.164 | V  4223  46.4%  -0.143   vs Ripetizione            S  48.4%   0.009 | V  48.2%  -0.114   diff S {'d': -0.173, 't': -1.69} V {'d': -0.029, 't': -0.24} 
+   OI in aumento            S  2447  47.4%  -0.032 | V  2680  47.6%  -0.133   vs OI in calo             S  46.7%  -0.176 | V  46.3%  -0.125   diff S {'d': 0.144, 't': 1.13} V {'d': -0.008, 't': -0.05} 
+   Prezzo gia' a favore     S  5823  47.3%  -0.128 | V  4784  47.0%  -0.138   vs Prezzo contro          S  46.2%   -0.02 | V  47.3%  -0.104   diff S {'d': -0.109, 't': -0.75} V {'d': -0.034, 't': -0.26} 
+   Denaro nuovo col prezzo  S  1949  47.7%  -0.044 | V  1969  48.5%  -0.097   vs Ricoperture            S  46.2%  -0.235 | V  45.4%  -0.182   diff S {'d': 0.191, 't': 1.5} V {'d': 0.084, 't': 0.44} 
+
+Valute         base  studio {'n': 3010, 'pos': 48.4, 'media': -0.073, 't': -2.37}  verifica {'n': 2064, 'pos': 47.0, 'media': -0.135, 't': -4.67}
+   Flusso forte             S  1830  48.1%  -0.074 | V  1299  47.2%  -0.137   vs Flusso normale         S  48.8%  -0.072 | V  46.8%  -0.131   diff S {'d': -0.001, 't': -0.02} V {'d': -0.006, 't': -0.1} 
+   Mercato calmo            S  1370  50.4%   0.005 | V   938  49.1%  -0.081   vs Mercato agitato        S  50.1%  -0.046 | V  44.2%  -0.272   diff S {'d': 0.051, 't': 0.65} V {'d': 0.191, 't': 2.48} 
+   Prima spinta             S  2288  47.9%  -0.088 | V  1552  46.6%   -0.13   vs Ripetizione            S  49.9%  -0.027 | V  48.2%  -0.149   diff S {'d': -0.061, 't': -0.89} V {'d': 0.019, 't': 0.27} 
+   OI in aumento            S   302  52.6%   0.093 | V   324  48.1%   -0.08   vs OI in calo             S  52.7%   0.116 | V  44.2%  -0.216   diff S {'d': -0.023, 't': -0.17} V {'d': 0.136, 't': 1.15} 
+   Prezzo gia' a favore     S  2558  49.3%  -0.058 | V  1573  46.2%  -0.156   vs Prezzo contro          S  44.1%  -0.137 | V  49.7%  -0.067   diff S {'d': 0.079, 't': 0.88} V {'d': -0.088, 't': -1.4} 
+   Denaro nuovo col prezzo  S   278  54.3%    0.15 | V   276  46.7%  -0.112   vs Ricoperture            S  52.7%   0.141 | V  43.4%  -0.264   diff S {'d': 0.01, 't': 0.07} V {'d': 0.152, 't': 1.11} 
+
+Materie prime  base  studio {'n': 3225, 'pos': 47.6, 'media': -0.174, 't': -2.02}  verifica {'n': 2921, 'pos': 48.3, 'media': -0.131, 't': -1.04}
+   Flusso forte             S  1670  45.8%  -0.151 | V  1539  48.4%  -0.289   vs Flusso normale         S  49.5%  -0.198 | V  48.1%   0.044   diff S {'d': 0.047, 't': 0.27} V {'d': -0.332, 't': -1.29} 
+   Mercato calmo            S  1514  47.3%   -0.23 | V  1394  49.8%   0.192   vs Mercato agitato        S  47.8%  -0.181 | V  47.3%  -0.401   diff S {'d': -0.048, 't': -0.2} V {'d': 0.593, 't': 1.78} 
+   Prima spinta             S  2019  46.1%  -0.277 | V  1768  47.6%  -0.163   vs Ripetizione            S  50.1%     0.0 | V  49.3%  -0.083   diff S {'d': -0.278, 't': -1.55} V {'d': -0.08, 't': -0.33} 
+   OI in aumento            S  1583  47.8%   -0.08 | V  1483  49.8%  -0.122   vs OI in calo             S  47.5%   -0.26 | V  46.7%  -0.141   diff S {'d': 0.181, 't': 1.05} V {'d': 0.019, 't': 0.07} 
+   Prezzo gia' a favore     S  2622  47.3%  -0.197 | V  2353  48.0%   -0.16   vs Prezzo contro          S  48.5%  -0.078 | V  49.3%  -0.014   diff S {'d': -0.12, 't': -0.44} V {'d': -0.145, 't': -0.45} 
+   Denaro nuovo col prezzo  S  1316  47.9%  -0.095 | V  1235  50.1%  -0.119   vs Ricoperture            S  46.7%    -0.3 | V  45.7%  -0.204   diff S {'d': 0.206, 't': 1.16} V {'d': 0.085, 't': 0.29} 
+
+Indici         base  studio {'n': 299, 'pos': 48.5, 'media': 0.303, 't': 0.75}  verifica {'n': 744, 'pos': 49.1, 'media': -0.053, 't': -0.52}
+   Flusso forte             S   133  49.6%  -0.004 | V   366  51.1%   0.054   vs Flusso normale         S  47.6%   0.549 | V  47.1%  -0.157   diff S {'d': -0.553, 't': -0.73} V {'d': 0.211, 't': 1.04} 
+   Mercato calmo            S   135  53.3%   0.173 | V   366  51.1%  -0.019   vs Mercato agitato        S  42.7%   0.955 | V  47.7%  -0.075   diff S {'d': -0.782, 't': -0.6} V {'d': 0.056, 't': 0.18} 
+   Prima spinta             S   163  47.2%  -0.013 | V   431  49.0%   0.049   vs Ripetizione            S  50.0%   0.682 | V  49.2%  -0.193   diff S {'d': -0.694, 't': -0.8} V {'d': 0.242, 't': 1.17} 
+   OI in aumento            S   172  52.3%   0.298 | V   386  47.9%  -0.079   vs OI in calo             S  42.7%   0.279 | V  50.3%  -0.024   diff S {'d': 0.018, 't': 0.02} V {'d': -0.056, 't': -0.27} 
+   Prezzo gia' a favore     S   189  46.6%  -0.059 | V   421  49.6%  -0.117   vs Prezzo contro          S  51.4%   0.907 | V  48.1%   0.038   diff S {'d': -0.966, 't': -0.9} V {'d': -0.155, 't': -0.78} 
+   Denaro nuovo col prezzo  S   109  48.6%   0.155 | V   198  49.0%  -0.187   vs Ricoperture            S  43.8%  -0.351 | V  50.2%  -0.055   diff S {'d': 0.506, 't': 1.03} V {'d': -0.132, 't': -0.45} 
+
+Tassi          base  studio {'n': 719, 'pos': 39.1, 'media': -0.13, 't': -3.5}  verifica {'n': 704, 'pos': 40.8, 'media': -0.018, 't': -0.4}
+   Flusso forte             S   353  39.7%  -0.094 | V   333  39.0%  -0.085   vs Flusso normale         S  38.5%  -0.165 | V  42.3%   0.041   diff S {'d': 0.071, 't': 0.96} V {'d': -0.126, 't': -1.37} 
+   Mercato calmo            S   321  37.1%  -0.136 | V   296  41.2%     0.0   vs Mercato agitato        S  42.9%  -0.105 | V  40.0%    0.06   diff S {'d': -0.03, 't': -0.3} V {'d': -0.06, 't': -0.51} 
+   Prima spinta             S   430  40.7%  -0.094 | V   383  38.1%  -0.057   vs Ripetizione            S  36.7%  -0.183 | V  43.9%   0.028   diff S {'d': 0.089, 't': 1.19} V {'d': -0.086, 't': -0.92} 
+   OI in aumento            S   390  39.7%   -0.08 | V   417  40.5%  -0.058   vs OI in calo             S  38.4%  -0.189 | V  41.1%   0.039   diff S {'d': 0.109, 't': 1.42} V {'d': -0.097, 't': -1.02} 
+   Prezzo gia' a favore     S   454  37.2%  -0.158 | V   383  40.5%   0.001   vs Prezzo contro          S  42.6%   -0.08 | V  41.1%  -0.041   diff S {'d': -0.078, 't': -1.01} V {'d': 0.041, 't': 0.44} 
+   Denaro nuovo col prezzo  S   246  38.6%  -0.085 | V   233  40.8%   0.036   vs Ricoperture            S  35.6%  -0.244 | V  40.0%  -0.054   diff S {'d': 0.159, 't': 1.62} V {'d': 0.09, 't': 0.77} 
+
+Crypto         base  studio {'n': 0}  verifica {'n': 153, 'pos': 43.1, 'media': -1.045, 't': -1.41}
+   Flusso forte             S     0     -%       - | V    72  45.8%  -0.468   vs Flusso normale         S     -%       - | V  40.7%  -1.557   diff S None V {'d': 1.088, 't': 0.73} 
+   Mercato calmo            S     0     -%       - | V    88  46.6%  -0.406   vs Mercato agitato        S     -%       - | V  30.6%   -2.84   diff S None V {'d': 2.434, 't': 1.36} 
+   Prima spinta             S     0     -%       - | V    89  41.6%  -1.281   vs Ripetizione            S     -%       - | V  45.3%  -0.716   diff S None V {'d': -0.565, 't': -0.36} 
+   OI in aumento            S     0     -%       - | V    70  38.6%  -1.349   vs OI in calo             S     -%       - | V  48.8%  -0.515   diff S None V {'d': -0.834, 't': -0.56} 
+   Prezzo gia' a favore     S     0     -%       - | V    54  48.1%    0.17   vs Prezzo contro          S     -%       - | V  41.7%  -1.508   diff S None V {'d': 1.677, 't': 1.1} 
+   Denaro nuovo col prezzo  S     0     -%       - | V    27  55.6%   0.563   vs Ricoperture            S     -%       - | V  40.7%  -0.223   diff S None V {'d': 0.786, 't': 0.33} 
+
+===== LETTURA PER STRUMENTO (esito a fine episodio) =====
+Crypto        BTC       corto   studio {'n': 0}  verifica {'n': 100, 'pos': 49.0, 'media': -0.497, 't': -0.43}
+Crypto        ETH       corto   studio {'n': 0}  verifica {'n': 53, 'pos': 50.9, 'media': -0.852, 't': -0.5}
+Indici        DOW       corto   studio {'n': 0}  verifica {'n': 108, 'pos': 46.3, 'media': -0.394, 't': -1.1}
+Indici        EAFE      neutro  studio {'n': 32, 'pos': 43.8, 'media': -0.582, 't': -1.02}  verifica {'n': 136, 'pos': 52.9, 'media': 0.265, 't': 0.9}
+Indici        EM        neutro  studio {'n': 32, 'pos': 43.8, 'media': -0.336, 't': -0.85}  verifica {'n': 136, 'pos': 44.1, 'media': 0.081, 't': 0.28}
+Indici        NASDAQ    neutro  studio {'n': 181, 'pos': 51.4, 'media': -0.146, 't': -0.44}  verifica {'n': 150, 'pos': 44.7, 'media': -0.146, 't': -0.53}
+Indici        RUSSELL   neutro  studio {'n': 54, 'pos': 38.9, 'media': 1.485, 't': 0.73}  verifica {'n': 99, 'pos': 48.5, 'media': -0.25, 't': -0.62}
+Indici        SP500     corto   studio {'n': 0}  verifica {'n': 115, 'pos': 57.4, 'media': 0.368, 't': 1.17}
+Materie prime BRENT     corto   studio {'n': 20, 'pos': 40.0, 'media': 0.055, 't': 0.09}  verifica {'n': 150, 'pos': 47.3, 'media': -1.05, 't': -1.93}
+Materie prime CATTLE    neutro  studio {'n': 129, 'pos': 45.7, 'media': 0.144, 't': 0.49}  verifica {'n': 95, 'pos': 53.7, 'media': 0.514, 't': 1.17}
+Materie prime COCOA     neutro  studio {'n': 139, 'pos': 43.2, 'media': -0.881, 't': -1.62}  verifica {'n': 117, 'pos': 48.7, 'media': -0.069, 't': -0.09}
+Materie prime COFFEE    contro  studio {'n': 141, 'pos': 38.3, 'media': -1.194, 't': -2.02}  verifica {'n': 123, 'pos': 39.0, 'media': -1.179, 't': -2.04}
+Materie prime COPPER    neutro  studio {'n': 138, 'pos': 49.3, 'media': 0.407, 't': 0.93}  verifica {'n': 115, 'pos': 44.3, 'media': -0.095, 't': -0.23}
+Materie prime CORN      neutro  studio {'n': 135, 'pos': 43.7, 'media': -0.144, 't': -0.23}  verifica {'n': 114, 'pos': 48.2, 'media': -0.132, 't': -0.27}
+Materie prime COTTON    neutro  studio {'n': 136, 'pos': 47.8, 'media': 0.46, 't': 0.69}  verifica {'n': 108, 'pos': 50.9, 'media': -0.23, 't': -0.46}
+Materie prime FEEDER    neutro  studio {'n': 124, 'pos': 50.8, 'media': 0.059, 't': 0.17}  verifica {'n': 128, 'pos': 49.2, 'media': 0.196, 't': 0.57}
+Materie prime GASOLINE  neutro  studio {'n': 92, 'pos': 43.5, 'media': -0.831, 't': -1.12}  verifica {'n': 129, 'pos': 46.5, 'media': -0.272, 't': -0.31}
+Materie prime GOLD      neutro  studio {'n': 100, 'pos': 41.0, 'media': -0.04, 't': -0.1}  verifica {'n': 122, 'pos': 42.6, 'media': -0.292, 't': -1.13}
+Materie prime HEATOIL   neutro  studio {'n': 165, 'pos': 39.4, 'media': -1.249, 't': -2.95}  verifica {'n': 121, 'pos': 51.2, 'media': 0.043, 't': 0.08}
+Materie prime HOGS      neutro  studio {'n': 122, 'pos': 47.5, 'media': -0.321, 't': -0.52}  verifica {'n': 98, 'pos': 44.9, 'media': 0.237, 't': 0.22}
+Materie prime KCWHEAT   neutro  studio {'n': 128, 'pos': 43.0, 'media': 0.218, 't': 0.39}  verifica {'n': 117, 'pos': 52.1, 'media': -0.352, 't': -0.7}
+Materie prime NATGAS    neutro  studio {'n': 163, 'pos': 50.3, 'media': 0.615, 't': 0.5}  verifica {'n': 119, 'pos': 45.4, 'media': 1.026, 't': 0.43}
+Materie prime OJ        contro  studio {'n': 128, 'pos': 41.4, 'media': -1.211, 't': -2.04}  verifica {'n': 99, 'pos': 42.4, 'media': -1.589, 't': -1.63}
+Materie prime PALLADIUM neutro  studio {'n': 132, 'pos': 35.6, 'media': -1.073, 't': -1.56}  verifica {'n': 119, 'pos': 49.6, 'media': -0.132, 't': -0.18}
+Materie prime PLATINUM  neutro  studio {'n': 49, 'pos': 53.1, 'media': 0.163, 't': 0.36}  verifica {'n': 124, 'pos': 45.2, 'media': -0.82, 't': -2.17}
+Materie prime RICE      neutro  studio {'n': 149, 'pos': 43.6, 'media': -0.198, 't': -0.39}  verifica {'n': 99, 'pos': 25.3, 'media': -2.585, 't': -5.19}
+Materie prime SILVER    neutro  studio {'n': 86, 'pos': 50.0, 'media': 0.573, 't': 0.68}  verifica {'n': 123, 'pos': 39.8, 'media': -0.532, 't': -0.93}
+Materie prime SOY       neutro  studio {'n': 151, 'pos': 51.0, 'media': 0.445, 't': 0.92}  verifica {'n': 106, 'pos': 50.9, 'media': 0.455, 't': 1.15}
+Materie prime SOYMEAL   neutro  studio {'n': 139, 'pos': 47.5, 'media': -0.314, 't': -0.59}  verifica {'n': 111, 'pos': 53.2, 'media': 0.559, 't': 0.97}
+Materie prime SOYOIL    contro  studio {'n': 154, 'pos': 39.0, 'media': -0.87, 't': -2.24}  verifica {'n': 104, 'pos': 46.2, 'media': -0.048, 't': -0.1}
+Materie prime SUGAR     neutro  studio {'n': 125, 'pos': 48.0, 'media': 0.274, 't': 0.46}  verifica {'n': 111, 'pos': 52.3, 'media': -0.265, 't': -0.53}
+Materie prime WHEAT     neutro  studio {'n': 139, 'pos': 46.0, 'media': -0.635, 't': -1.18}  verifica {'n': 142, 'pos': 44.4, 'media': -0.626, 't': -1.57}
+Materie prime WTI       neutro  studio {'n': 264, 'pos': 49.2, 'media': 0.049, 't': 0.14}  verifica {'n': 128, 'pos': 44.5, 'media': -0.328, 't': -0.28}
+Tassi         ULTRA     neutro  studio {'n': 39, 'pos': 48.7, 'media': -0.406, 't': -0.97}  verifica {'n': 129, 'pos': 48.8, 'media': -0.01, 't': -0.05}
+Tassi         US10Y     neutro  studio {'n': 182, 'pos': 46.7, 'media': -0.054, 't': -0.67}  verifica {'n': 160, 'pos': 42.5, 'media': -0.059, 't': -0.76}
+Tassi         US2Y      contro  studio {'n': 164, 'pos': 25.6, 'media': -0.136, 't': -5.03}  verifica {'n': 139, 'pos': 29.5, 'media': -0.077, 't': -3.15}
+Tassi         US5Y      neutro  studio {'n': 153, 'pos': 47.1, 'media': -0.021, 't': -0.28}  verifica {'n': 137, 'pos': 45.3, 'media': -0.02, 't': -0.38}
+Tassi         USBOND    neutro  studio {'n': 181, 'pos': 45.3, 'media': -0.178, 't': -1.47}  verifica {'n': 140, 'pos': 52.9, 'media': 0.23, 't': 1.34}
+Valute        AUDCAD    neutro  studio {'n': 134, 'pos': 47.0, 'media': -0.223, 't': -1.72}  verifica {'n': 58, 'pos': 53.4, 'media': -0.106, 't': -0.75}
+Valute        AUDCHF    neutro  studio {'n': 145, 'pos': 49.0, 'media': -0.063, 't': -0.3}  verifica {'n': 73, 'pos': 42.5, 'media': -0.265, 't': -1.6}
+Valute        AUDJPY    neutro  studio {'n': 161, 'pos': 48.4, 'media': -0.097, 't': -0.46}  verifica {'n': 61, 'pos': 44.3, 'media': -0.248, 't': -0.9}
+Valute        AUDNZD    contro  studio {'n': 40, 'pos': 27.5, 'media': -0.373, 't': -2.24}  verifica {'n': 50, 'pos': 40.0, 'media': -0.245, 't': -1.58}
+Valute        AUDUSD    neutro  studio {'n': 79, 'pos': 62.0, 'media': 0.622, 't': 2.01}  verifica {'n': 61, 'pos': 36.1, 'media': -0.301, 't': -1.17}
+Valute        CADCHF    neutro  studio {'n': 184, 'pos': 43.5, 'media': -0.212, 't': -1.21}  verifica {'n': 74, 'pos': 40.5, 'media': -0.321, 't': -2.29}
+Valute        CADJPY    neutro  studio {'n': 200, 'pos': 39.5, 'media': -0.2, 't': -1.19}  verifica {'n': 72, 'pos': 40.3, 'media': -0.35, 't': -1.82}
+Valute        CHFJPY    neutro  studio {'n': 139, 'pos': 41.7, 'media': -0.314, 't': -1.88}  verifica {'n': 64, 'pos': 51.6, 'media': -0.102, 't': -0.68}
+Valute        EURAUD    neutro  studio {'n': 85, 'pos': 47.1, 'media': -0.113, 't': -0.65}  verifica {'n': 68, 'pos': 51.5, 'media': -0.003, 't': -0.02}
+Valute        EURCAD    contro  studio {'n': 116, 'pos': 35.3, 'media': -0.415, 't': -2.34}  verifica {'n': 67, 'pos': 41.8, 'media': -0.207, 't': -1.26}
+Valute        EURCHF    neutro  studio {'n': 74, 'pos': 47.3, 'media': -0.234, 't': -2.28}  verifica {'n': 83, 'pos': 49.4, 'media': -0.036, 't': -0.33}
+Valute        EURGBP    neutro  studio {'n': 67, 'pos': 41.8, 'media': -0.055, 't': -0.36}  verifica {'n': 62, 'pos': 40.3, 'media': -0.469, 't': -2.92}
+Valute        EURJPY    neutro  studio {'n': 118, 'pos': 44.9, 'media': -0.249, 't': -1.58}  verifica {'n': 62, 'pos': 50.0, 'media': -0.145, 't': -0.79}
+Valute        EURNZD    neutro  studio {'n': 67, 'pos': 46.3, 'media': -0.245, 't': -1.11}  verifica {'n': 66, 'pos': 40.9, 'media': -0.066, 't': -0.32}
+Valute        EURUSD    neutro  studio {'n': 80, 'pos': 50.0, 'media': 0.325, 't': 1.45}  verifica {'n': 67, 'pos': 46.3, 'media': 0.03, 't': 0.17}
+Valute        GBPAUD    neutro  studio {'n': 150, 'pos': 50.0, 'media': 0.008, 't': 0.05}  verifica {'n': 77, 'pos': 44.2, 'media': -0.263, 't': -1.51}
+Valute        GBPCAD    contro  studio {'n': 160, 'pos': 35.6, 'media': -0.445, 't': -2.94}  verifica {'n': 71, 'pos': 40.8, 'media': -0.228, 't': -1.55}
+Valute        GBPCHF    neutro  studio {'n': 126, 'pos': 48.4, 'media': -0.054, 't': -0.44}  verifica {'n': 80, 'pos': 43.8, 'media': -0.344, 't': -2.07}
+Valute        GBPJPY    neutro  studio {'n': 164, 'pos': 54.9, 'media': 0.02, 't': 0.12}  verifica {'n': 82, 'pos': 40.2, 'media': -0.501, 't': -2.53}
+Valute        GBPNZD    neutro  studio {'n': 61, 'pos': 50.8, 'media': -0.161, 't': -0.69}  verifica {'n': 64, 'pos': 51.6, 'media': -0.23, 't': -1.05}
+Valute        GBPUSD    neutro  studio {'n': 78, 'pos': 44.9, 'media': 0.134, 't': 0.72}  verifica {'n': 72, 'pos': 50.0, 'media': -0.077, 't': -0.55}
+Valute        NZDCAD    neutro  studio {'n': 63, 'pos': 47.6, 'media': -0.052, 't': -0.21}  verifica {'n': 62, 'pos': 56.5, 'media': -0.02, 't': -0.11}
+Valute        NZDCHF    neutro  studio {'n': 78, 'pos': 47.4, 'media': -0.025, 't': -0.11}  verifica {'n': 62, 'pos': 38.7, 'media': -0.278, 't': -1.42}
+Valute        NZDJPY    neutro  studio {'n': 73, 'pos': 47.9, 'media': -0.66, 't': -1.24}  verifica {'n': 62, 'pos': 43.5, 'media': -0.277, 't': -1.08}
+Valute        NZDUSD    neutro  studio {'n': 70, 'pos': 47.1, 'media': 0.014, 't': 0.04}  verifica {'n': 67, 'pos': 40.3, 'media': -0.478, 't': -2.17}
+Valute        USDBRL    corto   studio {'n': 13, 'pos': 61.5, 'media': 1.544, 't': 1.76}  verifica {'n': 71, 'pos': 52.1, 'media': 0.166, 't': 0.7}
+Valute        USDCAD    neutro  studio {'n': 62, 'pos': 54.8, 'media': 0.066, 't': 0.38}  verifica {'n': 75, 'pos': 42.7, 'media': -0.129, 't': -0.84}
+Valute        USDCHF    neutro  studio {'n': 84, 'pos': 46.4, 'media': -0.129, 't': -0.67}  verifica {'n': 77, 'pos': 44.2, 'media': -0.324, 't': -1.57}
+Valute        USDJPY    neutro  studio {'n': 69, 'pos': 52.2, 'media': 0.07, 't': 0.36}  verifica {'n': 65, 'pos': 40.0, 'media': -0.383, 't': -1.62}
+Valute        USDMXN    neutro  studio {'n': 64, 'pos': 48.4, 'media': -0.108, 't': -0.49}  verifica {'n': 60, 'pos': 48.3, 'media': -0.167, 't': -0.55}
+Valute        USDZAR    corto   studio {'n': 6, 'pos': 50.0, 'media': -0.282, 't': -0.66}  verifica {'n': 35, 'pos': 45.7, 'media': -0.093, 't': -0.25}
+{'corto': 7, 'neutro': 55, 'contro': 7}
+
+ESITO (22/11/2026, regole fissate prima nel docstring; archivio COT fino al report del 17/11/2026)
+- 13.870 episodi chiusi di 69 strumenti. Seguire gli speculatori a ogni cambio di direzione, costi inclusi, chiude a
+  favore il 45-46% delle volte in ENTRAMBI i periodi (media -0,17% studio, -0,22% verifica): nessun vantaggio, anzi
+  un leggero svantaggio dopo i costi.
+- Lettura per strumento: 0 "segue", 7 "va contro" (caffe', succo d'arancia, olio di soia, Treasury 2 anni, AUD/NZD,
+  EUR/CAD, GBP/CAD), 55 nessuna tendenza, 7 storico corto. Treasury 2 anni e olio di soia dipendono dai costi
+  stimati: senza costi, nella verifica il segno si gira.
+- CONDIZIONI: nessuna supera la regola (t >= 2 nello studio e >= 1,5 nella verifica nella stessa direzione), in
+  nessuna famiglia. Open interest in aumento: +0,34% a episodio nello studio (t 1,98), ~0 nella verifica (t 0,13).
+- NOTA sullo studio Belveal (13/11): "forti - deboli" aveva t 2,57 / 2,17, sotto la soglia t >= 4 fissata in quello
+  studio (operazioni sovrapposte): NON aveva superato la propria regola.
+- DECISIONE PROPOSTA: la sottoscheda mostra il comportamento come DESCRIZIONE onesta; nessuna percentuale presentata
+  come vantaggio. I 5 "va contro" robusti (caffe', succo d'arancia, AUD/NZD, EUR/CAD, GBP/CAD) sono candidati per
+  uno studio contrarian dedicato, con regole nuove fissate prima.
