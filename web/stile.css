@@ -2688,6 +2688,9 @@ html.ptmod-on{overflow:hidden}
  .per:not(.peth) .pec-su{grid-column:4;grid-row:1;align-items:flex-end;justify-content:center;font-size:11.5px}.per:not(.peth) .pec-su::before{display:none}
  .pereg{font-size:10.5px;padding:2px 8px}.pefr{margin-left:3px}
  .pepiu{border:1px solid var(--line);border-radius:12px}
+ /* v8.69 telefono: i 4 gruppi su una riga sola (senza conteggi); il nome del paese non si taglia, si accorcia il sottotitolo */
+ .pegruppi{flex-wrap:nowrap;gap:5px}.pegruppi button{flex:1 1 0;min-width:0;padding:7px 4px;font-size:12.5px;text-align:center}.pegruppi small{display:none}
+ .per:not(.peth) .pen b{flex-shrink:0;max-width:75%}.per:not(.peth) .pen span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 }
 
 /* ===== v7.71 SIDEBAR: stato dati richiudibile, gruppo Assistenza, La mia lista =====

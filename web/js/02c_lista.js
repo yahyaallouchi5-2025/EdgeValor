@@ -79,7 +79,9 @@ try{(function(){
  /* ----- ricerca universale: [tipo, id, nome, dettaglio, testo in cui cercare] ----- */
  const ETI={az:"Azienda",pa:"Paese",fx:"Forex",me:"Mercato"};
  function universo(){const u=[];
-  ((D.paesi||{}).paesi||[]).forEach(r=>u.push(["pa",r.iso,r.nome,r.area||"Paese emergente",(r.nome+" "+r.iso+" "+(r.etf||"")).toLowerCase()]));
+  // v8.69 tre gruppi di paesi: finche' sono solo del fondatore gli altri cercano tra gli emergenti come prima
+  const adm=document.documentElement.classList.contains("eb-admin");
+  ((D.paesi||{}).paesi||[]).filter(r=>adm||!r.gr||r.gr=="Emergenti").forEach(r=>u.push(["pa",r.iso,r.nome,(adm&&r.gr?r.gr+" · ":"")+(r.area||"Paese emergente"),(r.nome+" "+r.iso+" "+(r.etf||"")).toLowerCase()]));
   (D.pairs||[]).forEach(p=>u.push(["fx",p.pair,cop(p.pair),"Forex",(p.pair+" "+cop(p.pair)+" forex").toLowerCase()]));
   Object.entries(D.assets||{}).forEach(([k,a])=>u.push(["me",k,a.it||a.name||k,a.group||"Mercato",(k+" "+(a.it||"")+" "+(a.name||"")+" "+(a.group||"")).toLowerCase()]));
   (titoli||[]).forEach(t=>u.push(["az",t.t,t.n,t.t,(t.n+" "+t.t).toLowerCase()]));
@@ -87,7 +89,8 @@ try{(function(){
  let U=null;
  function risultati(){const q=cerca.value.trim().toLowerCase();
   if(q.length<2){ris.hidden=true;ris.innerHTML="";corpo.hidden=false;return;}
-  if(!U||(!U.az&&titoli)){U=universo();U.az=!!titoli;}
+  const ad=document.documentElement.classList.contains("eb-admin");   // v8.69 si rifa' se arriva il riconoscimento del fondatore
+  if(!U||(!U.az&&titoli)||U.ad!==ad){U=universo();U.az=!!titoli;U.ad=ad;}
   const par=q.split(/\s+/);
   // prima chi INIZIA con il testo cercato, poi chi lo contiene; al massimo 12 risultati
   const tro=U.filter(x=>par.every(w=>x[4].includes(w))).sort((a,b)=>(a[2].toLowerCase().startsWith(q)?0:1)-(b[2].toLowerCase().startsWith(q)?0:1)||a[2].length-b[2].length).slice(0,12);
@@ -104,7 +107,7 @@ try{(function(){
  function disegna(){
   if(!TIPI.some(t=>L[t].length)){corpo.innerHTML=`<div class="lvuota">${SVG}<b>La lista è vuota</b><span>Cerca qui sopra e aggiungi con un tocco, oppure usa la stellina nelle tabelle.</span></div>`;return;}
   corpo.innerHTML=(L.az.length?`<h3 class="lt">Aziende <small>${L.az.length}</small></h3><div class="lgr">${L.az.map(rigaAz).join("")}</div>`:"")
-   +(L.pa.length?`<h3 class="lt">Paesi emergenti <small>${L.pa.length}</small></h3><div class="lgr">${L.pa.map(rigaPa).join("")}</div>`:"")
+   +(L.pa.length?`<h3 class="lt">${document.documentElement.classList.contains("eb-admin")?"Paesi":"Paesi emergenti"} <small>${L.pa.length}</small></h3><div class="lgr">${L.pa.map(rigaPa).join("")}</div>`:"")
    +(L.fx.length?`<h3 class="lt">Forex <small>${L.fx.length}</small></h3><div class="lgr">${L.fx.map(rigaFx).join("")}</div>`:"")
    +(L.me.length?`<h3 class="lt">Mercati <small>${L.me.length}</small></h3><div class="lgr">${L.me.map(rigaMe).join("")}</div>`:"");}               // v8.05: tolta la nota "Salvata in questo browser" (la lista si salva anche sull'account)
  function vaiPaese(iso){try{go("sig");}catch(e){}
