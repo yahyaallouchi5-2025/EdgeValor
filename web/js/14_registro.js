@@ -22,7 +22,18 @@ try{
   <div class="card kpi"><h3>Avvisi</h3><div class="big" style="color:${S.avvisi?"var(--warn)":"var(--ink)"}">${S.avvisi??"n/d"}</div><div class="note">dati vecchi, fonti non raggiunte</div></div>
   <div class="card kpi"><h3>Durata</h3><div class="big">${S.durata_s??"n/d"} s</div><div class="note">${S.strumenti??"?"} strumenti, ${S.coppie??"?"} coppie</div></div></div>
   <h2>Fonti</h2><div class="card">${fonti||"n/d"}</div>
-  <h2>Avvisi ed errori di questa esecuzione</h2><div class="tablewrap"><table><tr><th>Ora</th><th>Livello</th><th>Modulo</th><th>Messaggio</th></tr>${crit+voci+brow||'<tr><td colspan="4">Nessun avviso: tutto regolare.</td></tr>'}</table></div>`;}
+  <h2>Avvisi ed errori di questa esecuzione</h2><div class="tablewrap"><table><tr><th>Ora</th><th>Livello</th><th>Modulo</th><th>Messaggio</th></tr>${crit+voci+brow||'<tr><td colspan="4">Nessun avviso: tutto regolare.</td></tr>'}</table></div>${provaContro(S.pc)}`;}
+ // v8.72 test in avanti CONTRO gli speculatori (cot_radar/prova_contro.py): solo qui, mai ai clienti
+ function provaContro(P){if(!P)return "";
+  const n=x=>x==null?"–":(x>0?"+":"")+String(x).replace(".",",")+"%",dir=v=>v>0?"rialzo":"ribasso";
+  const g=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(2,4):"";            // 2026-11-24 -> 24/11/26
+  const ap=(P.aperti||[]).map(e=>`<tr><td>${esc(e.k)}</td><td>${g(e.inizio)}</td><td>${dir(e.verso)}</td><td>${n(e.ris)}</td></tr>`).join("");
+  const ch=(P.ultimi||[]).map(e=>`<tr><td>${esc(e.k)}</td><td>${g(e.inizio)} → ${g(e.fine)}</td><td>${n(e.ris)}</td></tr>`).join("");
+  return `<h2>Test in avanti contro gli speculatori <span class="tag ko">solo admin</span></h2>
+  <p class="sub">Regole fissate il 22/11/2026 (cot_radar/prova_contro.py): COFFEE, OJ, AUDNZD, EURCAD, GBPCAD, posizione contraria ai grandi speculatori, risultati netti dei costi. Giudizio solo con almeno 30 episodi chiusi: regge se a favore oltre il 50% e media positiva.</p>
+  <div class="card">${P.integra?"":`<b style="color:var(--ss)">Catena NON integra</b> · `}<b>${esc(P.giudizio)}</b> · chiusi ${P.n} · a favore ${P.pos==null?"–":P.pos+"%"} · media ${n(P.media)}</div>
+  <div class="tablewrap"><table><tr><th>Aperti</th><th>Inizio</th><th>Posizione</th><th>Oggi</th></tr>${ap||'<tr><td colspan="4">Nessun episodio aperto.</td></tr>'}</table></div>
+  ${ch?`<div class="tablewrap"><table><tr><th>Chiusi</th><th>Periodo</th><th>Esito</th></tr>${ch}</table></div>`:""}`;}
  // decifra con la password: PBKDF2-SHA256 -> chiave AES-GCM 256 (stessi parametri di admin.py)
  async function decifra(pw){const b=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
   const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);

@@ -147,6 +147,11 @@ def main(argv):
         # (dati sospetti = possibili segnali finti). Vedi cot_radar/registro.py
         if stato["esito"] != "critico":
             registro.salva()
+            try:                                     # v8.72 test in avanti contro (stesse regole del registro)
+                from cot_radar import prova_contro
+                prova_contro.salva()
+            except Exception as e:
+                log.warning("test in avanti contro non salvato: %s", e)
         else:
             log.warning("registro segnali non aggiornato: esito critico")
         segnala_a_github(stato)
@@ -156,6 +161,8 @@ def main(argv):
     # (senza password: non pubblicato), sul PC in chiaro perche' la pagina resta locale.
     reg = {k: stato.get(k) for k in ("creato", "esito", "errori", "avvisi", "durata_s", "fonti", "strumenti",
                                        "coppie", "critici", "voci")}
+    from cot_radar.pagina import ULTIMI as _U
+    reg["pc"] = _U.get("pc")                 # v8.72 test in avanti contro: SOLO qui, nel registro cifrato
     blocco = admin.cifra(reg, os.environ.get("ADMIN_PASSWORD", "")) if site else {"chiaro": reg}
     if site and blocco is None:
         log.info("Registro admin non pubblicato (manca il Secret ADMIN_PASSWORD o la libreria cryptography)")

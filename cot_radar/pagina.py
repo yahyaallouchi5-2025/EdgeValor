@@ -183,6 +183,15 @@ def build(data_source=load_all, demo=False, sito=False):
             cmp_pag = comportamento.calcola(righe_cot, prezzi)
     except Exception:
         log.warning("comportamento COT non calcolato:\n%s", traceback.format_exc())
+    # v8.72 TEST IN AVANTI contro gli speculatori su 5 mercati (prova_contro.py): solo nel registro admin cifrato,
+    # mai nella pagina dei clienti. Scrive (dopo la pubblicazione) solo sul sito vero.
+    pc_pag = None
+    try:
+        if righe_cot and prezzi and not demo:
+            from . import prova_contro
+            pc_pag = prova_contro.aggiorna(righe_cot, prezzi, status, t0_utc, scrivi=sito)
+    except Exception:
+        log.warning("test in avanti contro non calcolato:\n%s", traceback.format_exc())
     # ARCHIVI COT EXTRA (combined, TFF, Disaggregated): solo per il confronto nel backtest (confronto.py),
     # non cambiano nulla nella pagina. Ognuno isolato: se uno non arriva, gli altri e il sito vanno avanti.
     rie_extra, righe_extra = {}, {}
@@ -390,7 +399,7 @@ def build(data_source=load_all, demo=False, sito=False):
     payload = json.dumps(clean(data), ensure_ascii=False, separators=(",", ":"))
     ULTIMI.clear()
     ULTIMI.update(data=clean({"assets": assets, "pairs": pairs}), bt_dal=(bt or {}).get("dal"), bt_n=(bt or {}).get("n"),
-                  demo=demo, verifica=verifica,
+                  demo=demo, verifica=verifica, pc=pc_pag,
                   # v7.69 per le anteprime VERE della landing (vetrina.dentro): gli stessi oggetti della pagina
                   extra={"port": port, "paesi": paesi_pag, "economie": quadro_pag, "market": market, "agenda": agenda_out})
     # "</" dentro <script> chiuderebbe il tag per errore: lo "spezziamo" in "<\/"
