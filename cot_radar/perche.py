@@ -1,0 +1,115 @@
+# -*- coding: utf-8 -*-
+"""
+perche.py - v8.74 IL "PERCHE'" DI OGNI SEGNALE DEL REGISTRO LIVE: quali annunci sono caduti durante il trade e
+quanto si e' mosso il prezzo nella seduta di ciascuno, piu' il giorno peggiore (il drawdown) e se aveva un annuncio.
+Niente opinioni: solo date ufficiali e la mossa vera del prezzo in quella seduta, nel verso del segnale.
+
+ANNUNCI (orari ufficiali, convertiti in UTC):
+  - USA: occupazione NFP, inflazione CPI, decisione Fed (eventi_usa.csv + notizie.CALENDARIO, come eventi.py);
+  - BCE (notizie.CALENDARIO);
+  - Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ, SNB (agenda.BANCHE, calendari ufficiali).
+    La BoJ non ha un'ora fissa: si usa mezzogiorno di Tokyo (03:00 UTC), prima di ogni chiusura di quel giorno.
+QUALI CONTANO per uno strumento: per una coppia di valute gli annunci delle sue due valute; per tutto il resto
+(indici, materie prime, crypto: prezzi in dollari) gli annunci USA.
+SEDUTA DI UN ANNUNCIO: la prima chiusura dopo l'annuncio (stessa regola di eventi.py e del registro: conta l'ora;
+per i cambi, chiusi alle 12 di New York, la Fed delle 14 entra nella seduta del giorno dopo).
+MOSSA DELLA SEDUTA: risultato del trade a quella chiusura meno quello alla chiusura prima, in punti percentuali
+del prezzo d'ingresso, nel verso del segnale (positivo = a favore). Si guarda il trade fino all'uscita
+"al cambio segnale" (o fino a oggi se e' aperto), al massimo le 20 sedute del percorso salvato.
+
+USO: registro.vista() chiama notizie_segnale(s, m, cal) PRIMA di alleggerire la misura (serve il percorso).
+DEBUG: python -c "from cot_radar import perche as P; print(P.annunci()[-5:])"
+"""
+from bisect import bisect_right
+from datetime import date, datetime, timezone
+from zoneinfo import ZoneInfo
+
+from .log import log
+
+ROMA = ZoneInfo("Europe/Rome")
+CORTI = {"NFP": "NFP USA", "CPI": "CPI USA", "FOMC": "Fed", "boe": "BoE", "boj": "BoJ", "boc": "BoC", "rba": "RBA",
+         "rbnz": "RBNZ", "snb": "SNB"}
+VALUTA = {"boe": "GBP", "boj": "JPY", "boc": "CAD", "rba": "AUD", "rbnz": "NZD", "snb": "CHF"}
+VALUTE = ("EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "MXN", "BRL", "ZAR", "USD")
+_cache = None
+
+
+def _aware(t):
+    return t.replace(tzinfo=timezone.utc) if t.tzinfo is None else t.astimezone(timezone.utc)
+
+
+def annunci():
+    """[(istante UTC, nome breve, valuta)] in ordine di tempo, senza doppioni. Una volta per processo."""
+    global _cache
+    if _cache is not None:
+        return _cache
+    from .calendario import et_to_utc
+    out = set()
+    try:                                              # USA: storico + date future (gia' uniti da eventi.carica)
+        from .eventi import carica
+        for d, h, nome in carica():
+            ore = int(h)
+            out.add((_aware(et_to_utc(date.fromisoformat(d), ore, round((h - ore) * 60))), CORTI.get(nome, nome), "USD"))
+    except Exception as e:
+        log.warning("perche': annunci USA non letti (%s)", e)
+    try:                                              # BCE
+        from .notizie import CALENDARIO, _utc
+        for ev in CALENDARIO:
+            if ev[4] == "BCE":
+                out.add((_aware(_utc(ev)), "BCE", "EUR"))
+    except Exception as e:
+        log.warning("perche': date BCE non lette (%s)", e)
+    try:                                              # altre banche centrali
+        from .agenda import BANCHE, _utc_locale
+        for cod, (fuso, ora, minuti, giorni) in BANCHE.items():
+            for g in giorni:
+                u = _utc_locale(g, ora, minuti, fuso) if ora is not None else g + "T03:00Z"
+                out.add((datetime.strptime(u, "%Y-%m-%dT%H:%MZ").replace(tzinfo=timezone.utc), CORTI[cod], VALUTA[cod]))
+    except Exception as e:
+        log.warning("perche': banche centrali non lette (%s)", e)
+    _cache = sorted(out)
+    return _cache
+
+
+def valute(strumento, base=None, quote=None):
+    """Valute i cui annunci contano per lo strumento."""
+    if base and quote and base in VALUTE and quote in VALUTE:
+        return {base, quote}
+    k = strumento or ""
+    if len(k) == 6 and k[:3] in VALUTE and k[3:] in VALUTE:
+        return {k[:3], k[3:]}
+    return {"USD"}
+
+
+def notizie_segnale(s, m, lista=None):
+    """{"ev": [{n, d, k, m}], "pg": {k, d, m, ev}} per un segnale misurato (m con il percorso "G"/"Gd"), None se manca.
+    ev = annunci dentro il trade (k = numero della seduta, d = giorno dell'annuncio a Roma, m = mossa della seduta);
+    pg = giorno peggiore (seduta con la mossa piu' negativa) e gli annunci caduti in quella seduta."""
+    if not m or m.get("stato") != "ok" or not m.get("G") or not m.get("Gd"):
+        return None
+    from .motore import chiusura_utc
+    lista = annunci() if lista is None else lista
+    tempi = [x[0] for x in lista]
+    cls = m.get("cls") or "fx"
+    ultima = ((m.get("A") or {}).get("fine") or {}).get("data")
+    date_s = [d for d in m["Gd"] if not ultima or d <= ultima]
+    if not date_s:
+        return None
+    vv = valute(s.get("strumento"), s.get("base"), s.get("quote"))
+    chiusure = [chiusura_utc(m["ingresso"]["data"], cls)] + [chiusura_utc(d, cls) for d in date_s]
+    ev, sedute = [], []
+    prima = 0.0
+    for k, d in enumerate(date_s):
+        mossa = round(m["G"][k][0] - prima, 3)
+        prima = m["G"][k][0]
+        a, b = bisect_right(tempi, chiusure[k]), bisect_right(tempi, chiusure[k + 1])
+        nomi = []
+        for t, nome, val in lista[a:b]:
+            if val in vv:
+                nomi.append(nome)
+                ev.append({"n": nome, "d": t.astimezone(ROMA).date().isoformat(), "k": k + 1, "m": mossa})
+        sedute.append((mossa, k + 1, d, nomi))
+    peggiore = min(sedute, key=lambda x: x[0])
+    pg = {"k": peggiore[1], "d": peggiore[2], "m": peggiore[0], "ev": peggiore[3]} if peggiore[0] < 0 else None
+    return {"ev": ev, "pg": pg}
+
