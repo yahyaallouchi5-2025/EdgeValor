@@ -1,0 +1,41 @@
+{
+ "quando": "2026-11-22 14:37 UTC",
+ "prove": {
+  "simboli": {
+   "http": 403,
+   "forma": null
+  },
+  "contratti_SPY": {
+   "http": 403,
+   "forma": null
+  },
+  "eod_SPY_oggi": {
+   "http": 403,
+   "forma": null
+  },
+  "eod_SPY_2018": {
+   "http": 403,
+   "forma": null
+  },
+  "eod_SPY_2022": {
+   "http": 403,
+   "forma": null
+  },
+  "eod_SPY_2025": {
+   "http": 403,
+   "forma": null
+  },
+  "eod_QQQ_oggi": {
+   "http": 403,
+   "forma": null
+  },
+  "eod_GLD_oggi": {
+   "http": 403,
+   "forma": null
+  },
+  "vecchio_SPY": {
+   "http": 404,
+   "forma": null
+  }
+ }
+}
