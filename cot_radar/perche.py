@@ -107,7 +107,11 @@ def notizie_segnale(s, m, lista=None):
         for t, nome, val in lista[a:b]:
             if val in vv:
                 nomi.append(nome)
-                ev.append({"n": nome, "d": t.astimezone(ROMA).date().isoformat(), "k": k + 1, "m": mossa})
+                e = {"n": nome, "d": t.astimezone(ROMA).date().isoformat(), "k": k + 1, "m": mossa,
+                     "t": t.strftime("%Y-%m-%dT%H:%MZ")}           # v8.75 ora esatta: la linea sulle candele orarie
+                if nome == "BoJ":
+                    e["x"] = 1                                       # ora indicativa (la BoJ non ha un orario fisso)
+                ev.append(e)
         sedute.append((mossa, k + 1, d, nomi))
     peggiore = min(sedute, key=lambda x: x[0])
     pg = {"k": peggiore[1], "d": peggiore[2], "m": peggiore[0], "ev": peggiore[3]} if peggiore[0] < 0 else None

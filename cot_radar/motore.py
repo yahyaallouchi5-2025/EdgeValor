@@ -357,6 +357,8 @@ def misura(segnale, pts, cls, oggi=None):
     for nome, (j, prov) in uscite.items():
         t = _tratto(pts, ie, j, pe, v)
         t["provvisorio"] = prov
+        if nome == "fine":                               # v8.75 istante dell'uscita (linea sulle candele orarie)
+            t["utc"] = utc_iso(chiusura_utc(t["data"], cls))
         out["A"][nome] = t
 
     # B: ordine limite di ritracciamento, valido 5 chiusure

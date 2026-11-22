@@ -264,6 +264,32 @@ def nome(sym):
     return s
 
 
+# v8.75 CANDELE ORARIE PER LA SCHEDA LIVE: un tocco su un segnale mostra le sue candele (web/js/13c_candele.js).
+# File mensili <uscita>/h1/<SIMBOLO>/<AAAA-MM>.json dal mese in cui e' partito il registro live: la pagina scarica solo
+# i mesi che le servono e i mesi passati restano per sempre (non si perdono quando passa il tempo).
+# Formato: {"s": simbolo, "t0": inizio del mese in secondi UTC, "b": [[ore dall'inizio del mese, o, h, l, c], ...]}.
+H1_DAL = "2026-09"
+
+
+def candele_mensili(sym, ore, uscita, dal=H1_DAL):
+    """Scrive i file mensili delle candele orarie (UTC) da 'dal' in poi. Restituisce il numero di mesi scritti."""
+    per_mese = {}
+    for ts in sorted(ore):
+        mese = datetime.fromtimestamp(ts, timezone.utc).strftime("%Y-%m")
+        if mese >= dal:
+            per_mese.setdefault(mese, []).append(ts)
+    if not per_mese:
+        return 0
+    cart = os.path.join(uscita, "h1", sym.replace("/", "_"))
+    os.makedirs(cart, exist_ok=True)
+    for mese, tss in per_mese.items():
+        t0 = int(datetime.strptime(mese + "-01", "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
+        b = [[(ts - t0) // 3600] + [float(f"{x:.6g}") for x in ore[ts][:4]] for ts in tss]
+        with open(os.path.join(cart, mese + ".json"), "w") as fh:
+            json.dump({"s": sym, "t0": t0, "b": b}, fh, separators=(",", ":"))
+    return len(per_mese)
+
+
 def calcola(cartella, uscita):
     """Calcola tutti i simboli scaricati e scrive <uscita>/<simbolo>.json + indice.json. Controlla l'ora legale."""
     problemi = controlla_ora_legale()
@@ -275,6 +301,10 @@ def calcola(cartella, uscita):
     indice = []
     for sym, fase, _ in orari.universo():
         ore = orari.utc_vero(sym, orari.leggi(orari.nome_file(cartella, sym)))   # v7.65 forex vecchio: da ora di New York a UTC
+        try:                                            # v8.75 candele per la scheda Live (mai bloccante)
+            candele_mensili(sym, ore, uscita)
+        except (OSError, ValueError) as e:
+            log.warning("candele orarie mensili di %s non scritte (%s)", sym, e)
         # v7.64 REGOLA DEI 10 ANNI (scelta di Ya): una tabella si mostra solo con almeno 10 anni di storico.
         #  - candele orarie EODHD >= 10 anni -> tutte le viste (Orario compreso);
         #  - meno di 10 anni ma Yahoo ha >= 10 anni di chiusure giornaliere -> solo Giornaliero, Settimanale, Mensile;
