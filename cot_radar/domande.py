@@ -22,7 +22,7 @@ DOMANDE = [
     ("Che cos'è EdgeValor?",
      "EdgeValor è un terminale italiano di analisi quantitativa dei mercati finanziari. Riunisce in un solo posto "
      "il posizionamento dei grandi speculatori (report COT), la stagionalità, le correlazioni, il quadro macro, "
-     "l'azionario globale, i paesi emergenti, le crypto e i portafogli modello. Ogni dato è provato sullo storico "
+     "l'azionario globale, 60 paesi del mondo, le crypto e i portafogli modello. Ogni dato è provato sullo storico "
      "e mostrato con una lettura semplice."),
     ("Che cosa analizza il terminale?",
      "EdgeValor copre forex, materie prime, indici azionari, tassi e crypto. Per ogni mercato mostra la direzione dei "
@@ -44,11 +44,12 @@ DOMANDE = [
      "divisi negli 11 settori GICS. Ogni titolo ha un punteggio, il grafico e la propria stagionalità; ogni sera "
      "il terminale seleziona le aziende più forti, al massimo una per settore, solo se sono in trend, vicine ai "
      "massimi e con il mese favorevole negli anni passati."),
-    ("Cosa trovo su macro e paesi emergenti?",
+    ("Cosa trovo su macro e paesi?",
      "Nella parte macro EdgeValor misura il clima per gli asset di rischio, i driver principali (tassi, dollaro, "
      "inflazione attesa, volatilità) e quanto le mosse delle banche centrali sono già scontate dai mercati, con il "
-     "quadro economico di Stati Uniti, Eurozona e Giappone. I paesi emergenti sono i 24 dell'indice MSCI Emerging "
-     "Markets, tra cui Cina, India, Brasile, Messico, Arabia Saudita, Sudafrica, Turchia e Polonia: per ognuno "
+     "quadro economico di Stati Uniti, Eurozona e Giappone. La scheda Paesi copre 60 economie in tre gruppi: "
+     "sviluppati (tra cui Stati Uniti, Italia, Germania, Giappone), emergenti (i 24 dell'indice MSCI Emerging Markets, "
+     "tra cui Cina, India e Brasile) e di frontiera (tra cui Marocco, Vietnam e Kenya): per ognuno "
      "crescita del PIL, previsione del Fondo Monetario, inflazione, se l'economia accelera o rallenta e "
      "l'andamento della sua borsa."),
     ("Cosa mostra la scheda Live?",

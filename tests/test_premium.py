@@ -35,14 +35,14 @@ class Premium(unittest.TestCase):
     def tearDown(self):
         PR.azzera()
 
-    def test_basic_paesi_solo_emergenti(self):
-        # v8.69 con i 3 gruppi il Basic vede ancora le 5 economie emergenti che crescono di piu'
+    def test_basic_paesi_tre_gruppi(self):
+        # v8.70 con i 3 gruppi il Basic vede le 5 economie che crescono di piu' tra tutti i paesi
         d = copy.deepcopy(DATI)
         d["paesi"]["paesi"] += [{"iso": "S%d" % i, "pil": 50 + i, "gr": "Sviluppati"} for i in range(3)] + \
                                [{"iso": "F1", "pil": 99, "gr": "Frontiera"}]
         b, _ = PR.separa(d)
-        self.assertEqual([r["iso"] for r in b["paesi"]["paesi"]], ["8", "7", "6", "5", "4"])
-        self.assertEqual(b["paesi"]["n_tot"], 9)                                 # il lucchetto conta solo gli emergenti
+        self.assertEqual([r["iso"] for r in b["paesi"]["paesi"]], ["F1", "S2", "S1", "S0", "8"])
+        self.assertEqual(b["paesi"]["n_tot"], 13)                                # il lucchetto conta tutti i paesi
 
     def test_basic_tiene_andamento_e_mappa(self):
         b, toppe = PR.separa(DATI)

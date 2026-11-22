@@ -88,7 +88,7 @@ PREZZI = f"""
   <div class="prezzo"><s data-vecchio>{eu(MENSILE)} &euro;</s><b data-prezzo>{eu(ANNUALE)} &euro;</b><span>al mese</span></div>
   <p class="sotto" data-sotto>{eu(ANNO_TOT)} &euro; all'anno &middot; <b>risparmi {eu(ANNO_RISP)} &euro; (&minus;{RISP}%)</b></p>
   <p class="piu">Tutto Basic, più:</p>
-  <ul><li><b>Azionario globale e portafogli</b> completi</li><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi emergenti</b>, tabella completa</li></ul>
+  <ul><li><b>Azionario globale e portafogli</b> completi</li><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi</b> (sviluppati, emergenti e di frontiera), tabella completa</li></ul>
   <a class="btn pri" href="/terminale/?premium=1">{FRECCIA}Attiva Premium</a>
   <p class="sotto" style="margin:12px 0 0;text-align:center">Paghi con PayPal o carta. Si rinnova da solo, disdici quando vuoi.</p></div>
 </div>
@@ -134,7 +134,7 @@ FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, pri
 PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Prova Premium gratis per 14 giorni, senza carta. Poi Basic oppure Premium a 27,00 € al mese o 19,99 € al mese con il piano annuale. 14 giorni di prova senza carta.", PREZZI),
           "accedi": ("Accedi o registrati · EdgeValor", "Entra nel terminale EdgeValor con la tua email: nessuna password, 14 giorni di Premium in prova.", ACCEDI),
           "metodo": ("Il metodo · EdgeValor", "Come nascono i portafogli modello di EdgeValor: dati pubblici, filtro di trend, prova su vent'anni di storico e rotazione mensile.", METODO),
-          "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi emergenti), canale Telegram, prezzi e rischi.", FAQ)}
+          "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi del mondo), canale Telegram, prezzi e rischi.", FAQ)}
 
 
 # --- script del modulo di accesso (ES5, come la home). v8.19: tolto il vecchio modulo "Richiesta Premium"
