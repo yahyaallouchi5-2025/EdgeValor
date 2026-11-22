@@ -163,6 +163,12 @@ def main(argv):
                                        "coppie", "critici", "voci")}
     from cot_radar.pagina import ULTIMI as _U
     reg["pc"] = _U.get("pc")                 # v8.72 test in avanti contro: SOLO qui, nel registro cifrato
+    try:                                     # v8.76 fornitore dati in uso e cosa copre davvero (fonte.py)
+        from cot_radar import fonte
+        reg["fonte"] = fonte.verifica() if site else {"fornitore": fonte.nome(), "attivo": fonte.attivo(), "prove": {}}
+        reg["fonte"]["chiamate"] = fonte.chiamate()
+    except Exception as e:
+        log.warning("verifica del fornitore dati non riuscita: %s", type(e).__name__)
     blocco = admin.cifra(reg, os.environ.get("ADMIN_PASSWORD", "")) if site else {"chiaro": reg}
     if site and blocco is None:
         log.info("Registro admin non pubblicato (manca il Secret ADMIN_PASSWORD o la libreria cryptography)")

@@ -22,7 +22,14 @@ try{
   <div class="card kpi"><h3>Avvisi</h3><div class="big" style="color:${S.avvisi?"var(--warn)":"var(--ink)"}">${S.avvisi??"n/d"}</div><div class="note">dati vecchi, fonti non raggiunte</div></div>
   <div class="card kpi"><h3>Durata</h3><div class="big">${S.durata_s??"n/d"} s</div><div class="note">${S.strumenti??"?"} strumenti, ${S.coppie??"?"} coppie</div></div></div>
   <h2>Fonti</h2><div class="card">${fonti||"n/d"}</div>
-  <h2>Avvisi ed errori di questa esecuzione</h2><div class="tablewrap"><table><tr><th>Ora</th><th>Livello</th><th>Modulo</th><th>Messaggio</th></tr>${crit+voci+brow||'<tr><td colspan="4">Nessun avviso: tutto regolare.</td></tr>'}</table></div>${provaContro(S.pc)}`;}
+  <h2>Avvisi ed errori di questa esecuzione</h2><div class="tablewrap"><table><tr><th>Ora</th><th>Livello</th><th>Modulo</th><th>Messaggio</th></tr>${crit+voci+brow||'<tr><td colspan="4">Nessun avviso: tutto regolare.</td></tr>'}</table></div>${fornitore(S.fonte)}${provaContro(S.pc)}`;}
+ // v8.76 fornitore dei dati di mercato (cot_radar/fonte.py): quale e' attivo e cosa risponde davvero
+ function fornitore(F){if(!F)return "";
+  const nomi={eodhd:"EODHD",marketstack:"Marketstack",nessuno:"Nessuno (fonti ufficiali e copie salvate)"};
+  const prove=Object.entries(F.prove||{}).map(([k,v])=>`<span class="tag ${v?"ok":"ko"}" style="white-space:nowrap;display:inline-block;margin:0 4px 4px 0">${esc(k)}: ${v?"ok":"no"}</span>`).join(" ");
+  return `<h2>Fornitore dati <span class="tag ko">solo admin</span></h2>
+  <p class="sub">Si cambia scrivendo nel Secret EODHD_API_KEY la chiave con davanti il fornitore (es. marketstack:CHIAVE). Quello che il fornitore non copre resta all'ultimo dato salvato.</p>
+  <div class="card"><b>${esc(nomi[F.fornitore]||F.fornitore||"n/d")}</b> · ${F.attivo?"attivo":"<b style=\"color:var(--warn)\">senza chiave</b>"}${F.chiamate?` · ${F.chiamate.n} chiamate, ${F.chiamate.errori} errori`:""}${prove?`<div style="margin-top:8px">${prove}</div>`:""}</div>`;}
  // v8.72 test in avanti CONTRO gli speculatori (cot_radar/prova_contro.py): solo qui, mai ai clienti
  function provaContro(P){if(!P)return "";
   const n=x=>x==null?"–":(x>0?"+":"")+String(x).replace(".",",")+"%",dir=v=>v>0?"rialzo":"ribasso";

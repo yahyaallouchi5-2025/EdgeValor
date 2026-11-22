@@ -120,7 +120,46 @@ def _yahoo_fx(cur, timeout=15):
     return sorted(out.items())
 
 
-def ponte_yahoo(prezzi, oggi, scarica=_yahoo_fx):
+# v8.76 PONTE UFFICIALE: prima i cambi di riferimento della BCE (dato ufficiale, riutilizzabile citando la fonte),
+# Yahoo solo se la BCE non risponde. BCE = valuta per 1 euro alle 14:15 di Francoforte -> dollari per 1 unita':
+# EUR = USD/EUR; altre valute = (USD/EUR) / (valuta/EUR). Una sola richiesta per tutte le valute, tenuta in memoria.
+BCE_VALUTE = ("USD", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "MXN", "BRL", "ZAR")
+_bce_cache = {}
+
+
+def _bce_tutte(giorni=35, oggi=None):
+    """{valuta: {data: valuta per 1 euro}} degli ultimi `giorni` (una richiesta, poi memoria)."""
+    if "dati" not in _bce_cache:
+        from datetime import timedelta
+        from .fonti import get_ecb
+        dal = ((oggi or date.today()) - timedelta(days=giorni)).isoformat()
+        grezzi = get_ecb("EXR", "D." + "+".join(BCE_VALUTE) + ".EUR.SP00.A", dal)
+        _bce_cache["dati"] = {k.split(".")[2]: dict(v) for k, v in grezzi.items() if len(k.split(".")) > 3}
+    return _bce_cache["dati"]
+
+
+def _bce_fx(cur):
+    """[(data, dollari per 1 unita' di valuta)] dai cambi di riferimento BCE."""
+    t = _bce_tutte()
+    usd = t.get("USD") or {}
+    if cur == "EUR":
+        return sorted(usd.items())
+    altra = t.get(cur) or {}
+    return sorted((d, usd[d] / v) for d, v in altra.items() if d in usd and v > 0)
+
+
+def _fx_ponte(cur):
+    """Prima la BCE (ufficiale), poi Yahoo se la BCE non ha la valuta o non risponde."""
+    try:
+        pts = _bce_fx(cur)
+        if pts:
+            return pts
+    except Exception as e:
+        log.info("registro: cambi BCE non disponibili (%s), uso Yahoo per %s", type(e).__name__, cur)
+    return _yahoo_fx(cur)
+
+
+def ponte_yahoo(prezzi, oggi, scarica=_fx_ponte):
     """(prezzi con i giorni mancanti presi da Yahoo, {valuta: primo giorno provvisorio}). oggi = data ISO UTC:
     il giorno in corso non entra mai (barra non conclusa). Errore su una valuta = quella valuta resta solo FRED."""
     out, prov = dict(prezzi), {}
@@ -132,13 +171,13 @@ def ponte_yahoo(prezzi, oggi, scarica=_yahoo_fx):
             nuovi = [(d, v) for d, v in scarica(cur)
                      if ultimo < d < oggi and date.fromisoformat(d).weekday() < 5]     # niente barre del weekend
         except Exception as e:
-            log.warning("registro: ponte Yahoo %s non disponibile (%s)", cur, type(e).__name__)
+            log.warning("registro: ponte dei cambi %s non disponibile (%s)", cur, type(e).__name__)
             continue
         if nuovi:
             out[cur] = list(prezzi[cur]) + nuovi
             prov[cur] = nuovi[0][0]
     if prov:
-        log.info("registro: ponte Yahoo sui cambi dal %s (%d valute)", min(prov.values()), len(prov))
+        log.info("registro: ponte sui cambi (BCE, Yahoo di riserva) dal %s (%d valute)", min(prov.values()), len(prov))
     return out, prov
 
 
