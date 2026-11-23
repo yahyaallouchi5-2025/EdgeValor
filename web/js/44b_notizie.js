@@ -35,6 +35,25 @@
  const VNOME={USD:"dollaro",EUR:"euro",GBP:"sterlina",JPY:"yen",CHF:"franco svizzero",CAD:"dollaro canadese",AUD:"dollaro australiano",NZD:"dollaro neozelandese"};
  const valuta=d=>VNOME[(S.I&&S.I.val||{})[d]]||"valuta";
  const ESITO={1:"forte","-1":"debole",0:"in linea"};
+ // v8.90 COS'E' OGNI NOTIZIA (Ya, 23/11/2026): due righe semplici per chi non le conosce. PC: fumetto al passaggio del
+ // mouse sul bottone; telefono (niente passaggio del mouse): la riga sotto i bottoni per la notizia scelta.
+ const INFO={
+  "NFP USA":"Non Farm Payrolls: i nuovi posti di lavoro creati negli USA in un mese (agricoltura esclusa), insieme a disoccupazione e salari. È il dato più seguito sul lavoro americano.",
+  "CPI USA":"Inflazione al consumo negli USA: di quanto salgono i prezzi che pagano le famiglie. È il dato che pesa di più sulle scelte della Fed.",
+  "Fed":"Decisione sui tassi della banca centrale americana (FOMC), con il comunicato e la conferenza stampa. Muove dollaro, Treasury, oro e borse.",
+  "Vendite USA":"Vendite al dettaglio negli USA: quanto spendono i consumatori nei negozi e online. Misura la forza dei consumi, la parte più grande dell'economia americana.",
+  "PPI USA":"Prezzi alla produzione negli USA: quanto costano beni e servizi per le aziende. Spesso anticipa l'inflazione al consumo.",
+  "PCE USA":"Inflazione PCE: la misura dei prezzi preferita dalla Fed, insieme a redditi e spese delle famiglie americane.",
+  "PIL USA":"Prodotto interno lordo, prima stima del trimestre: quanto è cresciuta l'economia americana.",
+  "JOLTS USA":"Posti di lavoro vacanti negli USA: quante offerte di lavoro aspettano un candidato. Dice quanto è teso il mercato del lavoro.",
+  "BCE":"Decisione sui tassi della Banca centrale europea, con la conferenza stampa. Muove soprattutto l'euro.",
+  "BoE":"Decisione sui tassi della Bank of England, la banca centrale del Regno Unito. Muove soprattutto la sterlina.",
+  "BoJ":"Decisione sui tassi della Bank of Japan. Non ha un orario fisso: sul grafico l'ora è indicativa. Muove soprattutto lo yen.",
+  "BoC":"Decisione sui tassi della Bank of Canada. Muove soprattutto il dollaro canadese.",
+  "RBA":"Decisione sui tassi della Reserve Bank of Australia. Muove soprattutto il dollaro australiano.",
+  "RBNZ":"Decisione sui tassi della Reserve Bank of New Zealand. Muove soprattutto il dollaro neozelandese.",
+  "SNB":"Decisione sui tassi della Banca nazionale svizzera. Muove soprattutto il franco svizzero."};
+ const TOCCO=matchMedia("(hover:none)").matches;
  // strumento con lo storico orario fermo (es. oro e argento a pronti: candele orarie solo fino al 2020): si dice nel menu
  const vecchio=x=>x.al&&Date.now()-Date.parse(x.al)>120*864e5;
 
@@ -42,6 +61,7 @@
   el.innerHTML=`<h2>Notizie</h2>
    <p class="sub">Come reagiscono i mercati alle notizie macro ad alto impatto, ora per ora. <b>Prima ora</b> = dalla chiusura dell'ora prima alla chiusura della candela della notizia. <b>Esito</b> = come ha reagito la valuta della notizia nella prima ora (per i dati USA il dollaro, misurato su tutte le coppie di valute): <b>forte</b> o <b>debole</b> se si è mossa almeno 1,5 volte un'ora normale, altrimenti <b>in linea</b>. È l'esito letto dal prezzo, non il confronto con il dato atteso. <b>× normale</b> = quante volte la mossa è più grande della stessa ora negli altri giorni (ultimi 30). Se il mercato era chiuso all'ora della notizia (azioni USA alle 14:30) la notizia non si conta. Le banche centrali fuori dagli USA si registrano da settembre 2026. Registro di quello che è successo, non una previsione né un consiglio.</p>
    <div class="nm-ctl"><select class="nm-sel" aria-label="Strumento"></select><div class="nm-chips" role="group" aria-label="Driver"></div></div>
+   <p class="nm-desc" hidden></p>
    <div class="nm-graf"></div>
    <h3 class="vft">Dopo l'esito</h3>
    <p class="sub">Mossa mediana dello strumento nella prima ora quando la notizia rende la sua valuta forte o debole, quante volte è salito e la mossa mediana a 24 ore. Servono almeno 8 casi.</p>
@@ -56,7 +76,16 @@
    <h3 class="vft">Registro</h3>
    <div class="nm-reg"></div>`;
   el.querySelector(".nm-sel").onchange=e=>{S.s=e.target.value;S.n=10;strumento();};
-  el.querySelector(".nm-ctl .nm-chips").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.d=b.dataset.d;S.n=10;resto();};
+  el.style.position="relative";
+  const ch=el.querySelector(".nm-ctl .nm-chips");
+  ch.onclick=e=>{const b=e.target.closest("button");if(!b)return;S.d=b.dataset.d;S.n=10;togliFumetto();resto();};
+  ch.addEventListener("pointerover",e=>{if(e.pointerType!="mouse")return;const b=e.target.closest("button[data-d]");if(!b||!INFO[b.dataset.d])return;
+   togliFumetto();const f=document.createElement("div");f.className="nm-tt";f.setAttribute("role","tooltip");
+   f.innerHTML=`<b>${esc(b.dataset.d)}</b>${esc(INFO[b.dataset.d])}`;el.appendChild(f);
+   // sopra il bottone, centrato, sempre dentro lo schermo
+   const r=b.getBoundingClientRect(),q=el.getBoundingClientRect(),w=f.offsetWidth,x=Math.max(8-q.left,Math.min(r.left-q.left+r.width/2-w/2,innerWidth-q.left-w-8));
+   f.style.left=x+"px";f.style.top=(r.top-q.top-f.offsetHeight-8)+"px";requestAnimationFrame(()=>f.classList.add("on"));});
+  ch.addEventListener("pointerout",e=>{if(e.pointerType=="mouse"&&!e.relatedTarget?.closest?.("button[data-d]"))togliFumetto();});
   el.querySelector(".nm-reg").onclick=e=>{const r=e.target.closest("[data-t]");
    if(r){grafico(r.dataset.t);el.querySelector(".nm-graf").scrollIntoView({behavior:"smooth",block:"center"});return;}
    if(e.target.closest(".nm-piu")){S.n+=20;registro();}};
@@ -68,6 +97,7 @@
    const r=e.target.closest("[data-s]");if(!r)return;S.s=r.dataset.s;S.n=10;
    el.querySelector(".nm-sel").value=S.s;strumento();el.scrollIntoView({behavior:"smooth"});};}
 
+ function togliFumetto(){el.querySelectorAll(".nm-tt").forEach(x=>x.remove());}
  function menu(){const L=S.I.sim;if(!L.some(x=>x.s==S.s))S.s=L[0].s;
   el.querySelector(".nm-sel").innerHTML=GRUPPI.map(([g,f])=>{const q=L.filter(x=>f(x.s));
    return q.length?`<optgroup label="${g}">${q.map(x=>`<option value="${esc(x.s)}"${x.s==S.s?" selected":""}>${esc(etichetta(x.s))}${vecchio(x)?` (fino al ${x.al.slice(0,4)})`:""}</option>`).join("")}</optgroup>`:"";}).join("");}
@@ -87,6 +117,7 @@
  function resto(){const X=S.X,n={};X.ev.forEach(e=>n[e[1]]=(n[e[1]]||0)+1);
   const dd=Object.keys(n).sort((a,b)=>n[b]-n[a]);
   el.querySelector(".nm-ctl .nm-chips").innerHTML=[["","Tutte"]].concat(dd.map(d=>[d,d])).map(([d,t])=>`<button type="button" data-d="${esc(d)}" class="${d==S.d?"on":""}">${esc(t)}</button>`).join("");
+  const ds=el.querySelector(".nm-desc"),txt=TOCCO&&S.d&&INFO[S.d];ds.hidden=!txt;if(txt)ds.textContent=INFO[S.d];
   esiti();tutti();tabella();registro();grafico();}
 
  // 2) la formula per lo strumento scelto: valuta forte / valuta debole
