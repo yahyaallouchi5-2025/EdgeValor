@@ -78,7 +78,7 @@
  // verso di una reazione [n, r1, %su, ...]: netto solo se almeno 65 volte su 100 nello stesso verso
  const verso=r=>{if(!r)return null;const p=r[2];return p>=65?["su",`sale ${p} volte su 100`]:p<=35?["giu",`scende ${100-p} volte su 100`]:["piatto","nessuna direzione chiara"];};
  const forza=x=>x>=3?[4,"moltissimo"]:x>=2?[3,"molto"]:x>=1.4?[2,"abbastanza"]:[1,"poco"];
- const freccina=v=>v=="su"?`<i class="qe-fr up">&#9650;</i>`:v=="giu"?`<i class="qe-fr down">&#9660;</i>`:`<i class="qe-fr neu">&#8212;</i>`;
+ const freccina=v=>v=="su"?`<i class="qe-fr up">&#9650;</i>`:v=="giu"?`<i class="qe-fr down">&#9660;</i>`:`<i class="qe-fr neu">&#9654;</i>`;   // grigia = neutra: punta a destra (regola di Ya, v8.99)
 
  function struttura(){
   el.innerHTML=`<h2>Notizie</h2>

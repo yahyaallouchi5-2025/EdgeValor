@@ -60,7 +60,7 @@ function testata(){const L=Object.values(D.assets).filter(a=>a.key!="USD"&&!a.co
 
 function carta(a){const s=a.score,[c,t,ic]=livello(s),n=nomeS(a);
  const kv=[["Punteggio",fmt(s)],["Livello sui 3 anni",a.idx!=null?a.idx+"/100":null],["Netto",a.pct_oi!=null?(a.pct_oi>0?"+":"")+fx(a.pct_oi,1)+"%":null],
-  ["In 4 settimane",a.d_net4!=null?`<i class="qe-fr ${a.d_net4>0?"up":a.d_net4<0?"down":"neu"}">${a.d_net4>0?"&#9650;":a.d_net4<0?"&#9660;":""}</i> ${fmt(a.d_net4)}`:null],["Produttori e banche",a.comm?a.comm.idx+"/100":null],
+  ["In 4 settimane",a.d_net4!=null?`<i class="qe-fr ${a.d_net4>0?"up":a.d_net4<0?"down":"neu"}">${a.d_net4>0?"&#9650;":a.d_net4<0?"&#9660;":"&#9654;"}</i> ${fmt(a.d_net4)}`:null],["Produttori e banche",a.comm?a.comm.idx+"/100":null],
   ["Segnali giusti",a.affid?`${a.affid.hit}% su ${a.affid.n}`:null]].filter(x=>x[1]!=null);
  return `<div class="fc c${c}" role="button" tabindex="0" aria-pressed="false" aria-label="${esc(n)}: ${t}. Tocca per i numeri"><div class="fc-in">
   <div class="fc-fr"><div class="fc-top"><div><b>${esc(n)}</b><small>${esc(a.group)}</small></div><span class="fc-gira" title="Tocca per i numeri">${fcIco("gira")}</span></div>

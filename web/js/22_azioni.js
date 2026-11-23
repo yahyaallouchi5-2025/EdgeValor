@@ -588,7 +588,7 @@ try{(function(){const el=$("azioni");if(!el)return;
    <div class="bdupr"><div class="bdroe"><span>ROE</span><b class="${roe(u)>=0?"up":"down"}">${fx(roe(u),1)}%</b>${p?`<em class="${roe(u)>=roe(p)?"up":"down"}">${roe(u)>=roe(p)?"&#9650;":"&#9660;"} da ${fx(roe(p),1)}%</em>`:""}</div><i>=</i>
     ${pz("Margine",fx(m(u),1)+"%","utile su ricavi",p?`<em class="${m(u)>=m(p)?"up":"down"}">${m(u)>=m(p)?"&#9650;":"&#9660;"} da ${fx(m(p),1)}%</em>`:"")}<i>&times;</i>
     ${pz("Rotazione",fx(r(u),2),"ricavi su attivo",p?`<em class="${r(u)>=r(p)?"up":"down"}">${r(u)>=r(p)?"&#9650;":"&#9660;"} da ${fx(r(p),2)}</em>`:"")}<i>&times;</i>
-    ${pz("Leva",fx(l(u),2),"attivo su patrimonio",p?`<em class="mute">${l(u)>=l(p)?"&#9650;":"&#9660;"} da ${fx(l(p),2)}</em>`:"")}</div></div>`;}
+    ${pz("Leva",fx(l(u),2),"attivo su patrimonio",p?`<em class="${Math.abs(l(u)-l(p))<.02?"mute":l(u)>l(p)?"down":"up"}" title="Più leva = più debito e più rischio">${Math.abs(l(u)-l(p))<.02?"&#9654;":l(u)>l(p)?"&#9650;":"&#9660;"} da ${fx(l(p),2)}</em>`:"")}</div></div>`;}
 
  // --- RISULTATI TRIMESTRALI (v6.54, cot_radar/fondamentali.py): ultimi 4 trimestri dai 10-Q/10-K della SEC con la
  //     variazione sullo stesso trimestre dell'anno prima, data degli ultimi conti e stima dei prossimi (dagli 8-K).

@@ -37,8 +37,12 @@ try{(function(){
  const fr=(ora,prima,tipo,dir)=>{if(ora==null||prima==null)return `<i class="qe-fr flat" title="Dato non disponibile">&#9654;</i>`;
   const su=dir==null?ora>prima:!!dir,lieve=Math.abs(ora-prima)<0.05;
   if(dir==null&&lieve)return `<i class="qe-fr flat" title="Stabile">&#9654;</i>`;
-  const cl=lieve||tipo=="neu"?"flat":((tipo=="bene")==su?"up":"down");
-  return `<i class="qe-fr ${cl}" title="${lieve?(su?"In lieve salita":"In lieve discesa"):(su?"In salita":"In discesa")}">${su?"&#9650;":"&#9660;"}</i>`;};
+  // v8.99 regola di Ya (23/11/2026): una freccia GRIGIA non punta mai in alto o in basso (sembrerebbe un errore di
+  //   colore), ma A DESTRA, per dare il senso di neutralita'. Quindi: variazione minima -> grigia orizzontale;
+  //   verso netto -> verde o rossa, in alto o in basso. Il verso fine resta nel fumetto ("In lieve discesa").
+  if(lieve||tipo=="neu")return `<i class="qe-fr flat" title="${lieve?(su?"Stabile, in lieve salita":"Stabile, in lieve discesa"):(su?"In salita":"In discesa")}">&#9654;</i>`;
+  const cl=(tipo=="bene")==su?"up":"down";
+  return `<i class="qe-fr ${cl}" title="${su?"In salita":"In discesa"}">${su?"&#9650;":"&#9660;"}</i>`;};
  // CIAMBELLA: v da 0 a 100 (riempimento), colore per soglie (>=60 verde, 40-60 giallo, sotto rosso) o forzato
  const ciambella=(v,testo,cl)=>{const C=2*Math.PI*20,p=Math.max(0,Math.min(100,v||0));
   const c=cl||(p>=60?"up":p>=40?"mid":"down");
