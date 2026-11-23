@@ -80,7 +80,7 @@
 
  /* ---------- v8.95 modalita' modifica, trascinamento e salvataggio ---------- */
  const PRESSIONE=500,SOGLIA=8,RIPOSO=8000;            // ms per la pressione lunga, px di tolleranza, ms prima dell'uscita da sola
- let inModifica=false,riposo=null,lungo=null,P=null,salvaT=null,ignoraClick=false;
+ let inModifica=false,riposo=null,lungo=null,P=null,salvaT=null,ignoraClick=false,sblocco=null;
  const griglia=()=>el.querySelector(".hbgrid"),carte=()=>[...el.querySelectorAll(".hbcard")];
  function modifica(si){inModifica=si;const g=griglia();if(!g)return;
   g.classList.toggle("hbjig",si);el.classList.toggle("hbmod",si);
@@ -95,41 +95,66 @@
   const menu=document.querySelector('#nav .nghub .ngm');                 // stesso ordine anche nel menu nascosto
   if(menu)ORD.forEach(t=>{const b=menu.querySelector(`button[data-t="${t}"]`);if(b)b.parentElement.appendChild(b);});
   clearTimeout(salvaT);salvaT=setTimeout(()=>{try{window.ebAccount&&ebAccount.ordine&&ebAccount.ordine.salva(ORD).catch(()=>{});}catch(e){}},800);}
- // FLIP: le card che cambiano posto scorrono dalla posizione vecchia alla nuova
- function sposta(fn){const ce=carte().filter(c=>!c.classList.contains("hbdrag")),prima=new Map(ce.map(c=>[c,c.getBoundingClientRect()]));fn();
-  ce.forEach(c=>{const a=prima.get(c),b=c.getBoundingClientRect(),dx=a.left-b.left,dy=a.top-b.top;if(!dx&&!dy)return;
-   c.style.transition="none";c.style.transform=`translate(${dx}px,${dy}px)`;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{c.style.transition="transform .28s cubic-bezier(.2,.8,.2,1)";c.style.transform="";}));});}
+ // FLIP: le card che cambiano posto scorrono dalla posizione vecchia alla nuova (la posizione "vecchia" e' quella
+ // visibile in quel momento, anche a meta' di un'animazione: niente scatti se si scambia in fretta)
+ function sposta(fn){const ce=carte().filter(c=>!c.classList.contains("hbph")),prima=new Map(ce.map(c=>[c,c.getBoundingClientRect()]));fn();
+  ce.forEach(c=>{const a=prima.get(c);c.style.transition="none";c.style.transform="";const b=c.getBoundingClientRect(),dx=a.left-b.left,dy=a.top-b.top;
+   if(Math.abs(dx)<1&&Math.abs(dy)<1)return;
+   c.style.transform=`translate(${dx}px,${dy}px)`;c.getBoundingClientRect();     // forza il ricalcolo prima dell'animazione
+   c.style.transition="transform .3s cubic-bezier(.2,.8,.2,1)";c.style.transform="";});}
 
- el.addEventListener("pointerdown",e=>{const c=e.target.closest(".hbcard");if(!c||e.button>0)return;
-  P={c,id:e.pointerId,x:e.clientX,y:e.clientY,tipo:e.pointerType,drag:false,tx:0,ty:0};
+ /* TRASCINAMENTO (v8.95b, rifatto dopo la prova di Ya: "sparisce e sfarfalla"):
+    - la card toccata resta nella griglia come POSTO VUOTO (segnaposto tratteggiato) e sotto il dito si muove una sua
+      COPIA fissata allo schermo: la copia non dipende dalla griglia, quindi non salta quando le altre si spostano;
+    - la card di destinazione si cerca con le posizioni DI GRIGLIA (offsetLeft/Top, non toccate dalle animazioni):
+      prima si usavano quelle animate e la card andava avanti e indietro tra due posti (lo sfarfallio);
+    - la cattura del puntatore sta sulla sezione, che non si sposta mai (spostare la card toccata la faceva perdere);
+    - vicino al bordo alto o basso dello schermo la pagina scorre da sola (telefono: card in fondo alla lista). */
+ function inizia(){const c=P.c,r=c.getBoundingClientRect();P.drag=true;P.ox=P.x-r.left;P.oy=P.y-r.top;
+  const k=c.cloneNode(true);k.classList.add("hbclone");k.removeAttribute("data-vai");k.setAttribute("aria-hidden","true");
+  Object.assign(k.style,{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px",transform:"",transition:""});
+  document.body.appendChild(k);P.k=k;c.classList.add("hbph");c.setAttribute("aria-grabbed","true");
+  try{el.setPointerCapture(P.id);}catch(_){}clearTimeout(riposo);
+  try{navigator.vibrate&&navigator.vibrate(8);}catch(_){}
+  P.giro=requestAnimationFrame(scorri);}
+ // posizione di griglia di ogni card (in coordinate dello schermo) e card sotto al punto x,y
+ function sotto(x,y){const g=griglia().getBoundingClientRect();
+  return carte().find(k=>{const l=g.left+k.offsetLeft,t=g.top+k.offsetTop;return x>=l&&x<=l+k.offsetWidth&&y>=t&&y<=t+k.offsetHeight;});}
+ function trascina(x,y){P.cx=x;P.cy=y;
+  P.k.style.transform=`translate(${x-P.x}px,${y-P.y}px) scale(1.05)`;          // la copia segue il dito
+  const s=sotto(x,y),c=P.c;if(!s||s===c)return;
+  const L=carte(),i=L.indexOf(c),j=L.indexOf(s);
+  sposta(()=>{j>i?s.after(c):s.before(c);});}
+ // scorrimento automatico vicino ai bordi (40 px/s per ogni px dentro la fascia, al massimo ~18 px per fotogramma)
+ function scorri(){if(!P||!P.drag)return;const y=P.cy==null?P.y:P.cy,F=80;
+  const v=y<F?-(F-y)/F*18:y>innerHeight-F?(y-(innerHeight-F))/F*18:0;
+  if(v){window.scrollBy(0,v);trascina(P.cx==null?P.x:P.cx,y);}
+  P.giro=requestAnimationFrame(scorri);}
+ function lascia(){clearTimeout(lungo);if(!P)return;const {c,drag,k,id,lungo:fuLungo}=P;cancelAnimationFrame(P.giro);P=null;
+  // il clic che segue la pressione lunga o il trascinamento non deve aprire la scheda: si blocca solo per 400 ms
+  if(drag||fuLungo){ignoraClick=true;clearTimeout(sblocco);sblocco=setTimeout(()=>{ignoraClick=false;},400);}
+  try{el.hasPointerCapture&&el.hasPointerCapture(id)&&el.releasePointerCapture(id);}catch(_){}
+  if(!drag){if(inModifica)aspetta();return;}
+  // la copia vola al posto nuovo, poi sparisce e ricompare la card vera
+  const r=c.getBoundingClientRect(),q=k.getBoundingClientRect();
+  k.style.transition="transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s";
+  k.style.transform=`translate(${r.left-parseFloat(k.style.left)}px,${r.top-parseFloat(k.style.top)}px) scale(1)`;
+  const fine=()=>{k.remove();c.classList.remove("hbph");c.setAttribute("aria-grabbed","false");};
+  setTimeout(fine,q?230:0);
+  salva(ordineDom());aspetta();}
+ el.addEventListener("pointerdown",e=>{const c=e.target.closest(".hbcard");if(!c||e.button>0||P)return;
+  P={c,id:e.pointerId,x:e.clientX,y:e.clientY,tipo:e.pointerType,drag:false};
   if(inModifica){aspetta();return;}
   clearTimeout(lungo);
-  lungo=setTimeout(()=>{if(!P||P.c!==c)return;modifica(true);ignoraClick=true;
+  lungo=setTimeout(()=>{if(!P||P.c!==c)return;modifica(true);P.lungo=true;
    try{navigator.vibrate&&navigator.vibrate(12);}catch(_){}},PRESSIONE);});
  el.addEventListener("pointermove",e=>{if(!P||e.pointerId!==P.id)return;const dx=e.clientX-P.x,dy=e.clientY-P.y;
   if(!inModifica){if(Math.hypot(dx,dy)>SOGLIA){clearTimeout(lungo);P=null;}return;}     // si sta scorrendo la pagina
   if(!P.drag){if(Math.hypot(dx,dy)<SOGLIA)return;inizia();}
-  trascina(e.clientX,e.clientY);});
- function inizia(){const c=P.c,r=c.getBoundingClientRect();P.drag=true;P.ox=P.x-r.left;P.oy=P.y-r.top;
-  c.classList.add("hbdrag");c.setAttribute("aria-grabbed","true");try{c.setPointerCapture(P.id);}catch(_){}clearTimeout(riposo);}
- function trascina(x,y){const c=P.c;
-  // posizione "di griglia" della card (senza lo spostamento in corso) e spostamento che la porta sotto il dito
-  const r=c.getBoundingClientRect(),bx=r.left-P.tx,by=r.top-P.ty;P.tx=x-P.ox-bx;P.ty=y-P.oy-by;
-  c.style.transform=`translate(${P.tx}px,${P.ty}px) scale(1.06)`;
-  // la card sotto il dito (tranne quella trascinata): si prende il suo posto
-  const sotto=carte().find(k=>{if(k===c)return false;const q=k.getBoundingClientRect();return x>q.left&&x<q.right&&y>q.top&&y<q.bottom;});
-  if(!sotto)return;const L=carte(),i=L.indexOf(c),j=L.indexOf(sotto);
-  sposta(()=>{j>i?sotto.after(c):sotto.before(c);});
-  const r2=c.getBoundingClientRect(),bx2=r2.left-P.tx,by2=r2.top-P.ty;P.tx=x-P.ox-bx2;P.ty=y-P.oy-by2;   // ricalcolo dopo lo scambio
-  c.style.transform=`translate(${P.tx}px,${P.ty}px) scale(1.06)`;}
- function lascia(){clearTimeout(lungo);if(!P)return;const {c,drag}=P;P=null;
-  if(!drag){if(inModifica)aspetta();return;}
-  // la card torna al suo nuovo posto con una piccola animazione, poi si salva l'ordine
-  c.style.transition="transform .22s cubic-bezier(.2,.8,.2,1)";c.style.transform="";
-  setTimeout(()=>{c.classList.remove("hbdrag");c.style.transition="";c.setAttribute("aria-grabbed","false");},230);
-  ignoraClick=true;salva(ordineDom());aspetta();}
- el.addEventListener("pointerup",lascia);el.addEventListener("pointercancel",lascia);
+  e.preventDefault();trascina(e.clientX,e.clientY);});
+ // sul documento: il dito o il mouse possono essere lasciati anche fuori dalla griglia
+ document.addEventListener("pointerup",e=>{if(P&&e.pointerId==P.id)lascia();});
+ document.addEventListener("pointercancel",e=>{if(P&&e.pointerId==P.id)lascia();});
  // telefono: durante la modifica il dito trascina la card e non fa scorrere la pagina
  el.addEventListener("touchmove",e=>{if(inModifica&&P)e.preventDefault();},{passive:false});
  // niente menu del tasto destro / fumetto del telefono sulla pressione lunga
@@ -138,7 +163,7 @@
  el.addEventListener("click",e=>{if(e.target.closest(".hbfine")){modifica(false);return;}
   if(e.target.closest(".hbrip")){sposta(()=>{const g=griglia();BASE.forEach(t=>{const c=g.querySelector(`.hbcard[data-vai="${t}"]`);if(c)g.appendChild(c);});});
    salva(ordineDom());aspetta();return;}
-  if((inModifica||ignoraClick)&&e.target.closest(".hbcard")){e.preventDefault();e.stopPropagation();}ignoraClick=false;},true);
+  if((inModifica||ignoraClick)&&e.target.closest(".hbcard")){e.preventDefault();e.stopPropagation();}},true);
  // un tocco fuori dalle card (e fuori dalla barra) chiude la modifica, come su iPhone
  document.addEventListener("pointerdown",e=>{if(inModifica&&!e.target.closest(".hbcard,.hbedit"))modifica(false);});
  // tastiera: Esc esce; le frecce spostano la card che ha il fuoco
