@@ -20,7 +20,7 @@
  const CID="923088470132-ebb91uk0j1bf7h8pag89ss7bv6insaai.apps.googleusercontent.com";      // ID client pubblico (non e' un segreto)
  const API="https://cwwmqujccwzmqougtedh.supabase.co",CHIAVE="sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X";
  // PER_TUTTI=false: solo in anteprima (indirizzo con ?gis=1, ricordato nel browser) finche' non e' collaudato dal vivo
- const PER_TUTTI=false;
+ const PER_TUTTI=true;                                               // acceso per tutti il 23/11/2026 dopo la prova di Ya
  try{if(/[?&]gis=1/.test(location.search))localStorage.setItem("ebGis","1");if(/[?&]gis=0/.test(location.search))localStorage.removeItem("ebGis");}catch(e){}
  const attivo=()=>{if(!/edgevalor\.com$/.test(location.hostname))return false;          // fuori dal sito Google rifiuta l'origine
   if(PER_TUTTI)return true;try{return localStorage.getItem("ebGis")=="1";}catch(e){return false;}};
