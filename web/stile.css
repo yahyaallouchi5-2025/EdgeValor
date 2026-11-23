@@ -3147,6 +3147,7 @@ html:not(.eb-admin) .pflingua{display:none!important}
  .hbico svg{width:28px;height:28px}.hbnome{padding:11px 12px;font-size:13.5px}}
 /* v7.95 GRAFICO BITCOIN: top/bottom, prezzo di oggi, mirino al passaggio e legenda accendi/spegni */
 .bmgraf{position:relative}.bmgraf svg{touch-action:pan-y}
+.bmtip[hidden]{display:none}   /* v9.02 il fumetto del mirino nascosto non resta come riquadro vuoto */
 .bmpv circle{stroke:var(--card2);stroke-width:1.5}.bmpv text{font:700 11.5px system-ui;paint-order:stroke;stroke:var(--card2);stroke-width:3px}
 .bmpv.top circle{fill:var(--b)}.bmpv.top text{fill:var(--b)}
 .bmpv.bot circle{fill:var(--s)}.bmpv.bot text{fill:var(--s)}

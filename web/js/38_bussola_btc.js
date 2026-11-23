@@ -54,7 +54,7 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
  /* --- 2) GRAFICO (v7.95): prezzo settimanale in scala log, sfondo = punteggio macro della settimana.
         TOP e BOTTOM: massimi e minimi delle chiusure settimanali, trovati con uno "zigzag": un massimo conta quando
         dopo il prezzo scende di almeno il 20%, un minimo quando dopo sale di almeno il 20% (movimenti piccoli ignorati).
-        Pallino finale = prezzo di oggi (X.btc), con l'etichetta.  Legenda: ogni punteggio si accende/spegne con un tocco.
+        Pallino finale = prezzo di oggi (X.btc); v9.02 l'etichetta sta a DESTRA del pallino, sulla colonna dei prezzi (come TradingView).  Legenda: ogni punteggio si accende/spegne con un tocco.
         Mouse o dito sul grafico: linea verticale tratteggiata con data, prezzo e punteggio della settimana. --- */
  const SPENTI=new Set();                 // punteggi nascosti dalla legenda (restano anche quando il grafico si ridisegna)
  let GR=null;                            // misure dell'ultimo grafico disegnato (servono al mirino)
@@ -70,24 +70,28 @@ try{(function(){const el=$("btc"),X=D.btcmacro;if(!el)return;
    else if(ult!="L"&&lg(P[i])-lg(P[lo])>=soglia){piv.push(["L",lo]);ult="L";hi=i;}}
   return piv.filter(v=>v[1]>0&&v[1]<P.length-1);}               // la prima settimana non e' un vero top/bottom; l'ultima ha il pallino di oggi
  function grafico(){const Sr=X.serie||[];if(Sr.length<10)return "";
-  const W=Math.round(Math.min(900,Math.max(330,(box.clientWidth||900)-44))),H=W<600?236:290,L=6,R=58,T=24,B=28,lg=Math.log;
+  const W=Math.round(Math.min(900,Math.max(330,(box.clientWidth||900)-44))),H=W<600?236:290,L=6,R=70,T=24,B=28,lg=Math.log;
   const oggi=Number(X.btc)||Sr[Sr.length-1][1];
   const ys=Sr.map(s=>lg(s[1])).concat(lg(oggi)),lo=Math.min(...ys),hi=Math.max(...ys),x=i=>L+i*(W-L-R)/(Sr.length-1),y=v=>T+(hi-lg(v))/((hi-lo)||1)*(H-T-B);
   let fasce="",i0=0;for(let i=1;i<=Sr.length;i++)if(i==Sr.length||Sr[i][2]!=Sr[i0][2]){
    const a=i0?(x(i0-1)+x(i0))/2:L,b=i<Sr.length?(x(i-1)+x(i))/2:x(Sr.length-1);
    fasce+=`<rect x="${a.toFixed(1)}" y="${T}" width="${(b-a).toFixed(1)}" height="${H-T-B}" class="bmf${Sr[i0][2]}"/>`;i0=i;}
   const pts=Sr.map((s,i)=>`${x(i).toFixed(1)},${y(s[1]).toFixed(1)}`).join(" ");
-  const prezzi=[hi,(hi+lo)/2,lo].map(v=>Math.exp(v)).map(p=>`<text x="${W-R+8}" y="${y(p)+4}" class="bmt">$${Math.round(p/1000)}k</text>`).join("");
+  const oggi_y=y(oggi);
+  // v9.02 prezzi dell'asse: si salta quello che finirebbe sotto l'etichetta del prezzo di oggi (stessa colonna a destra)
+  const prezzi=[hi,(hi+lo)/2,lo].map(v=>Math.exp(v)).filter(p=>Math.abs(y(p)-oggi_y)>16).map(p=>`<text x="${W-R+12}" y="${y(p)+4}" class="bmt">$${Math.round(p/1000)}k</text>`).join("");
   const anni=Sr.map((s,i)=>i&&s[0].slice(0,4)!=Sr[i-1][0].slice(0,4)?`<line x1="${x(i)}" x2="${x(i)}" y1="${T}" y2="${H-B}" class="bmg"/><text x="${x(i)+4}" y="${H-8}" class="bmt">${s[0].slice(0,4)}</text>`:"").join("");
   // top (sopra il punto) e bottom (sotto), etichetta tenuta dentro il grafico
   const piv=zigzag(Sr,Math.log(1.2)).map(([k,i])=>{const px=x(i),py=y(Sr[i][1]),ax=Math.min(Math.max(px,24),W-R-24);
-   return `<g class="bmpv ${k=="H"?"top":"bot"}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3"/><text x="${ax.toFixed(1)}" y="${(k=="H"?py-9:py+17).toFixed(1)}" text-anchor="middle">${kk(Sr[i][1])}</text></g>`;}).join("");
+   // v9.02 etichetta mai fuori dal riquadro: vicino al bordo alto/basso va accanto al punto (non copre gli anni)
+   const fuori=k=="H"?py-9<T-6:py+17>H-B-2,tx=fuori?px+7:ax,ty=fuori?py+4:(k=="H"?py-9:py+17),an=fuori?"start":"middle";
+   return `<g class="bmpv ${k=="H"?"top":"bot"}"><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3"/><text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${an}">${kk(Sr[i][1])}</text></g>`;}).join("");
   const xo=x(Sr.length-1),yo=y(oggi);
   GR={Sr,x,y,W,H,T,B,L,R};
   return `<div class="bmgraf${[...SPENTI].map(k=>" off"+k).join("")}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bitcoin negli ultimi 3 anni con il punteggio macro di ogni settimana">
    <defs><linearGradient id="bmarea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--ink)" stop-opacity=".16"/><stop offset="1" stop-color="var(--ink)" stop-opacity="0"/></linearGradient></defs>
    ${fasce}${anni}<polygon points="${x(0)},${H-B} ${pts} ${xo},${H-B}" fill="url(#bmarea)"/><polyline points="${pts} ${xo.toFixed(1)},${yo.toFixed(1)}" class="bml"/>
-   ${piv}<g class="bmoggi"><circle cx="${xo}" cy="${yo}" r="5" class="bmp"/><rect x="${(xo-64).toFixed(1)}" y="${(yo-30).toFixed(1)}" width="58" height="20" rx="6"/><text x="${(xo-35).toFixed(1)}" y="${(yo-16).toFixed(1)}" text-anchor="middle">${kk(oggi)}</text></g>
+   ${piv}<g class="bmoggi"><circle cx="${xo}" cy="${yo}" r="5" class="bmp"/><rect x="${(xo+9).toFixed(1)}" y="${(yo-10).toFixed(1)}" width="56" height="20" rx="6"/><text x="${(xo+37).toFixed(1)}" y="${(yo+4).toFixed(1)}" text-anchor="middle">${kk(oggi)}</text></g>
    ${prezzi}<g class="bmmira" style="display:none"><line y1="${T}" y2="${H-B}"/><circle r="4"/></g></svg>
    <div class="bmtip" hidden></div>
    <div class="bmleg">${[3,2,1,0].map(k=>`<button type="button" class="bmlb${SPENTI.has(k)?" spento":""}" data-k="${k}" aria-pressed="${!SPENTI.has(k)}" title="Mostra o nascondi"><i class="bmf${k}"></i>${k} su 3</button>`).join("")}
