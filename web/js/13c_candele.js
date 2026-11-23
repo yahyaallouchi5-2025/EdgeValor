@@ -1,24 +1,35 @@
-/* ---------- 13c_candele.js - v8.75 CANDELE ORARIE DI UN SEGNALE (scheda Live > I segnali di X) ----------
-   Un tocco su un segnale apre il suo "perche'" (13_verifica.js) e, sotto, le candele orarie vere della settimana:
-     - linea turchese  = la spinta degli speculatori (quando il segnale e' nato, report COT);
-     - linea bianca    = ingresso (prima chiusura dopo il segnale);  linea grigia = uscita;
-     - linee gialle    = annunci (Fed, NFP, CPI, BCE e le altre banche centrali) con la loro ora esatta.
-   Dati: ramo "orari", file mensili pubblico/h1/<SIMBOLO>/<AAAA-MM>.json scritti ogni notte da
-   cot_radar/stagionalita_orari.py (candele_mensili). Si scaricano solo i mesi che servono, una volta sola.
-   Ore mostrate in ora di Roma (anche con l'ora legale). Se un mese non c'e' ancora: messaggio, niente errore.
-   DEBUG: F12 -> Console -> ebCandele.cache */
+/* ---------- 13c_candele.js - v8.84 GRAFICO DI UN SEGNALE: GIORNALIERO / ORARIO (scheda Live > I segnali di X) ----------
+   Idea di Ya (23/11/2026): non e' un segnale da seguire, e' un MONITORAGGIO di come si muove il prezzo dopo ogni report
+   COT e dopo ogni notizia che muove il mercato, prima e dopo il segnale. Due viste con lo switch:
+     - GIORNALIERO = la storia (ultimi ~2 anni): fasce verdi/rosse dove gli speculatori spingevano (episodi di
+       cot_radar/speculatori.py, anche quello in corso), tacche turchesi = uscite del report COT, punti gialli = notizie;
+     - ORARIO = dal segnale a oggi: linee verticali all'ora esatta di ogni uscita COT, di ogni notizia, dell'ingresso e
+       dell'uscita del segnale.
+   COME SI USA (come TradingView): trascina per spostarti nel tempo; rotella del mouse, due dita o i pulsanti +/- per lo
+   zoom; trascina la scala dei prezzi (a destra) in su o in giu' per allungare o schiacciare il grafico (poi trascinando
+   il grafico si sposta anche in verticale); doppio clic sulla scala = scala automatica; pulsante ⟲ = vista iniziale;
+   pulsante ⤢ = schermo intero (Esc o il tasto indietro per uscire). Tocco o passaggio su una candela = lettura sotto.
+   DATI (ramo "orari", scritti ogni notte da cot_radar/stagionalita_orari.py):
+     - orarie:      pubblico/h1/<SIMBOLO>/<AAAA-MM>.json  {t0, b:[[ore dall'inizio del mese, o, h, l, c]]}
+     - giornaliere: pubblico/d1/<SIMBOLO>.json             {d:[["AAAA-MM-GG", o, h, l, c]]}
+     - notizie e uscite COT: D.reg.mon {ann:[[ora UTC, nome, valuta, (1 = ora indicativa)]], cot:[ore UTC]} (registro.py)
+     - spinte degli speculatori: D.cmp.ep[strumento] = [[ingresso, uscita|null, verso, forte, settimane]] (comportamento.py)
+   NOTIZIE PERTINENTI: coppia di valute -> le sue due valute; tutto il resto (indici, materie prime, crypto) -> USA
+   (stessa regola di cot_radar/perche.py). Ore mostrate in ora di Roma. Se un file manca: messaggio, niente errore.
+   DEBUG: F12 -> Console -> ebCandele.cache (file scaricati) */
 (function(){try{
- const BASE=EB_RAW+"orari/pubblico/h1/";
- // strumento del registro -> simbolo delle candele orarie (+ nota se e' un ETF che lo segue, non lo stesso prezzo)
+ const BASE_H=EB_RAW+"orari/pubblico/h1/",BASE_D=EB_RAW+"orari/pubblico/d1/";
+ // strumento del registro -> simbolo delle candele (+ nota se e' un ETF che lo segue, non lo stesso prezzo)
  const SIM={GOLD:["GLD.US"],SILVER:["SLV.US"],SP500:["GSPC.INDX"],NASDAQ:["NDX.INDX","Nasdaq 100"],DOW:["DJI.INDX"],
   RUSSELL:["IWM.US"],EM:["EEM.US"],EAFE:["EFA.US"],BTC:["BTC-USD.CC"],ETH:["ETH-USD.CC"],
   WTI:["USO.US","ETF USO sul petrolio WTI"],NATGAS:["UNG.US","ETF UNG sul gas naturale"],COPPER:["CPER.US","ETF CPER sul rame"],
-  // v8.79 cambi emergenti e Brent: file scritti dalla fase 5 di cot_radar/orari.py (solo per queste candele)
+  // v8.79 cambi emergenti e Brent: file scritti dalla fase 5 di cot_radar/orari.py
   USDBRL:["USDBRL.FOREX"],USDMXN:["USDMXN.FOREX"],USDZAR:["USDZAR.FOREX"],BRENT:["BNO.US","ETF BNO sul petrolio Brent"]};
- const FX=["EUR","GBP","AUD","NZD","USD","CAD","CHF","JPY"];
+ const FX=["EUR","GBP","AUD","NZD","USD","CAD","CHF","JPY"],VAL=["EUR","GBP","JPY","CHF","CAD","AUD","NZD","MXN","BRL","ZAR","USD"];
  function simbolo(k){if(SIM[k])return SIM[k];
   if(k&&k.length==6&&FX.includes(k.slice(0,3))&&FX.includes(k.slice(3)))return [k+".FOREX"];
   return null;}
+ const valute=k=>k&&k.length==6&&VAL.includes(k.slice(0,3))&&VAL.includes(k.slice(3))?[k.slice(0,3),k.slice(3)]:["USD"];
  const cache={};                                     // url -> Promise(dati | null)
  const leggi=url=>cache[url]||(cache[url]=fetch(url).then(r=>r.ok?r.json():null).catch(()=>null));
  const mesi=(a,b)=>{const out=[];const d=new Date(Date.UTC(a.getUTCFullYear(),a.getUTCMonth(),1));
@@ -27,62 +38,174 @@
  const ORA=new Intl.DateTimeFormat(EB_LOC,{timeZone:"Europe/Rome",weekday:"short",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
  const GIORNO=new Intl.DateTimeFormat(EB_LOC,{timeZone:"Europe/Rome",weekday:"short",day:"numeric"});
  const DGIORNO=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"});
+ const DATA=new Intl.DateTimeFormat(EB_LOC,{timeZone:"UTC",weekday:"short",day:"2-digit",month:"2-digit",year:"numeric"});
+ const MESE=new Intl.DateTimeFormat(EB_LOC,{timeZone:"UTC",month:"short",year:"2-digit"});
+ const GNUM=new Intl.DateTimeFormat(EB_LOC,{timeZone:"UTC",day:"numeric",month:"short"});
+ const DNY=new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"});
+ // giorno di mercato di un istante (chiusura delle 17 di New York, come le candele giornaliere): sab/dom -> lunedi'
+ const giornoDi=t=>{let d=new Date(DNY.format(t+7*36e5)+"T12:00Z");while(d.getUTCDay()%6==0)d=new Date(d.getTime()+864e5);return d.toISOString().slice(0,10);};
  const fmt=v=>{const a=Math.abs(v),d=a>=1000?1:a>=100?2:a>=10?3:a>=1?4:5;return v.toLocaleString(EB_LOC,{minimumFractionDigits:d,maximumFractionDigits:d});};
- const SETT=7*864e5,MAXSETT=12;
+ const ICO={meno:'<path d="M6 12h12"/>',piu:'<path d="M6 12h12M12 6v12"/>',reset:'<path d="M4 12a8 8 0 1 0 2.3-5.6"/><path d="M4 4v4h4"/>',
+  full:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',esci:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>'};
+ const ico=k=>`<svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>`;
 
  /* box = contenitore; z = riga del registro (strumento, generato, m.ingresso.utc, m.A.fine.utc, nt.ev) */
  window.ebCandele=function(box,z){try{
   const s=simbolo(z.strumento),t0=ts(z.generato);
-  if(!s||isNaN(t0)){box.innerHTML=`<p class="small vfc-v">Candele orarie non disponibili per questo strumento.</p>`;return;}
+  if(!s||isNaN(t0)){box.innerHTML=`<p class="small vfc-v">Grafico non disponibile per questo strumento.</p>`;return;}
   const m=z.m||{},ing=ts((m.ingresso||{}).utc),fine=(m.A||{}).fine||{},aperto=!z.chiuso||(m.fine||{}).in_corso;
   const usc=aperto?NaN:ts(fine.utc);
-  const inizio=t0-864e5,fineVista=Math.min(isNaN(usc)?Date.now():usc+864e5,Date.now());
-  const nS=Math.max(1,Math.min(MAXSETT,Math.ceil((fineVista-inizio)/SETT)));
-  let sett=0;
-  const linee=[[t0,"cot","Spinta COT"],[ing,"ing","Ingresso"],[usc,"usc","Uscita"]]
-   .concat(((z.nt||{}).ev||[]).map(e=>[ts(e.t),"ev",e.n+(e.x?" ~":"")]));
-  function disegna(){
-   const a=inizio+sett*SETT,b=a+SETT;
-   box.innerHTML=`<div class="vfc-t"><b>Candele orarie</b>${s[1]?`<span class="vfc-n">${esc(s[1])}</span>`:""}${nS>1?`<div class="vfc-s">${Array.from({length:nS},(_,i)=>`<button type="button" data-w="${i}" class="${i==sett?"on":""}">Sett. ${i+1}</button>`).join("")}</div>`:""}</div><div class="vfc-g"><p class="small vfc-v">Caricamento&hellip;</p></div>`;
-   box.querySelectorAll(".vfc-s button").forEach(x=>x.onclick=e=>{e.stopPropagation();sett=+x.dataset.w;disegna();});
-   const g=box.querySelector(".vfc-g");
-   Promise.all(mesi(new Date(a),new Date(b)).map(me=>leggi(BASE+s[0]+"/"+me+".json"))).then(L=>{
-    const barre=[];for(const d of L){if(!d)continue;for(const r of d.b){const t=(d.t0+r[0]*3600)*1000;if(t>=a&&t<b)barre.push([t,r[1],r[2],r[3],r[4]]);}}
-    barre.sort((x,y)=>x[0]-y[0]);
-    if(barre.length<3){g.innerHTML=`<p class="small vfc-v">Candele orarie non ancora disponibili per questa settimana (si aggiornano ogni notte).</p>`;return;}
-    grafico(g,barre,linee.filter(l=>!isNaN(l[0])&&l[0]>=a&&l[0]<b));});}
-  disegna();
- }catch(e){console.warn("[EdgeValor] candele",e);box.innerHTML="";}};
- window.ebCandele.cache=cache;
+  // notizie e uscite COT (registro); se il registro e' di una versione vecchia, solo le notizie dentro il trade
+  const MON=(D.reg||{}).mon,VV=valute(z.strumento);
+  const ANN=MON?MON.ann.filter(a=>VV.includes(a[2])).map(a=>({t:ts(a[0]),n:a[1]+(a[3]?" ~":"")}))
+              :((z.nt||{}).ev||[]).map(e=>({t:ts(e.t),n:e.n+(e.x?" ~":"")}));
+  const COT=MON?MON.cot.map(ts):[t0];
+  const EP=(((D.cmp||{}).ep||{})[z.strumento]||[]).map(e=>({a:e[0],b:e[1],v:e[2],forte:!!e[3]}));
+  const S={tf:"h",B:{},v:{},yz:1,yo:0,full:false};     // stato: timeframe, candele, vista per timeframe, scala verticale
+  box.innerHTML=`<div class="vfc-w"><div class="vfc-t"><b>Grafico</b>${s[1]?`<span class="vfc-n">${esc(s[1])}</span>`:""}
+    <div class="vfc-seg" role="group"><button type="button" data-tf="d">Giornaliero</button><button type="button" data-tf="h" class="on">Orario</button></div>
+    <div class="vfc-btn"><button type="button" data-z="-1" title="Riduci" aria-label="Riduci">${ico("meno")}</button><button type="button" data-z="1" title="Ingrandisci" aria-label="Ingrandisci">${ico("piu")}</button><button type="button" data-r title="Ripristina la vista" aria-label="Ripristina la vista">${ico("reset")}</button><button type="button" data-f title="Schermo intero" aria-label="Schermo intero">${ico("full")}</button></div></div>
+   <div class="vfc-leg"></div><div class="vfc-g"><p class="small vfc-v">Caricamento&hellip;</p></div>
+   <div class="vfc-tip"><span>Trascina per spostarti, rotella o due dita per lo zoom</span></div></div>`;
+  const W0=box.querySelector(".vfc-w"),g=box.querySelector(".vfc-g"),tip=box.querySelector(".vfc-tip"),leg=box.querySelector(".vfc-leg");
+  const vuoto=tip.innerHTML;
 
- /* candele in SVG: x per indice di barra (niente buchi nei weekend), y con un margine del 6% */
- function grafico(g,B,L){
-  const W=Math.max(280,g.clientWidth||600),H=W<500?210:250,pl=6,pr=58,pt=18,pb=22,n=B.length;
-  let lo=Math.min(...B.map(x=>x[3])),hi=Math.max(...B.map(x=>x[2]));const pad=(hi-lo)*.06||hi*.001;lo-=pad;hi+=pad;
-  const cw=(W-pl-pr)/n,X=i=>pl+cw*(i+.5),Y=v=>pt+(hi-v)/(hi-lo)*(H-pt-pb);
-  // posizione di un istante: la barra che lo contiene (o la prima dopo)
-  const idx=t=>{let i=B.findIndex(x=>x[0]+3600e3>t);return i<0?n-1:i;};
-  const corpo=Math.max(1,Math.min(9,cw*.62));
-  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Candele orarie">`;
-  // griglia di prezzo (4 livelli) con le etichette a destra
-  for(let k=0;k<=3;k++){const v=lo+(hi-lo)*(k+.5)/4,y=Y(v);svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmt(v)}</text>`;}
-  // un'etichetta per giorno (ora di Roma), alla prima barra del giorno
-  let prima="",ultimaEt=-99;B.forEach((x,i)=>{const d=DGIORNO.format(x[0]);if(d!=prima){prima=d;const xg=X(i)-cw/2;if(i>0)svg+=`<line class="vfc-gd" x1="${xg}" x2="${xg}" y1="${pt}" y2="${H-pb}"/>`;
-   if(xg-ultimaEt>=44&&xg<W-pr-30){ultimaEt=xg;svg+=`<text class="vfc-ax" x="${xg+3}" y="${H-6}">${GIORNO.format(x[0])}</text>`;}}});   // etichette mai sovrapposte
-  B.forEach((x,i)=>{const su=x[4]>=x[1],c=su?"vfc-su":"vfc-giu",y1=Y(Math.max(x[1],x[4])),y2=Y(Math.min(x[1],x[4]));
-   svg+=`<line class="${c}" x1="${X(i)}" x2="${X(i)}" y1="${Y(x[2])}" y2="${Y(x[3])}"/><rect class="${c}" x="${X(i)-corpo/2}" y="${y1}" width="${corpo}" height="${Math.max(1,y2-y1)}"/>`;});
-  // linee: spinta COT, ingresso, uscita, annunci (etichette in alto, sfalsate se vicine)
-  let ultimaX=-99,riga=0;
-  L.sort((p,q)=>p[0]-q[0]).forEach(([t,tipo,nome])=>{const x=X(idx(t));riga=x-ultimaX<46?(riga+1)%2:0;ultimaX=x;
-   svg+=`<line class="vfc-l ${tipo}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/><text class="vfc-lt ${tipo}" x="${x+3}" y="${pt-5+riga*11}">${esc(nome)}</text>`;});
-  svg+=`<line class="vfc-x" x1="0" x2="0" y1="${pt}" y2="${H-pb}" visibility="hidden"/></svg><div class="vfc-tip"><span>Passa sopra o tocca una candela per leggerla</span></div>`;
-  g.innerHTML=svg;
-  // lettura con mouse o dito: ora di Roma e prezzi della candela
-  const el=g.querySelector("svg"),tip=g.querySelector(".vfc-tip"),cx=g.querySelector(".vfc-x");
-  const mostra=ev=>{const r=el.getBoundingClientRect(),px=(ev.clientX-r.left)*W/r.width,i=Math.max(0,Math.min(n-1,Math.floor((px-pl)/cw)));
-   const x=B[i];cx.setAttribute("x1",X(i));cx.setAttribute("x2",X(i));cx.setAttribute("visibility","visible");
-   tip.innerHTML=`<b>${ORA.format(x[0])}</b><span>A ${fmt(x[1])} · Max ${fmt(x[2])} · Min ${fmt(x[3])} · C <b class="${x[4]>=x[1]?"up":"down"}">${fmt(x[4])}</b></span>`;};
-  const vuoto=tip.innerHTML;                         // riga di lettura SOTTO il grafico: non copre mai le etichette
-  el.addEventListener("pointermove",mostra);el.addEventListener("pointerdown",mostra);
-  el.addEventListener("pointerleave",()=>{tip.innerHTML=vuoto;cx.setAttribute("visibility","hidden");});}
-}catch(e){console.warn("[EdgeValor] candele",e);}})();
+  // ---------- dati: orari dal segnale (una settimana prima) a oggi; giornalieri gli ultimi ~2 anni
+  function carica(tf){
+   if(S.B[tf])return Promise.resolve(S.B[tf]);
+   if(tf=="h")return Promise.all(mesi(new Date(t0-8*864e5),new Date()).map(me=>leggi(BASE_H+s[0]+"/"+me+".json"))).then(L=>{
+     const B=[];for(const d of L){if(!d)continue;for(const r of d.b)B.push({t:(d.t0+r[0]*3600)*1000,o:r[1],h:r[2],l:r[3],c:r[4]});}
+     B.sort((a,b)=>a.t-b.t);return S.B.h=B;});
+   return leggi(BASE_D+s[0]+".json").then(d=>S.B.d=(d&&d.d||[]).map(r=>({t:Date.parse(r[0]+"T12:00Z"),g:r[0],o:r[1],h:r[2],l:r[3],c:r[4]})));}
+  // vista iniziale: orario = la settimana del segnale; giornaliero = ultimi 6 mesi (3 da telefono)
+  function vistaIniziale(tf){const B=S.B[tf],N=B.length;
+   if(tf=="h"){let a=B.findIndex(x=>x.t>=t0-864e5),b=B.findIndex(x=>x.t>=t0+6*864e5);if(a<0)a=Math.max(0,N-120);if(b<0)b=N;
+    if(b-a<20){a=Math.max(0,N-120);b=N;}return {i0:a,i1:b+1};}
+   const n=Math.min(N,(S.full?innerWidth:g.clientWidth)<560?66:130);return {i0:N-n,i1:N+2};}
+  function mostra(tf){S.tf=tf;S.yz=1;S.yo=0;
+   W0.querySelectorAll("[data-tf]").forEach(b=>b.classList.toggle("on",b.dataset.tf==tf));
+   leg.innerHTML=tf=="d"?`<span><i class="lg-su"></i>Speculatori comprano</span><span><i class="lg-giu"></i>vendono</span><span><i class="lg-cot"></i>Report COT</span><span><i class="lg-ev"></i>Notizie</span>`
+    :`<span><i class="lg-lcot"></i>Report COT</span><span><i class="lg-lev"></i>Notizie</span><span><i class="lg-sgn"></i>Segnale</span><span><i class="lg-ling"></i>Ingresso</span>`;
+   if(!S.B[tf])g.innerHTML=`<p class="small vfc-v">Caricamento&hellip;</p>`;
+   carica(tf).then(B=>{if(S.tf!=tf)return;
+    if(!B||B.length<3){g.innerHTML=`<p class="small vfc-v">${tf=="h"?"Candele orarie non ancora disponibili (si aggiornano ogni notte).":"Candele giornaliere non ancora disponibili (si aggiornano ogni notte)."}</p>`;return;}
+    if(!S.v[tf])S.v[tf]=vistaIniziale(tf);disegna();});}
+  W0.querySelectorAll("[data-tf]").forEach(b=>b.onclick=e=>{e.stopPropagation();if(b.dataset.tf!=S.tf)mostra(b.dataset.tf);});
+
+  // ---------- geometria comune a disegno e gesti
+  const G={};
+  function misure(){const W=Math.max(280,g.clientWidth||600),full=S.full;
+   G.W=W;G.H=full?Math.max(260,innerHeight-W0.querySelector(".vfc-t").offsetHeight-leg.offsetHeight-tip.offsetHeight-70):W<500?240:300;
+   G.pl=6;G.pr=62;G.pt=24;G.pb=S.tf=="d"?34:22;G.PW=G.W-G.pl-G.pr;G.PH=G.H-G.pt-G.pb;}
+  // limiti della vista: almeno 12 candele, al massimo tutte (+ un po' di spazio vuoto a destra, come TradingView)
+  function limita(v,N){let n=v.i1-v.i0;n=Math.max(12,Math.min(N+12,n));
+   if(v.i1-v.i0!=n){const c=(v.i0+v.i1)/2;v.i0=c-n/2;v.i1=c+n/2;}
+   if(v.i0<-2){v.i1+=-2-v.i0;v.i0=-2;}if(v.i1>N+n*.2){v.i0-=v.i1-(N+n*.2);v.i1=N+n*.2;}}
+
+  function disegna(){const B=S.B[S.tf];if(!B||!B.length)return;const v=S.v[S.tf],N=B.length,d=S.tf=="d";
+   misure();limita(v,N);const {W,H,pl,pr,pt,pb,PW,PH}=G,n=v.i1-v.i0,cw=PW/n;
+   const X=i=>pl+(i-v.i0+.5)*cw,a0=Math.max(0,Math.floor(v.i0)),a1=Math.min(N-1,Math.ceil(v.i1));
+   const vis=B.slice(a0,a1+1);if(!vis.length)return;
+   // scala verticale: automatica sulle candele visibili, poi allungata (yz) e spostata (yo) dall'utente
+   let lo=Math.min(...vis.map(x=>x.l)),hi=Math.max(...vis.map(x=>x.h));const mid=(lo+hi)/2+S.yo;let half=(hi-lo)/2*1.08*S.yz||hi*.001;
+   lo=mid-half;hi=mid+half;G.lo=lo;G.hi=hi;G.cw=cw;
+   const Y=p=>pt+(hi-p)/(hi-lo)*PH;
+   // indice della candela che contiene l'istante t (orario) o il giorno g0 (giornaliero): ricerca binaria
+   const idx=t=>{let a=0,b=N-1;if(t<=B[0].t)return 0;if(t>=B[N-1].t)return N-1;while(b-a>1){const c=(a+b)>>1;B[c].t<=t?a=c:b=c;}return a;};
+   const idxG=g0=>{let a=0,b=N-1;while(b-a>1){const c=(a+b)>>1;B[c].g<=g0?a=c:b=c;}return B[b].g<=g0?b:a;};
+   let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Grafico"><defs><clipPath id="vfcclip${esc(z.id)}"><rect x="${pl}" y="0" width="${PW}" height="${H}"/></clipPath></defs><g clip-path="url(#vfcclip${esc(z.id)})">`;
+   // fasce degli speculatori (sotto a tutto): giornaliero e orario
+   for(const e of EP){const ia=d?idxG(e.a):idx(Date.parse(e.a+"T00:00Z")),ib=e.b?(d?idxG(e.b):idx(Date.parse(e.b+"T23:59Z"))):N-1;
+    if(ib<a0||ia>a1)continue;svg+=`<rect class="vfc-b ${e.v>0?"su":"giu"}${e.forte?" forte":""}" x="${X(ia)-cw/2}" y="${pt}" width="${(ib-ia+1)*cw}" height="${PH}"/>`;}
+   // separatori e etichette del tempo (mai sovrapposte): mesi nel giornaliero (giorni se molto ingrandito), giorni nell'orario
+   const fmtT=d?(n>45?x=>MESE.format(x.t):x=>GNUM.format(x.t)):x=>GIORNO.format(x.t),chiave=d?(n>45?x=>x.g.slice(0,7):x=>x.g):x=>DGIORNO.format(x.t);
+   let prima=a0>0?chiave(B[a0-1]):"",ultEt=-99,ultSep=-99;
+   for(let i=a0;i<=a1;i++){const x=B[i],k=chiave(x);if(k==prima)continue;prima=k;const xx=X(i)-cw/2;
+    if(xx-ultSep>=(d&&n<=45?28:6)){ultSep=xx;svg+=`<line class="vfc-gd" x1="${xx}" x2="${xx}" y1="${pt}" y2="${H-pb}"/>`;}
+    if(xx-ultEt>=52&&xx>pl-2&&xx<W-pr-34){ultEt=xx;svg+=`<text class="vfc-ax" x="${xx+3}" y="${d?H-pb+13:H-6}">${fmtT(x)}</text>`;}}
+   const corpo=Math.max(1,Math.min(11,cw*.64));
+   for(let i=a0;i<=a1;i++){const x=B[i],c=x.c>=x.o?"vfc-su":"vfc-giu",y1=Y(Math.max(x.o,x.c)),y2=Y(Math.min(x.o,x.c));
+    svg+=`<line class="${c}" x1="${X(i)}" x2="${X(i)}" y1="${Y(x.h)}" y2="${Y(x.l)}"/><rect class="${c}" x="${X(i)-corpo/2}" y="${y1}" width="${corpo}" height="${Math.max(1,y2-y1)}"/>`;}
+   const tMin=B[a0].t-(d?864e5:36e5),tMax=B[a1].t+(d?864e5:36e5);
+   // etichetta di una linea: a destra della linea, oppure a sinistra se uscirebbe dal grafico (mai tagliata)
+   const etichetta=(x,y,cl,nome)=>{const w=nome.length*6.3+4,sx=x+3+w>W-pr;
+    return `<text class="vfc-lt ${cl}" x="${sx?x-3:x+3}" y="${y}"${sx?' text-anchor="end"':""}>${esc(nome)}</text>`;};
+   if(d){ // giornaliero: tacche COT sull'asse, punti delle notizie in basso, linee del segnale
+    for(const t of COT){if(t<tMin||t>tMax)continue;const x=X(idxG(giornoDi(t)));svg+=`<line class="vfc-tk" x1="${x}" x2="${x}" y1="${H-pb}" y2="${H-pb+5}"/>`;}
+    for(const a of ANN){if(a.t<tMin||a.t>tMax)continue;svg+=`<circle class="vfc-pt" cx="${X(idxG(giornoDi(a.t)))}" cy="${H-5}" r="2.6"/>`;}
+    for(const [t,cl,nome] of [[ing,"ing","Ingresso"],[usc,"usc","Uscita"]]){if(isNaN(t)||t<tMin||t>tMax)continue;const x=X(idxG(giornoDi(t)));
+     svg+=`<line class="vfc-l ${cl}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/>`+etichetta(x,pt-7,cl,nome);}
+   }else{ // orario: linee all'ora esatta (COT, notizie, ingresso, uscita), etichette sfalsate se vicine
+    // "Segnale" = quando il terminale ha registrato il segnale (COT 70% + mercato 30%: non sempre coincide con l'uscita del COT)
+    const L=[];for(const t of COT)if(t>=tMin&&t<=tMax)L.push([t,"cot","COT"]);
+    for(const a of ANN)if(a.t>=tMin&&a.t<=tMax)L.push([a.t,"ev",a.n]);
+    for(const [t,cl,nome] of [[t0,"sgn","Segnale"],[ing,"ing","Ingresso"],[usc,"usc","Uscita"]])if(!isNaN(t)&&t>=tMin&&t<=tMax)L.push([t,cl,nome]);
+    let ux=-99,r=0;L.sort((p,q)=>p[0]-q[0]).forEach(([t,cl,nome])=>{const k=idx(t),x=X(k+Math.max(0,Math.min(1,(t-B[k].t)/36e5))-.5);r=x-ux<48?(r+1)%3:0;ux=x;
+     svg+=`<line class="vfc-l ${cl}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/>`+etichetta(x,pt-7+r*11,cl,nome);});}
+   svg+=`<line class="vfc-x" x1="0" x2="0" y1="${pt}" y2="${H-pb}" visibility="hidden"/></g>`;
+   // scala dei prezzi (a destra): 5 livelli; trascinabile in verticale
+   for(let k=0;k<5;k++){const p=lo+(hi-lo)*(k+.5)/5,y=Y(p);svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmt(p)}</text>`;}
+   svg+=`<rect class="vfc-asse" x="${W-pr}" y="${pt}" width="${pr}" height="${PH}"><title>Trascina in su o in giù per allungare il grafico · doppio clic: scala automatica</title></rect></svg>`;
+   g.innerHTML=svg;G.X=X;G.B=B;G.a0=a0;G.a1=a1;}
+
+  // ---------- lettura di una candela (data, prezzi, speculatori, notizie e COT di quella candela)
+  function leggiCandela(px){const B=S.B[S.tf],v=S.v[S.tf];if(!B||G.cw==null)return;const d=S.tf=="d";
+   const i=Math.max(G.a0,Math.min(G.a1,Math.round(v.i0+(px-G.pl)/G.cw-.5))),x=B[i];if(!x)return;
+   const cx=g.querySelector(".vfc-x");if(cx){cx.setAttribute("x1",G.X(i));cx.setAttribute("x2",G.X(i));cx.setAttribute("visibility","visible");}
+   const dentro=t=>d?giornoDi(t)==x.g:t>=x.t&&t<x.t+36e5,g0=d?x.g:new Date(x.t).toISOString().slice(0,10);
+   const ep=EP.find(e=>g0>=e.a&&(!e.b||g0<=e.b)),nn=ANN.filter(a=>dentro(a.t)).map(a=>a.n),cc=COT.some(dentro);
+   tip.innerHTML=`<b>${d?DATA.format(x.t):ORA.format(x.t)}</b><span>A ${fmt(x.o)} · Max ${fmt(x.h)} · Min ${fmt(x.l)} · C <b class="${x.c>=x.o?"up":"down"}">${fmt(x.c)}</b></span>`+
+    (ep?`<span class="${ep.v>0?"up":"down"}">${ep.v>0?"Speculatori: comprano":"Speculatori: vendono"}${ep.forte?" (spinta forte)":""}</span>`:"")+
+    (nn.length?`<span class="vfc-tn">${nn.map(esc).join(", ")}</span>`:"")+(cc?`<span class="vfc-tc">Report COT</span>`:"");}
+  function nascondi(){const cx=g.querySelector(".vfc-x");if(cx)cx.setAttribute("visibility","hidden");tip.innerHTML=vuoto;}
+
+  // ---------- gesti: trascina = sposta; due dita / rotella = zoom; scala prezzi = allunga; tocco = lettura
+  let raf=0;const ridisegna=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;disegna();});};
+  const zoom=(f,px)=>{const v=S.v[S.tf];if(!v||G.cw==null)return;const a=v.i0+((px??G.pl+G.PW/2)-G.pl)/G.cw;v.i0=a-(a-v.i0)*f;v.i1=a+(v.i1-a)*f;ridisegna();};
+  const P=new Map();let gesto=null;
+  const pos=e=>{const r=g.getBoundingClientRect();return {x:(e.clientX-r.left)*G.W/r.width,y:(e.clientY-r.top)*G.H/r.height};};
+  g.addEventListener("pointerdown",e=>{if(!S.v[S.tf]||G.W==null)return;const p=pos(e);P.set(e.pointerId,p);
+   if(P.size==2){const [a,b]=[...P.values()];gesto={tipo:"pinch",d:Math.hypot(a.x-b.x,a.y-b.y),cx:(a.x+b.x)/2};return;}
+   gesto={tipo:p.x>G.W-G.pr?"asse":"sposta",x:p.x,y:p.y,mosso:false,v:{...S.v[S.tf]},yz:S.yz,yo:S.yo,touch:e.pointerType!="mouse",id:e.pointerId};});
+  g.addEventListener("pointermove",e=>{if(G.W==null)return;const p=pos(e);
+   if(!P.has(e.pointerId)){if(e.pointerType=="mouse"&&S.v[S.tf])leggiCandela(p.x);return;}
+   P.set(e.pointerId,p);if(!gesto)return;
+   if(gesto.tipo=="pinch"&&P.size==2){const [a,b]=[...P.values()],dd=Math.hypot(a.x-b.x,a.y-b.y);if(dd>10){zoom(gesto.d/dd,gesto.cx);gesto.d=dd;}return;}
+   const dx=p.x-gesto.x,dy=p.y-gesto.y;
+   if(!gesto.mosso){if(Math.hypot(dx,dy)<5)return;
+    // da telefono, fuori dallo schermo intero, un trascinamento verticale scorre la pagina
+    if(gesto.touch&&!S.full&&gesto.tipo=="sposta"&&Math.abs(dy)>Math.abs(dx)){P.delete(e.pointerId);gesto=null;return;}
+    gesto.mosso=true;try{g.setPointerCapture(e.pointerId);}catch(_){}}
+   if(gesto.tipo=="asse"){S.yz=Math.max(.1,Math.min(20,gesto.yz*Math.exp(dy*.006)));ridisegna();return;}
+   const v=S.v[S.tf];v.i0=gesto.v.i0-dx/G.cw;v.i1=gesto.v.i1-dx/G.cw;
+   if(S.yz!=1||gesto.yo)S.yo=gesto.yo+dy*(G.hi-G.lo)/G.PH;        // scala manuale: si sposta anche in verticale
+   ridisegna();if(e.pointerType=="mouse")leggiCandela(p.x);});
+  const rilascio=e=>{const p=P.get(e.pointerId);P.delete(e.pointerId);
+   if(gesto&&gesto.tipo=="sposta"&&!gesto.mosso&&p)leggiCandela(p.x);
+   if(!P.size)gesto=null;};
+  g.addEventListener("pointerup",rilascio);g.addEventListener("pointercancel",e=>{P.delete(e.pointerId);if(!P.size)gesto=null;});
+  g.addEventListener("pointerleave",e=>{if(e.pointerType=="mouse"&&!P.size)nascondi();});
+  g.addEventListener("dblclick",e=>{const p=pos(e);if(p.x>G.W-G.pr){S.yz=1;S.yo=0;ridisegna();}});
+  g.addEventListener("wheel",e=>{if(!S.v[S.tf]||G.W==null)return;e.preventDefault();const p=pos(e);
+   if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){const v=S.v[S.tf],sh=e.deltaX/G.cw*.6;v.i0+=sh;v.i1+=sh;ridisegna();}
+   else zoom(Math.exp(e.deltaY*.0015),p.x);},{passive:false});
+  W0.querySelectorAll("[data-z]").forEach(b=>b.onclick=e=>{e.stopPropagation();zoom(b.dataset.z>0?.7:1/.7);});
+  W0.querySelector("[data-r]").onclick=e=>{e.stopPropagation();if(!S.B[S.tf])return;S.yz=1;S.yo=0;S.v[S.tf]=vistaIniziale(S.tf);ridisegna();};
+
+  // ---------- schermo intero (Esc, tasto indietro o lo stesso pulsante per uscire)
+  const bf=W0.querySelector("[data-f]");
+  function stile(on){S.full=on;W0.classList.toggle("vfc-full",on);document.documentElement.classList.toggle("vfcaperto",on);
+   bf.innerHTML=ico(on?"esci":"full");bf.title=on?"Esci dallo schermo intero":"Schermo intero";bf.setAttribute("aria-label",bf.title);ridisegna();}
+  const tasto=e=>{if(e.key=="Escape")esci(true);};
+  const indietro=()=>esci(false);                     // tasto indietro del telefono/browser: la voce e' gia' tolta
+  function esci(togliVoce){if(!S.full)return;removeEventListener("keydown",tasto);removeEventListener("popstate",indietro);stile(false);
+   if(togliVoce){try{if(history.state&&history.state.vfcFull)history.back();}catch(_){}}}
+  bf.onclick=e=>{e.stopPropagation();if(S.full){esci(true);return;}
+   try{history.pushState({vfcFull:1},"");}catch(_){}addEventListener("keydown",tasto);addEventListener("popstate",indietro);stile(true);};
+  // i clic dentro il grafico non devono chiudere la riga del segnale (13_verifica.js apre/chiude al clic sulla riga)
+  W0.addEventListener("click",e=>e.stopPropagation());
+  new ResizeObserver(()=>ridisegna()).observe(g);
+  mostra("h");
+ }catch(e){console.warn("[EdgeValor] grafico",e);box.innerHTML="";}};
+ window.ebCandele.cache=cache;
+}catch(e){console.warn("[EdgeValor] grafico",e);}})();
