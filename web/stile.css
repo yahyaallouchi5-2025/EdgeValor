@@ -3819,3 +3819,11 @@ html.vfcaperto,html.vfcaperto body{overflow:hidden}
 .nm-div button>i>i.su{background:var(--b)}.nm-div button>i>i.giu{background:var(--s)}
 .nm-div b{font-size:12.5px}
 .nm-div button{grid-template-columns:78px 1fr 60px 84px}@media (max-width:600px){.nm-div button{grid-template-columns:66px 1fr 56px 78px}}
+/* --- v8.88 grafico come TradingView: mirino, ultimo prezzo, tocco preciso da telefono --- */
+.vfc-y{stroke:var(--ink2);stroke-width:1;opacity:.5;stroke-dasharray:3 3}
+.vfc-x{stroke-dasharray:3 3}
+.vfc-yt rect{fill:var(--ink2)}.vfc-yt text{fill:#0a1628;font:600 11px system-ui}
+.vfc-ul{stroke-width:1;stroke-dasharray:1 3;opacity:.8}.vfc-ul.su{stroke:var(--b)}.vfc-ul.giu{stroke:var(--s)}
+.vfc-ut.su{fill:var(--b)}.vfc-ut.giu{fill:var(--s)}.vfc-utt{fill:#04211e;font:600 11px system-ui}
+.vfc-g{-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:contain}
+.vfc-g svg{contain:layout paint}

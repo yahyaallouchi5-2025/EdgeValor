@@ -113,7 +113,7 @@ def scrivi(righe, file=FILE):
         fh.write("# Altri dati USA ad alto impatto (uscite_usa.py). Fonte: ALFRED St. Louis Fed, vintage dates delle serie\n"
                  "# RSAFS (vendite al dettaglio), PPIFIS+PPIFGS (PPI), PCEPI (PCE), GDPC1 (PIL, prima stima), JTSJOL (JOLTS),\n"
                  "# pulite come spiegato in uscite_usa.py. ora_et = ora di New York. Scaricate il 23/11/2026.\n")
-        w = csv.writer(fh)
+        w = csv.writer(fh, lineterminator="\n")
         w.writerow(["data", "evento", "ora_et"])
         for d, ora, nome in sorted(righe):
             w.writerow([d, nome, ora])

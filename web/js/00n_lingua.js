@@ -41,6 +41,9 @@ Object.assign(EB_EN,{
 "Vendite USA":"US retail sales","PIL USA":"US GDP",
 "Come reagiscono cambi, oro, indici e crypto alle notizie macro, esito per esito.":"How FX, gold, indices and crypto react to macro news, outcome by outcome.",
 "Nuova scheda Notizie":"New News tab",
+"Trascina per spostarti, due dita per lo zoom, dito fermo per il mirino":"Drag to move, two fingers to zoom, hold your finger still for the crosshair","Aggiornamento scheda Notizie":"News tab update",
+"Grafico più preciso da telefono e da PC: scala dei prezzi come TradingView, mirino tenendo fermo il dito, zoom anche trascinando la scala del tempo. Vale anche per il grafico della Live.":
+ "More precise chart on phone and PC: TradingView-style price scale, crosshair by holding your finger still, zoom also by dragging the time scale. Also applies to the Live chart.",
 "NFP, CPI, Fed, vendite, PIL e banche centrali: come reagiscono cambi, oro, indici e crypto quando il dollaro esce forte o debole. Grafico orario con la traccia di ogni notizia.":
  "NFP, CPI, Fed, retail sales, GDP and central banks: how FX, gold, indices and crypto react when the dollar comes out strong or weak. Hourly chart with the trace of every news."
 });

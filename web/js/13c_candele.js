@@ -9,6 +9,13 @@
    zoom; trascina la scala dei prezzi (a destra) in su o in giu' per allungare o schiacciare il grafico (poi trascinando
    il grafico si sposta anche in verticale); doppio clic sulla scala = scala automatica; pulsante ⟲ = vista iniziale;
    pulsante ⤢ = schermo intero (Esc o il tasto indietro per uscire). Tocco o passaggio su una candela = lettura sotto.
+   v8.88 COME TRADINGVIEW, ANCHE DA TELEFONO (Ya, 23/11/2026: "sfarfalla, impreciso al tocco"):
+     - scala dei prezzi con numeri tondi che restano fermi mentre ci si sposta, etichetta colorata dell'ultimo prezzo;
+     - mirino: linea verticale + orizzontale e prezzo sulla scala (mouse: segue il puntatore; dito: tocco breve = legge
+       la candela, dito fermo 0,35 s poi trascina = mirino che scorre candela per candela);
+     - trascina orizzontale = sposta; verticale col dito fuori dallo schermo intero = scorre la pagina; due dita = zoom
+       (il dito che resta continua a spostare); scala del tempo (sotto) trascinata in orizzontale = zoom;
+     - la scala si adatta per gradi (niente salti) e il disegno aggiorna sempre lo stesso <svg> (niente lampi su iPhone).
    DATI (ramo "orari", scritti ogni notte da cot_radar/stagionalita_orari.py):
      - orarie:      pubblico/h1/<SIMBOLO>/<AAAA-MM>.json  {t0, b:[[ore dall'inizio del mese, o, h, l, c]]}
      - giornaliere: pubblico/d1/<SIMBOLO>.json             {d:[["AAAA-MM-GG", o, h, l, c]]}
@@ -69,7 +76,7 @@
     <div class="vfc-seg" role="group"><button type="button" data-tf="d">Giornaliero</button><button type="button" data-tf="h" class="on">Orario</button></div>
     <div class="vfc-btn"><button type="button" data-z="-1" title="Riduci" aria-label="Riduci">${ico("meno")}</button><button type="button" data-z="1" title="Ingrandisci" aria-label="Ingrandisci">${ico("piu")}</button><button type="button" data-r title="Ripristina la vista" aria-label="Ripristina la vista">${ico("reset")}</button><button type="button" data-f title="Schermo intero" aria-label="Schermo intero">${ico("full")}</button></div></div>
    <div class="vfc-leg"></div><div class="vfc-g"><p class="small vfc-v">Caricamento&hellip;</p></div>
-   <div class="vfc-tip"><span>Trascina per spostarti, rotella o due dita per lo zoom</span></div></div>`;
+   <div class="vfc-tip"><span>${matchMedia("(pointer:coarse)").matches?"Trascina per spostarti, due dita per lo zoom, dito fermo per il mirino":"Trascina per spostarti, rotella o due dita per lo zoom"}</span></div></div>`;
   const W0=box.querySelector(".vfc-w"),g=box.querySelector(".vfc-g"),tip=box.querySelector(".vfc-tip"),leg=box.querySelector(".vfc-leg");
   const vuoto=tip.innerHTML;
 
@@ -85,7 +92,7 @@
    if(tf=="h"){let a=B.findIndex(x=>x.t>=t0-(NM?2:1)*864e5),b=B.findIndex(x=>x.t>=t0+(NM?3:6)*864e5);if(a<0)a=Math.max(0,N-120);if(b<0)b=N;
     if(b-a<20){a=Math.max(0,N-120);b=N;}return {i0:a,i1:b+1};}
    const n=Math.min(N,(S.full?innerWidth:g.clientWidth)<560?66:130);return {i0:N-n,i1:N+2};}
-  function mostra(tf){S.tf=tf;S.yz=1;S.yo=0;
+  function mostra(tf){S.tf=tf;S.yz=1;S.yo=0;S.ys=null;S.ci=null;
    W0.querySelectorAll("[data-tf]").forEach(b=>b.classList.toggle("on",b.dataset.tf==tf));
    leg.innerHTML=NM?(tf=="d"?`<span><i class="lg-ev"></i>Notizie</span>`:`<span><i class="lg-lev"></i>Notizie</span><span><i class="lg-rz"></i>Mossa della prima ora</span>`)
     :tf=="d"?`<span><i class="lg-su"></i>Speculatori comprano</span><span><i class="lg-giu"></i>vendono</span><span><i class="lg-cot"></i>Report COT</span><span><i class="lg-ev"></i>Notizie</span>`
@@ -112,12 +119,18 @@
    const vis=B.slice(a0,a1+1);if(!vis.length)return;
    // scala verticale: automatica sulle candele visibili, poi allungata (yz) e spostata (yo) dall'utente
    let lo=Math.min(...vis.map(x=>x.l)),hi=Math.max(...vis.map(x=>x.h));const mid=(lo+hi)/2+S.yo;let half=(hi-lo)/2*1.08*S.yz||hi*.001;
-   lo=mid-half;hi=mid+half;G.lo=lo;G.hi=hi;G.cw=cw;
+   lo=mid-half;hi=mid+half;
+   // v8.88 SCALA MORBIDA (telefono, Ya 23/11/2026: "sfarfalla"): mentre si trascina o si fa lo zoom la scala non salta
+   // alla nuova misura in un colpo, ci va per gradi (35% a ogni fotogramma) e si ferma quando e' arrivata.
+   if(S.ys&&(gesto||S.ys.anima)){const k=.35,dl=lo-S.ys.lo,dh=hi-S.ys.hi;
+    if(Math.abs(dl)+Math.abs(dh)>(hi-lo)*.004){lo=S.ys.lo+dl*k;hi=S.ys.hi+dh*k;S.ys.anima=true;requestAnimationFrame(()=>ridisegna());}
+    else S.ys.anima=false;}
+   S.ys={lo,hi,anima:S.ys?S.ys.anima:false};G.lo=lo;G.hi=hi;G.cw=cw;
    const Y=p=>pt+(hi-p)/(hi-lo)*PH;
    // indice della candela che contiene l'istante t (orario) o il giorno g0 (giornaliero): ricerca binaria
    const idx=t=>{let a=0,b=N-1;if(t<=B[0].t)return 0;if(t>=B[N-1].t)return N-1;while(b-a>1){const c=(a+b)>>1;B[c].t<=t?a=c:b=c;}return a;};
    const idxG=g0=>{let a=0,b=N-1;while(b-a>1){const c=(a+b)>>1;B[c].g<=g0?a=c:b=c;}return B[b].g<=g0?b:a;};
-   let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Grafico"><defs><clipPath id="vfcclip${esc(z.id)}"><rect x="${pl}" y="0" width="${PW}" height="${H}"/></clipPath></defs><g clip-path="url(#vfcclip${esc(z.id)})">`;
+   let svg=`<defs><clipPath id="vfcclip${esc(z.id)}"><rect x="${pl}" y="0" width="${PW}" height="${H}"/></clipPath></defs><g clip-path="url(#vfcclip${esc(z.id)})">`;
    // fasce degli speculatori (sotto a tutto): giornaliero e orario
    for(const e of EP){const ia=d?idxG(e.a):idx(Date.parse(e.a+"T00:00Z")),ib=e.b?(d?idxG(e.b):idx(Date.parse(e.b+"T23:59Z"))):N-1;
     if(ib<a0||ia>a1)continue;svg+=`<rect class="vfc-b ${e.v>0?"su":"giu"}${e.forte?" forte":""}" x="${X(ia)-cw/2}" y="${pt}" width="${(ib-ia+1)*cw}" height="${PH}"/>`;}
@@ -149,16 +162,46 @@
     for(const [t,cl,nome] of (NM?[]:[[t0,"sgn","Segnale"],[ing,"ing","Ingresso"],[usc,"usc","Uscita"]]))if(!isNaN(t)&&t>=tMin&&t<=tMax)L.push([t,cl,nome]);
     let ux=-99,r=0;L.sort((p,q)=>p[0]-q[0]).forEach(([t,cl,nome,r1])=>{const k=idx(t),x=X(k+Math.max(0,Math.min(1,(t-B[k].t)/36e5))-.5);r=x-ux<48?(r+1)%3:0;ux=x;
      svg+=`<line class="vfc-l ${cl}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/>`+etichetta(x,pt-7+r*11,cl,nome,r1);});}
-   svg+=`<line class="vfc-x" x1="0" x2="0" y1="${pt}" y2="${H-pb}" visibility="hidden"/></g>`;
-   // scala dei prezzi (a destra): 5 livelli; trascinabile in verticale
-   for(let k=0;k<5;k++){const p=lo+(hi-lo)*(k+.5)/5,y=Y(p);svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmt(p)}</text>`;}
+   svg+=`<line class="vfc-x" x1="0" x2="0" y1="${pt}" y2="${H-pb}" visibility="hidden"/><line class="vfc-y" x1="${pl}" x2="${W-pr}" y1="0" y2="0" visibility="hidden"/></g>`;
+   // v8.88 SCALA DEI PREZZI COME TRADINGVIEW: livelli "tondi" (passo 1, 2 o 5 x 10^n, circa uno ogni 48 px) che restano
+   // fermi mentre si sposta il grafico (prima 5 livelli calcolati sui bordi: i numeri cambiavano a ogni fotogramma)
+   const grezzo=(hi-lo)/Math.max(2,PH/48),e10=Math.pow(10,Math.floor(Math.log10(grezzo))),r=grezzo/e10;
+   let passo=(r<=1?1:r<=2?2:r<=5?5:10)*e10;
+   // almeno 4 livelli visibili: se sono meno si scende al passo tondo piu' piccolo (5 -> 2 -> 1 -> 0,5 ...)
+   const conta=q=>Math.floor(hi/q)-Math.ceil(lo/q)+1;
+   for(let k=0;k<4&&conta(passo)<4;k++){const m=passo/Math.pow(10,Math.floor(Math.log10(passo)+1e-9));passo=passo*(m>4.9?.4:.5);}
+   const dec=Math.max(0,-Math.floor(Math.log10(passo)+1e-9)+(String(+(passo/Math.pow(10,Math.floor(Math.log10(passo)+1e-9))).toFixed(1)).includes(".5")?1:0));G.dec=dec;
+   const fmtA=v=>v.toLocaleString(EB_LOC,{minimumFractionDigits:dec,maximumFractionDigits:dec});
+   for(let p=Math.ceil(lo/passo)*passo;p<=hi;p+=passo){const y=Y(p);if(y<pt+6||y>H-pb-4)continue;
+    svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmtA(p)}</text>`;}
+   // ultimo prezzo: linea tratteggiata ed etichetta colorata sulla scala (verde se l'ultima candela sale, rossa se scende)
+   const U=B[N-1],yu=Y(U.c);
+   if(yu>=pt&&yu<=H-pb){const c=U.c>=U.o?"su":"giu";
+    svg+=`<line class="vfc-ul ${c}" x1="${pl}" x2="${W-pr}" y1="${yu}" y2="${yu}"/><rect class="vfc-ut ${c}" x="${W-pr+1}" y="${yu-9}" width="${pr-2}" height="18" rx="3"/><text class="vfc-utt" x="${W-pr+6}" y="${yu+4}">${fmt(U.c)}</text>`;}
+   // etichetta del mirino (prezzo dove sta il dito o il mouse): sopra a tutto
+   svg+=`<g class="vfc-yt" visibility="hidden"><rect x="${W-pr+1}" y="-9" width="${pr-2}" height="18" rx="3"/><text x="${W-pr+6}" y="4"></text></g>`;
    svg+=`<rect class="vfc-asse" x="${W-pr}" y="${pt}" width="${pr}" height="${PH}"><title>Trascina in su o in giù per allungare il grafico · doppio clic: scala automatica</title></rect></svg>`;
-   g.innerHTML=svg;G.X=X;G.B=B;G.a0=a0;G.a1=a1;}
+   let el=g.querySelector("svg.vfc-s0");
+   if(!el){g.innerHTML=`<svg class="vfc-s0" width="100%" role="img" aria-label="Grafico"></svg>`;el=g.firstChild;}
+   el.setAttribute("viewBox",`0 0 ${W} ${H}`);el.setAttribute("height",H);el.innerHTML=svg.replace(/<\/svg>$/,"");
+   G.X=X;G.B=B;G.a0=a0;G.a1=a1;
+   // la linea della candela letta resta dove era (prima spariva a ogni ridisegno: tremolio)
+   if(S.ci!=null&&S.ci>=a0&&S.ci<=a1)mirino();}
+  // mirino stile TradingView: linea verticale sulla candela, linea orizzontale al prezzo, prezzo sulla scala
+  function mirino(){const el=g.querySelector("svg.vfc-s0");if(!el||S.ci==null||!G.X)return;
+   const cx=el.querySelector(".vfc-x"),cy=el.querySelector(".vfc-y"),ct=el.querySelector(".vfc-yt");
+   if(cx){cx.setAttribute("x1",G.X(S.ci));cx.setAttribute("x2",G.X(S.ci));cx.setAttribute("visibility","visible");}
+   if(S.cp==null||!cy||!ct)return;const y=G.pt+(G.hi-S.cp)/(G.hi-G.lo)*G.PH;
+   if(y<G.pt||y>G.H-G.pb){cy.setAttribute("visibility","hidden");ct.setAttribute("visibility","hidden");return;}
+   cy.setAttribute("y1",y);cy.setAttribute("y2",y);cy.setAttribute("visibility","visible");
+   ct.setAttribute("transform",`translate(0,${y})`);ct.querySelector("text").textContent=fmt(S.cp);   // precisione piena dello strumento (la scala usa i numeri tondi)
+   ct.setAttribute("visibility","visible");}
 
   // ---------- lettura di una candela (data, prezzi, speculatori, notizie e COT di quella candela)
-  function leggiCandela(px){const B=S.B[S.tf],v=S.v[S.tf];if(!B||G.cw==null)return;const d=S.tf=="d";
-   const i=Math.max(G.a0,Math.min(G.a1,Math.round(v.i0+(px-G.pl)/G.cw-.5))),x=B[i];if(!x)return;
-   const cx=g.querySelector(".vfc-x");if(cx){cx.setAttribute("x1",G.X(i));cx.setAttribute("x2",G.X(i));cx.setAttribute("visibility","visible");}
+  function leggiCandela(px,py){const B=S.B[S.tf],v=S.v[S.tf];if(!B||G.cw==null)return;const d=S.tf=="d";
+   const i=Math.max(G.a0,Math.min(G.a1,Math.round(v.i0+(px-G.pl)/G.cw-.5))),x=B[i];if(!x)return;S.ci=i;
+   // prezzo del mirino: dove sta il mouse; col dito (tocco) la chiusura della candela, che e' quella che si legge
+   S.cp=py!=null?G.hi-(py-G.pt)/G.PH*(G.hi-G.lo):x.c;mirino();
    const dentro=t=>d?giornoDi(t)==x.g:t>=x.t&&t<x.t+36e5,g0=d?x.g:new Date(x.t).toISOString().slice(0,10);
    const ep=EP.find(e=>g0>=e.a&&(!e.b||g0<=e.b)),na=ANN.filter(a=>dentro(a.t)),nn=na.map(a=>a.n),cc=COT.some(dentro);
    const rz=!d&&na.find(a=>a.r);                       // v8.86 modalita' notizie: la reazione misurata (cot_radar/impatto.py)
@@ -166,40 +209,62 @@
     (ep?`<span class="${ep.v>0?"up":"down"}">${ep.v>0?"Speculatori: comprano":"Speculatori: vendono"}${ep.forte?" (spinta forte)":""}</span>`:"")+
     (nn.length?`<span class="vfc-tn">${nn.map(esc).join(", ")}</span>`:"")+
     (rz?`<span>Prima ora <b class="${rz.r[2]>=0?"up":"down"}">${pcM(rz.r[2])}</b> (${fx(rz.r[5],1)}× la stessa ora) · 4 ore ${pcM(rz.r[3])} · 24 ore ${pcM(rz.r[4])}</span>`:"")+(cc?`<span class="vfc-tc">Report COT</span>`:"");}
-  function nascondi(){const cx=g.querySelector(".vfc-x");if(cx)cx.setAttribute("visibility","hidden");tip.innerHTML=vuoto;}
+  function nascondi(){S.ci=null;S.cp=null;g.querySelectorAll(".vfc-x,.vfc-y,.vfc-yt").forEach(x=>x.setAttribute("visibility","hidden"));tip.innerHTML=vuoto;}
 
   // ---------- gesti: trascina = sposta; due dita / rotella = zoom; scala prezzi = allunga; tocco = lettura
   let raf=0;const ridisegna=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;disegna();});};
-  const zoom=(f,px)=>{const v=S.v[S.tf];if(!v||G.cw==null)return;const a=v.i0+((px??G.pl+G.PW/2)-G.pl)/G.cw;v.i0=a-(a-v.i0)*f;v.i1=a+(v.i1-a)*f;ridisegna();};
+  const zoom=(f,px)=>{const v=S.v[S.tf];if(!v||G.cw==null)return;if(S.ys)S.ys.anima=true;const a=v.i0+((px??G.pl+G.PW/2)-G.pl)/G.cw;v.i0=a-(a-v.i0)*f;v.i1=a+(v.i1-a)*f;ridisegna();};
   const P=new Map();let gesto=null;
   const pos=e=>{const r=g.getBoundingClientRect();return {x:(e.clientX-r.left)*G.W/r.width,y:(e.clientY-r.top)*G.H/r.height};};
   g.addEventListener("pointerdown",e=>{if(!S.v[S.tf]||G.W==null)return;const p=pos(e);P.set(e.pointerId,p);
-   if(P.size==2){const [a,b]=[...P.values()];gesto={tipo:"pinch",d:Math.hypot(a.x-b.x,a.y-b.y),cx:(a.x+b.x)/2};return;}
-   gesto={tipo:p.x>G.W-G.pr?"asse":"sposta",x:p.x,y:p.y,mosso:false,v:{...S.v[S.tf]},yz:S.yz,yo:S.yo,touch:e.pointerType!="mouse",id:e.pointerId};});
+   if(P.size==2){clearTimeout(S.tm);if(S.ci!=null)nascondi();const [a,b]=[...P.values()];gesto={tipo:"pinch",d:Math.hypot(a.x-b.x,a.y-b.y),cx:(a.x+b.x)/2};return;}
+   // zona del tocco: scala dei prezzi (destra) = allunga in verticale; scala del tempo (sotto) = zoom orizzontale
+   gesto={tipo:p.x>G.W-G.pr?"asse":p.y>G.H-G.pb?"tempo":"sposta",x:p.x,y:p.y,mosso:false,v:{...S.v[S.tf]},yz:S.yz,yo:S.yo,touch:e.pointerType!="mouse",id:e.pointerId};
+   // v8.88 DITO FERMO 0,35 s = MIRINO (come TradingView da telefono): poi trascinando si legge candela per candela
+   if(gesto.touch&&gesto.tipo=="sposta"){const gg=gesto;clearTimeout(S.tm);
+    S.tm=setTimeout(()=>{if(gesto===gg&&!gg.mosso){gg.tipo="mirino";gg.mosso=true;try{g.setPointerCapture(gg.id);}catch(_){}leggiCandela(gg.x,gg.y);}},350);}});
+  // v8.88 un dito che resta dopo lo zoom a due dita continua a spostare (prima si bloccava fino al rilascio)
+  const nuovoSposta=(id,p)=>{gesto={tipo:"sposta",x:p.x,y:p.y,mosso:true,v:{...S.v[S.tf]},yz:S.yz,yo:S.yo,touch:true,id};};
   g.addEventListener("pointermove",e=>{if(G.W==null)return;const p=pos(e);
-   if(!P.has(e.pointerId)){if(e.pointerType=="mouse"&&S.v[S.tf])leggiCandela(p.x);return;}
+   if(!P.has(e.pointerId)){if(e.pointerType=="mouse"&&S.v[S.tf])leggiCandela(p.x,p.y);return;}
    P.set(e.pointerId,p);if(!gesto)return;
    if(gesto.tipo=="pinch"&&P.size==2){const [a,b]=[...P.values()],dd=Math.hypot(a.x-b.x,a.y-b.y);if(dd>10){zoom(gesto.d/dd,gesto.cx);gesto.d=dd;}return;}
-   const dx=p.x-gesto.x,dy=p.y-gesto.y;
-   if(!gesto.mosso){if(Math.hypot(dx,dy)<5)return;
-    // da telefono, fuori dallo schermo intero, un trascinamento verticale scorre la pagina
-    if(gesto.touch&&!S.full&&gesto.tipo=="sposta"&&Math.abs(dy)>Math.abs(dx)){P.delete(e.pointerId);gesto=null;return;}
-    gesto.mosso=true;try{g.setPointerCapture(e.pointerId);}catch(_){}}
+   let dx=p.x-gesto.x,dy=p.y-gesto.y;
+   if(gesto.tipo=="mirino"){leggiCandela(p.x,p.y);return;}
+   if(!gesto.mosso){if(Math.hypot(dx,dy)<(gesto.touch?10:5))return;      // dito: 10 px di tolleranza = tocco preciso
+    clearTimeout(S.tm);
+    const vert=Math.abs(dy)>Math.abs(dx);
+    // da telefono, fuori dallo schermo intero, un trascinamento verticale scorre la pagina (anche sulla scala dei prezzi)
+    if(gesto.touch&&!S.full&&vert){P.delete(e.pointerId);gesto=null;return;}
+    // sulla scala dei prezzi solo il gesto verticale allunga il grafico: in orizzontale si sposta come altrove;
+    // sulla scala del tempo solo il gesto orizzontale fa lo zoom
+    if(gesto.tipo=="asse"&&!vert)gesto.tipo="sposta";
+    if(gesto.tipo=="tempo"&&vert)gesto.tipo="sposta";
+    gesto.x=p.x;gesto.y=p.y;                                   // si parte da qui: niente scatto iniziale
+    gesto.mosso=true;dx=0;dy=0;try{g.setPointerCapture(e.pointerId);}catch(_){}}
+   if(gesto.touch&&S.ci!=null)nascondi();                     // trascinando col dito la lettura si chiude
    if(gesto.tipo=="asse"){S.yz=Math.max(.1,Math.min(20,gesto.yz*Math.exp(dy*.006)));ridisegna();return;}
+   if(gesto.tipo=="tempo"){const v=S.v[S.tf],f=Math.exp(-dx*.006),dst=gesto.v.i1,n0=gesto.v.i1-gesto.v.i0;   // ancorato a destra
+    v.i1=dst;v.i0=dst-n0*f;ridisegna();return;}
    const v=S.v[S.tf];v.i0=gesto.v.i0-dx/G.cw;v.i1=gesto.v.i1-dx/G.cw;
    if(S.yz!=1||gesto.yo)S.yo=gesto.yo+dy*(G.hi-G.lo)/G.PH;        // scala manuale: si sposta anche in verticale
-   ridisegna();if(e.pointerType=="mouse")leggiCandela(p.x);});
-  const rilascio=e=>{const p=P.get(e.pointerId);P.delete(e.pointerId);
+   ridisegna();if(e.pointerType=="mouse")leggiCandela(p.x,p.y);});
+  const rilascio=e=>{const p=P.get(e.pointerId);P.delete(e.pointerId);clearTimeout(S.tm);
    if(gesto&&gesto.tipo=="sposta"&&!gesto.mosso&&p)leggiCandela(p.x);
-   if(!P.size)gesto=null;};
-  g.addEventListener("pointerup",rilascio);g.addEventListener("pointercancel",e=>{P.delete(e.pointerId);if(!P.size)gesto=null;});
+   if(gesto&&gesto.tipo=="pinch"&&P.size==1){const [[id,q]]=[...P.entries()];nuovoSposta(id,q);return;}
+   if(!P.size){gesto=null;if(S.ys)S.ys.anima=true;ridisegna();}};   // a gesto finito la scala finisce di adattarsi
+  g.addEventListener("pointerup",rilascio);g.addEventListener("pointercancel",e=>{clearTimeout(S.tm);P.delete(e.pointerId);if(!P.size)gesto=null;});
+  // iPhone: mentre il dito sposta o fa lo zoom, la pagina sotto non deve muoversi (touch-action da solo non basta su Safari)
+  g.addEventListener("touchmove",e=>{if(gesto&&(gesto.mosso||gesto.tipo=="pinch"||gesto.tipo=="mirino"))e.preventDefault();},{passive:false});
+  // niente menu del tocco lungo (copia/salva immagine) sul grafico
+  g.addEventListener("contextmenu",e=>{if(gesto&&gesto.touch)e.preventDefault();});
   g.addEventListener("pointerleave",e=>{if(e.pointerType=="mouse"&&!P.size)nascondi();});
   g.addEventListener("dblclick",e=>{const p=pos(e);if(p.x>G.W-G.pr){S.yz=1;S.yo=0;ridisegna();}});
   g.addEventListener("wheel",e=>{if(!S.v[S.tf]||G.W==null)return;e.preventDefault();const p=pos(e);
    if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){const v=S.v[S.tf],sh=e.deltaX/G.cw*.6;v.i0+=sh;v.i1+=sh;ridisegna();}
    else zoom(Math.exp(e.deltaY*.0015),p.x);},{passive:false});
   W0.querySelectorAll("[data-z]").forEach(b=>b.onclick=e=>{e.stopPropagation();zoom(b.dataset.z>0?.7:1/.7);});
-  W0.querySelector("[data-r]").onclick=e=>{e.stopPropagation();if(!S.B[S.tf])return;S.yz=1;S.yo=0;S.v[S.tf]=vistaIniziale(S.tf);ridisegna();};
+  W0.querySelector("[data-r]").onclick=e=>{e.stopPropagation();if(!S.B[S.tf])return;S.yz=1;S.yo=0;S.ys=null;S.ci=null;S.v[S.tf]=vistaIniziale(S.tf);ridisegna();};
 
   // ---------- schermo intero (Esc, tasto indietro o lo stesso pulsante per uscire)
   const bf=W0.querySelector("[data-f]");

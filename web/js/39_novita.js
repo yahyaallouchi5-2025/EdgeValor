@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-23T19",t:"Aggiornamento scheda Notizie",x:"Grafico più preciso da telefono e da PC: scala dei prezzi come TradingView, mirino tenendo fermo il dito, zoom anche trascinando la scala del tempo. Vale anche per il grafico della Live.",s:"notizie",h:"mercati",p:true},
   {d:"2026-11-23T17",t:"Nuova scheda Notizie",x:"NFP, CPI, Fed, vendite, PIL e banche centrali: come reagiscono cambi, oro, indici e crypto quando il dollaro esce forte o debole. Grafico orario con la traccia di ogni notizia.",s:"notizie",h:"mercati",p:true},
   {d:"2026-11-23T15",t:"Aggiornamento scheda Live",x:"Nuovo grafico del segnale: Giornaliero con 2 anni di storia e Orario, con COT e notizie. Si sposta, si ingrandisce e va a schermo intero.",s:"verifica",h:"mercati",p:true,fn:"ebLiveMostra",lab:"Grafico"},
   {d:"2026-11-23T12",t:"Aggiornamento scheda Azionario",x:"Nelle aziende USA: spia di bolla (Euforia) e sconto con o senza cassa, con il rischio storico in una barra.",s:"azioni"},
