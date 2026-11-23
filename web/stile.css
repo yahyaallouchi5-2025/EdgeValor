@@ -3723,7 +3723,8 @@ details.vfx>summary:hover b{color:var(--acc)}
 .vfpq-v{display:block;padding-top:12px;color:var(--mute)}
 @media (max-width:640px){.vfpq{grid-template-columns:1fr;gap:12px}.vfslt tr.vfdett>td{padding:0 8px 12px}}
 @media (max-width:640px){.vfslt{table-layout:fixed;width:100%}.vfslt .vfdur{display:none}
- .vfslt tr>th:first-child{width:44%}.vfslt tr>th:nth-child(2){width:17%}.vfslt tr.vfrow>td{white-space:nowrap}
+ .vfslt tr>th:first-child{width:44%}.vfslt tr>th:nth-child(2){width:17%}.vfslt tr>th:nth-child(3){width:39%}   /* v8.82 le colonne nascoste non tengono piu' spazio: niente fascia scura a destra */
+.vfslt tr.vfrow>td{white-space:nowrap}
  .vfslt th,.vfslt tr.vfrow>td{padding-left:6px;padding-right:6px}.vfslt .vfic{display:block;font-size:11px;line-height:1.2}
  .vfslt .vfchev{margin-right:6px}}
 /* v8.75 candele orarie di un segnale (13c_candele.js) */
