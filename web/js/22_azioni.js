@@ -261,13 +261,12 @@ try{(function(){const el=$("azioni");if(!el)return;
  // --- DETTAGLIO di un titolo (v6.54c: PAGINA INTERA con barra "Indietro" in alto): grafico, bilancio, trimestrali,
  //     azienda, stagionalita'. Si chiude con il pulsante Indietro, il tasto Esc o il tasto indietro del telefono/browser
  //     (alla apertura si aggiunge una voce alla cronologia, cosi' "indietro" chiude la scheda invece di lasciare il sito).
- // ---------- v8.04 STATO DEL TITOLO (cot_radar/stato_titolo.py), anteprima SOLO ADMIN ----------
+ // ---------- v8.04 STATO DEL TITOLO (cot_radar/stato_titolo.py): v8.83 aperto a tutti dopo la prova del fondatore ----------
  //   eu = Euforia (spia di bolla: +100% oltre l'S&P 500 in 24 mesi, prezzo che accelera, volatilita' in salita)
  //   sc / ss = Sconto con / senza cassa (-60% dal massimo dei 24 mesi; flusso di cassa libero positivo o negativo)
  // I numeri storici vengono da studi/risultati_bolle_sconti.txt (azioni USA anche uscite dalla borsa, 1997-2024).
  const STT={eu:["Euforia","eu"],sc:["Sconto con cassa","sc"],ss:["Sconto senza cassa","ss"]};
- const admin=()=>document.documentElement.classList.contains("eb-admin");
- const statoChip=t=>admin()&&STT[t.stt]?` <em class="az-st ${STT[t.stt][1]}">${STT[t.stt][0]}</em>`:"";
+ const statoChip=t=>STT[t.stt]?` <em class="az-st ${STT[t.stt][1]}">${STT[t.stt][0]}</em>`:"";
  // v8.79 STATO DEL TITOLO SEMPLIFICATO (richiesta di Ya: "troppo rumore, un'alternativa parametrica"):
  //   una riga con il fatto che fa scattare l'etichetta + UNA barra di rischio storico (fascia dei casi, con il
  //   segno del confronto). Le condizioni, il titolo tipico dopo 2 anni e le fonti dei numeri vanno nella (i).
@@ -275,7 +274,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  const barra=(tit,lo,hi,val,rif,rifTxt,cl)=>`<div class="azrb"><div class="azrb-t"><span>${tit}</span><b class="${cl}">${val}</b></div>
    <div class="azrb-tr" role="img" aria-label="${tit}: ${val}; ${rifTxt}"><i class="fill ${cl}" style="left:${lo}%;width:${Math.max(2,hi-lo)}%"></i><i class="rif" style="left:${rif}%"></i></div>
    <div class="azrb-n"><span class="rift" style="left:${rif}%">${rifTxt}</span></div></div>`;
- function statoBox(ov,x){const s=x&&x.stato,c=ov.querySelector(".azcorpo");if(!admin()||!s||!STT[s.k]||!c)return;
+ function statoBox(ov,x){const s=x&&x.stato,c=ov.querySelector(".azcorpo");if(!s||!STT[s.k]||!c)return;
   let fatto,rischio,info;
   if(s.k=="eu"){
    fatto=`+${s.rel}% oltre l'S&amp;P 500 in 2 anni`;

@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-23T12",t:"Aggiornamento scheda Azionario",x:"Nelle aziende USA: spia di bolla (Euforia) e sconto con o senza cassa, con il rischio storico in una barra.",s:"azioni"},
   {d:"2026-11-23T10",t:"Aggiornamento scheda Live",x:"Candele orarie più facili da trovare: sotto ogni segnale, anche quelli in corso.",s:"verifica",h:"mercati",p:true,fn:"ebLiveMostra",lab:"Candele orarie"},
   {d:"2026-11-22T23",t:"Aggiornamento scheda Live",x:"Tocca un segnale: ora vedi anche le sue candele orarie, con la spinta degli speculatori e gli annunci all'ora esatta.",s:"verifica",h:"mercati",p:true,fn:"ebLiveMostra",lab:"Candele orarie"},
   {d:"2026-11-22T22",t:"Aggiornamento scheda Live",x:"Tocca un segnale: vedi gli annunci usciti durante il trade (Fed, BCE e le altre banche centrali) e il giorno peggiore.",s:"verifica",h:"mercati",p:true,fn:"ebLiveMostra",lab:"Annunci del segnale"},
