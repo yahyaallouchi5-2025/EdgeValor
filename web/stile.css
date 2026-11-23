@@ -3754,3 +3754,29 @@ line.vfc-giu{stroke:var(--s);stroke-width:1}rect.vfc-giu{fill:var(--s)}
 
 /* v8.79 riga d'aiuto sopra la tabella "I segnali di X": il tocco apre annunci e candele orarie */
 .vfhint{margin:0 0 8px}
+
+/* v8.84 GRAFICO DI UN SEGNALE: Giornaliero / Orario, spostamento, zoom, scala e schermo intero (13c_candele.js) */
+.vfc-seg{display:inline-flex;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;margin-left:auto}
+.vfc-seg button{background:none;border:0;color:var(--ink2);border-radius:999px;padding:5px 12px;font:600 12.5px system-ui;cursor:pointer;transition:background .15s,color .15s}
+.vfc-seg button:hover{color:var(--ink)}.vfc-seg button.on{background:var(--acc);color:#04211e}
+.vfc-btn{display:inline-flex;gap:4px}
+.vfc-btn button{width:32px;height:32px;display:grid;place-items:center;background:var(--card);border:1px solid var(--line);border-radius:9px;color:var(--ink2);cursor:pointer;transition:border-color .15s,color .15s}
+.vfc-btn button:hover{border-color:var(--acc);color:var(--ink)}
+.vfc-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vfc-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--mute);margin:0 0 6px}
+.vfc-leg i{display:inline-block;width:12px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.vfc-leg .lg-su{background:color-mix(in srgb,var(--b) 35%,transparent)}.vfc-leg .lg-giu{background:color-mix(in srgb,var(--s) 35%,transparent)}
+.vfc-leg .lg-cot{width:2px;height:9px;border-radius:0;background:var(--acc)}.vfc-leg .lg-ev{width:7px;height:7px;border-radius:50%;background:var(--warn);vertical-align:0}
+.vfc-leg .lg-lcot,.vfc-leg .lg-lev,.vfc-leg .lg-ling,.vfc-leg .lg-sgn{width:0;height:11px;border-radius:0;border-left:2px dashed var(--acc)}
+.vfc-leg .lg-lev{border-left-color:var(--warn)}.vfc-leg .lg-ling{border-left:2px dotted var(--ink)}.vfc-leg .lg-sgn{border-left:2px solid var(--acc2,#8fe3da)}
+.vfc-l.sgn{stroke:var(--acc2,#8fe3da);stroke-width:1.6}.vfc-lt.sgn{fill:var(--acc2,#8fe3da)}
+.vfc-g{cursor:grab;user-select:none;-webkit-user-select:none}.vfc-g:active{cursor:grabbing}
+.vfc-b.su{fill:var(--b);opacity:.09}.vfc-b.giu{fill:var(--s);opacity:.09}.vfc-b.forte{opacity:.17}
+.vfc-tk{stroke:var(--acc);stroke-width:1.6}.vfc-pt{fill:var(--warn)}
+.vfc-asse{fill:transparent;cursor:ns-resize}
+.vfc-tip .up{color:var(--b)}.vfc-tip .down{color:var(--s)}.vfc-tip .vfc-tn{color:var(--warn)}.vfc-tip .vfc-tc{color:var(--acc)}
+/* schermo intero: il grafico occupa tutta la finestra, la pagina sotto non scorre */
+.vfc-w.vfc-full{position:fixed;inset:0;z-index:9500;background:var(--bg);padding:14px 16px 16px;display:flex;flex-direction:column;overflow:auto}
+.vfc-w.vfc-full .vfc-g{touch-action:none}
+html.vfcaperto,html.vfcaperto body{overflow:hidden}
+@media (max-width:640px){.vfc-seg{margin-left:0;order:3;width:100%}.vfc-seg button{flex:1}.vfc-btn{margin-left:auto}}
