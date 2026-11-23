@@ -44,6 +44,10 @@ ETF_USA = ["SPY", "QQQ", "DIA", "IWM", "EFA", "EEM", "FXI", "EWJ", "EWG",       
            "XLK", "XLF", "XLE", "XLV", "XLI", "XLY", "XLP", "XLU", "XLB", "XLRE", "XLC",   # settori
            "TLT", "IEF", "SHY", "HYG", "LQD",                                        # obbligazioni
            "GLD", "SLV", "USO", "UNG", "DBA", "CPER", "UUP"]                         # materie prime e dollaro
+# v8.79 SOLO CANDELE DELLA SCHEDA LIVE: strumenti del registro live che non avevano candele orarie (cambi emergenti e
+# Brent tramite l'ETF BNO). Solo barre orarie (dal 2020): sotto i 10 anni la Stagionalita' non li mostra (regola dei
+# 10 anni in stagionalita_orari.calcola), quindi servono solo ai file mensili pubblico/h1 per le candele dei segnali.
+SOLO_LIVE = ["USDBRL.FOREX", "USDMXN.FOREX", "USDZAR.FOREX", "BNO.US"]
 INDICI = ["GSPC.INDX", "NDX.INDX", "DJI.INDX", "GDAXI.INDX", "FCHI.INDX", "STOXX50E.INDX", "FTSE.INDX",
           "N225.INDX", "HSI.INDX", "FTSEMIB.INDX", "VIX.INDX"]
 
@@ -55,11 +59,12 @@ VUOTI_MAX = 3                   # pezzi vuoti di fila prima di saltare avanti di
 
 
 def universo(fase=None):
-    """[(simbolo EODHD, fase, usa_1m)] nell'ordine di download. Fase 4: solo barre orarie (niente 1m garantito)."""
+    """[(simbolo EODHD, fase, usa_1m)] nell'ordine di download. Fasi 4 e 5: solo barre orarie (niente 1m garantito)."""
     out = [(p + ".FOREX", 1, True) for p in FOREX + METALLI]
     out += [(c + ".CC", 2, True) for c in CRYPTO]
     out += [(e + ".US", 3, True) for e in ETF_USA]
     out += [(i, 4, False) for i in INDICI]
+    out += [(x, 5, False) for x in SOLO_LIVE]           # v8.79 fase 5: solo barre orarie, solo per le candele Live
     return [x for x in out if fase is None or x[1] == fase]
 
 

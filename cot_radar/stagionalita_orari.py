@@ -268,7 +268,7 @@ def nome(sym):
 # File mensili <uscita>/h1/<SIMBOLO>/<AAAA-MM>.json dal mese in cui e' partito il registro live: la pagina scarica solo
 # i mesi che le servono e i mesi passati restano per sempre (non si perdono quando passa il tempo).
 # Formato: {"s": simbolo, "t0": inizio del mese in secondi UTC, "b": [[ore dall'inizio del mese, o, h, l, c], ...]}.
-H1_DAL = "2026-09"
+H1_DAL = "2026-08"                       # v8.79 dal primo segnale del registro live (21/08/2026)
 
 
 def candele_mensili(sym, ore, uscita, dal=H1_DAL):

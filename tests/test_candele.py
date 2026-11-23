@@ -17,7 +17,7 @@ def ts(s):
 
 class TestCandele(unittest.TestCase):
     def test_mesi_e_formato(self):
-        ore = {ts("2026-08-31 23"): [1, 2, 0.5, 1.5, 60],          # prima del registro: esclusa
+        ore = {ts("2026-07-31 23"): [1, 2, 0.5, 1.5, 60],          # prima del registro (parte ad agosto 2026): esclusa
                ts("2026-10-31 23"): [1.123456789, 1.2, 1.1, 1.15, 60],
                ts("2026-11-02 01"): [2, 3, 1, 2.5, 60]}
         with tempfile.TemporaryDirectory() as d:
