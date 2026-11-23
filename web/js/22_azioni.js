@@ -199,6 +199,7 @@ try{(function(){const el=$("azioni");if(!el)return;
     <div class="filters azlist">${[["tutti","Tutti"]].concat(d.listini.map(l=>[l.id,l.nome])).map(x=>`<button data-l="${x[0]}" class="${ST.list==x[0]?"on":""}">${x[1]}</button>`).join("")}</div></div>
    <div class="azidx">${d.indici.map(i=>`<div class="card azi${ST.list==i.l?" on":""}" data-l="${i.l}" role="button" tabindex="0"><span>${esc(i.n)}</span><b>${Number(i.p).toLocaleString(EB_LOC,{maximumFractionDigits:0,useGrouping:"always"})}</b>
     <em><span>oggi ${pc(i.v1g,2)}</span><span>anno ${pc(i.vytd)}</span></em>${spark(i.sp,(i.v1a||0)>=0?"su":"giu")}</div>`).join("")}</div>
+   <div class="m7w" data-m7></div>${/* v9.01 Magnifiche 7 (22b_mag7.js), prima solo per il fondatore */""}
    <h3 class="vft">Settori${ST.list!="tutti"?` <span class="small">${esc(nomeList(ST.list))}</span>`:""} <details class="info"><summary title="Come leggere i settori" aria-label="Informazioni">i</summary><div>Media dei titoli del settore: <b>numero grande</b> = rendimento da inizio anno, sotto il rendimento dell'ultimo mese. La <b>barra</b> = quota di titoli in trend rialzista (prezzo sopra la media a 200 giorni): piena = settore forte.</div></details></h3>
    ${/* v7.61 nome corto nella card (una riga per tutte, card allineate); il nome intero resta nel title */""}
    <div class="azset"><button class="azsc${ST.set=="tutti"?" on":""}" data-s="tutti"><span>Tutti i settori</span><b>${base.length}</b><em>titoli</em></button>
@@ -253,6 +254,7 @@ try{(function(){const el=$("azioni");if(!el)return;
   el.querySelectorAll(".aztab tr[data-t]").forEach(r=>{r.onclick=()=>apri(r.dataset.t);r.onkeydown=e=>{if(e.key=="Enter")apri(r.dataset.t);};});
   // v6.78 "Scarica PDF": tutti i titoli filtrati, stesso ordinamento della tabella (01b_pdf.js)
   const pb=el.querySelector(".azclt .pdfbtn");if(pb)pb.onclick=()=>ebPdf.avvia(pb,pdfAz);
+  try{window.ebMag7&&ebMag7.monta(el.querySelector("[data-m7]"));}catch(e){console.warn("[EdgeValor] mag7",e);}
   el.querySelectorAll(".azpag button[data-pg]").forEach(b=>b.onclick=()=>{ST.pag=+b.dataset.pg;disegna();el.querySelector(".azcl").scrollIntoView({behavior:"smooth",block:"start"});});}
 
  // ingresso dalla vetrina della Dashboard: apre la scheda e il dettaglio del titolo

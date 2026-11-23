@@ -1,0 +1,38 @@
+/* ---------- 00o_lingua.js - v9.01 INGLESE DEL RIQUADRO "MAGNIFICHE 7" (22b_mag7.js) ----------
+   Stesso formato degli altri dizionari: chiave = testo italiano esatto, numeri = "#".
+   DEBUG: ebLingua.mancanti() con la pagina in EN. */
+Object.assign(EB_EN,{
+"Magnifiche 7":"Magnificent 7",
+"Peso nell'indice":"Weight in the index",
+"Chi ha spinto":"Who drove the move",
+"dell'S&P 500":"of the S&P 500",
+"del Nasdaq-100":"of the Nasdaq-100",
+"punti in un anno":"points in a year",
+"stabile in un anno":"stable over a year",
+"Le altre":"The others",
+"Le 7":"The 7",
+"Indice":"Index",
+"Pesi uguali":"Equal weight",
+"1 sett.":"1 wk",
+"1 mese":"1 month",
+"3 mesi":"3 months",
+"12 mesi":"12 months",
+"Margine":"Margin",
+"Cassa libera":"Free cash flow",
+"Ricavi":"Revenue",
+"Indice quasi fermo.":"Index almost flat.",
+"Le 7 e il resto vanno in direzioni opposte.":"The 7 and the rest are moving in opposite directions.",
+"Le 7 spiegano il":"The 7 explain",
+"del movimento.":"of the move.",
+"Peso":"Weight",
+": valore in borsa delle 7 (Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta, Tesla) sul totale delle aziende dell'indice. È calcolato sulle azioni totali: i pesi ufficiali usano solo le azioni scambiate, la differenza è di 1-2 punti. La linea mostra il peso nell'ultimo anno.":": market value of the 7 (Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta, Tesla) over all the companies in the index. It uses total shares: official weights use only traded shares, the difference is 1-2 points. The line shows the weight over the last year.",
+": il movimento dell'indice diviso fra le 7 e tutte le altre aziende (in punti percentuali, con i pesi di inizio periodo).":": the index move split between the 7 and all the other companies (in percentage points, with start-of-period weights).",
+"= lo stesso indice se ogni azienda contasse uguale: se l'indice sale e i pesi uguali no, la salita la fanno pochi titoli.":"= the same index if every company counted the same: if the index rises and equal weight does not, the rise comes from a few stocks.",
+"Card":"Cards",
+": freccia = trend (prezzo e media a 200 giorni); tocca una card per vedere margine, ROE, P/E (prezzo su utile), flusso di cassa libero sul valore in borsa e crescita dei ricavi.":": arrow = trend (price and 200-day average); tap a card to see margin, ROE, P/E (price to earnings), free cash flow over market value and revenue growth.",
+"Utile netto su ricavi, ultimi 4 trimestri":"Net income over revenue, last 4 quarters",
+"Utile degli ultimi 4 trimestri sul patrimonio netto":"Last 4 quarters' net income over equity",
+"Prezzo su utile: quanti anni di utile costa l'azienda oggi":"Price to earnings: how many years of earnings the company costs today",
+"Flusso di cassa libero annuo sul valore in borsa":"Yearly free cash flow over market value",
+"Crescita dei ricavi degli ultimi 4 trimestri sui 4 precedenti":"Revenue growth of the last 4 quarters over the previous 4"
+});

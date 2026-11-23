@@ -908,6 +908,13 @@ def main(argv):
     except Exception:
         import traceback
         log.error("bilanci SEC non aggiornati:\n%s", traceback.format_exc())
+    # v9.01 Magnifiche 7 (mag7.py): peso nell'S&P 500 / Nasdaq-100 e contributo al movimento, mai bloccante
+    try:
+        from . import mag7
+        mag7.aggiorna(cartella, el=titoli)
+    except Exception:
+        import traceback
+        log.error("magnifiche 7 non calcolate:\n%s", traceback.format_exc())
     # v6.64 storico COMPLETO dei bilanci USA con le date di pubblicazione (per gli studi sulla qualita'): mai bloccante
     try:
         from . import fondamentali

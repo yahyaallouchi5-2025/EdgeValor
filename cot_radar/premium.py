@@ -242,6 +242,10 @@ def proteggi_azioni(dest):
         basic["titoli"] = [{k: t[k] for k in AZ_BASIC if k in t} for t in d.get("titoli") or []]
         _scrivi(p, file_premium(d, basic))
         n += 1
+    p = os.path.join(dest, "mag7.json")                # v9.01 Magnifiche 7: tutto Premium
+    if os.path.isfile(p):
+        _scrivi(p, file_premium(_leggi(p)))
+        n += 1
     p = os.path.join(dest, "top.json")
     if os.path.isfile(p):
         d = _leggi(p)
