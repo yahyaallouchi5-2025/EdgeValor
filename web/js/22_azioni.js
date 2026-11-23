@@ -268,19 +268,29 @@ try{(function(){const el=$("azioni");if(!el)return;
  const STT={eu:["Euforia","eu"],sc:["Sconto con cassa","sc"],ss:["Sconto senza cassa","ss"]};
  const admin=()=>document.documentElement.classList.contains("eb-admin");
  const statoChip=t=>admin()&&STT[t.stt]?` <em class="az-st ${STT[t.stt][1]}">${STT[t.stt][0]}</em>`:"";
+ // v8.79 STATO DEL TITOLO SEMPLIFICATO (richiesta di Ya: "troppo rumore, un'alternativa parametrica"):
+ //   una riga con il fatto che fa scattare l'etichetta + UNA barra di rischio storico (fascia dei casi, con il
+ //   segno del confronto). Le condizioni, il titolo tipico dopo 2 anni e le fonti dei numeri vanno nella (i).
+ //   Barra: 0-100% dei casi (senza etichette agli estremi: meno rumore); .fill = fascia osservata nei due periodi dello studio; .rif = il termine di confronto.
+ const barra=(tit,lo,hi,val,rif,rifTxt,cl)=>`<div class="azrb"><div class="azrb-t"><span>${tit}</span><b class="${cl}">${val}</b></div>
+   <div class="azrb-tr" role="img" aria-label="${tit}: ${val}; ${rifTxt}"><i class="fill ${cl}" style="left:${lo}%;width:${Math.max(2,hi-lo)}%"></i><i class="rif" style="left:${rif}%"></i></div>
+   <div class="azrb-n"><span class="rift" style="left:${rif}%">${rifTxt}</span></div></div>`;
  function statoBox(ov,x){const s=x&&x.stato,c=ov.querySelector(".azcorpo");if(!admin()||!s||!STT[s.k]||!c)return;
-  const st=(l,v,cl,n)=>`<div><small>${l}</small><b class="${cl||""}">${v}</b>${n?`<span>${n}</span>`:""}</div>`;
-  let corpo,info;
+  let fatto,rischio,info;
   if(s.k=="eu"){
-   corpo=`<div class="azsint"><span class="si on">+${s.rel}% oltre l'S&amp;P 500 in 2 anni</span><span class="si${s.acc?" on":""}">Il prezzo accelera</span><span class="si${s.vs?" on":""}">Volatilit&agrave; in salita</span></div>
-    <div class="azsstat">${st("Drawdown di &minus;40% entro 2 anni","50-65% dei casi","down","titolo qualsiasi: 20-30%")}${st("Titolo tipico dopo 2 anni","&minus;28% / &minus;70%","down","oltre il mercato (1997-2010 / 2011-2024)")}</div>`;
-   info="Spia di bolla: il titolo ha fatto almeno il 100% in pi&ugrave; dell'S&amp;P 500 in 24 mesi, pi&ugrave; di met&agrave; del rialzo &egrave; arrivata negli ultimi 6 mesi e la volatilit&agrave; dei rendimenti mensili &egrave; salita di oltre il 30%. Nella storia delle azioni USA (anche quelle uscite dalla borsa) dopo questi segnali il titolo ha perso il 40% entro 2 anni nel 50% dei casi nel 1997-2010 e nel 65% nel 2011-2024. Non dice quando: il picco pu&ograve; arrivare dopo.";
-  }else{const f=v=>(Math.abs(v)>=1e9?fx(v/1e9,1)+" mld":fx(v/1e6,0)+" mln")+" $";
-   corpo=`<div class="azsstat">${st("Drawdown dal massimo dei 2 anni",`&minus;${Math.abs(s.dd)}%`,"down")}${st("Flusso di cassa libero (ultimo anno)",(s.fcf<0?"&minus;":"")+f(Math.abs(s.fcf)),s.fcf>0?"up":"down")}
-    ${st("Un altro &minus;50% entro 2 anni",s.k=="sc"?"3 casi su 10":"5 casi su 10",s.k=="sc"?"":"down",s.k=="sc"?"senza cassa: 5 su 10":"con cassa: 3 su 10")}${st("Titolo tipico dopo 1 anno",s.k=="sc"?"&asymp; come il mercato":"&minus;20/&minus;24%",s.k=="sc"?"":"down","oltre il mercato")}</div>`;
-   info=s.k=="sc"?"Il titolo ha perso almeno il 60% dal massimo dei 2 anni, ma l'ultimo bilancio mostra un flusso di cassa libero positivo (cassa operativa meno investimenti): l'azienda si finanzia da sola. Nella storia (2010-2024) questi casi hanno fatto come il mercato e solo 3 su 10 sono scesi di un altro 50%. Non &egrave; un segnale di acquisto: &egrave; il filtro che separa lo sconto dalla trappola.":"Il titolo ha perso almeno il 60% dal massimo dei 2 anni e l'ultimo bilancio mostra un flusso di cassa libero negativo: l'azienda brucia cassa. Nella storia (2010-2024) il titolo tipico ha fatto circa il 20% in meno del mercato nell'anno dopo e quasi la met&agrave; &egrave; scesa di un altro 50%.";}
-  c.insertAdjacentHTML("afterbegin",`<div class="azstato"><div class="azsth"><em class="az-st ${STT[s.k][1]} big">${STT[s.k][0]}</em><span class="evtag">anteprima admin</span>
-   <details class="info"><summary title="Cosa significa" aria-label="Cosa significa">i</summary><div>${info}</div></details></div>${corpo}</div>`);}
+   fatto=`+${s.rel}% oltre l'S&amp;P 500 in 2 anni`;
+   rischio=barra("Drawdown del 40% entro 2 anni",50,65,"5-6 su 10",25,"titolo qualsiasi: 2-3 su 10","down");
+   info="Spia di bolla: si accende quando ci sono tutte e tre le condizioni. 1) Il titolo ha fatto almeno il 100% in pi&ugrave; dell'S&amp;P 500 in 24 mesi. 2) Il prezzo accelera: pi&ugrave; di met&agrave; del rialzo &egrave; arrivata negli ultimi 6 mesi. 3) La volatilit&agrave; dei rendimenti mensili &egrave; salita di oltre il 30%. Nella storia delle azioni USA (anche quelle uscite dalla borsa) dopo questi segnali il titolo ha avuto un drawdown del 40% entro 2 anni nel 50% dei casi nel 1997-2010 e nel 65% nel 2011-2024, contro il 20-30% di un titolo qualsiasi. Il titolo tipico, dopo 2 anni, ha fatto dal 28% al 70% in meno del mercato. Non dice quando: il picco pu&ograve; arrivare dopo.";
+  }else{const f=v=>(Math.abs(v)>=1e9?fx(v/1e9,1)+" mld":fx(v/1e6,0)+" mln")+" $",con=s.k=="sc";
+   fatto=`&minus;${Math.abs(s.dd)}% dal massimo dei 2 anni &middot; cassa libera <b class="${s.fcf>0?"up":"down"}" style="white-space:nowrap">${s.fcf<0?"&minus;":"+"}${f(Math.abs(s.fcf))}</b>`;
+   rischio=con?barra("Un altro &minus;50% entro 2 anni",29,33,"3 su 10",47,"senza cassa: 5 su 10","up")
+              :barra("Un altro &minus;50% entro 2 anni",46,48,"5 su 10",31,"con cassa: 3 su 10","down");
+   info=(con?"Il titolo ha perso almeno il 60% dal massimo dei 2 anni, ma l'ultimo bilancio mostra un flusso di cassa libero positivo (cassa operativa meno investimenti): l'azienda si finanzia da sola. Nella storia (2010-2024) questi casi hanno fatto come il mercato e solo 3 su 10 sono scesi di un altro 50%. Non &egrave; un segnale di acquisto: &egrave; il filtro che separa lo sconto dalla trappola."
+              :"Il titolo ha perso almeno il 60% dal massimo dei 2 anni e l'ultimo bilancio mostra un flusso di cassa libero negativo: l'azienda brucia cassa. Nella storia (2010-2024) il titolo tipico ha fatto dal 20% al 24% in meno del mercato nell'anno dopo e 5 su 10 sono scesi di un altro 50% entro 2 anni.")
+    +" Solo aziende USA con bilancio SEC recente; banche e assicurazioni escluse.";}
+  c.insertAdjacentHTML("afterbegin",`<div class="azstato"><div class="azsth"><em class="az-st ${STT[s.k][1]} big">${STT[s.k][0]}</em>
+   <details class="info"><summary title="Cosa significa" aria-label="Cosa significa">i</summary><div>${info}</div></details></div><p class="azs-f">${fatto}</p>${rischio}</div>`);}
+ window.ebStatoBox=statoBox;                          // DEBUG e anteprima: ebStatoBox(riquadro, {stato:{k:"eu",rel:140}})
 
  function apri(tk){const t=ST.dati.titoli.find(x=>x.t==tk);if(!t)return;
   let ov=document.querySelector(".azdett");if(!ov){ov=document.createElement("div");ov.className="azdett";document.body.appendChild(ov);

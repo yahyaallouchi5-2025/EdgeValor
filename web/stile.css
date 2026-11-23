@@ -3334,6 +3334,17 @@ html:not(.eb-admin) .pflingua{display:none!important}
 .azsstat div{background:var(--soft);border-radius:12px;padding:9px 12px;display:flex;flex-direction:column;gap:2px}
 .azsstat small{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 .azsstat b{font-size:17px;font-variant-numeric:tabular-nums}.azsstat b.up{color:var(--b)}.azsstat b.down{color:var(--s)}.azsstat span{font-size:11.5px;color:var(--mute)}
+/* v8.79 Stato del titolo semplificato: fatto in una riga + una barra di rischio storico (22_azioni.js statoBox) */
+.azs-f{margin:0;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+.azs-f b.up{color:var(--b)}.azs-f b.down{color:var(--s)}
+.azrb{display:flex;flex-direction:column;gap:6px}
+.azrb-t{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;color:var(--mute)}
+.azrb-t b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}.azrb-t b.down{color:var(--s)}.azrb-t b.up{color:var(--b)}
+.azrb-tr{position:relative;height:8px;border-radius:99px;background:var(--soft)}
+.azrb-tr .fill{position:absolute;top:0;bottom:0;border-radius:99px;background:var(--warn)}.azrb-tr .fill.down{background:var(--s)}.azrb-tr .fill.up{background:var(--b)}
+.azrb-tr .rif{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;border-radius:2px;background:var(--mute)}
+.azrb-n{position:relative;display:flex;justify-content:space-between;font-size:10.5px;color:var(--mute);height:14px}
+.azrb-n .rift{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
 
 /* ---------- v8.06 NOVITA' IN CHAT (39b_novita_chat.js) - per tutti: la voce nel Profilo non serve piu' ---------- */
 #novapri{display:none}
