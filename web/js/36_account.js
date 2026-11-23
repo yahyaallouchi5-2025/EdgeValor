@@ -207,7 +207,11 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   // v7.95 chiamata a una funzione del database con l'accesso dell'utente (usata dal riquadro Admin)
   rpc:(nome,corpo)=>db("rpc/"+nome,{method:"POST",body:JSON.stringify(corpo||{})}),
   // v8.11 per l'area abbonamento (46_abbonamento.js): codice di accesso valido e rilettura del profilo
-  token:()=>codice(),ricarica:()=>{P=null;return carica().then(()=>{if(!box.hidden)disegna();});}};
+  token:()=>codice(),ricarica:()=>{P=null;return carica().then(()=>{if(!box.hidden)disegna();});},
+  // v8.95 ordine delle card della pagina Mercati (41_hub_mercati.js), colonna "ordine" della propria riga in "liste"
+  ordine:{leggi:()=>db("liste?select=ordine").then(r=>((r||[])[0]||{}).ordine||null),
+   salva:o=>{const u=chi();if(!u)return Promise.reject(new Error("senza sessione"));
+    return db("liste?utente=eq."+u.id,{method:"PATCH",h:{Prefer:"return=minimal"},body:JSON.stringify({ordine:o})});}}};
  aggiorna();
  carica().then(()=>{if(!box.hidden)disegna();
   // ritorno dal link dell'email: un avviso breve; su PC si apre anche il riquadro del profilo

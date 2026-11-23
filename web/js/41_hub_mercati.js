@@ -6,7 +6,16 @@
    il tocco porta alla scheda di sempre (go). Le schede sono lette dai bottoni nascosti nella barra (index.html),
    quindi una scheda nascosta (es. "Registro" per chi non e' admin) non compare.
    Dopo, il pulsante "Mercati" mostra anche il nome della scheda aperta ("Mercati · Forex"): un tocco riporta qui.
-   DEBUG: ebHub.disegna() ridisegna la griglia. */
+   v8.95 RIORDINO COME LE APP DEL TELEFONO (Ya, 23/11/2026):
+     - tenendo premuta una card (dito o mouse) per 0,5 s le card iniziano a "traballare" (modalita' modifica);
+     - si trascina una card sopra un'altra e le altre scorrono al loro posto (animazione FLIP), anche senza
+       staccare il dito dopo la pressione lunga, come su iPhone e Android;
+     - si esce con "Fine", con un tocco fuori dalle card, con Esc o da soli dopo 8 secondi senza spostamenti;
+     - in modalita' modifica il tocco NON apre la scheda; fuori dalla modalita' tutto resta come prima;
+     - l'ordine si salva subito nel browser (localStorage "ebOrdineHub") e nel profilo (tabella liste, colonna
+       "ordine"): sullo stesso account si ritrova su telefono, tablet e PC. "Ripristina" torna all'ordine di base.
+     - da tastiera: in modalita' modifica le frecce spostano la card selezionata.
+   DEBUG: ebHub.disegna() ridisegna la griglia; ebHub.ordine() ordine attuale; ebHub.modifica(true) entra in modifica. */
 (function(){try{
  const el=document.getElementById("mercati");if(!el)return;
  // i disegni stanno tra x=30 e x=270: su PC la card e' piu' stretta del disegno e i lati vengono tagliati
@@ -46,20 +55,106 @@
   notizie:[...Array(13)].map((_,i)=>{const x=14+i*22,h=14+((i*29)%30),y=i<6?54+((i*17)%18):(i==6?40:84+((i*13)%16));return `<rect x="${x-5}" y="${y}" width="10" height="${i==6?62:h}" rx="2" class="${i==6||i%4==1?"hbr":"hbg"}"/>`;}).join("")+`<line x1="146" x2="146" y1="10" y2="140" class="hbl hbacc" style="stroke-dasharray:4 4"/>`,
   // righe di registro
   registro:[...Array(6)].map((_,i)=>`<rect x="24" y="${18+i*21}" width="${150+((i*41)%110)}" height="7" rx="3.5" class="hbd"/>`).join("")};
+ // v8.62 ORDINE DI BASE deciso da Ya: Macro, COT, Stagionalita', Volatilita', Correlazioni, Forex, Crypto, Live, poi il resto.
+ const BASE=["mkt","assets","stag","volat","corr","pairs","btc","verifica","notizie","eventi","registro"],KO="ebOrdineHub";
+ // v8.95 ordine dell'utente: le schede nuove (non ancora nel suo ordine) vanno in coda nell'ordine di base
+ let ORD=BASE.slice();
+ function applica(o){if(!Array.isArray(o))return false;const v=o.filter(t=>BASE.includes(t));if(!v.length)return false;
+  ORD=v.concat(BASE.filter(t=>!v.includes(t)));return true;}
+ try{applica(JSON.parse(localStorage.getItem(KO)||"null"));}catch(e){}
  function disegna(){
-  // v8.62 ORDINE deciso da Ya: Macro, COT, Stagionalita', Volatilita', Correlazioni, Forex, Crypto, Live, poi il resto.
   //   Si riordinano anche i bottoni del menu nascosto, cosi' l'ordine e' lo stesso ovunque.
-  const ORD=["mkt","assets","stag","volat","corr","pairs","btc","verifica","notizie","eventi","registro"],pos=t=>{const i=ORD.indexOf(t);return i<0?99:i;};
+  const pos=t=>{const i=ORD.indexOf(t);return i<0?99:i;};
   const menu=document.querySelector('#nav .nghub .ngm');
   if(menu){const tutti=[...menu.querySelectorAll('button[data-t]')].sort((x,y)=>pos(x.dataset.t)-pos(y.dataset.t));tutti.forEach(x=>x.parentElement.appendChild(x));}
   const bt=[...document.querySelectorAll('#nav .nghub .ngm button[data-t]')].filter(b=>b.style.display!="none").sort((x,y)=>pos(x.dataset.t)-pos(y.dataset.t));
   el.innerHTML=`<h2>Mercati</h2>
+   <p class="sub">Tieni premuta una card per riordinarle come le app del telefono: trascinala dove vuoi e tocca <b>Fine</b>. L'ordine resta salvato nel tuo profilo.</p>
+   <div class="hbedit" role="toolbar" aria-label="Riordino delle schede"><span>Trascina le card per riordinarle</span>
+    <button type="button" class="hbrip">Ripristina</button><button type="button" class="hbfine">Fine</button></div>
    <div class="hbgrid">${bt.map(b=>{const t=b.dataset.t;return `<button type="button" class="hbcard" data-vai="${t}">
     <span class="hbart" aria-hidden="true"><svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid slice">${ART[t]||""}</svg>
      <span class="hbico"><svg viewBox="0 0 24 24">${ICO[t]||""}</svg></span></span>
-    <span class="hbnome">${b.innerHTML}</span></button>`;}).join("")}</div>`;}
+    <span class="hbnome">${b.innerHTML}</span></button>`;}).join("")}</div>`;
+  modifica(false);}
+
+ /* ---------- v8.95 modalita' modifica, trascinamento e salvataggio ---------- */
+ const PRESSIONE=500,SOGLIA=8,RIPOSO=8000;            // ms per la pressione lunga, px di tolleranza, ms prima dell'uscita da sola
+ let inModifica=false,riposo=null,lungo=null,P=null,salvaT=null,ignoraClick=false;
+ const griglia=()=>el.querySelector(".hbgrid"),carte=()=>[...el.querySelectorAll(".hbcard")];
+ function modifica(si){inModifica=si;const g=griglia();if(!g)return;
+  g.classList.toggle("hbjig",si);el.classList.toggle("hbmod",si);
+  // ogni card traballa con un ritmo leggermente diverso (come le icone di iPhone)
+  carte().forEach((c,i)=>{c.style.setProperty("--jd",(-(i*97)%280)+"ms");c.setAttribute("aria-grabbed",si?"false":"");if(!si)c.removeAttribute("aria-grabbed");});
+  clearTimeout(riposo);if(si)aspetta();}
+ const aspetta=()=>{clearTimeout(riposo);riposo=setTimeout(()=>{if(!P)modifica(false);},RIPOSO);};
+ const ordineDom=()=>carte().map(c=>c.dataset.vai);
+ // salvataggio: subito nel browser, nel profilo dopo 0,8 s (piu' spostamenti di fila = una sola scrittura)
+ function salva(o){ORD=o.concat(BASE.filter(t=>!o.includes(t)));
+  try{localStorage.setItem(KO,JSON.stringify(ORD));}catch(e){}
+  const menu=document.querySelector('#nav .nghub .ngm');                 // stesso ordine anche nel menu nascosto
+  if(menu)ORD.forEach(t=>{const b=menu.querySelector(`button[data-t="${t}"]`);if(b)b.parentElement.appendChild(b);});
+  clearTimeout(salvaT);salvaT=setTimeout(()=>{try{window.ebAccount&&ebAccount.ordine&&ebAccount.ordine.salva(ORD).catch(()=>{});}catch(e){}},800);}
+ // FLIP: le card che cambiano posto scorrono dalla posizione vecchia alla nuova
+ function sposta(fn){const ce=carte().filter(c=>!c.classList.contains("hbdrag")),prima=new Map(ce.map(c=>[c,c.getBoundingClientRect()]));fn();
+  ce.forEach(c=>{const a=prima.get(c),b=c.getBoundingClientRect(),dx=a.left-b.left,dy=a.top-b.top;if(!dx&&!dy)return;
+   c.style.transition="none";c.style.transform=`translate(${dx}px,${dy}px)`;
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{c.style.transition="transform .28s cubic-bezier(.2,.8,.2,1)";c.style.transform="";}));});}
+
+ el.addEventListener("pointerdown",e=>{const c=e.target.closest(".hbcard");if(!c||e.button>0)return;
+  P={c,id:e.pointerId,x:e.clientX,y:e.clientY,tipo:e.pointerType,drag:false,tx:0,ty:0};
+  if(inModifica){aspetta();return;}
+  clearTimeout(lungo);
+  lungo=setTimeout(()=>{if(!P||P.c!==c)return;modifica(true);ignoraClick=true;
+   try{navigator.vibrate&&navigator.vibrate(12);}catch(_){}},PRESSIONE);});
+ el.addEventListener("pointermove",e=>{if(!P||e.pointerId!==P.id)return;const dx=e.clientX-P.x,dy=e.clientY-P.y;
+  if(!inModifica){if(Math.hypot(dx,dy)>SOGLIA){clearTimeout(lungo);P=null;}return;}     // si sta scorrendo la pagina
+  if(!P.drag){if(Math.hypot(dx,dy)<SOGLIA)return;inizia();}
+  trascina(e.clientX,e.clientY);});
+ function inizia(){const c=P.c,r=c.getBoundingClientRect();P.drag=true;P.ox=P.x-r.left;P.oy=P.y-r.top;
+  c.classList.add("hbdrag");c.setAttribute("aria-grabbed","true");try{c.setPointerCapture(P.id);}catch(_){}clearTimeout(riposo);}
+ function trascina(x,y){const c=P.c;
+  // posizione "di griglia" della card (senza lo spostamento in corso) e spostamento che la porta sotto il dito
+  const r=c.getBoundingClientRect(),bx=r.left-P.tx,by=r.top-P.ty;P.tx=x-P.ox-bx;P.ty=y-P.oy-by;
+  c.style.transform=`translate(${P.tx}px,${P.ty}px) scale(1.06)`;
+  // la card sotto il dito (tranne quella trascinata): si prende il suo posto
+  const sotto=carte().find(k=>{if(k===c)return false;const q=k.getBoundingClientRect();return x>q.left&&x<q.right&&y>q.top&&y<q.bottom;});
+  if(!sotto)return;const L=carte(),i=L.indexOf(c),j=L.indexOf(sotto);
+  sposta(()=>{j>i?sotto.after(c):sotto.before(c);});
+  const r2=c.getBoundingClientRect(),bx2=r2.left-P.tx,by2=r2.top-P.ty;P.tx=x-P.ox-bx2;P.ty=y-P.oy-by2;   // ricalcolo dopo lo scambio
+  c.style.transform=`translate(${P.tx}px,${P.ty}px) scale(1.06)`;}
+ function lascia(){clearTimeout(lungo);if(!P)return;const {c,drag}=P;P=null;
+  if(!drag){if(inModifica)aspetta();return;}
+  // la card torna al suo nuovo posto con una piccola animazione, poi si salva l'ordine
+  c.style.transition="transform .22s cubic-bezier(.2,.8,.2,1)";c.style.transform="";
+  setTimeout(()=>{c.classList.remove("hbdrag");c.style.transition="";c.setAttribute("aria-grabbed","false");},230);
+  ignoraClick=true;salva(ordineDom());aspetta();}
+ el.addEventListener("pointerup",lascia);el.addEventListener("pointercancel",lascia);
+ // telefono: durante la modifica il dito trascina la card e non fa scorrere la pagina
+ el.addEventListener("touchmove",e=>{if(inModifica&&P)e.preventDefault();},{passive:false});
+ // niente menu del tasto destro / fumetto del telefono sulla pressione lunga
+ el.addEventListener("contextmenu",e=>{if(e.target.closest(".hbcard"))e.preventDefault();});
+ // in modifica (e subito dopo la pressione lunga) il tocco non apre la scheda: si ferma prima dell'ascoltatore globale
+ el.addEventListener("click",e=>{if(e.target.closest(".hbfine")){modifica(false);return;}
+  if(e.target.closest(".hbrip")){sposta(()=>{const g=griglia();BASE.forEach(t=>{const c=g.querySelector(`.hbcard[data-vai="${t}"]`);if(c)g.appendChild(c);});});
+   salva(ordineDom());aspetta();return;}
+  if((inModifica||ignoraClick)&&e.target.closest(".hbcard")){e.preventDefault();e.stopPropagation();}ignoraClick=false;},true);
+ // un tocco fuori dalle card (e fuori dalla barra) chiude la modifica, come su iPhone
+ document.addEventListener("pointerdown",e=>{if(inModifica&&!e.target.closest(".hbcard,.hbedit"))modifica(false);});
+ // tastiera: Esc esce; le frecce spostano la card che ha il fuoco
+ el.addEventListener("keydown",e=>{if(!inModifica)return;if(e.key=="Escape"){modifica(false);return;}
+  const c=e.target.closest(".hbcard");if(!c)return;const L=carte(),i=L.indexOf(c);
+  const passo={ArrowLeft:-1,ArrowUp:-1,ArrowRight:1,ArrowDown:1}[e.key];if(!passo)return;e.preventDefault();
+  const j=i+passo;if(j<0||j>=L.length)return;sposta(()=>{passo>0?L[j].after(c):L[j].before(c);});c.focus();salva(ordineDom());aspetta();});
+
  disegna();
+ // l'ordine salvato nel profilo vince su quello del browser (stesso account su piu' dispositivi): letto una volta
+ let letto=false;
+ function dalProfilo(){if(letto||!window.ebAccount||!ebAccount.ordine)return;const s=ebAccount.stato&&ebAccount.stato();if(!s||!s.sessione)return;letto=true;
+  ebAccount.ordine.leggi().then(o=>{if(o&&JSON.stringify(o)!=JSON.stringify(ORD)&&applica(o)){try{localStorage.setItem(KO,JSON.stringify(ORD));}catch(e){}if(!inModifica)disegna();}})
+   .catch(()=>{letto=false;});}
+ setTimeout(dalProfilo,2500);
  // ogni volta che si apre la pagina si ridisegna (es. "Registro" compare solo dopo l'accesso admin)
- const t=document.querySelector('#nav button[data-t="mercati"]');if(t)t.addEventListener("click",disegna);
- window.ebHub={disegna};
+ const t=document.querySelector('#nav button[data-t="mercati"]');if(t)t.addEventListener("click",()=>{disegna();dalProfilo();});
+ window.ebHub={disegna,ordine:()=>ORD.slice(),modifica};
 }catch(e){console.error("[EdgeValor] hub mercati:",e);}})();

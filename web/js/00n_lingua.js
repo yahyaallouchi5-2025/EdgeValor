@@ -124,6 +124,9 @@ Object.assign(EB_EN,{
 "Aggiornamento scheda COT":"COT tab update",
 "Usiamo l'email solo per farti accedere. Entrando accetti":"We use your email only to sign you in. By signing in you accept the",
 "condizioni e privacy":"terms and privacy",
+"Tieni premuta una card per riordinarle come le app del telefono: trascinala dove vuoi e tocca":"Press and hold a card to rearrange them like phone apps: drag it where you want and tap",
+"Fine":"Done",". L'ordine resta salvato nel tuo profilo.":". The order is saved in your profile.",
+"Trascina le card per riordinarle":"Drag the cards to rearrange them","Ripristina":"Reset","Riordino delle schede":"Rearrange tabs",
 "Con Google, se non hai un account, ne crei uno e accetti":"With Google, if you don't have an account, you create one and accept the",
 "Più semplice: in alto dove comprano e vendono i grandi investitori, poi una card per strumento con una parola e una freccia. Tocca la card per girarla e vedere i numeri e il grafico.":
  "Simpler: at the top where the big investors buy and sell, then one card per instrument with one word and an arrow. Tap the card to flip it and see the numbers and the chart.",

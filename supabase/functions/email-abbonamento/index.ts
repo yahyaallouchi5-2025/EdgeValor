@@ -63,7 +63,7 @@ const PIEDE_INFO = "Contenuti a scopo educativo e informativo, non consulenza fi
 function testi(x: Riga): Mail {
   const d = lunga(x.scadenza), rinnovo = breve(Date.parse(x.scadenza) - 864e5), pagato = !!x.piano;
   const giorno = new Date(Date.parse(x.scadenza) - 864e5).toLocaleDateString("it-IT", { day: "numeric", month: "long", ...TZ });
-  const P = '<b style="color:#f3c75f">Premium</b>';
+  const P = '<b class="eg" style="color:#f3c75f">Premium</b>';
   switch (x.tipo) {
     case "attivo": {
       const riep: [string, string][] = [["Piano", x.piano ? NOME_PIANO[x.piano] || "Premium" : "Premium"]];
@@ -220,21 +220,30 @@ function testi(x: Riga): Mail {
 //   2) i testi sono dentro due riquadri .gm-s/.gm-d con fusione "screen" + "difference": solo in Gmail (selettore
 //      u + .body) annullano l'inversione e i testi tornano ai colori originali. Gli altri programmi li ignorano.
 //   Il logo resta FUORI dai riquadri: e' un'immagine e Gmail non la tocca.
+//   v8.95 COLORI (oro di Premium, verde acqua delle spunte): Gmail scuro inverte la luminosita' e il riquadro inverte i
+//   canali, quindi l'oro usciva azzurro e il verde rosa. Solo in Gmail (u + .body) si usa il colore "complementare"
+//   (.eg = #5d87f3 -> oro, .et = #c12f3c -> verde acqua, .eb = fondo del pulsante #d13b49 -> verde acqua)
+//   che dopo le inversioni torna quello giusto.
 const BG = "#040b1a", CARD = "#0b1a36", LINEA = "#1f3560";
 const sf = (c: string) => `background-color:${c};background-image:linear-gradient(${c},${c})`;
 function html(t: Mail, nome: string) {
   const P = (x: string) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#d6e0ee">${x}</p>`;
-  const riep = t.riep ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 20px;${sf("#071226")};border:1px solid ${LINEA};border-radius:12px">
-<tr><td colspan="2" style="padding:14px 18px 6px;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#f3c75f">${t.riepT || "Riepilogo dell'abbonamento"}</td></tr>
-${t.riep.map(([k, v]) => `<tr><td style="padding:7px 18px;font-size:14px;color:#a9b8d0;border-top:1px solid #16294a;white-space:nowrap">${k}</td><td align="right" style="padding:7px 18px;font-size:14px;font-weight:700;color:#f1f5fb;border-top:1px solid #16294a;white-space:nowrap">${v}</td></tr>`).join("")}
+  // v8.95 riepilogo SENZA sfondo proprio: nella modalita' scura di Gmail (iPhone) un fondo diverso dalla card veniva
+  // invertito in crema con il testo chiaro sopra, quasi illeggibile (segnalato da Ya). Ora eredita il blu della card
+  // come il resto del testo: solo bordo e righe divisorie, testi chiari ad alto contrasto.
+  const riep = t.riep ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 20px;border:1px solid #2c4776;border-radius:12px">
+<tr><td colspan="2" style="padding:14px 18px 6px;font-size:12.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#f3c75f" class="eg">${t.riepT || "Riepilogo dell'abbonamento"}</td></tr>
+${t.riep.map(([k, v]) => `<tr><td style="padding:8px 18px;font-size:14px;color:#c3cfe0;border-top:1px solid #2c4776">${k}</td><td align="right" style="padding:8px 18px;font-size:14.5px;font-weight:700;color:#ffffff;border-top:1px solid #2c4776;white-space:nowrap">${v}</td></tr>`).join("")}
 <tr><td colspan="2" style="height:8px"></td></tr></table>` : "";
   const sez = (t.sez || []).map(([tit, voci]) => `<p style="margin:18px 0 8px;font-size:16px;font-weight:700;color:#f1f5fb">${tit}</p>` +
-    voci.map((v) => `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td valign="top" style="padding:3px 10px 3px 0;color:#2ec4b6;font-weight:700">&#10003;</td><td style="padding:3px 0;font-size:15px;line-height:1.5;color:#d6e0ee">${v}</td></tr></table>`).join("")).join("");
-  const btn = t.btn ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 18px"><tr><td style="border-radius:10px;${sf("#2ec4b6")}"><a href="${t.btn[1]}" style="display:inline-block;padding:12px 22px;font-size:15px;font-weight:700;color:#04211e;text-decoration:none">${t.btn[0]}</a></td></tr></table>` : "";
+    voci.map((v) => `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td valign="top" class="et" style="padding:3px 10px 3px 0;color:#2ec4b6;font-weight:700">&#10003;</td><td style="padding:3px 0;font-size:15px;line-height:1.5;color:#d6e0ee">${v}</td></tr></table>`).join("")).join("");
+  const btn = t.btn ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 18px"><tr><td class="eb" style="border-radius:10px;${sf("#2ec4b6")}"><a href="${t.btn[1]}" style="display:inline-block;padding:12px 22px;font-size:15px;font-weight:700;color:#04211e;text-decoration:none">${t.btn[0]}</a></td></tr></table>` : "";
   const gm = (x: string) => `<div class="gm-s"><div class="gm-d">${x}</div></div>`;   // testi protetti dall'inversione di Gmail
   return `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><title>${esc(t.oggetto)}</title>
-<style>u + .body .gm-s{background:#000;mix-blend-mode:screen}u + .body .gm-d{background:#000;mix-blend-mode:difference}</style></head>
+<style>u + .body .gm-s{background:#000;mix-blend-mode:screen}u + .body .gm-d{background:#000;mix-blend-mode:difference}
+u + .body .eg{color:#5d87f3!important}u + .body .et{color:#c12f3c!important}
+u + .body .eb{background-color:#d13b49!important;background-image:linear-gradient(#d13b49,#d13b49)!important}</style></head>
 <body class="body" style="margin:0;padding:0;${sf(BG)};font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${BG}" style="${sf(BG)};padding:28px 12px"><tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${CARD}" style="max-width:560px;${sf(CARD)};border:1px solid ${LINEA};border-radius:16px">
