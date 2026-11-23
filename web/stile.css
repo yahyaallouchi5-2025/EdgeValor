@@ -3914,3 +3914,6 @@ html.vfcaperto,html.vfcaperto body{overflow:hidden}
 /* v8.92 pulsante ufficiale di Google (35z_google.js): centrato, altezza fissa per non far saltare la scheda */
 .gis{display:flex;justify-content:center;min-height:44px;width:100%}
 .gis iframe{margin:0 auto!important}
+.ptgnota{margin:8px 0 0;font-size:11.5px;line-height:1.45;color:var(--ink2,#93a4bf);text-align:center}.ptgnota a{color:inherit;text-decoration:underline}
+/* v8.93 admin: scelta del motivo della revoca nella riga */
+.admot{height:32px;padding:0 8px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 12.5px system-ui;max-width:190px}

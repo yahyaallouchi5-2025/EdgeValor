@@ -3,7 +3,9 @@
    Si apre dal Profilo (voce "Admin", visibile solo se il database risponde si' a "sono admin?").
    L'email dell'admin NON e' nel codice: decide il database (funzione privato.e_admin, email confermata).
    Dati: rpc admin_utenti()  -> elenco iscritti (ID, email, prova, premium, accesso)
-   Azioni: rpc admin_premium(utente, azione) con azione = "mese" (+30 g), "anno" (+365 g), "revoca" (subito Basic);
+   Azioni: rpc admin_premium(utente, azione) con azione = "mese" (+30 g), "anno" (+365 g);
+          v8.93 rpc admin_revoca(utente, motivo) = subito Basic, motivo "abuso" | "minacce" | "condivisione";
+          dopo ogni azione l'utente riceve un'email (funzione email-abbonamento: tipi "regalo" e "revoca").
           rpc admin_scadenza(utente, fino) = calendario: Premium fino al giorno scelto, alle 23:59.
    Il rinnovo si somma alla scadenza se e' ancora attiva (chi rinnova prima non perde giorni).
    Ogni azione finisce nel registro del database (privato.admin_registro) per riconciliare i pagamenti PayPal.
@@ -74,11 +76,21 @@
   // (in Basic al posto di Revoca c'e' uno spazio invisibile: i pulsanti restano allineati in colonna)
   // azione su un iscritto: la revoca chiede conferma sul pulsante stesso (secondo tocco entro 4 s)
   async function azione(b,fino){const riga=b.closest(".adriga"),id=riga.dataset.id,a=b.dataset.a,u=elenco.find(x=>x.id==id);
-   if(a=="revoca"&&!b.classList.contains("conf")){b.classList.add("conf");b.textContent="Confermi?";setTimeout(()=>{if(b.isConnected){b.classList.remove("conf");b.textContent="Revoca";}},4000);return;}
+   // v8.93 la revoca chiede il MOTIVO (finisce nel registro e nell'email all'utente, vedi condizioni d'uso #revoca)
+   if(a=="revoca"){const box=riga.querySelector(".adazioni");
+    box.innerHTML=`<select class="admot" aria-label="Motivo della revoca"><option value="">Motivo…</option><option value="abuso">Abuso del servizio</option>
+     <option value="minacce">Minacce, ricatti o offese</option><option value="condivisione">Condivisione o rivendita</option></select>
+     <button type="button" class="adb ko" data-a="revoca2" disabled>Revoca</button><button type="button" class="adb" data-a="annulla">Annulla</button>`;
+    const sel=box.querySelector(".admot"),ok=box.querySelector('[data-a="revoca2"]');
+    sel.onchange=()=>{ok.disabled=!sel.value;};ok.onclick=()=>azione(ok);box.querySelector('[data-a="annulla"]').onclick=()=>disegna();sel.focus();return;}
+   if(a=="annulla")return disegna();
+   const motivo=a=="revoca2"?riga.querySelector(".admot").value:"";
    riga.querySelectorAll(".adb").forEach(x=>x.disabled=true);if(a!="data")b.textContent="…";
-   try{const f=a=="data"?await ebAccount.rpc("admin_scadenza",{utente:id,fino}):await ebAccount.rpc("admin_premium",{utente:id,azione:a});
-    u.premium_fino=f;if(a=="revoca"&&u.prova_fino&&Date.parse(u.prova_fino)>Date.now())u.prova_fino=new Date().toISOString();
-    disegna();avviso(a=="revoca"?`${idDi(u)} è tornato Basic`:`${idDi(u)} Premium fino al ${data(f)}`);}
+   try{const f=a=="data"?await ebAccount.rpc("admin_scadenza",{utente:id,fino})
+     :a=="revoca2"?await ebAccount.rpc("admin_revoca",{utente:id,motivo}):await ebAccount.rpc("admin_premium",{utente:id,azione:a});
+    u.premium_fino=f;if(a=="revoca2"&&u.prova_fino&&Date.parse(u.prova_fino)>Date.now())u.prova_fino=new Date().toISOString();
+    // l'utente riceve l'email (regalo o revoca) al prossimo giro delle email (entro un'ora)
+    disegna();avviso(a=="revoca2"?`${idDi(u)} è tornato Basic · email all'utente entro un'ora`:`${idDi(u)} Premium fino al ${data(f)} · email all'utente entro un'ora`);}
    catch(e){console.warn("[EdgeValor] admin: azione non riuscita",e);disegna();avviso("Azione non riuscita: riprova.");}}
 
   ebAccount.rpc("admin_utenti",{}).then(r=>{elenco=Array.isArray(r)?r:[];disegna();})

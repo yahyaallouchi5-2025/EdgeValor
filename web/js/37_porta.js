@@ -35,7 +35,7 @@
   const err=msg?`<p class="ptko" role="alert">${msg}</p>`:"";
   if(modo=="posta")return `<h1>${testa[0]}</h1><p class="ptsub">${testa[1]}</p>${err}<button type="button" class="ptvai" data-va="acc">Torna all'accesso</button>`;
   const tab=(modo=="acc"||modo=="reg")?`<div class="pttab"><button type="button" class="${modo=="acc"?"on":""}" data-va="acc">Accedi</button><button type="button" class="${modo=="reg"?"on":""}" data-va="reg">Registrati</button></div>`:"";
-  const goo=GOOGLE&&(modo=="acc"||modo=="reg")?`<button type="button" class="ptgoo">${G}Continua con Google</button><div class="pto">oppure con email</div>`:"";
+  const goo=GOOGLE&&(modo=="acc"||modo=="reg")?`<button type="button" class="ptgoo">${G}Continua con Google</button>${modo=="acc"?`<p class="ptgnota">Con Google, se non hai un account, ne crei uno e accetti <a href="../legale/" target="_blank" rel="noopener">condizioni e privacy</a>.</p>`:""}<div class="pto">oppure con email</div>`:"";
   const mail=modo!="nuova"?`<label class="ptc"><span>Email</span><input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nome@email.it" required></label>`:"";
   const pw=modo!="dim"?`<label class="ptc"><span>${modo=="nuova"?"Nuova password":"Password"}</span><input type="password" name="pw" minlength="8" placeholder="Almeno 8 caratteri" autocomplete="${modo=="acc"?"current-password":"new-password"}" required><button type="button" class="ptocchio" title="Mostra password">${OCCHIO}</button></label>`:"";
   const sotto={acc:`<div class="ptriga"><button type="button" class="ptlink" data-va="dim">Password dimenticata?</button></div>`,dim:"",reg:"",nuova:""}[modo];

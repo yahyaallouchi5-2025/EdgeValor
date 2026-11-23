@@ -1,4 +1,4 @@
-// ---------- email-abbonamento (v8.29): email di servizio sull'abbonamento EdgeValor ----------
+// ---------- email-abbonamento (v8.29, v8.93): email di servizio sull'abbonamento EdgeValor ----------
 // Parte da sola ogni ora (pg_cron + pg_net) e manda, tramite Resend:
 //   attivo            -> pagamento ricevuto / Premium attivato o rinnovato (riepilogo: piano, importo, date)
 //   promemoria        -> 3 giorni prima della scadenza (con abbonamento PayPal: avviso del rinnovo automatico)
@@ -7,14 +7,19 @@
 //   disdetta          -> conferma della disdetta: Premium resta fino a scadenza, poi "basic"
 //   recensione        -> (v8.29) 7 giorni dopo il primo pagamento: invito sincero a recensire su Trustpilot, nessun premio
 //   premio_invito     -> (v8.29) un amico invitato si e abbonato: 1 mese di Premium regalato
+//   benvenuto         -> (v8.93) dopo la conferma dell'email: grazie, 14 giorni di prova e, in allegato, il PDF
+//                        delle condizioni d'uso in vigore con i dati della registrazione (copia da conservare)
+//   regalo            -> (v8.93) l'admin ha aggiunto +1 mese / +1 anno di Premium
+//   revoca            -> (v8.93) l'admin ha revocato l'accesso, con il motivo (condizioni d'uso, sezione #revoca)
 // TESTI di "attivo", "promemoria" (rinnovo) e "basic" scritti da Ya (19/11/2026). Il nome ("Ciao Mario,") arriva da PayPal.
-// Il database (public.email_da_inviare3) dice chi deve ricevere cosa, se ha il rinnovo automatico, piano e nome.
+// Il database (public.email_da_inviare4, v8.93) dice chi deve ricevere cosa, se ha il rinnovo automatico, piano e nome.
 // MAI DOPPIONI: prima di spedire si "prenota" l'invio (utente + tipo + scadenza, chiave unica nel database).
 // SEGRETI (mai nel codice): RESEND_API_KEY nei secret delle Edge Functions di Supabase.
 // Il giro parte anche subito dopo un'attivazione o una disdetta (funzione "paypal"), non solo ogni ora.
 // PROVA DEI MODELLI: POST con {"prova":true} manda i modelli all'email dell'admin (al massimo una volta ogni 10 minuti).
 
 import { LOGO } from "./logo.ts";   // logo come immagine (allegato in linea, cid:logo): Gmail non lo ricolora
+import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";   // v8.93 PDF delle condizioni accettate
 
 const URL_DB = Deno.env.get("SUPABASE_URL")!;
 const CHIAVE_DB = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -28,10 +33,15 @@ const IMPORTO: Record<string, string> = { mensile: "€27,00", annuale: "€239,
 const NOME_PIANO: Record<string, string> = { mensile: "Premium Mensile", annuale: "Premium Annuale" };
 
 type Riga = { utente: string; email: string; numero: number | null; tipo: string; scadenza: string;
-              rinnovo: boolean; piano: string | null; nome: string | null };
+              rinnovo: boolean; piano: string | null; nome: string | null;
+              motivo?: string | null; creato?: string | null; prova_fino?: string | null };   // v8.93
 // contenuto di un'email: oggetto, riga in evidenza, paragrafi, riepilogo, sezioni con elenco, pulsante, chiusura, piede
-type Mail = { oggetto: string; testa: string; par: string[]; riep?: [string, string][]; sez?: [string, string[]][];
+type Mail = { oggetto: string; testa: string; par: string[]; riep?: [string, string][]; riepT?: string; sez?: [string, string[]][];
               dopo?: string[]; btn?: [string, string]; fine?: string; piede: string };
+const idEV = (n: number | null) => n ? "EV-" + String(n).padStart(4, "0") : "—";
+// v8.93 motivi della revoca (stessi valori di public.admin_revoca)
+const MOTIVO: Record<string, string> = { abuso: "abuso del servizio", minacce: "minacce, ricatti o offese",
+  condivisione: "condivisione o rivendita dell'accesso o dei contenuti" };
 
 async function rpc(nome: string, corpo: Record<string, unknown> = {}) {
   const r = await fetch(`${URL_DB}/rest/v1/rpc/${nome}`, {
@@ -129,6 +139,54 @@ function testi(x: Riga): Mail {
         fine: "Grazie per il tuo tempo.",
         piede: "Ricevi questa email una sola volta, perché hai attivato un abbonamento EdgeValor.",
       };
+    case "benvenuto": {  // v8.93 una volta sola, dopo la conferma dell'email
+      const prova = x.prova_fino && Date.parse(x.prova_fino) > Date.now();
+      const riep: [string, string][] = [["Account", idEV(x.numero)], ["Registrazione", breve(x.creato || Date.now())]];
+      riep.push(prova ? ["Prova Premium fino al", breve(x.prova_fino!)] : ["Piano", "Basic"]);
+      return {
+        oggetto: prova ? "Benvenuto su EdgeValor: la tua prova Premium è attiva" : "Benvenuto su EdgeValor",
+        testa: "Benvenuto su EdgeValor.",
+        par: ["grazie per esserti registrato e per aver confermato la tua email: il tuo account è attivo.",
+              prova ? `Hai <b>14 giorni di ${P}</b> per provare tutto il terminale, fino al <b>${lunga(x.prova_fino!)}</b>. Alla fine della prova il tuo account passa al piano <b>Basic</b>, senza addebiti: non serve nessuna carta.`
+                    : "Il tuo account è nel piano <b>Basic</b>: puoi passare a Premium quando vuoi dal terminale."],
+        riep, riepT: "Il tuo account",
+        sez: [["Da dove iniziare", ["<b>Dashboard</b>: il quadro dei mercati in una pagina.",
+                                    "<b>Report COT</b>: dove scommettono i grandi investitori.",
+                                    "<b>Notizie</b>: come reagiscono i mercati a NFP, CPI e Fed."]]],
+        dopo: ["In allegato trovi la copia in PDF delle <b>condizioni d'uso</b> che hai accettato con la registrazione: ti consigliamo di conservarla."],
+        btn: ["Apri il terminale", TERMINALE],
+        fine: "Buona analisi!",
+        piede: "Ricevi questa email una sola volta, dopo la conferma della tua registrazione a EdgeValor.",
+      };
+    }
+    case "regalo": {  // v8.93 l'admin ha aggiunto Premium (piano = "mese" | "anno" | "data")
+      const durata = x.piano == "anno" ? "1 anno" : x.piano == "mese" ? "1 mese" : "un periodo";
+      return {
+        oggetto: x.piano == "data" ? "Abbiamo esteso il tuo Premium · EdgeValor" : `Hai ricevuto ${durata} di Premium · EdgeValor`,
+        testa: "Abbiamo aggiunto Premium al tuo account.",
+        par: [`ti abbiamo aggiunto <b>${durata} di ${P}</b>. Non devi fare nulla: è già attivo sul tuo account.`],
+        riep: [["Aggiunto", durata == "un periodo" ? "Premium" : durata], ["Premium attivo fino al", breve(x.scadenza)], ["Addebito", "nessuno"]],
+        riepT: "Il tuo Premium",
+        btn: ["Apri EdgeValor", TERMINALE],
+        fine: "Grazie per far parte di EdgeValor.",
+        piede: "Ricevi questa email perché EdgeValor ha aggiunto un periodo Premium al tuo account.",
+      };
+    }
+    case "revoca": {  // v8.93 revoca decisa dall'admin, con il motivo (condizioni d'uso, sezione #revoca)
+      const m = MOTIVO[x.motivo || ""] || "violazione delle condizioni d'uso";
+      return {
+        oggetto: "Il tuo accesso Premium è stato revocato · EdgeValor",
+        testa: "Il tuo accesso Premium è stato revocato.",
+        par: ["ti informiamo che il tuo accesso Premium è stato revocato e il tuo account è passato al piano <b>Basic</b>.",
+              `Motivo: <b>${m}</b>, in violazione delle condizioni d'uso accettate con la registrazione (sezione «Comportamento verso EdgeValor e revoca dell'accesso»).`],
+        riep: [["Account", idEV(x.numero)], ["Data della revoca", breve(x.scadenza)], ["Piano attuale", "Basic"]],
+        riepT: "Dettagli",
+        dopo: ["Come previsto dalle condizioni d'uso, il periodo residuo non viene rimborsato, salvo i diritti che la legge non consente di escludere.",
+               "Per chiarimenti puoi rispondere a questa email."],
+        btn: ["Leggi le condizioni d'uso", "https://edgevalor.com/legale/#revoca"],
+        piede: "Ricevi questa email perché il tuo account EdgeValor è stato modificato.",
+      };
+    }
     case "premio_invito":  // v8.29 porta un amico: l'amico invitato si e' abbonato
       return {
         oggetto: "Hai ricevuto 1 mese di Premium in regalo · EdgeValor",
@@ -167,7 +225,7 @@ const sf = (c: string) => `background-color:${c};background-image:linear-gradien
 function html(t: Mail, nome: string) {
   const P = (x: string) => `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#d6e0ee">${x}</p>`;
   const riep = t.riep ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 20px;${sf("#071226")};border:1px solid ${LINEA};border-radius:12px">
-<tr><td colspan="2" style="padding:14px 18px 6px;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#f3c75f">Riepilogo dell'abbonamento</td></tr>
+<tr><td colspan="2" style="padding:14px 18px 6px;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#f3c75f">${t.riepT || "Riepilogo dell'abbonamento"}</td></tr>
 ${t.riep.map(([k, v]) => `<tr><td style="padding:7px 18px;font-size:14px;color:#a9b8d0;border-top:1px solid #16294a;white-space:nowrap">${k}</td><td align="right" style="padding:7px 18px;font-size:14px;font-weight:700;color:#f1f5fb;border-top:1px solid #16294a;white-space:nowrap">${v}</td></tr>`).join("")}
 <tr><td colspan="2" style="height:8px"></td></tr></table>` : "";
   const sez = (t.sez || []).map(([tit, voci]) => `<p style="margin:18px 0 8px;font-size:16px;font-weight:700;color:#f1f5fb">${tit}</p>` +
@@ -194,20 +252,88 @@ ${P(nome ? `Ciao ${esc(nome)},` : "Ciao,")}${t.par.map(P).join("")}${riep}${sez}
 function testo(t: Mail, nome: string) {
   const via = (s: string) => s.replace(/<[^>]+>/g, "");
   return [t.testa, "", nome ? `Ciao ${nome},` : "Ciao,", "", ...t.par.map(via),
-    ...(t.riep ? ["", "Riepilogo dell'abbonamento", ...t.riep.map(([k, v]) => `- ${k}: ${v}`)] : []),
+    ...(t.riep ? ["", t.riepT || "Riepilogo dell'abbonamento", ...t.riep.map(([k, v]) => `- ${k}: ${v}`)] : []),
     ...(t.sez || []).flatMap(([tit, voci]) => ["", tit, ...voci.map((v) => "- " + v)]),
     ...(t.dopo || []).map(via), ...(t.btn ? ["", `${t.btn[0]}: ${t.btn[1]}`] : []), ...(t.fine ? ["", t.fine] : []),
     "", "Yahya Allouchi", "Fondatore di EdgeValor", "", t.piede, PIEDE_INFO, `Privacy: ${PRIVACY}`, `Condizioni d'uso: ${CONDIZIONI}`].join("\n");
 }
 
+// ---------- v8.93 PDF DELLE CONDIZIONI ACCETTATE (allegato del benvenuto) ----------
+// Testo preso dalla pagina pubblica delle note legali nel momento dell'invio (pochi minuti dopo la conferma
+// dell'email): e' la versione in vigore quando l'utente si e' registrato. In testa i dati della registrazione.
+// I caratteri fuori dalla codifica dei font standard del PDF (es. "−", "≥", "→") si sostituiscono con equivalenti.
+const SOST: Record<string, string> = { "\u2212": "-", "\u2265": ">=", "\u2264": "<=", "\u2192": "->", "\u00a0": " ", "\u202f": " ",
+  "\u2011": "-", "\u2248": "~", "\u221a": "radq ", "\u2009": " " };
+const WIN = new Set("€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ");
+const pulito = (s: string) => [...s].map((c) => SOST[c] ?? ((c.charCodeAt(0) < 256 || WIN.has(c)) ? c : "")).join("");
+const entita = (s: string) => s.replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+  .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+  .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)));
+
+async function condizioni(): Promise<{ versione: string; blocchi: [string, string][] }> {
+  const h = await (await fetch("https://edgevalor.com/legale/", { headers: { "Cache-Control": "no-cache" } })).text();
+  const versione = (h.match(/Ultimo aggiornamento:\s*([0-9/]+)/) || [])[1] || "";
+  const corpo = h.slice(h.indexOf("<section"), h.lastIndexOf("</section>") + 10).replace(/<script[\s\S]*?<\/script>/g, "");
+  const blocchi: [string, string][] = [];   // [tipo, testo]: "h" titolo di sezione, "p" paragrafo, "li" voce di elenco
+  for (const m of corpo.matchAll(/<(h2|p|li)[^>]*>([\s\S]*?)<\/\1>/g)) {
+    let t = m[2].replace(/<small>(\d+)<\/small>/, "$1. ").replace(/<br\s*\/?>/g, " ").replace(/<[^>]+>/g, "");
+    t = entita(t).replace(/\s+/g, " ").trim();
+    if (t) blocchi.push([m[1] == "h2" ? "h" : m[1], t]);
+  }
+  if (blocchi.length < 10) throw new Error("pagina delle condizioni non letta");
+  return { versione, blocchi };
+}
+
+async function pdfCondizioni(x: Riga, a: string): Promise<string> {
+  const { versione, blocchi } = await condizioni();
+  const doc = await PDFDocument.create();
+  const F = await doc.embedFont(StandardFonts.Helvetica), B = await doc.embedFont(StandardFonts.HelveticaBold);
+  doc.setTitle("EdgeValor - Condizioni d'uso accettate"); doc.setAuthor("EdgeValor"); doc.setCreator("edgevalor.com");
+  const W = 595.28, H = 841.89, M = 54, LARGH = W - 2 * M;
+  let pag = doc.addPage([W, H]), y = H - M;
+  const nuova = () => { pag = doc.addPage([W, H]); y = H - M; };
+  // scrive un testo andando a capo sulla larghezza della pagina
+  const scrivi = (testo: string, f = F, dim = 9.5, col = rgb(0.13, 0.16, 0.22), rientro = 0, dopo = 5) => {
+    const parole = pulito(testo).split(" "); let riga = "";
+    const fuori = (r: string) => { if (y < M + dim) nuova(); pag.drawText(r, { x: M + rientro, y, size: dim, font: f, color: col }); y -= dim * 1.4; };
+    for (const w of parole) { const prova = riga ? riga + " " + w : w;
+      if (f.widthOfTextAtSize(prova, dim) > LARGH - rientro && riga) { fuori(riga); riga = w; } else riga = prova; }
+    if (riga) fuori(riga); y -= dopo;
+  };
+  const ora = new Date().toLocaleString("it-IT", { ...TZ, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const reg = x.creato ? new Date(x.creato).toLocaleString("it-IT", { ...TZ, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+  scrivi("EdgeValor", B, 18, rgb(0.05, 0.45, 0.42), 0, 2);
+  scrivi("Copia delle condizioni d'uso accettate con la registrazione", B, 12.5, rgb(0.05, 0.08, 0.14), 0, 8);
+  for (const [k, v] of [["Account", idEV(x.numero)], ["Email", a], ["Registrazione (ora italiana)", reg],
+                        ["Versione delle condizioni", versione ? "pubblicata il " + versione : "in vigore alla registrazione"],
+                        ["Documento generato il", ora], ["Testo pubblico", "https://edgevalor.com/legale/"]]) {
+    scrivi(`${k}: ${v}`, F, 9.5, rgb(0.2, 0.24, 0.32), 0, 1);
+  }
+  y -= 6; pag.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.6, color: rgb(0.75, 0.8, 0.86) }); y -= 16;
+  for (const [tipo, t] of blocchi) {
+    if (tipo == "h") { if (y < M + 60) nuova(); y -= 4; scrivi(t, B, 11.5, rgb(0.05, 0.08, 0.14), 0, 3); }
+    else if (tipo == "li") scrivi("•  " + t, F, 9.5, undefined, 10, 2);
+    else scrivi(t, F, 9.5);
+  }
+  const pagine = doc.getPages();
+  pagine.forEach((p, i) => p.drawText(pulito(`EdgeValor · Condizioni d'uso · ${idEV(x.numero)} · pagina ${i + 1} di ${pagine.length}`),
+    { x: M, y: 28, size: 8, font: F, color: rgb(0.5, 0.55, 0.62) }));
+  const byte = await doc.save(); let bin = "";
+  for (let i = 0; i < byte.length; i += 0x8000) bin += String.fromCharCode(...byte.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
 async function spedisci(a: string, x: Riga, chiaveIdem: string) {
   const t = testi(x), nome = (x.nome || "").trim();
+  const allegati: { filename: string; content: string; content_id?: string }[] = [{ filename: "edgevalor.png", content: LOGO, content_id: "logo" }];
+  // v8.93 il benvenuto non parte senza il PDF delle condizioni (si riprova al giro successivo)
+  if (x.tipo == "benvenuto") allegati.push({ filename: `EdgeValor-condizioni-${idEV(x.numero)}.pdf`, content: await pdfCondizioni(x, a) });
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND}`, "Content-Type": "application/json", "Idempotency-Key": chiaveIdem },
     body: JSON.stringify({ from: MITTENTE, to: [a], reply_to: "info@edgevalor.com", subject: t.oggetto,
       html: html(t, nome), text: testo(t, nome),
-      attachments: [{ filename: "edgevalor.png", content: LOGO, content_id: "logo" }] }),
+      attachments: allegati }),
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`Resend HTTP ${r.status}: ${JSON.stringify(j)}`);
@@ -226,12 +352,14 @@ Deno.serve(async (req) => {
         return Response.json({ ...esito, nota: "prova gia' fatta in questi 10 minuti" });
       const base = { utente: "", email: admin, numero: 1, nome: "Yahya" };
       const tra = (g: number) => new Date(Date.now() + g * 864e5).toISOString();
-      const prove = [{ ...base, tipo: "recensione", rinnovo: true, piano: "mensile", scadenza: tra(-7) },
-                     { ...base, tipo: "premio_invito", rinnovo: false, piano: null, scadenza: tra(30) }] as Riga[];
+      // v8.93 modelli nuovi: benvenuto (con il PDF), regalo e revoca
+      const prove = [{ ...base, tipo: "benvenuto", rinnovo: false, piano: null, scadenza: tra(0), creato: tra(0), prova_fino: tra(14) },
+                     { ...base, tipo: "regalo", rinnovo: false, piano: "mese", scadenza: tra(30) },
+                     { ...base, tipo: "revoca", rinnovo: false, piano: null, scadenza: tra(0), motivo: "minacce" }] as Riga[];
       for (const x of prove) { await spedisci(admin, x, `test-${x.tipo}-${x.piano}-${x.rinnovo}-${ora}`); esito.inviate++; }
       return Response.json(esito);
     }
-    const righe = (await rpc("email_da_inviare3")) as Riga[] || [];
+    const righe = (await rpc("email_da_inviare4")) as Riga[] || [];
     for (const x of righe) {
       const k = { utente: x.utente, tipo: x.tipo, scadenza: x.scadenza };
       if (!(await rpc("email_prenota", k))) continue;

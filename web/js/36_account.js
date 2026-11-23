@@ -170,7 +170,7 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
     <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nome@esempio.it" aria-label="La tua email" required>
     <div class="fbesito" role="status" aria-live="polite"></div>
     <button type="submit" class="csi pfinvia">Mandami il link</button>
-    <p class="small pfpriv">Usiamo l'email solo per farti accedere. <a href="../legale/#privacy" target="_blank" rel="noopener">Privacy</a></p></form>`;
+    <p class="small pfpriv">Usiamo l'email solo per farti accedere. Entrando accetti <a href="../legale/" target="_blank" rel="noopener">condizioni e privacy</a>.</p></form>`;
   const f=box.querySelector("form"),es=f.querySelector(".fbesito"),inv=f.querySelector(".pfinvia");
   // v8.19 accesso con Google: si torna su questa pagina con i codici di accesso (gestiti dal blocco "ritorno dal link")
   const g=f.querySelector(".pfgoogle");if(g)g.onclick=()=>{try{window.ebStat&&ebStat.ev("accesso",{passo:"google"});}catch(_){}

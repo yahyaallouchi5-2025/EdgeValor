@@ -122,6 +122,9 @@ Object.assign(EB_EN,{
 "Decisione sui tassi della banca centrale neozelandese.":"Interest rate decision of the New Zealand central bank.",
 "Decisione sui tassi della banca centrale svizzera.":"Interest rate decision of the Swiss central bank.",
 "Aggiornamento scheda COT":"COT tab update",
+"Usiamo l'email solo per farti accedere. Entrando accetti":"We use your email only to sign you in. By signing in you accept the",
+"condizioni e privacy":"terms and privacy",
+"Con Google, se non hai un account, ne crei uno e accetti":"With Google, if you don't have an account, you create one and accept the",
 "Più semplice: in alto dove comprano e vendono i grandi investitori, poi una card per strumento con una parola e una freccia. Tocca la card per girarla e vedere i numeri e il grafico.":
  "Simpler: at the top where the big investors buy and sell, then one card per instrument with one word and an arrow. Tap the card to flip it and see the numbers and the chart.",
 "Più semplice: per ogni mercato le notizie che lo muovono, con una frase e una freccia («scende 90 volte su 100»). Tocca la card per i numeri; sotto, la mappa di 20 mercati per notizia.":
