@@ -4,7 +4,7 @@
   cot_radar/vetrina.py sostituisce i segnaposto tra doppie graffe con i numeri VERI dell'ultimo aggiornamento
   (segnali attivi, mercati seguiti, coppie, inizio del backtest, anteprima dei segnali): niente numeri inventati.
   v7.68 ORDINE DELLA PAGINA (per chi parte da zero, sui pilastri del terminale):
-   apertura -> parti da zero in 4 passi -> i 5 pilastri -> il metodo (dati, non opinioni) -> accesso (gratis e
+   apertura -> la logica dei portafogli in 4 regole (v8.89) -> i 5 pilastri -> il metodo (dati, non opinioni) -> accesso (gratis e
    abbonamento in arrivo) -> domande -> chiamata finale -> fondo pagina.
   Accesso: i pulsanti "Accedi" aprono il terminale, che mostra la porta d'ingresso (account Supabase, web/js/37_porta.js).
   Il login vero (Supabase) sostituira' la funzione entra() in fondo alla pagina.
@@ -437,14 +437,17 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
  <div class="nastro" aria-hidden="true" data-ev-vista="nastro"><div>{{NASTRO}}{{NASTRO}}</div></div>
 
  <!-- 1. PARTI DA ZERO: i quattro passi di chi non ha mai investito -->
- <section id="zero" data-ev-vista="zero"><div class="box">
-  <div class="titsez appare"><small>Parti da zero</small><h2>Quattro passi. Nessuna esperienza richiesta.</h2>
-   <p>Non devi saper leggere un grafico. Il terminale ti dice cosa guardare, in quale ordine.</p></div>
+ <!-- 1. LA LOGICA DEI PORTAFOGLI (v8.89, Ya 23/11/2026: un utente ha chiesto "in base a cosa investe la rotazione mensile?").
+      Prende il posto di "Parti da zero in 4 passi", che ripeteva la card Portafogli qui sotto e il "10 minuti" del metodo.
+      Le regole sono quelle di cot_radar/portafogli.py (versione 3) e satellite.py: se cambiano, si aggiorna anche qui. -->
+ <section id="logica" data-ev-vista="logica"><div class="box">
+  <div class="titsez appare"><small>Portafogli a rotazione mensile</small><h2>La logica, in quattro regole.</h2>
+   <p>Nessuna previsione e nessuna opinione: poche regole fisse, uguali ogni mese, provate sui dati dal 2006.</p></div>
   <div class="tempo" id="tempo"><div class="asse"><i></i></div>
-   <div class="tappa appare"><span class="q">Passo 1</span><h3>Scegli il tuo profilo</h3><p>Conservativo, Moderato o Aggressivo: cambia quanto il portafoglio può scendere nei momenti difficili.</p></div>
-   <div class="tappa appare"><span class="q">Passo 2</span><h3>Guarda il portafoglio del mese</h3><p>Cosa contiene, in che percentuale e perché: azioni, obbligazioni, oro, materie prime e liquidità.</p></div>
-   <div class="tappa appare"><span class="q">Passo 3</span><h3>Controlla il rischio prima di tutto</h3><p>Per ogni mese vedi il drawdown peggiore della storia e come sta andando adesso.</p></div>
-   <div class="tappa appare"><span class="q">Passo 4</span><h3>Torna una volta al mese</h3><p>Bastano 10 minuti: il portafoglio si aggiorna a ogni rotazione mensile e un conto alla rovescia ti dice quando.</p></div>
+   <div class="tappa appare"><span class="q">Regola 1</span><h3>Una base per ogni profilo</h3><p>Conservativo, Moderato o Aggressivo: mercati e pesi fissi tra azioni, Treasury, oro, materie prime e liquidità. L'Aggressivo aggiunge Bitcoin e azioni scelte ogni mese.</p></div>
+   <div class="tappa appare"><span class="q">Regola 2</span><h3>Il trend decide chi resta</h3><p>Il primo giorno di borsa del mese: se un mercato azionario è sotto la media degli ultimi 200 giorni, la sua quota va in liquidità. Rientra quando torna sopra.</p></div>
+   <div class="tappa appare"><span class="q">Regola 3</span><h3>La difesa resta sempre</h3><p>Treasury e oro non escono mai dal portafoglio: fanno da cuscinetto quando le azioni scendono.</p></div>
+   <div class="tappa appare"><span class="q">Regola 4</span><h3>Pochi scambi</h3><p>Si compra e si vende solo quando un mercato entra o esce, o a inizio trimestre per riportare i pesi. Meno commissioni, e un conto alla rovescia ti dice quando.</p></div>
   </div>
  </div></section>
 
@@ -577,7 +580,7 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <p>Analisi quantitativa dei mercati: COT, stagionalità, correlazioni, macro, azionario e portafogli. Dati, non opinioni.</p>
    <!-- contatto diretto: discreto, in fondo alla pagina -->
    <p class="scrivi">Vuoi scrivermi direttamente?<br><a href="https://t.me/Yahya_1294" target="_blank" rel="noopener" data-ev="footer_tg_diretto">Telegram @Yahya_1294</a></p></div>
-  <div><h4>Terminale</h4><a href="terminale/" data-ev="footer_terminale">Apri il terminale</a><a href="#zero">Parti da zero</a><a href="#pilastri">Dentro il terminale</a><a href="metodo/">Il metodo</a><a href="cot/">Report COT settimanali</a><a href="prezzi/">Prezzi</a><a href="accedi/">Accedi o registrati</a></div>
+  <div><h4>Terminale</h4><a href="terminale/" data-ev="footer_terminale">Apri il terminale</a><a href="#logica">La logica dei portafogli</a><a href="#pilastri">Dentro il terminale</a><a href="metodo/">Il metodo</a><a href="cot/">Report COT settimanali</a><a href="prezzi/">Prezzi</a><a href="accedi/">Accedi o registrati</a></div>
   <div><h4>Aiuto</h4><a href="faq/">Domande frequenti</a><a href="legale/#contatti">Contatti</a><a href="legale/#fonti">Fonti dei dati</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Canale Telegram</a><a href="https://www.trustpilot.com/review/edgevalor.com" target="_blank" rel="noopener" data-ev="footer_trustpilot">Recensioni su Trustpilot</a></div>
   <div><h4>Note legali</h4><a href="legale/#termini">Termini di utilizzo</a><a href="legale/#rischi">Avvertenze sui rischi</a><a href="legale/#privacy">Privacy e statistiche</a><a href="legale/#diritti">Diritto d'autore</a></div>
  </div>
