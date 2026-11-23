@@ -65,7 +65,8 @@
  function monta(box,o){if(!box||!attivo())return;o=o||{};errCb=o.errore||null;
   const vecchio=box.querySelector(o.sel||"button");
   prepara().then(()=>{if(!box.isConnected)return;
-   const w=Math.max(200,Math.min(400,Math.round((vecchio||box).getBoundingClientRect().width)||320));
+   // larghezza = quella del riquadro (il massimo che Google accetta e' 400 px)
+   const w=Math.max(240,Math.min(400,box.clientWidth||320));
    const d=document.createElement("div");d.className="gis";
    google.accounts.id.renderButton(d,{type:"standard",theme:o.tema||"outline",size:"large",text:"continue_with",
     shape:o.forma||"rectangular",logo_alignment:"center",width:w,locale:(typeof EB_LANG!="undefined"&&EB_LANG=="en")?"en":"it"});
