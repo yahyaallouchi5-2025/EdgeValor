@@ -38,3 +38,24 @@ class TestCandele(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestGiornaliere(unittest.TestCase):
+    """v8.84 candele giornaliere dal'archivio orario (giorno = chiusura delle 17 di New York)."""
+    def test_giorno_di_new_york(self):
+        from datetime import date
+        ore = {ts("2026-11-19 21"): [1.0, 1.2, 0.9, 1.1, 60],      # gio 16:00 NY -> giovedi'
+               ts("2026-11-19 23"): [1.1, 1.3, 1.05, 1.25, 60],    # gio 18:00 NY -> venerdi' (dopo le 17)
+               ts("2026-11-20 15"): [1.25, 1.26, 1.0, 1.02, 60],   # ven 10:00 NY -> venerdi'
+               ts("2026-11-22 23"): [2.0, 2.1, 1.9, 2.05, 60],     # dom 18:00 NY -> lunedi'
+               ts("2023-01-02 12"): [9, 9, 9, 9, 60]}              # troppo vecchia: esclusa
+        g = S.giornaliere(ore, date(2026, 11, 23))
+        self.assertEqual([x[0] for x in g], ["2026-11-19", "2026-11-20", "2026-11-23"])
+        self.assertEqual(g[1][1:], [1.1, 1.3, 1.0, 1.02])          # apertura, massimo, minimo, chiusura del venerdi'
+
+    def test_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(S.candele_giornaliere("X.US", {}, d), 0)
+            self.assertEqual(S.candele_giornaliere("X.US", {ts("2026-11-20 15"): [1, 2, 0.5, 1.5, 60]}, d,
+                                                   __import__("datetime").date(2026, 11, 23)), 1)
+            self.assertEqual(json.load(open(os.path.join(d, "d1", "X.US.json")))["d"], [["2026-11-20", 1.0, 2.0, 0.5, 1.5]])

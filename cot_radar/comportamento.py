@@ -33,6 +33,7 @@ INDICI = {"SP500", "NASDAQ", "DOW", "RUSSELL", "EAFE", "EM"}
 TASSI = {"US2Y", "US5Y", "US10Y", "USBOND", "ULTRA"}
 CRYPTO = {"BTC", "ETH"}
 ULTIMI = 6                                   # episodi recenti mandati alla pagina per strumento
+BANDE_GIORNI = 750                           # v8.84 episodi degli ultimi ~2 anni per il grafico giornaliero
 
 # condizioni: (nome A, prova A, nome B, prova B) sulle informazioni dell'ingresso
 COND = (("Flusso forte", lambda e: e["forte"], "Flusso normale", lambda e: not e["forte"]),
@@ -96,8 +97,13 @@ def costo(k):
     return motore.costo(k, k[:3], k[3:]) if famiglia(k) == "Valute" else motore.costo(k)
 
 
-def episodi_tutti(righe_cot, prezzi):
-    """Un record per episodio CHIUSO con esito netto e condizioni all'ingresso."""
+def episodi_tutti(righe_cot, prezzi, bande=None):
+    """Un record per episodio CHIUSO con esito netto e condizioni all'ingresso.
+    v8.84 bande = dizionario da riempire (facoltativo): {strumento: [[ingresso, uscita o None se in corso, verso,
+    1 se spinta forte, settimane]]} degli episodi degli ultimi 2 anni, ANCHE quello in corso. Servono al grafico
+    giornaliero della scheda Live (13c_candele.js): fasce verdi/rosse dove gli speculatori spingevano."""
+    from datetime import date, timedelta
+    dal_bande = (date.today() - timedelta(days=BANDE_GIORNI)).isoformat()
     serie = cot_series(righe_cot)
     oi = {a[0]: {x["date"]: x["oi"] for x in serie[a[1]]} for a in ASSETS if a[1] in serie}
     out = []
@@ -109,6 +115,9 @@ def episodi_tutti(righe_cot, prezzi):
         pos_sett = {d: i for i, d in enumerate(sett)}
         g, cst = gamba_oi(k), costo(k)
         for e in SP.episodi(st_, None):
+            if bande is not None and e["ing"] >= dal_bande:
+                bande.setdefault(k, []).append([e["ing"], None if e["attivo"] else e["usc"], e["verso"],
+                                                1 if e["aggr"] else 0, e["sett"]])
             if e["attivo"]:
                 continue
             v, a, b = e["verso"], indice[e["ing"]], indice[e["usc"]]
@@ -139,7 +148,8 @@ def _quota(E):
 def calcola(righe_cot, prezzi):
     if not righe_cot or not prezzi:
         return None
-    T = episodi_tutti(righe_cot, prezzi)
+    bande = {}
+    T = episodi_tutti(righe_cot, prezzi, bande)
     if not T:
         return None
     per = {}
@@ -177,4 +187,4 @@ def calcola(righe_cot, prezzi):
             ok = bool(ds and dv and ((ds["t"] >= 2 and dv["t"] >= 1.5) or (ds["t"] <= -2 and dv["t"] <= -1.5)))
             righe.append({"a": na, "b": nb, "ok": ok})
         famc[fam] = righe
-    return {"str": out, "famc": famc, "al": max(e["fine"] for e in T), "n": len(T)}
+    return {"str": out, "famc": famc, "al": max(e["fine"] for e in T), "n": len(T), "ep": bande}

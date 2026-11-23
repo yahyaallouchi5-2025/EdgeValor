@@ -316,9 +316,10 @@ def _monitoraggio(eventi):
     try:
         from datetime import date, timedelta
         from . import perche
-        if not eventi or not eventi[0].get("generato"):
-            return None
-        dal = date.fromisoformat(eventi[0]["generato"][:10]) - timedelta(days=3)
+        # v8.84 ultimi ~2 anni (grafico giornaliero) e comunque dal primo segnale del registro
+        dal = date.today() - timedelta(days=760)
+        if eventi and eventi[0].get("generato"):
+            dal = min(dal, date.fromisoformat(eventi[0]["generato"][:10]) - timedelta(days=3))
         return perche.monitoraggio(dal, date.today())
     except Exception as e:                            # le candele restano, senza linee in piu'
         log.warning("registro: monitoraggio annunci/COT non calcolato (%s)", e)

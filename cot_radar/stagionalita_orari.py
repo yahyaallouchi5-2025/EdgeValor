@@ -34,7 +34,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from statistics import NormalDist
 from zoneinfo import ZoneInfo
 
@@ -290,6 +290,48 @@ def candele_mensili(sym, ore, uscita, dal=H1_DAL):
     return len(per_mese)
 
 
+# v8.84 CANDELE GIORNALIERE PER IL GRAFICO DELLA SCHEDA LIVE (switch Giornaliero / Orario, 13c_candele.js):
+# un file per simbolo <uscita>/d1/<SIMBOLO>.json con gli ultimi ~2 anni, costruite dalle candele orarie dell'archivio.
+# GIORNO DI MERCATO = chiusura delle 17 di New York (come il forex): ora di New York + 7 ore. Per azioni, ETF e indici
+# USA la chiusura delle 16 cade nello stesso giorno; per le crypto (24 ore) il giorno finisce alle 17 di New York.
+# Sabato e domenica non sono giorni di mercato (le poche barre del fine settimana delle crypto vanno nel lunedi').
+# Formato: {"s": simbolo, "d": [["AAAA-MM-GG", o, h, l, c], ...]}.
+D1_GIORNI = 760
+NY = ZoneInfo("America/New_York")
+
+
+def giornaliere(ore, oggi=None):
+    """{ts UTC: [o, h, l, c, ...]} orarie -> [[giorno, o, h, l, c]] giornaliere degli ultimi D1_GIORNI giorni."""
+    oggi = oggi or datetime.now(timezone.utc).date()
+    dal = oggi - timedelta(days=D1_GIORNI)
+    g = {}
+    for ts in sorted(ore):
+        d = (datetime.fromtimestamp(ts, NY) + timedelta(hours=7)).date()
+        while d.weekday() >= 5:                     # fine settimana -> lunedi'
+            d += timedelta(days=1)
+        if d < dal:
+            continue
+        o, h, l, c = ore[ts][:4]
+        x = g.get(d)
+        if x is None:
+            g[d] = [o, h, l, c]
+        else:
+            x[1], x[2], x[3] = max(x[1], h), min(x[2], l), c
+    return [[d.isoformat()] + [float(f"{v:.6g}") for v in x] for d, x in sorted(g.items())]
+
+
+def candele_giornaliere(sym, ore, uscita, oggi=None):
+    """Scrive <uscita>/d1/<SIMBOLO>.json. Restituisce il numero di giorni scritti (0 = niente file)."""
+    righe = giornaliere(ore, oggi)
+    if not righe:
+        return 0
+    cart = os.path.join(uscita, "d1")
+    os.makedirs(cart, exist_ok=True)
+    with open(os.path.join(cart, sym.replace("/", "_") + ".json"), "w") as fh:
+        json.dump({"s": sym, "d": righe}, fh, separators=(",", ":"))
+    return len(righe)
+
+
 def calcola(cartella, uscita):
     """Calcola tutti i simboli scaricati e scrive <uscita>/<simbolo>.json + indice.json. Controlla l'ora legale."""
     problemi = controlla_ora_legale()
@@ -303,6 +345,7 @@ def calcola(cartella, uscita):
         ore = orari.utc_vero(sym, orari.leggi(orari.nome_file(cartella, sym)))   # v7.65 forex vecchio: da ora di New York a UTC
         try:                                            # v8.75 candele per la scheda Live (mai bloccante)
             candele_mensili(sym, ore, uscita)
+            candele_giornaliere(sym, ore, uscita)       # v8.84 grafico giornaliero
         except (OSError, ValueError) as e:
             log.warning("candele orarie mensili di %s non scritte (%s)", sym, e)
         # v7.64 REGOLA DEI 10 ANNI (scelta di Ya): una tabella si mostra solo con almeno 10 anni di storico.
