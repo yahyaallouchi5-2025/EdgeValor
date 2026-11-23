@@ -107,3 +107,32 @@ class Borsa(unittest.TestCase):
         self.assertEqual(d["borse"], 1)
         self.assertIn("b", d["paesi"][0])
         self.assertNotIn("b", d["paesi"][1])
+
+
+class InflazioneOggi(unittest.TestCase):
+    """v8.98 ultimo dato mensile dell'inflazione (dataset CPI del FMI): lettura dell'XML e scelta dei valori."""
+
+    XML = ('<m xmlns:ss="x"><DataSet><Series COUNTRY="ITA" FREQUENCY="M">'
+           '<Obs TIME_PERIOD="2026-M05" OBS_VALUE="2.0"/><Obs TIME_PERIOD="2026-M06" OBS_VALUE="3.04"/>'
+           '<Obs TIME_PERIOD="2026-M07" OBS_VALUE="3.5"/><Obs TIME_PERIOD="2026-M08" OBS_VALUE="NaN"/>'
+           '<Obs TIME_PERIOD="2026-M09" OBS_VALUE="4.17"/></Series>'
+           '<Series COUNTRY="NZL"><Obs TIME_PERIOD="2026-Q2" OBS_VALUE="4.06"/><Obs TIME_PERIOD="2026-Q3" OBS_VALUE="3.71"/></Series>'
+           '</DataSet></m>')
+
+    def test_lettura_e_ultimo(self):
+        s = PA._serie_cpi(self.XML)
+        self.assertEqual([p for p, _ in s["ITA"]][-1], "2026-M09")
+        ita = PA.ultimo_cpi(s["ITA"], "M")
+        self.assertNotIn("2026-M08", [p for p, _ in s["ITA"]])     # "NaN" = dato mancante, scartato
+        self.assertEqual(ita["p"], "2026-09")
+        self.assertEqual(ita["v3"], 3.0)                               # 3 mesi prima sul calendario: giugno
+        # gennaio -> ottobre dell'anno prima; primo trimestre -> quarto dell'anno prima
+        self.assertEqual(PA.ultimo_cpi([("2025-M10", 1.0), ("2026-M01", 2.0)], "M")["v3"], 1.0)
+        self.assertEqual(PA.ultimo_cpi([("2025-Q4", 1.5), ("2026-Q1", 2.0)], "Q")["v3"], 1.5)
+        self.assertEqual(ita["v"], 4.2)
+        nzl = PA.ultimo_cpi(s["NZL"], "Q")
+        self.assertEqual((nzl["p"], nzl["v"], nzl["v3"]), ("2026-Q3", 3.7, 4.1))
+
+    def test_senza_dati(self):
+        self.assertIsNone(PA.ultimo_cpi([], "M"))
+        self.assertIsNone(PA.ultimo_cpi([("2026-M09", 2.0)], "M")["v3"])

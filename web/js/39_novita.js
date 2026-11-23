@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-24T08",t:"Aggiornamento scheda Paesi",x:"Nuova colonna Inflazione: l'ultimo dato mensile di ogni paese, con la freccia se sale o scende. Anche con la stessa banca centrale, come la BCE, ogni paese ha la sua.",s:"sig"},
   {d:"2026-11-23T23",t:"Aggiornamento scheda Mercati",x:"Metti le schede nell'ordine che preferisci: tieni premuta una card finché non traballa, trascinala dove vuoi e tocca Fine. L'ordine resta nel tuo profilo, anche su telefono e tablet.",s:"mercati"},
   {d:"2026-11-23T22",t:"Aggiornamento scheda COT",x:"Più semplice: in alto dove comprano e vendono i grandi investitori, poi una card per strumento con una parola e una freccia. Tocca la card per girarla e vedere i numeri e il grafico.",s:"assets",h:"mercati",p:true},
   {d:"2026-11-23T21",t:"Aggiornamento scheda Notizie",x:"Più semplice: per ogni mercato le notizie che lo muovono, con una frase e una freccia («scende 90 volte su 100»). Tocca la card per i numeri; sotto, la mappa di 20 mercati per notizia.",s:"notizie",h:"mercati",p:true},

@@ -197,6 +197,91 @@ def _scarica_sdmx(isos, anno, timeout=60):
     return out
 
 
+# v8.98 INFLAZIONE DI OGGI PER PAESE (Ya, 23/11/2026): "la BCE taglia o alza per tutti, ma l'inflazione non e' uguale
+#   in ogni paese europeo". Oltre alla media annua stimata dal WEO ("inf") si legge l'ULTIMO DATO MENSILE dei prezzi al
+#   consumo, su 12 mesi, dal dataset CPI del FMI (dati degli istituti nazionali di statistica, stessa API SDMX):
+#     IMF.STA:CPI  {PAESE}.CPI._T.YOY_PCH_PA_PT.M   (_T = paniere completo, YOY_PCH_PA_PT = variazione % sull'anno prima)
+#   Una richiesta per tutti i paesi; chi non ha il mensile (es. Nuova Zelanda) si prende dal trimestrale (.Q).
+#   Ritardo tipico 1-3 mesi (il FMI raccoglie i dati nazionali). Copia in dati/paesi_cpi.json se il FMI non risponde.
+#   Per ogni paese: v = ultimo valore, p = periodo ("2026-09" o "2026-Q3"), v3 = valore di 3 mesi prima (1 trimestre).
+API_CPI = ("https://api.imf.org/external/sdmx/2.1/data/IMF.STA,CPI/{paesi}.CPI._T.YOY_PCH_PA_PT.{f}"
+           "?startPeriod={da}")
+COPIA_CPI = os.path.join(ROOT, "dati", "paesi_cpi.json")
+
+
+def _serie_cpi(xml_testo):
+    """{ISO3: [(periodo, valore)] in ordine di tempo} dall'XML SDMX del dataset CPI."""
+    import xml.etree.ElementTree as ET
+    out = {}
+    for serie in ET.fromstring(xml_testo).iter():
+        if not serie.tag.endswith("Series") or not serie.get("COUNTRY"):
+            continue
+        pt = []
+        for o in serie:
+            try:
+                v = float(o.get("OBS_VALUE"))
+            except (TypeError, ValueError):
+                continue
+            if v == v:                                  # "NaN" del FMI = dato mancante: si salta (nel JSON non e' valido)
+                pt.append((str(o.get("TIME_PERIOD")), v))
+        if pt:
+            out[serie.get("COUNTRY")] = sorted(pt)
+    return out
+
+
+def ultimo_cpi(punti, freq):
+    """{"v", "p", "v3"} dall'elenco [(periodo, valore)]: periodo "2026-M09" -> "2026-09", "2026-Q3" resta cosi'."""
+    if not punti:
+        return None
+    per, v = punti[-1]
+    # 3 mesi prima sul CALENDARIO (non "3 dati prima": se un mese manca il confronto sarebbe sbagliato)
+    anno, resto = per.split("-")
+    if freq == "M":
+        m = int(resto.lstrip("M")) - 3
+        prima = f"{int(anno) - (m <= 0)}-M{(m - 1) % 12 + 1:02d}"
+    else:
+        q = int(resto.lstrip("Q")) - 1
+        prima = f"{int(anno) - (q <= 0)}-Q{(q - 1) % 4 + 1}"
+    v3 = dict(punti).get(prima)
+    return {"v": round(v, 1), "p": per.replace("-M", "-"), "v3": None if v3 is None else round(v3, 1)}
+
+
+def inflazione_oggi(isos, adesso, timeout=60):
+    """{ISO3: {"v","p","v3"}}: mensile per chi lo ha, trimestrale per gli altri. Errore di rete -> eccezione."""
+    da = f"{adesso.year - 2}-01"
+    get = lambda lista, f: urllib.request.urlopen(urllib.request.Request(
+        API_CPI.format(paesi="+".join(sorted(lista)), f=f, da=da),
+        headers={"User-Agent": "edgevalor/paesi", "Accept": "application/xml"}), timeout=timeout).read()
+    out = {iso: ultimo_cpi(pt, "M") for iso, pt in _serie_cpi(get(isos, "M")).items()}
+    mancano = [i for i in isos if i not in out]
+    if mancano:
+        try:
+            out.update({iso: ultimo_cpi(pt, "Q") for iso, pt in _serie_cpi(get(mancano, "Q")).items()})
+        except Exception as e:                          # il trimestrale e' un di piu': mai bloccante
+            log.info("paesi: CPI trimestrale non letto (%s)", type(e).__name__)
+    return {k: v for k, v in out.items() if v}
+
+
+def _cpi(isos, adesso, scarica):
+    """Inflazione di oggi con la copia di sicurezza (dati/paesi_cpi.json). {} se non c'e' nulla."""
+    if scarica:
+        try:
+            x = inflazione_oggi(isos, adesso)
+            if len(x) >= 20:                            # risposta credibile: si salva
+                os.makedirs(os.path.dirname(COPIA_CPI), exist_ok=True)
+                with open(COPIA_CPI, "w", encoding="utf-8") as f:
+                    json.dump(x, f, separators=(",", ":"))
+                return x
+            log.warning("paesi: inflazione mensile incompleta (%d paesi), uso la copia", len(x))
+        except Exception as e:
+            log.warning("paesi: inflazione mensile non disponibile (%s), uso la copia", type(e).__name__)
+    try:
+        with open(COPIA_CPI, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
 def _leggi_copia():
     """Ultima copia scaricata (dati/), altrimenti la riserva nel codice; None se mancano entrambe."""
     for f_ in (COPIA, RISERVA):
@@ -253,5 +338,10 @@ def carica(scarica=True, adesso=None):
     righe = calcola(grezzi["pil"], grezzi["inf"], adesso.year)
     if not righe:
         return None
+    # v8.98 inflazione di oggi (ultimo dato mensile) accanto a ogni paese: campo "im" = {v, p, v3}
+    cpi = _cpi([r["iso"] for r in righe], adesso, scarica)
+    for r in righe:
+        if r["iso"] in cpi:
+            r["im"] = cpi[r["iso"]]
     return {"anno": adesso.year, "agg": grezzi.get("agg"), "copia": copia, "fonte": "FMI World Economic Outlook",
             "paesi": righe}

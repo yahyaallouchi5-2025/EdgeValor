@@ -2654,7 +2654,7 @@ html.ptmod-on{overflow:hidden}
 .peh{display:flex;align-items:center;gap:10px}.peh .info summary{width:20px;height:20px;font:600 12px system-ui,-apple-system,"Segoe UI",sans-serif}
 .peh .info div{font:500 13px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink2);text-transform:none;letter-spacing:0}
 .petab{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
-.per{display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(7,minmax(0,1fr));align-items:center;gap:0 10px;padding:11px 18px;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);transition:background .15s}
+.per{display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(8,minmax(0,1fr));align-items:center;gap:0 10px;padding:11px 18px;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);transition:background .15s}
 .per:not(.peth):hover{background:color-mix(in srgb,var(--acc) 7%,transparent)}
 .pen{display:flex;flex-direction:column;gap:1px;min-width:0}.pen b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pen span{font-size:11.5px;color:var(--mute);white-space:nowrap}
 .pec{text-align:right;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}.pec b{font-weight:700}
@@ -2670,10 +2670,10 @@ html.ptmod-on{overflow:hidden}
 .peth button.pec{all:unset;cursor:pointer;text-align:right;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);white-space:nowrap;transition:color .15s}
 .peth button.pec:hover,.peth button.pec.on{color:var(--acc)}.peth button.pec i{font-style:normal;display:inline-block;width:10px;text-align:right}
 .peth button.pec:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:4px}
-/* riga dei gruppi sopra i titoli: Economia (1 colonna) | Borsa (3) | Volatilita' (3) */
+/* riga dei gruppi sopra i titoli: Economia (2 colonne: PIL e inflazione, v8.98) | Borsa (3) | Volatilita' (3) */
 .pegr{grid-column:1/-1;display:grid!important;grid-template-columns:subgrid;gap:0 10px}
 .pegr em{font-style:normal;font-size:10.5px;letter-spacing:.08em;color:var(--acc);text-align:center;border-bottom:1px solid color-mix(in srgb,var(--acc) 35%,transparent);padding-bottom:4px}
-.pegr em:nth-of-type(1){grid-column:2/3}.pegr em:nth-of-type(2){grid-column:3/6}.pegr em:nth-of-type(3){grid-column:6/9}
+.pegr em:nth-of-type(1){grid-column:2/4}.pegr em:nth-of-type(2){grid-column:4/7}.pegr em:nth-of-type(3){grid-column:7/10}
 .pepiu{all:unset;cursor:pointer;text-align:center;padding:12px;font-size:13px;font-weight:700;color:var(--acc);border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);transition:background .15s}
 .pepiu:hover{background:color-mix(in srgb,var(--acc) 8%,transparent)}.pepiu:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 @media (max-width:820px){
@@ -2681,13 +2681,13 @@ html.ptmod-on{overflow:hidden}
  .peth{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;background:none;padding:0 2px 2px;border:0}.peth .pen{display:none!important}
  .peth::before{content:"Ordina:";font-size:11px;color:var(--mute)}
  .peth button.pec{font-size:11px}.peth button.pec-su{display:none}
- .per:not(.peth){grid-template-columns:repeat(5,minmax(0,1fr));gap:9px 6px;padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
- .per:not(.peth) .pen{grid-column:1/4;grid-row:1;flex-direction:row;align-items:baseline;gap:8px}
+ .per:not(.peth){grid-template-columns:repeat(6,minmax(0,1fr));gap:9px 6px;padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+ .per:not(.peth) .pen{grid-column:1/5;grid-row:1;flex-direction:row;align-items:baseline;gap:8px}
  .per:not(.peth) .pec{text-align:left;display:flex;flex-direction:column;gap:2px;font-size:12.5px;min-width:0}
  .per:not(.peth) .pec .pefr{margin-left:2px;width:9px;font-size:9px}
  .per:not(.peth) .pec::before{content:attr(data-l);font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
- .per:not(.peth) .pec-reg{grid-column:5;grid-row:1;align-items:flex-end;justify-content:center}.per:not(.peth) .pec-reg::before{display:none}
- .per:not(.peth) .pec-su{grid-column:4;grid-row:1;align-items:flex-end;justify-content:center;font-size:11.5px}.per:not(.peth) .pec-su::before{display:none}
+ .per:not(.peth) .pec-reg{grid-column:6;grid-row:1;align-items:flex-end;justify-content:center}.per:not(.peth) .pec-reg::before{display:none}
+ .per:not(.peth) .pec-su{grid-column:5;grid-row:1;align-items:flex-end;justify-content:center;font-size:11.5px}.per:not(.peth) .pec-su::before{display:none}
  .pereg{font-size:10.5px;padding:2px 8px}.pefr{margin-left:3px}
  .pepiu{border:1px solid var(--line);border-radius:12px}
  /* v8.69 telefono: i 4 gruppi su una riga sola (senza conteggi); il nome del paese non si taglia, si accorcia il sottotitolo */
@@ -3962,3 +3962,11 @@ html.vfcaperto,html.vfcaperto body{overflow:hidden}
 .hbguida.via{opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
 @keyframes hbguida{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.hbcard.hbdemo,.hbdito{animation:none}.hbdito{display:none}}
+/* v8.98 inflazione di oggi nella tabella Paesi (31_paesi.js): ambra da 6%, freccia rossa se sale, verde se scende */
+.peinf b.alta{color:var(--warn,#f0b44c)}
+.peinf.vec{color:var(--mute)}.peinf.vec b{color:var(--mute)}
+.peinf small{display:block;font-size:10px;color:var(--mute);font-weight:500}
+/* telefono: 6 valori su due righe da 3 (PIL, Inflazione, 1 mese | 12 mesi, Vol. breve, Vol. lunga), piu' leggibili */
+@media (max-width:820px){.per:not(.peth) .pec{grid-column:span 2;font-size:13px}
+ .per:not(.peth) .pec-su,.per:not(.peth) .pec-reg{grid-column:auto}
+ .per:not(.peth) .pec-su{grid-column:5}.per:not(.peth) .pec-reg{grid-column:6}}
