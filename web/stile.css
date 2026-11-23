@@ -3739,3 +3739,6 @@ line.vfc-giu{stroke:var(--s);stroke-width:1}rect.vfc-giu{fill:var(--s)}
 .vfc-tip{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;min-height:38px;margin-top:6px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:12.5px}
 .vfc-tip span{color:var(--mute)}
 @media (max-width:640px){.vfc-s{margin-left:0;width:100%}.vfc-tip{flex-direction:column;min-height:48px}}
+
+/* v8.79 riga d'aiuto sopra la tabella "I segnali di X": il tocco apre annunci e candele orarie */
+.vfhint{margin:0 0 8px}

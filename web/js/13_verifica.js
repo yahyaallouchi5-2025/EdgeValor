@@ -332,19 +332,21 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   return sezione("tutti","Tutti gli strumenti a confronto",`${Object.keys(P.strumento||{}).length} strumenti &middot; ${R.n_chiusi} trade chiusi`,
    tabella("Per strumento",P.strumento,null,1,R.profilo)+tabella("Per etichetta",P.etichetta,["STRONG BUY","BUY","SELL","STRONG SELL"])
    +tabella("Per volatilit&agrave; al momento del segnale",P.vol,["calma","normale","agitata"])+varianti(P.riass));}
- /* v8.74 IL PERCHE' DI UN SEGNALE (cot_radar/perche.py): un tocco sulla riga apre gli annunci caduti durante il trade
+ /* v8.74 IL PERCHE' DI UN SEGNALE (cot_radar/perche.py): un tocco sulla riga apre gli annunci usciti durante il trade
     (con la mossa del prezzo in quella seduta, nel verso del segnale) e il giorno peggiore. Solo date e prezzi veri. */
  const APERTI=new Set();
  const gm=d=>d?d.slice(8,10)+"/"+d.slice(5,7):"";
  function perche(z){const N=z.nt;
-  if(!N)return `<div class="vfpq vfpq-v small">Annunci non disponibili: il trade non ha ancora un prezzo d'ingresso.</div>`;
+  // v8.79 le candele orarie non dipendono dagli annunci: il riquadro .vfc c'e' sempre (prima spariva insieme agli annunci)
+  const vfc=`<div class="vfc" data-c="${esc(z.id)}"></div>`;
+  if(!N)return `<div class="vfpq vfpq-v small">${(z.m||{}).ingresso?"Annunci in arrivo con il prossimo aggiornamento.":"Annunci non disponibili: il trade non ha ancora un prezzo d'ingresso."}</div>${vfc}`;
   const pg=N.pg,ev=N.ev||[];
   const peg=pg?`<div class="vfpq-pg"><small>Giorno peggiore</small><b>${gm(pg.d)}</b><b class="down">${pc(pg.m)}</b><span>${pg.ev.length?"con "+pg.ev.map(esc).join(", "):"nessun annuncio"}</span></div>`
    :`<div class="vfpq-pg"><small>Giorno peggiore</small><span>nessuna seduta contro</span></div>`;
   const lista=ev.length?`<div class="vfpq-ev">${ev.map(e=>`<span class="vfpq-c"><b>${esc(e.n)}</b><span>${gm(e.d)}</span><b class="${col(e.m)}">${pc(e.m)}</b></span>`).join("")}</div>`
    :`<div class="vfpq-ev"><span class="small">Nessun annuncio durante il trade</span></div>`;
   return `<div class="vfpq">${peg}<div class="vfpq-a"><small>Annunci durante il trade ${infoBtn("vfpqi-"+z.id,"Come si legge")}</small>${lista}</div>
-   ${infoP("vfpqi-"+z.id,"Per ogni annuncio: il giorno e quanto si è mosso il prezzo nella seduta in cui è caduto, nel verso del segnale (in % del prezzo d'ingresso). Contano NFP, CPI e Fed per tutti gli strumenti; BCE, Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ e SNB per le coppie con la loro valuta. Giorno peggiore = la seduta che è andata più contro.")}</div><div class="vfc" data-c="${esc(z.id)}"></div>`;}
+   ${infoP("vfpqi-"+z.id,"Per ogni annuncio: il giorno e quanto si è mosso il prezzo nella seduta in cui è uscito, nel verso del segnale (in % del prezzo d'ingresso). Contano NFP, CPI e Fed per tutti gli strumenti; BCE, Bank of England, Bank of Japan, Bank of Canada, RBA, RBNZ e SNB per le coppie con la loro valuta. Giorno peggiore = la seduta che è andata più contro.")}</div>${vfc}`;}
  function datiLiveNuova(){const P=R.stat;
   if(!V.sl)return `<div class="card vfvuoto2"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><b>Scegli uno strumento</b><p>Vedrai come sono andati i suoi segnali, giorno per giorno.</p></div>
    <div class="grid k4 vfkpi vfghost">${["Risultato","In guadagno","Guadagno max","Drawdown"].map(t=>`<div class="card kpi"><h3>${t}</h3><div class="big">&mdash;</div><div class="note">&nbsp;</div></div>`).join("")}</div>`+confronto();
@@ -372,7 +374,7 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
    return `<tr class="vfrow${ap?" on":""}" data-id="${esc(z.id)}" tabindex="0" aria-expanded="${ap}"><td><i class="vfchev" aria-hidden="true"></i>${badge(z.etichetta)}${z.iniziale?' <span class="tag" title="Era gi&agrave; attivo quando il registro &egrave; partito">escluso</span>':""}</td><td>${esc((z.generato_it||"").slice(0,5))}</td>
     <td class="num"><b class="${f&&!z.iniziale?col(f.res):""}">${z.iniziale||!f?(aperto&&ing?"in corso":"&mdash;"):(aperto?'<small class="vfic">in corso</small> ':"")+f2(f.res)}</b></td><td class="num up vfnt">${z.iniziale||!f?"&mdash;":f2(f.mfe)}</td><td class="num down vfnt">${z.iniziale||!f?"&mdash;":f2(f.mae)}</td><td class="num vfdur">${z.iniziale?"&mdash;":dur}</td></tr>
     <tr class="vfdett"${ap?"":" hidden"}><td colspan="6">${perche(z)}</td></tr>`;}).join("");
-  const tabS=`<div class="tablewrap"><table class="compatta vfslt"><tr><th>Segnale</th><th>Data</th><th class="num">Al cambio</th><th class="num vfnt">Guadagno max</th><th class="num vfnt">Drawdown</th><th class="num vfdur">Durata</th></tr>${righeS}</table></div>`;
+  const tabS=`<p class="small vfhint">Tocca un segnale: annunci e candele orarie</p><div class="tablewrap"><table class="compatta vfslt"><tr><th>Segnale</th><th>Data</th><th class="num">Al cambio</th><th class="num vfnt">Guadagno max</th><th class="num vfnt">Drawdown</th><th class="num vfdur">Durata</th></tr>${righeS}</table></div>`;
   return testa+kp+gr
    +sezione("coda","Quanto va contro",o&&o.n>=MIN_STAT?`${o.n} trade`:`servono almeno ${MIN_STAT} trade`,coda)
    +sezione("ann","Annunci macro USA",V.d=="fine"?"solo durate da 1 a 4 settimane":"",ann)
@@ -437,7 +439,22 @@ function ebVerifica(dove){try{(function(){const solaVol=dove=="vol",el=$(solaVol
   const scegli=k=>{V.sl=k;salva();aggiorna();};
   const sl=$("vfsl");if(sl)sl.onchange=()=>scegli(sl.value);
   el.querySelectorAll("[data-sl]").forEach(b=>b.onclick=()=>scegli(b.dataset.sl==V.sl?"":b.dataset.sl));
-  aggiorna();}
+  aggiorna();
+  }
+ /* v8.79 "MOSTRAMI" DELLE NOVITA' (39b_novita_chat.js): porta subito alle candele orarie di un segnale vero.
+    Se non e' scelto nessuno strumento sceglie quello con il segnale piu' recente; apre "I segnali di X" e la prima
+    riga (il segnale piu' recente) e restituisce il riquadro da illuminare. Non cambia le scelte salvate dell'utente
+    oltre allo strumento (come un tocco sul chip). */
+ window.ebLiveMostra=()=>{try{if(solaVol)return null;
+  if(V.fin!="live"){V.fin="live";salva();disegna();}            // dalla vista Comportamento si torna alla Live
+  const ok=z=>z.m&&z.m.ingresso&&z.nt&&!z.iniziale,tutti=(R.aperti||[]).concat(R.chiusi||[]).filter(ok);
+  if(!tutti.length)return null;
+  const recente=a=>a.slice().sort((x,y)=>(y.generato||"").localeCompare(x.generato||""))[0];
+  if(!V.sl||!segnaliDi(V.sl).some(ok)){V.sl=recente(tutti).strumento;salva();}
+  const z=recente(segnaliDi(V.sl).filter(ok));
+  SEZ.add("seg");APERTI.clear();APERTI.add(z.id);aggiorna();
+  const d=el.querySelector(`tr.vfrow[data-id="${CSS.escape(z.id)}"]`);
+  return d&&d.nextElementSibling||d||el.querySelector('details.vfx[data-x="seg"]');}catch(e){console.warn("[EdgeValor] mostra live",e);return null;}};
  disegna();
  })();}catch(e){fail(dove=="vol"?"Volatilit\u00e0":"Verifica dei segnali",dove=="vol"?"volat":"verifica",e);}}
 ebVerifica("vol");                                       // v7.48 scheda Volatilita' (dati gia' nella pagina)

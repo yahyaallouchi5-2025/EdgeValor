@@ -46,8 +46,16 @@
  fab.onclick=apri;
  // --- faro sull'elemento nuovo ---
  function mostra(n){if(typeof go=="function"&&n.s)go(n.s);
+  // v8.79 n.fn = nome di una funzione della scheda che apre da sola il punto giusto e restituisce l'elemento da
+  //   illuminare (es. ebLiveMostra: strumento, "I segnali di X", candele). La scheda Live carica i dati a parte:
+  //   si aspetta fino a 6 secondi che la funzione esista e risponda, poi si illumina la scheda intera.
+  if(n.fn){let t=0;const prova=()=>{const f=window[n.fn],el=f&&document.getElementById("vfdati")&&f();
+    if(el)faro(n,el);else if((t+=300)<6000)setTimeout(prova,300);else faro(n,document.getElementById(n.s));};
+   setTimeout(prova,250);return;}
   setTimeout(()=>{if(n.apri){const a=document.querySelector(n.apri);if(a)a.click();}   // v8.40 apre prima il dettaglio che contiene l'elemento
-   const el=n.q&&document.querySelector(n.q)||document.getElementById(n.s);if(!el)return;
+   faro(n,n.q&&document.querySelector(n.q)||document.getElementById(n.s));},250);}
+ // porta l'elemento in vista e lo illumina per qualche secondo
+ function faro(n,el){if(!el)return;{
    const y=el.getBoundingClientRect().top+scrollY-Math.max(120,innerHeight*.3);scrollTo({top:y,behavior:"smooth"});
    setTimeout(()=>{const r=el.getBoundingClientRect(),p=8;
     const f=document.createElement("div");f.className="nvfaro";
@@ -55,7 +63,7 @@
     f.innerHTML=`<span class="nvlab">${STELLA}Novità · ${esc(n.lab||n.t)}</span>`;document.body.appendChild(f);
     requestAnimationFrame(()=>f.classList.add("on"));
     const via=()=>{f.classList.remove("on");setTimeout(()=>f.remove(),300);removeEventListener("scroll",via,true);document.removeEventListener("mousedown",via);};
-    setTimeout(()=>{addEventListener("scroll",via,true);document.addEventListener("mousedown",via);},400);setTimeout(via,6000);},650);},250);}
+    setTimeout(()=>{addEventListener("scroll",via,true);document.addEventListener("mousedown",via);},400);setTimeout(via,6000);},650);}}
  window.ebNovitaMostra=i=>mostra(N[i||0]);
  segna();
 }catch(e){console.error("[EdgeValor] novita chat:",e);}})();
