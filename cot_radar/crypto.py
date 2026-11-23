@@ -237,6 +237,61 @@ def _arrot(v):
     return float(f"{v:.4g}")
 
 
+# --------------------------------------------------------------------------- v9.03 ciclo dell'halving (solo Bitcoin)
+# Ogni 210.000 blocchi (circa 4 anni) il premio per blocco dei miner si dimezza. Date dei blocchi 210.000, 420.000,
+# 630.000 e 840.000 (UTC). Il prossimo (1.050.000) si stima con il ritmo teorico di un blocco ogni 10 minuti.
+HALVING = ["2012-11-28", "2016-07-09", "2020-05-11", "2024-04-20"]
+BLOCCHI_CICLO = 210000
+PREMIO_INIZIALE = 50.0
+
+
+def offerta_btc(giorno):
+    """(BTC creati, premio per blocco) a una data, calcolati dalle regole del protocollo: blocchi stimati a 10 minuti
+    dall'ultimo halving noto (errore tipico sotto lo 0,1%: i blocchi reali arrivano in media poco prima dei 10 minuti)."""
+    ult = date.fromisoformat(HALVING[-1])
+    n = len(HALVING)                                         # ere completate
+    fatti = sum(BLOCCHI_CICLO * PREMIO_INIZIALE / 2 ** k for k in range(n))
+    premio = PREMIO_INIZIALE / 2 ** n
+    blocchi = min(BLOCCHI_CICLO, max(0, (giorno - ult).days * 144))
+    return fatti + blocchi * premio, premio
+
+
+def ciclo_halving(s, oggi):
+    """Confronto descrittivo con i cicli passati allo STESSO giorno dopo l'halving (non e' una previsione).
+    -> {giorno, durata, prossimo, offerta, premio, cicli:[{anno, rend, dd, picco_g, picco_r}]} oppure None.
+       rend   = rendimento % dal prezzo del giorno dell'halving al giorno N;
+       dd     = distanza % dal massimo raggiunto nel ciclo fino al giorno N;
+       picco_g= giorni dall'halving al massimo dell'intero ciclo (solo cicli chiusi o gia' scesi del 30%)."""
+    if not s:
+        return None
+    ult = date.fromisoformat(HALVING[-1])
+    n = (oggi - ult).days
+    durata = round(BLOCCHI_CICLO * 10 / 60 / 24)             # ~1.458 giorni a 10 minuti per blocco
+    prezzi = [(date.fromisoformat(d), c) for d, c, _ in s]
+
+    def prezzo_al(g):
+        prima = [c for d, c in prezzi if d <= g]
+        return prima[-1] if prima else None
+    cicli = []
+    for i, h in enumerate(HALVING):
+        h0 = date.fromisoformat(h)
+        fine_ciclo = date.fromisoformat(HALVING[i + 1]) if i + 1 < len(HALVING) else oggi
+        p0, pn = prezzo_al(h0), prezzo_al(h0 + timedelta(days=n))
+        if not p0 or not pn or h0 + timedelta(days=n) > oggi:
+            continue
+        fin = [(d, c) for d, c in prezzi if h0 <= d <= h0 + timedelta(days=n)]
+        mx = max(c for _, c in fin)
+        tutto = [(d, c) for d, c in prezzi if h0 <= d < fine_ciclo]
+        dmax, cmax = max(tutto, key=lambda x: x[1])
+        chiuso = i + 1 < len(HALVING) or tutto[-1][1] < cmax * 0.7       # picco "certo": ciclo finito o gia' -30%
+        cicli.append({"anno": h0.year, "rend": round((pn / p0 - 1) * 100), "dd": round((pn / mx - 1) * 100),
+                      "picco_g": (dmax - h0).days if chiuso else None,
+                      "picco_r": round((cmax / p0 - 1) * 100) if chiuso else None})
+    off, premio = offerta_btc(oggi)
+    return {"giorno": n, "durata": durata, "prossimo": (ult + timedelta(days=durata)).isoformat(),
+            "offerta": round(off), "premio": premio, "cicli": cicli}
+
+
 def calcola(dati, oggi=None):
     """Blocco della pagina: {agg, fond, monete:[...]} ordinate per capitalizzazione (o per volume), oppure None."""
     if not dati or len(dati) < MIN_MONETE:
@@ -263,6 +318,9 @@ def calcola(dati, oggi=None):
         circ = f.get("circ")
         mx = f.get("max") or MAX.get(sig)
         mcap = f.get("mcap") or (circ * p if circ else None)
+        stima = False
+        if not circ and sig == "BTC":                  # v9.03 senza fondamentali: offerta dalle regole del protocollo
+            circ, stima = offerta_btc(oggi)[0], True  # (solo per "in circolazione": l'ordine della tabella non cambia)
         # mini-grafico 90 giorni e grafico settimanale 3 anni (venerdi' o ultimo giorno disponibile della settimana)
         sett = {}
         for d, c, _ in s:
@@ -281,10 +339,16 @@ def calcola(dati, oggi=None):
             "mcap": round(mcap) if mcap else None, "circ": round(circ) if circ else None,
             "max": round(mx) if mx else None,
             "circ_pct": round(circ / mx * 100, 1) if circ and mx else None,
+            "circ_stima": stima or None,
             "spark": [_arrot(r[1]) for r in s[-SPARK:]],
             "sett": [[d, _arrot(c)] for d, c in w],
             "dal": s[0][0][:4],
         })
+        if sig == "BTC":
+            try:
+                righe[-1]["ciclo"] = ciclo_halving(s, oggi)
+            except Exception as e:                     # mai bloccante per la scheda
+                log.warning("crypto: ciclo dell'halving non calcolato (%s)", type(e).__name__)
     if len(righe) < MIN_MONETE:
         return None
     con_cap = any(r["mcap"] for r in righe)

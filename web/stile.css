@@ -560,13 +560,28 @@ h3.vft+p.sub.infotesto.aperta{text-transform:none;letter-spacing:0;font-size:14p
 /* curva del capitale */
 .pper{margin-bottom:14px}
 .pgraf{position:relative;padding:14px 12px 6px}
-.pcurva{width:100%;height:320px;display:block}
+.pcurva{width:100%;height:auto;display:block}   /* v9.04 disegnata alla larghezza vera: niente piu' testo stirato */
 .pgr{stroke:color-mix(in srgb,var(--line) 60%,transparent);stroke-width:1}
 .pax{font:600 11px system-ui;fill:var(--mute)}
 .pfoos{fill:rgba(91,155,255,.07)}.pflive{fill:rgba(46,196,182,.12)}
-.pfet{font:800 10px system-ui;letter-spacing:1px;fill:var(--mute)}
+.pfet{font:800 10.5px system-ui;letter-spacing:1.2px;fill:var(--mute)}
 .plinea{fill:none;stroke:var(--acc);stroke-width:2.2;vector-effect:non-scaling-stroke}
-.plive{fill:none;stroke:#7ff5e8;stroke-width:3.2;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 6px rgba(46,196,182,.8))}
+/* v9.04 fasi (backtest / verifica / live), separatori tratteggiati, drawdown peggiore di ogni fase, live in ambra */
+.pfz.bt{fill:transparent}.pfz.ver{fill:rgba(91,155,255,.07)}.pfz.live{fill:rgba(233,180,76,.10)}
+.pfsep{stroke:var(--ink2);stroke-width:1;stroke-dasharray:4 4;opacity:.55}
+.pfet.bt{fill:var(--ink2)}.pfet.ver{fill:#8fb6ff}.pfet.live{fill:var(--warn)}
+.pfasi{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.pfchip{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border:1px solid var(--line);border-radius:99px;background:var(--card2);font-size:12.5px;color:var(--mute);white-space:nowrap}
+.pfchip>i{width:9px;height:9px;border-radius:3px;background:var(--ink2)}.pfchip.ver>i{background:#8fb6ff}.pfchip.live>i{background:var(--warn)}
+.pfchip>b{color:var(--ink);font-weight:750}.pfchip>em{font-style:normal}.pfchip>span{color:var(--ink2);font-variant-numeric:tabular-nums}
+.pfchip>span::before{content:"";display:inline-block;width:1px;height:11px;background:var(--line);margin:0 8px 0 2px;vertical-align:-1px}
+@media (max-width:600px){.pfasi{gap:6px}.pfchip{font-size:11.5px;padding:5px 9px;white-space:normal}}
+.pgr.p100{stroke:color-mix(in srgb,var(--ink2) 35%,transparent)}
+.pddz{fill:rgba(242,113,107,.07)}
+.pddl{stroke:var(--s);stroke-width:1;stroke-dasharray:3 4;opacity:.7}
+.pddt{font:700 11px system-ui;fill:var(--s);paint-order:stroke;stroke:var(--card2);stroke-width:3px}
+.plivel{fill:none;stroke:var(--warn);stroke-width:2.8;filter:drop-shadow(0 0 5px rgba(233,180,76,.55))}
+.pliveo{fill:var(--warn);stroke:var(--card2);stroke-width:2}
 .pbench{fill:none;stroke:var(--c3);stroke-width:1.5;stroke-dasharray:5 5;vector-effect:non-scaling-stroke;opacity:.8}
 .pcur{stroke:var(--ink2);stroke-width:1;stroke-dasharray:3 3;vector-effect:non-scaling-stroke}
 .pcurp{fill:var(--acc);stroke:#04211e;stroke-width:2}
@@ -593,11 +608,12 @@ h3.vft+p.sub.infotesto.aperta{text-transform:none;letter-spacing:0;font-size:14p
 .pesr:last-child{border:0}.pesr b{font-size:14.5px}.pesr span{grid-column:1;font-size:13px;color:var(--ink2)}.pesr em{grid-column:2;grid-row:1/3;align-self:center;font-style:normal;font-size:12px;color:var(--mute);text-align:right}
 .pnota{margin-top:26px;max-width:900px}
 @media (max-width:1000px){.pgrid{grid-template-columns:1fr}}
-@media (max-width:760px){.pprof{grid-template-columns:1fr}.pcard small{min-height:0}.pcurva{height:240px}.prow{grid-template-columns:6px minmax(0,1fr) 92px}
+@media (max-width:760px){.pprof{grid-template-columns:1fr}.pcard small{min-height:0}.prow{grid-template-columns:6px minmax(0,1fr) 92px}
  .protr{grid-template-columns:1fr}.ptab th,.ptab td{padding:9px 8px;font-size:13px}.ptorta{width:104px;height:104px}}
 .pleg{display:flex;flex-wrap:wrap;gap:8px 20px;padding:8px 10px 6px;font-size:12.5px;color:var(--ink2)}
 .pleg span{display:flex;align-items:center;gap:8px}.pleg i{width:22px;height:0;border-top:2.5px solid var(--acc)}
-.pleg i.lb{border-top:2px dashed var(--c3)}.pleg i.ll{border-top:3.5px solid #7ff5e8;box-shadow:0 0 6px rgba(46,196,182,.8)}
+.pleg i.lb{border-top:2px dashed var(--c3)}.pleg i.ll{border-top:3px solid var(--warn);box-shadow:0 0 6px rgba(233,180,76,.6)}
+.pleg i.ld{width:14px;height:12px;border:0;border-left:1px dashed var(--s);border-right:1px dashed var(--s);background:rgba(242,113,107,.12)}
 .prot .pextra{display:none}.prot.aperta .pextra{display:grid}
 .ptutte{align-self:flex-start;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:7px 16px;font:600 13px system-ui;cursor:pointer;transition:border-color .2s}
 .ptutte:hover{border-color:var(--acc)}
@@ -4030,3 +4046,22 @@ html.vfcaperto,html.vfcaperto body{overflow:hidden}
 @media (max-width:600px){.m7{padding:16px 14px}.m7top{justify-content:stretch}.m7seg{width:100%}.m7seg button{flex:1}
  .m7grid{grid-template-columns:repeat(2,minmax(0,1fr))}.m7big>b{font-size:32px}.m7row{grid-template-columns:86px minmax(0,1fr) 58px;font-size:12.5px}
  .m7h4{flex-wrap:wrap}.m7per button{padding:6px 10px}.m7bar i:not(.m7alt){font-size:0}}
+
+/* --- v9.03 CICLO DELL'HALVING (43_crypto_profilo.js), sotto il grafico di Bitcoin: prima solo per il fondatore --- */
+.cysx{display:flex;flex-direction:column;gap:12px;min-width:0}
+.cyhv{border:1px solid var(--line);border-radius:14px;background:var(--card2);padding:12px 14px}
+.cyhvt{display:flex;align-items:center;gap:8px;margin-bottom:10px}.cyhvt>b{font-size:13px;letter-spacing:.3px;white-space:nowrap}
+.cyhvt details.info{flex:none}.cyhvt>span{margin-left:auto;font-size:12px;color:var(--mute);white-space:nowrap}
+.cyhvb{position:relative;height:8px;border-radius:99px;background:var(--soft)}
+.cyhvb>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--acc) 35%,transparent),var(--acc))}
+.cyhvb>em{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px var(--card2),0 0 12px color-mix(in srgb,var(--acc) 60%,transparent)}
+.cyhvl{display:flex;justify-content:space-between;gap:10px;margin:8px 0 10px;font-size:12px;color:var(--mute)}.cyhvl b{color:var(--ink)}
+.cyhvtab{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.cyhvtab th{font-size:11px;font-weight:650;color:var(--mute);text-align:right;padding:4px 6px;border-bottom:1px solid var(--line)}
+.cyhvtab th:first-child,.cyhvtab td:first-child{text-align:left}
+.cyhvtab td{text-align:right;padding:6px 6px;border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent);color:var(--ink2)}
+.cyhvtab tr:last-child td{border-bottom:0}
+.cyhvtab tr.ora td{background:color-mix(in srgb,var(--acc) 9%,transparent);color:var(--ink);font-weight:700}
+.cyhvtab tr.ora td:first-child{border-radius:8px 0 0 8px}.cyhvtab tr.ora td:last-child{border-radius:0 8px 8px 0}
+.cyhvtab small{font-size:10.5px;font-weight:650;color:var(--acc);margin-left:4px}
+@media (max-width:600px){.cyhv{padding:11px 11px}.cyhvtab{font-size:12px}.cyhvtab th,.cyhvtab td{padding:5px 4px}}

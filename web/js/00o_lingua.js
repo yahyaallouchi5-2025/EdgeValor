@@ -34,5 +34,27 @@ Object.assign(EB_EN,{
 "Utile degli ultimi 4 trimestri sul patrimonio netto":"Last 4 quarters' net income over equity",
 "Prezzo su utile: quanti anni di utile costa l'azienda oggi":"Price to earnings: how many years of earnings the company costs today",
 "Flusso di cassa libero annuo sul valore in borsa":"Yearly free cash flow over market value",
-"Crescita dei ricavi degli ultimi 4 trimestri sui 4 precedenti":"Revenue growth of the last 4 quarters over the previous 4"
+"Crescita dei ricavi degli ultimi 4 trimestri sui 4 precedenti":"Revenue growth of the last 4 quarters over the previous 4",
+// v9.03 ciclo dell'halving (43_crypto_profilo.js)
+"Ciclo dell'halving":"Halving cycle",
+"BTC/blocco":"BTC/block",
+"Bitcoin nuovi per ogni blocco":"New bitcoins per block",
+"giorno":"day",
+"Ciclo":"Cycle",
+"Dall'halving":"Since halving",
+"Dal max":"From high",
+"Picco":"Peak",
+"oggi":"today",
+"prossimo ≈":"next ≈",
+"Rendimento dal giorno dell'halving a oggi (stesso giorno del ciclo)":"Return from halving day to today (same day of the cycle)",
+"Distanza dal massimo del ciclo raggiunto fino a quel giorno":"Distance from the cycle high reached up to that day",
+"Giorni dall'halving al massimo dell'intero ciclo":"Days from halving to the high of the whole cycle",
+// v9.04 curva del capitale dei portafogli (21_portafogli.js) e novita'
+"Backtest":"Backtest",
+"Verifica":"Validation",
+"Drawdown peggiore della fase":"Worst drawdown of the phase",
+"Aggiornamento scheda Portafogli":"Portfolios tab update",
+"Aggiornamento scheda Bitcoin":"Bitcoin tab update",
+"Grafico del capitale rifatto: in alto le tre fasi (backtest, verifica e live) con rendimento e drawdown di ognuna; nel grafico il drawdown peggiore di ogni fase è segnato dal picco al minimo. Il live ora è in ambra.":"Equity chart redesigned: the three phases (backtest, validation and live) at the top with the return and drawdown of each; in the chart the worst drawdown of every phase is marked from peak to low. Live is now amber.",
+"Il prezzo di oggi ora si legge a destra del grafico, sulla colonna dei prezzi.":"Today's price now sits on the right of the chart, on the price column."
 });

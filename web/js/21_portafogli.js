@@ -67,7 +67,24 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  // --- curva del capitale (SVG, scala logaritmica: le percentuali hanno la stessa altezza in ogni epoca)
  // v8.55 riferimento del profilo (p.bench_p: stessa quota di azioni) al posto di quello unico; se manca, quello generale
  const rifP=p=>p.bench_p||P.bench||{};
- function curva(p){const W=900,H=300,L=52,Rm=14,T=16,B=30;
+ /* v9.04 CURVA DEL CAPITALE RIFATTA (richiesta di Ya e di un collega, 23/11/2026):
+      - disegnata alla larghezza VERA del riquadro (prima 900 px stirati: testi deformati, "LIVE" tagliato a destra);
+      - griglia a passi uguali in scala logaritmica (x2: 50, 100, 200, 400, 800...): righe tutte alla stessa distanza;
+      - tre fasi dichiarate in alto, separate da linee verticali tratteggiate: BACKTEST (regole scelte qui),
+        VERIFICA (stesse regole su anni non usati per sceglierle, simulata) e LIVE (rotazioni registrate dal vivo);
+        sotto ogni nome il rendimento annuo e il drawdown massimo della fase;
+      - il drawdown peggiore di ogni fase e' segnato: due linee verticali tratteggiate (picco e minimo) con la fascia
+        rossa leggera fra le due e il valore sul minimo;
+      - Live in ambra (non piu' una seconda linea turchese uguale al portafoglio), con il pallino di oggi. */
+ function fasiCurva(s,p){const f=[{k:"bt",n:"Backtest",da:s[0][0],a:P.oos_dal}];
+  if(P.oos_dal&&P.oos_dal>s[0][0])f.push({k:"ver",n:"Verifica",da:P.oos_dal,a:p.live_dal||null});else Object.assign(f[0],{n:"Verifica",k:"ver",a:p.live_dal||null});   // vista "Dal 2016": tutta verifica
+  if(p.live_dal)f.push({k:"live",n:"Live",da:p.live_dal,a:null});
+  return f.map(x=>{const q=s.filter(v=>v[0]>=x.da&&(!x.a||v[0]<x.a));if(q.length<2)return null;
+   let pk=q[0],dd=0,pkD=q[0],tr=q[0];for(const v of q){if(v[1]>pk[1])pk=v;const d=v[1]/pk[1]-1;if(d<dd){dd=d;pkD=pk;tr=v;}}
+   const anni=(new Date(q[q.length-1][0])-new Date(q[0][0]))/315576e5;
+   return Object.assign(x,{q,cagr:anni>=1?(Math.pow(q[q.length-1][1]/q[0][1],1/anni)-1)*100:null,tot:(q[q.length-1][1]/q[0][1]-1)*100,dd:dd*100,pk:pkD,tr});}).filter(Boolean);}
+ function curva(p){const box=el.querySelector(".pgraf"),W=Math.max(320,Math.round(((box&&box.clientWidth)||el.clientWidth||960)-24)),
+   tel=W<600,H=tel?260:330,L=tel?40:50,Rm=tel?10:16,T=14,B=28;
   let pts=p.curva,bench=rifP(p).curva||[];
   const dal=per=="oos"?P.oos_dal:per=="live"?(p.live_dal||P.oos_dal):null;
   if(dal){pts=pts.filter(x=>x[0]>=dal);bench=bench.filter(x=>x[0]>=dal);}
@@ -75,24 +92,38 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   const b0=pts[0][1],bb0=(bench[0]||[0,1])[1];
   const s=pts.map(x=>[x[0],x[1]/b0*100]),sb=bench.map(x=>[x[0],x[1]/bb0*100]);
   const t0=+new Date(s[0][0]),t1=+new Date(s[s.length-1][0]);
-  const tutti=s.concat(sb).map(x=>x[1]),lo=Math.log(Math.min(...tutti)*.97),hi=Math.log(Math.max(...tutti)*1.03);
+  const tutti=s.concat(sb).map(x=>x[1]),lo=Math.log(Math.min(...tutti)*.95),hi=Math.log(Math.max(...tutti)*1.05);
   const X=d=>L+(+new Date(d)-t0)/(t1-t0||1)*(W-L-Rm),Y=v=>T+(hi-Math.log(v))/(hi-lo||1)*(H-T-B);
   const path=a=>a.map((x,i)=>(i?"L":"M")+X(x[0]).toFixed(1)+" "+Y(x[1]).toFixed(1)).join("");
-  // griglia orizzontale: valori "tondi" del capitale (base 100)
-  const passi=[25,50,75,100,150,200,300,400,600,800,1000,1500,2000,3000,5000];
-  const righe=passi.filter(v=>Math.log(v)>lo&&Math.log(v)<hi).map(v=>`<line x1="${L}" x2="${W-Rm}" y1="${Y(v)}" y2="${Y(v)}" class="pgr"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end" class="pax">${v}</text>`).join("");
-  const anni=[];for(let a=+s[0][0].slice(0,4)+1;a<=+s[s.length-1][0].slice(0,4);a++){const d=a+"-01-01";anni.push(a);}
-  const passoA=Math.ceil(anni.length/10)||1;
-  const etA=anni.filter((a,i)=>i%passoA==0).map(a=>`<text x="${X(a+"-01-01")}" y="${H-8}" text-anchor="middle" class="pax">${a}</text>`).join("");
-  // fasce: fuori campione e live
-  const fascia=(d,cls,et)=>d&&d>s[0][0]?`<rect x="${X(d)}" y="${T}" width="${W-Rm-X(d)}" height="${H-T-B}" class="${cls}"/><text x="${X(d)+8}" y="${T+14}" class="pfet">${et}</text>`:"";
+  // griglia: raddoppi di 100 (stessa distanza in scala log); se il periodo e' corto anche i x1,5 (150, 300...)
+  let passi=[12.5,25,50,100,200,400,800,1600,3200,6400].filter(v=>Math.log(v)>lo&&Math.log(v)<hi);
+  if(passi.length<3)passi=passi.concat(passi.map(v=>v*1.5)).filter(v=>Math.log(v)>lo&&Math.log(v)<hi).sort((a,b)=>a-b);
+  const righe=passi.map(v=>`<line x1="${L}" x2="${W-Rm}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" class="pgr${v==100?" p100":""}"/><text x="${L-7}" y="${(Y(v)+4).toFixed(1)}" text-anchor="end" class="pax">${fx(v,v%1?1:0)}</text>`).join("");
+  const anni=[];for(let a=+s[0][0].slice(0,4)+1;a<=+s[s.length-1][0].slice(0,4);a++)anni.push(a);
+  const passoA=Math.ceil(anni.length/(tel?6:11))||1;
+  const etA=anni.filter((a,i)=>i%passoA==0).map(a=>`<text x="${X(a+"-01-01").toFixed(1)}" y="${H-8}" text-anchor="middle" class="pax">${a}</text>`).join("");
+  // fasi: fondo, separatore tratteggiato, intestazione (nome + rendimento annuo + drawdown massimo)
+  const F=fasiCurva(s,p),ult=s[s.length-1];
+  // nel grafico solo il nome della fase (in alto a sinistra della sua fascia, se c'e' spazio); i numeri sono sopra, nei chip
+  const fasi=F.map((f,i)=>{const x0=Math.max(L,X(f.da)),x1=f.a?X(f.a):W-Rm,w=x1-x0;
+   return `<rect x="${x0.toFixed(1)}" y="${T}" width="${Math.max(0,w).toFixed(1)}" height="${H-T-B}" class="pfz ${f.k}"/>
+    ${i?`<line x1="${x0.toFixed(1)}" x2="${x0.toFixed(1)}" y1="${T}" y2="${H-B}" class="pfsep"/>`:""}
+    ${w>=(tel?64:84)?`<text x="${(x0+8).toFixed(1)}" y="${T+15}" class="pfet ${f.k}">${f.n.toUpperCase()}</text>`:""}`;}).join("");
+  const chip=F.map(f=>`<span class="pfchip ${f.k}"><i></i><b>${f.n}</b><em>${f.k=="live"?"dal "+gg(f.da):f.k=="bt"?`${f.da.slice(0,4)}&ndash;${String(+f.a.slice(0,4)-1)}`:"dal "+f.da.slice(0,4)}</em>
+   <span>${f.k=="live"?pc(f.tot):(f.cagr!=null?pc(f.cagr)+" l'anno":pc(f.tot))}${f.k!="live"?` &middot; DD <b class="down">${pc(f.dd)}</b>`:""}</span></span>`).join("");
+  // drawdown peggiore di ogni fase (solo se almeno -5%, e non per il Live appena nato)
+  const dds=F.filter(f=>f.k!="live"&&f.dd<=-5).map(f=>{const xa=X(f.pk[0]),xb=X(f.tr[0]),yb=Y(f.tr[1]);
+   return `<rect x="${xa.toFixed(1)}" y="${T}" width="${Math.max(1,xb-xa).toFixed(1)}" height="${H-T-B}" class="pddz"/>
+    <line x1="${xa.toFixed(1)}" x2="${xa.toFixed(1)}" y1="${T}" y2="${H-B}" class="pddl"/><line x1="${xb.toFixed(1)}" x2="${xb.toFixed(1)}" y1="${T}" y2="${H-B}" class="pddl"/>
+    <text x="${(xb+5).toFixed(1)}" y="${Math.min(H-B-6,yb+18).toFixed(1)}" class="pddt">${pc(f.dd)}</text>`;}).join("");
   const live=p.live_dal?s.filter(x=>x[0]>=p.live_dal):[];
-  return `<svg viewBox="0 0 ${W} ${H}" class="pcurva" data-t0="${t0}" data-t1="${t1}" preserveAspectRatio="none">
-   ${righe}${fascia(P.oos_dal,"pfoos","VERIFICA")}${p.live_dal?fascia(p.live_dal,"pflive","LIVE"):""}${etA}
-   ${sb.length?`<path d="${path(sb)}" class="pbench"/>`:""}<path d="${path(s)}" class="plinea"/>${live.length>1?`<path d="${path(live)}" class="plive"/>`:""}
+  return `<div class="pfasi">${chip}</div><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="pcurva" data-t0="${t0}" data-t1="${t1}" data-l="${L}" data-r="${Rm}">
+   ${fasi}${righe}${dds}${etA}
+   ${sb.length?`<path d="${path(sb)}" class="pbench"/>`:""}<path d="${path(s)}" class="plinea"/>${live.length>1?`<path d="${path(live)}" class="plivel"/>`:""}
+   ${live.length?`<circle cx="${X(ult[0]).toFixed(1)}" cy="${Y(ult[1]).toFixed(1)}" r="4.5" class="pliveo"/>`:""}
    <line class="pcur" x1="0" x2="0" y1="${T}" y2="${H-B}" style="display:none"/><circle class="pcurp" r="4.5" style="display:none"/></svg>
    <div class="ptip" hidden></div>
-   <div class="pleg"><span><i class="lp"></i>Portafoglio ${esc(p.nome.toLowerCase())}</span><span><i class="lb"></i>${esc(rifP(p).nome||"S&P 500")}</span>${p.live_dal?'<span><i class="ll"></i>Live</span>':""}</div>`;}
+   <div class="pleg"><span><i class="lp"></i>Portafoglio ${esc(p.nome.toLowerCase())}</span><span><i class="lb"></i>${esc(rifP(p).nome||"S&P 500")}</span>${p.live_dal?'<span><i class="ll"></i>Live</span>':""}<span><i class="ld"></i>Drawdown peggiore della fase</span></div>`;}
 
  // --- una riga del portafoglio: nome, strumento UCITS da comprare (ISIN copiabile), motivo, peso, importo in euro.
  //     Per "Azioni scelte": elenco dei 5 titoli (registrati, oppure ANTEPRIMA provvisoria del mese prossimo).
@@ -1088,7 +1119,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
    <div class="pgrid">${composizione(p)}${contro(p)}</div>`:`${ebBlocco("Cosa comprare e quanto","Ogni mercato del portafoglio con peso, ISIN e importo sul tuo capitale.",{velo:true,righe:6})}
    <div class="pgrid plkgrid">${contro(p)}</div>`}`:""}
    ${vista=="conto"?(PREM?`<div class="card pconto" id="pconto">${contoHTML(p)}</div>`:ebBlocco("Il mio conto","Confronta i tuoi investimenti con il portafoglio modello.",{velo:true,righe:5})):""}
-   ${vista=="storico"?`<h3 class="vft">Andamento del capitale <details class="info"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div>Base 100, scala logaritmica: la stessa percentuale ha la stessa altezza in ogni periodo. Linea turchese = portafoglio, tratteggio = riferimento del profilo (stessa quota di azioni, in azioni mondiali e Treasury), linea luminosa = live dalla prima rotazione pubblicata; prima di quella i risultati sono simulati.</div></details></h3>
+   ${vista=="storico"?`<h3 class="vft">Andamento del capitale <details class="info"><summary title="Come leggerlo" aria-label="Come leggerlo">i</summary><div>Base 100, scala logaritmica: ogni riga della griglia &egrave; il doppio della precedente. Linea turchese = portafoglio, tratteggio = riferimento del profilo (stessa quota di azioni, in azioni mondiali e Treasury).<br><br><b>Backtest</b>: le regole applicate ai prezzi reali degli anni su cui sono state scelte. <b>Verifica</b>: le stesse regole sugli anni dopo (simulata, con costi e cambi). <b>Live</b> (in ambra): rotazioni registrate in tempo reale e mai riscritte, l'unica prova davvero alla cieca. In alto per ogni fase: rendimento annuo e drawdown massimo; le linee rosse tratteggiate segnano il drawdown peggiore della fase (dal picco al minimo).</div></details></h3>
    <div class="vfswitch pper">${[["tutto","Tutto"],["oos","Dal 2016"]].map(x=>`<button data-per="${x[0]}" class="${per==x[0]?"on":""}">${x[1]}</button>`).join("")}</div>
    <div class="card pgraf">${curva(p)}</div>
    ${tabella(p)}
@@ -1128,7 +1159,16 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   liveOggi(p);
   tipMesi(el.querySelector(".pcontro"),p);
   conto();
-  suggerimento(el.querySelector(".pgraf"),p);}
+  curvaGiusta(p);}
+ // v9.04 la curva si ridisegna alla larghezza vera del riquadro: subito dopo il disegno e quando la finestra cambia
+ let curvaP=null,curvaW=0,curvaRO=null;
+ function curvaGiusta(p){curvaP=p;const g=el.querySelector(".pgraf");if(!g)return;
+  // larghezza attesa = quella che usa curva(); se l'SVG disegnato e' diverso (primo disegno, finestra cambiata) si rifa'
+  const giusta=g2=>{const sv=g2.querySelector("svg.pcurva");return !sv||+sv.getAttribute("width")==Math.max(320,Math.round(g2.clientWidth-24));};
+  if(g.clientWidth&&!giusta(g))g.innerHTML=curva(p);
+  curvaW=g.clientWidth;suggerimento(g,p);
+  if(!curvaRO&&window.ResizeObserver){curvaRO=new ResizeObserver(()=>{const g2=el.querySelector(".pgraf");
+   if(g2&&curvaP&&g2.clientWidth&&Math.abs(g2.clientWidth-curvaW)>8&&!giusta(g2)){curvaW=g2.clientWidth;g2.innerHTML=curva(curvaP);suggerimento(g2,curvaP);}});curvaRO.observe(el);}}
  // --- v6.73 ISIN DELLE AZIONI SCELTE: dal profilo dell'azienda (Wikidata, cot_radar/profili.py), per cercare il titolo
  //     nell'app del broker anche quando il ticker di Yahoo (es. 2801.T) non c'e'. Tocco = copia (non apre la scheda).
  const ISIN_AZ={};
@@ -1207,8 +1247,8 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   const dal=per=="oos"?P.oos_dal:per=="live"?(p.live_dal||P.oos_dal):null;
   const s=p.curva.filter(x=>!dal||x[0]>=dal),b0=s.length?s[0][1]:1;
   svg.addEventListener("mousemove",e=>{const r=svg.getBoundingClientRect(),fx_=(e.clientX-r.left)/r.width;
-   const vb=svg.viewBox.baseVal,x=fx_*vb.width;if(x<52||x>vb.width-14)return;
-   const t0=+svg.dataset.t0,t1=+svg.dataset.t1,t=t0+(x-52)/(vb.width-66)*(t1-t0);
+   const vb=svg.viewBox.baseVal,x=fx_*vb.width,mL=+svg.dataset.l||52,mR=+svg.dataset.r||14;if(x<mL||x>vb.width-mR)return;
+   const t0=+svg.dataset.t0,t1=+svg.dataset.t1,t=t0+(x-mL)/(vb.width-mL-mR)*(t1-t0);
    let i=s.findIndex(q=>+new Date(q[0])>=t);if(i<0)i=s.length-1;
    const len=path.getTotalLength();let a=0,z=len,P2=null;
    for(let k=0;k<22;k++){const m=(a+z)/2;P2=path.getPointAtLength(m);if(P2.x<x)a=m;else z=m;}
