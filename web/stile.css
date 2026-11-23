@@ -3940,3 +3940,25 @@ html.vfcaperto,html.vfcaperto body{overflow:hidden}
  box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 40%,transparent),0 24px 48px rgba(2,8,20,.6),0 0 34px rgba(46,196,182,.22)!important;will-change:transform}
 @media (prefers-reduced-motion:reduce){.hbjig .hbcard{animation:none;outline:1px dashed color-mix(in srgb,var(--acc) 60%,transparent);outline-offset:3px}}
 @media (max-width:700px){.hbedit span{font-size:12px}.hbedit button{height:34px;padding:0 13px}}
+/* v8.97 guida al primo ingresso nella pagina Mercati (41_hub_mercati.js): la prima card mima il gesto
+   (pressione del "dito", tremolio, piccolo scivolamento di lato) e sotto compare un fumetto con "Ho capito" */
+.hbcard.hbdemo{animation:hbdemo 3.2s ease-in-out .3s infinite;z-index:2}
+@keyframes hbdemo{0%,12%{rotate:0deg;translate:0 0}
+ 16%{rotate:-1.4deg}20%{rotate:1.4deg}24%{rotate:-1.4deg}28%{rotate:1.4deg}32%{rotate:0deg;translate:0 0}
+ 52%{translate:26% 0;rotate:0deg}64%{translate:26% 0}82%,100%{translate:0 0;rotate:0deg}}
+.hbdito{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;z-index:3;pointer-events:none;
+ background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,.12) 60%,transparent 70%);border:2px solid rgba(255,255,255,.7);
+ animation:hbdito 3.2s ease-in-out .3s infinite;opacity:0}
+@keyframes hbdito{0%{opacity:0;transform:scale(1.4)}8%{opacity:1;transform:scale(1)}12%,32%{opacity:1;transform:scale(.82)}
+ 52%,64%{opacity:1;transform:translateX(var(--dx,60px)) scale(.82)}74%{opacity:0;transform:translateX(var(--dx,60px)) scale(1)}100%{opacity:0}}
+.hbguida{position:absolute;z-index:4;width:min(300px,calc(100vw - 40px));display:grid;gap:6px;padding:14px 16px;border-radius:14px;
+ background:linear-gradient(160deg,#1a2a44,#101b2e);border:1px solid color-mix(in srgb,var(--acc) 55%,var(--line));
+ box-shadow:0 18px 40px rgba(2,8,20,.6),0 0 26px rgba(46,196,182,.16);animation:hbguida .3s ease-out both}
+.hbguida:before{content:"";position:absolute;left:28px;top:-7px;width:12px;height:12px;rotate:45deg;background:#1a2a44;
+ border-left:1px solid color-mix(in srgb,var(--acc) 55%,var(--line));border-top:1px solid color-mix(in srgb,var(--acc) 55%,var(--line))}
+.hbguida b{font-size:14.5px;color:var(--ink)}.hbguida span{font-size:13px;line-height:1.45;color:#c3cfe0}
+.hbguida-ok{justify-self:end;height:34px;padding:0 16px;border-radius:10px;border:0;background:var(--acc);color:#04211e;font:700 13.5px system-ui;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.hbguida-ok:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(46,196,182,.3)}
+.hbguida.via{opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
+@keyframes hbguida{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hbcard.hbdemo,.hbdito{animation:none}.hbdito{display:none}}

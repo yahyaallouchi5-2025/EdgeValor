@@ -83,6 +83,7 @@
  let inModifica=false,riposo=null,lungo=null,P=null,salvaT=null,ignoraClick=false,sblocco=null;
  const griglia=()=>el.querySelector(".hbgrid"),carte=()=>[...el.querySelectorAll(".hbcard")];
  function modifica(si){inModifica=si;const g=griglia();if(!g)return;
+  if(si){const q=el.querySelector(".hbguida-ok");if(q)q.click();}
   g.classList.toggle("hbjig",si);el.classList.toggle("hbmod",si);
   // ogni card traballa con un ritmo leggermente diverso (come le icone di iPhone)
   carte().forEach((c,i)=>{c.style.setProperty("--jd",(-(i*97)%280)+"ms");c.setAttribute("aria-grabbed",si?"false":"");if(!si)c.removeAttribute("aria-grabbed");});
@@ -180,6 +181,33 @@
    .catch(()=>{letto=false;});}
  setTimeout(dalProfilo,2500);
  // ogni volta che si apre la pagina si ridisegna (es. "Registro" compare solo dopo l'accesso admin)
- const t=document.querySelector('#nav button[data-t="mercati"]');if(t)t.addEventListener("click",()=>{disegna();dalProfilo();});
- window.ebHub={disegna,ordine:()=>ORD.slice(),modifica};
+ const t=document.querySelector('#nav button[data-t="mercati"]');if(t)t.addEventListener("click",()=>{disegna();dalProfilo();setTimeout(guida,450);});
+
+ /* ---------- v8.97 GUIDA AL PRIMO INGRESSO (Ya, 23/11/2026: "un tutorial leggerissimo, una volta sola") ----------
+    La prima volta che si apre Mercati la prima card "mima" il gesto: un cerchio come un dito la preme, la card traballa
+    e scivola un po' di lato, come se la si spostasse. Sotto, un fumetto con una riga e "Ho capito".
+    Si chiude con "Ho capito" o con qualsiasi tocco (anche iniziando davvero a spostare una card) e non torna piu':
+    localStorage "ebGuidaHub". Non compare a chi ha gia' un ordine suo (sa gia' come si fa).
+    DEBUG: localStorage.removeItem("ebGuidaHub") e riaprire Mercati la fa rivedere; ebHub.guida() la mostra subito. */
+ const KG="ebGuidaHub";
+ const vista=()=>{try{return localStorage.getItem(KG)=="1"||!!localStorage.getItem(KO);}catch(e){return true;}};
+ function guida(forza){if((!forza&&vista())||inModifica||el.querySelector(".hbguida"))return;
+  const g=griglia(),c=g&&g.querySelector(".hbcard");if(!c||!el.classList.contains("on")&&!forza)return;
+  c.classList.add("hbdemo");
+  const dito=document.createElement("span");dito.className="hbdito";dito.setAttribute("aria-hidden","true");
+  dito.style.left=(c.offsetLeft+c.offsetWidth/2)+"px";dito.style.top=(c.offsetTop+c.offsetHeight*.42)+"px";dito.style.setProperty("--dx",Math.round(c.offsetWidth*.26)+"px");   // il "dito" scivola quanto la card
+  const f=document.createElement("div");f.className="hbguida";f.setAttribute("role","dialog");f.setAttribute("aria-label","Come riordinare le schede");
+  f.innerHTML=`<b>Metti prima le schede che usi di più</b><span>Tieni premuta una card finché non traballa, poi trascinala dove vuoi.</span>
+   <button type="button" class="hbguida-ok">Ho capito</button>`;
+  f.style.left=c.offsetLeft+"px";f.style.top=(c.offsetTop+c.offsetHeight+12)+"px";
+  g.append(dito,f);
+  const chiudi=()=>{try{localStorage.setItem(KG,"1");}catch(e){}c.classList.remove("hbdemo");dito.remove();
+   f.classList.add("via");setTimeout(()=>f.remove(),220);document.removeEventListener("pointerdown",fuori,true);};
+  // qualsiasi tocco chiude la guida (il tocco prosegue normalmente: se era l'inizio di una pressione lunga, funziona)
+  const fuori=e=>{if(e.target.closest(".hbguida-ok"))return;chiudi();};
+  f.querySelector(".hbguida-ok").onclick=chiudi;
+  setTimeout(()=>document.addEventListener("pointerdown",fuori,true),50);}
+ // aperta direttamente su Mercati (es. indirizzo con #mercati): la guida parte quando la pagina e' pronta
+ setTimeout(()=>{if(el.classList.contains("on"))guida();},1200);
+ window.ebHub={disegna,ordine:()=>ORD.slice(),modifica,guida:()=>guida(true)};
 }catch(e){console.error("[EdgeValor] hub mercati:",e);}})();

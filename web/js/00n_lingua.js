@@ -128,6 +128,9 @@ Object.assign(EB_EN,{
 "Fine":"Done",". L'ordine resta salvato nel tuo profilo.":". The order is saved in your profile.",
 "Aggiornamento scheda Mercati":"Markets tab update",
 "Metti le schede nell'ordine che preferisci: tieni premuta una card finché non traballa, trascinala dove vuoi e tocca Fine. L'ordine resta nel tuo profilo, anche su telefono e tablet.":"Put the tabs in the order you prefer: press and hold a card until it wiggles, drag it where you want and tap Done. The order stays in your profile, also on phone and tablet.",
+"Metti prima le schede che usi di più":"Put the tabs you use most first",
+"Tieni premuta una card finché non traballa, poi trascinala dove vuoi.":"Press and hold a card until it wiggles, then drag it where you want.",
+"Ho capito":"Got it","Come riordinare le schede":"How to rearrange the tabs",
 "Trascina le card per riordinarle":"Drag the cards to rearrange them","Ripristina":"Reset","Riordino delle schede":"Rearrange tabs",
 "Con Google, se non hai un account, ne crei uno e accetti":"With Google, if you don't have an account, you create one and accept the",
 "Più semplice: in alto dove comprano e vendono i grandi investitori, poi una card per strumento con una parola e una freccia. Tocca la card per girarla e vedere i numeri e il grafico.":
