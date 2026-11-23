@@ -174,6 +174,7 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   const f=box.querySelector("form"),es=f.querySelector(".fbesito"),inv=f.querySelector(".pfinvia");
   // v8.19 accesso con Google: si torna su questa pagina con i codici di accesso (gestiti dal blocco "ritorno dal link")
   const g=f.querySelector(".pfgoogle");if(g)g.onclick=()=>{try{window.ebStat&&ebStat.ev("accesso",{passo:"google"});}catch(_){}
+   if(window.ebGoogle&&ebGoogle.attivo())return ebGoogle.reindirizza();          // v9.00 riserva diretta a Google (niente supabase.co)
    const torna=location.href.split("#")[0].split("?")[0];
    location.href=API+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(torna);};
   // v8.92 pulsante ufficiale di Google (35z_google.js): la finestra di Google mostra edgevalor.com e non Supabase

@@ -49,7 +49,7 @@
   c.querySelectorAll("[data-va]").forEach(b=>b.onclick=()=>{const m=c.querySelector("input[name=email]");const v=m?m.value:"";modo=b.dataset.va;disegna();
    const n=c.querySelector("input[name=email]");if(n&&v)n.value=v;});                 // v8.20 l'email scritta resta quando si cambia scheda
   const o=c.querySelector(".ptocchio");if(o)o.onclick=()=>{const i=c.querySelector("input[name=pw]");i.type=i.type=="password"?"text":"password";};
-  const g=c.querySelector(".ptgoo");if(g)g.onclick=()=>{stat("google");location.href=API+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(torna());};
+  const g=c.querySelector(".ptgoo");if(g)g.onclick=()=>{stat("google");if(window.ebGoogle&&ebGoogle.attivo())return ebGoogle.reindirizza();location.href=API+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(torna());};
   // v8.92 pulsante ufficiale di Google (35z_google.js): la finestra di Google mostra edgevalor.com e non Supabase
   if(g&&window.ebGoogle)ebGoogle.monta(c,{sel:".ptgoo",tema:"outline",errore:m=>disegna(m)});
   const f=c.querySelector("form");if(f)f.onsubmit=e=>{e.preventDefault();invia(f);};

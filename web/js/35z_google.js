@@ -10,8 +10,11 @@
         e la pagina si ricarica (da li' in poi pensa a tutto 36_account.js, codice invito compreso).
    NONCE: numero a caso usato una sola volta contro il riuso del biglietto. A Google va l'impronta SHA-256,
      a Supabase il numero in chiaro: Supabase rifa' l'impronta e la confronta con quella scritta nel biglietto.
-   SE LO SCRIPT DI GOOGLE NON SI CARICA (rete, blocchi, browser dentro le app): resta il vecchio pulsante,
-     che continua a funzionare con il passaggio da Supabase.
+   SE LO SCRIPT DI GOOGLE NON SI CARICA (rete, blocchi, browser dentro le app): resta il vecchio pulsante, che dal
+     v9.00 NON passa piu' da Supabase ma va direttamente a Google (reindirizza()): Google torna su
+     edgevalor.com/terminale/#id_token=... e il biglietto si passa a Supabase come sopra (ritorno()).
+     Motivo: la verifica del marchio Google (nome e logo EdgeValor nella finestra) chiede che TUTTI i domini
+     autorizzati siano nostri; il dominio supabase.co non si puo' verificare, quindi e' stato tolto dalla console.
    CONSOLE GOOGLE (account info@edgevalor.com, progetto "edgevalor", client "EdgeValor sito"):
      origine JavaScript autorizzata https://edgevalor.com (gia' presente dal 19/11/2026).
    USO: ebGoogle.monta(contenitore, {tema, errore}) sostituisce il pulsante "fatto in casa" dentro il contenitore.
@@ -49,7 +52,7 @@
   pronto.catch(()=>{pronto=null;});return pronto;}
 
  // 3) biglietto di Google -> sessione Supabase
- async function entra(r){st.tentativi++;
+ async function entra(r,dove){st.tentativi++;
   try{window.ebStat&&ebStat.ev("accesso",{passo:"google_gis"});}catch(_){}
   try{const x=await fetch(API+"/auth/v1/token?grant_type=id_token",{method:"POST",headers:{apikey:CHIAVE,"Content-Type":"application/json"},
     body:JSON.stringify({provider:"google",id_token:r.credential,nonce:crudo})});
@@ -57,9 +60,26 @@
    if(!x.ok||!j.access_token)throw new Error(j.msg||j.error_description||j.message||("HTTP "+x.status));
    localStorage.setItem("ebSess",JSON.stringify({a:j.access_token,r:j.refresh_token,s:Date.now()+(j.expires_in||3600)*1000}));
    // 4) la pagina si ricarica senza codici nell'indirizzo: da qui in poi 36_account.js
-   location.replace(location.href.split("#")[0].split("?")[0]);}
+   location.replace(dove||location.href.split("#")[0].split("?")[0]);}
   catch(e){st.errore=e.message;console.warn("[EdgeValor] google: accesso non riuscito",e);
-   if(errCb)errCb("Accesso con Google non riuscito. Riprova o entra con l'email.");}}
+   if(errCb)errCb("Accesso con Google non riuscito. Riprova o entra con l'email.");
+   else if(dove)setTimeout(()=>{try{window.ebPorta&&ebPorta.apri&&ebPorta.apri("acc");}catch(_){}},300);}}
+
+ // v9.00 RISERVA SENZA SCRIPT: pagina di Google a tutto schermo, ritorno su /terminale/ con il biglietto nell'indirizzo
+ const RIT="/terminale/";
+ async function reindirizza(){try{window.ebStat&&ebStat.ev("accesso",{passo:"google_redirect"});}catch(_){}
+  const a=new Uint8Array(24);crypto.getRandomValues(a);const n=[...a].map(x=>x.toString(16).padStart(2,"0")).join("");
+  const s2=n.slice(0,16);
+  try{sessionStorage.setItem("ebGRit",JSON.stringify({n,s:s2,t:location.href.split("#")[0].split("?")[0]}));}catch(e){}
+  const q=new URLSearchParams({client_id:CID,response_type:"id_token",scope:"openid email profile",redirect_uri:location.origin+RIT,
+   nonce:await impronta(n),state:s2,prompt:"select_account"});
+  location.href="https://accounts.google.com/o/oauth2/v2/auth?"+q.toString();}
+ // ritorno da Google: "#id_token=...&state=..." (si controlla che lo state sia quello partito da qui)
+ (function ritorno(){const h=location.hash.slice(1);if(!/(^|&)id_token=/.test(h))return;
+  const q=new URLSearchParams(h);let r=null;try{r=JSON.parse(sessionStorage.getItem("ebGRit")||"null");sessionStorage.removeItem("ebGRit");}catch(e){}
+  try{history.replaceState(null,"",location.href.split("#")[0]);}catch(e){}
+  if(!r||r.s!==q.get("state")){console.warn("[EdgeValor] google: ritorno non riconosciuto");return;}
+  crudo=r.n;entra({credential:q.get("id_token")},r.t);})();
 
  // pulsante ufficiale al posto di quello "fatto in casa" (che resta se qualcosa non va)
  function monta(box,o){if(!box||!attivo())return;o=o||{};errCb=o.errore||null;
@@ -73,5 +93,5 @@
    if(vecchio)vecchio.replaceWith(d);else box.prepend(d);})
   .catch(e=>console.warn("[EdgeValor] google: resta il pulsante classico",e));}
 
- window.ebGoogle={monta,attivo,stato:()=>Object.assign({attivo:attivo()},st)};
+ window.ebGoogle={monta,attivo,reindirizza,stato:()=>Object.assign({attivo:attivo()},st)};
 }catch(e){console.warn("[EdgeValor] google",e);}})();
