@@ -1,30 +1,28 @@
-/* ---------- 44b_notizie.js - v8.87 SCHEDA "NOTIZIE" (Mercati > Notizie, Premium; il Basic vede il lucchetto) ----------
-   Richiesta di Ya (23/11/2026): studiare come reagiscono i mercati alle notizie macro ad alto impatto (NFP, CPI, Fed,
-   vendite, PPI, PCE, PIL, JOLTS e banche centrali): un registro del passato che si allunga ogni giorno, e una "formula"
-   per ogni esito: quando la notizia rende forte o debole la sua valuta, come si muove ogni mercato (cambi, oro, indici,
-   ETF, BTC...). Ogni notizia lascia una traccia sul grafico orario.
-   CINQUE PEZZI (strumento dal menu, driver dai bottoni):
-     1. grafico orario/giornaliero (motore di 13c_candele.js in modalita' "notizie": linea gialla all'ora esatta,
-        barretta verde/rossa = mossa della prima ora, etichetta con la mossa);
-     2. "Dopo l'esito": per lo strumento, con valuta forte e con valuta debole, mossa mediana della prima ora,
-        quante volte e' salito e mossa a 24 ore;
-     3. "Su tutti gli strumenti": per il driver scelto, la stessa formula su tutti i mercati (o la grandezza della mossa),
-        con i filtri per famiglia;
-     4. "Come reagisce": grandezza della mossa e se prosegue, contro un'ora qualsiasi (il caso);
-     5. "Registro": tutte le notizie, dalla piu' recente, con l'esito (tocco = il grafico va a quella notizia).
+/* ---------- 44b_notizie.js - SCHEDA "NOTIZIE" (Mercati > Notizie, Premium; il Basic vede il lucchetto) ----------
+   v8.87 registro delle notizie macro con esito; v8.91 VERSIONE SEMPLICE (Ya, 23/11/2026: "troppi numeri noiosi"):
+   davanti il messaggio in parole, frecce e colori, i numeri dietro le card che si girano (classi fc-*, 06_strumenti.js).
+   PEZZI, dall'alto:
+     1. mercato: 8 bottoni grandi (oro, euro/dollaro, S&P 500, Nasdaq, Bitcoin, petrolio, dollaro/yen, Treasury) + "Altri";
+     2. frase: quali notizie lo muovono di piu' e un esempio con l'esito;
+     3. una CARD per notizia: cos'e' in una riga, quanto muove (4 tacche), cosa fa con dollaro forte e con dollaro debole
+        ("scende 90 volte su 100"); dietro i numeri (mossa tipica, volte un'ora normale, 1 ora e 24 ore, prosegue);
+     4. grafico orario con la traccia di ogni notizia (filtro per notizia, fumetto "cos'e'" al passaggio del mouse);
+     5. mappa: una notizia su 20 mercati noti divisi per famiglia, con dollaro forte o debole (verde/rosso, "93 su 100");
+     6. registro di tutte le notizie, chiuso (si apre a richiesta).
    ESITO (cot_radar/impatto.py): letto dal prezzo, non dal dato atteso: forza della valuta della notizia nella prima ora,
    media su tutte le coppie di valute che la contengono; forte/debole se almeno 1,5 volte un'ora normale.
    DATI (ramo "orari", scritti ogni notte da impatto.py): pubblico/impatto/indice.json e <SIMBOLO>.json
      ev = [[ora UTC, driver, r1, r4, r24, x, dopo, esito]], st = [{n, casi, r1, x, forte, seg, segG, nG, dal}],
      es = {driver: {"+": [n, r1, %su, r24, %su24], "-": [...]}}, ctrl = {forte, seg, segG}
-     indice: val = {driver: valuta}, sim = [{s, n, c, m: {driver: [casi, x, r1, es+, es-]}}]
+     indice: val = {driver: valuta}, sim = [{s, n, c, al, m: {driver: [casi, x, r1, es+, es-]}}]
    Niente previsioni e niente consigli: e' il registro di quello che e' successo.
    DEBUG: ebNotizieMacro.stato (strumento, driver, vista, dati letti) */
 (function(){try{
  const el=$("notizie"),bt=document.querySelector('#nav button[data-t="notizie"]');if(!el)return;
  const BASE=EB_RAW+"orari/pubblico/impatto/",H1_DAL="2026-08-01";
+ const fcIco=window.fcIco||(()=>"");                 // icone delle card (06_strumenti.js)
  const cache={},leggi=u=>cache[u]||(cache[u]=fetch(u).then(r=>r.ok?r.json():null).catch(()=>null));
- const S={s:"EURUSD.FOREX",d:"",n:10,v:"+",f:"",tutti:false,I:null,X:null};
+ const S={s:"GLD.US",d:"",n:10,md:"NFP USA",mv:3,I:null,X:null};
  const pc=v=>v==null?"n/d":(v>0?"+":v<0?"−":"")+fx(Math.abs(v),2)+"%";
  const cl=v=>v>0?"up":v<0?"down":"";
  const GG=new Intl.DateTimeFormat(EB_LOC,{timeZone:"Europe/Rome",day:"2-digit",month:"2-digit",year:"2-digit"});
@@ -57,28 +55,51 @@
  // strumento con lo storico orario fermo (es. oro e argento a pronti: candele orarie solo fino al 2020): si dice nel menu
  const vecchio=x=>x.al&&Date.now()-Date.parse(x.al)>120*864e5;
 
+ // v8.91 versione semplice: frasi brevi per le card (le spiegazioni lunghe restano nel fumetto dei bottoni)
+ const BREVE={"NFP USA":"Nuovi posti di lavoro negli USA, con disoccupazione e salari.","CPI USA":"Inflazione: di quanto salgono i prezzi per le famiglie USA.",
+  "Fed":"Decisione sui tassi della banca centrale americana.","Vendite USA":"Quanto spendono i consumatori americani.",
+  "PPI USA":"Prezzi pagati dalle aziende USA: anticipa l'inflazione.","PCE USA":"L'inflazione preferita dalla Fed.",
+  "PIL USA":"Quanto cresce l'economia americana nel trimestre.","JOLTS USA":"Offerte di lavoro aperte negli USA.",
+  "BCE":"Decisione sui tassi della Banca centrale europea.","BoE":"Decisione sui tassi della banca centrale inglese.","BoJ":"Decisione sui tassi della banca centrale giapponese.",
+  "BoC":"Decisione sui tassi della banca centrale canadese.","RBA":"Decisione sui tassi della banca centrale australiana.",
+  "RBNZ":"Decisione sui tassi della banca centrale neozelandese.","SNB":"Decisione sui tassi della banca centrale svizzera."};
+ // mercati in evidenza (bottoni grandi) e mappa: solo nomi che tutti conoscono
+ const TOP=[["GLD.US","Oro"],["EURUSD.FOREX","Euro/Dollaro"],["SPY.US","S&P 500"],["QQQ.US","Nasdaq"],["BTC-USD.CC","Bitcoin"],["USO.US","Petrolio"],["USDJPY.FOREX","Dollaro/Yen"],["TLT.US","Treasury 20 anni"]];
+ const MAPPA=[["Metalli",[["GLD.US","Oro"],["SLV.US","Argento"]]],
+  ["Azioni",[["SPY.US","S&P 500"],["QQQ.US","Nasdaq"],["DIA.US","Dow Jones"],["IWM.US","Russell 2000"],["GDAXI.INDX","DAX"],["STOXX50E.INDX","Euro Stoxx 50"],["EEM.US","Emergenti"]]],
+  ["Valute",[["EURUSD.FOREX","EUR/USD"],["GBPUSD.FOREX","GBP/USD"],["USDJPY.FOREX","USD/JPY"],["AUDUSD.FOREX","AUD/USD"],["USDCHF.FOREX","USD/CHF"],["USDCAD.FOREX","USD/CAD"]]],
+  ["Tassi e materie prime",[["TLT.US","Treasury 20 anni"],["USO.US","Petrolio"],["VIX.INDX","VIX"]]],
+  ["Crypto",[["BTC-USD.CC","Bitcoin"],["ETH-USD.CC","Ether"]]]];
+ const NOMI_M=Object.fromEntries(TOP.concat(...MAPPA.map(f=>f[1])));
+ const nomeM=s=>NOMI_M[s]||etichetta(s);
+ const maiusc=t=>t.charAt(0).toUpperCase()+t.slice(1);
+ // nomi delle notizie in inglese dentro le frasi composte (il traduttore 00t traduce solo testi interi)
+ const EN_N=typeof EB_LANG!="undefined"&&EB_LANG=="en",tn=t=>(EN_N&&typeof EB_EN!="undefined"&&EB_EN[t])||t;
+ // verso di una reazione [n, r1, %su, ...]: netto solo se almeno 65 volte su 100 nello stesso verso
+ const verso=r=>{if(!r)return null;const p=r[2];return p>=65?["su",`sale ${p} volte su 100`]:p<=35?["giu",`scende ${100-p} volte su 100`]:["piatto","nessuna direzione chiara"];};
+ const forza=x=>x>=3?[4,"moltissimo"]:x>=2?[3,"molto"]:x>=1.4?[2,"abbastanza"]:[1,"poco"];
+ const freccina=v=>v=="su"?`<i class="qe-fr up">&#9650;</i>`:v=="giu"?`<i class="qe-fr down">&#9660;</i>`:`<i class="qe-fr neu">&#8212;</i>`;
+
  function struttura(){
   el.innerHTML=`<h2>Notizie</h2>
-   <p class="sub">Come reagiscono i mercati alle notizie macro ad alto impatto, ora per ora. <b>Prima ora</b> = dalla chiusura dell'ora prima alla chiusura della candela della notizia. <b>Esito</b> = come ha reagito la valuta della notizia nella prima ora (per i dati USA il dollaro, misurato su tutte le coppie di valute): <b>forte</b> o <b>debole</b> se si è mossa almeno 1,5 volte un'ora normale, altrimenti <b>in linea</b>. È l'esito letto dal prezzo, non il confronto con il dato atteso. <b>× normale</b> = quante volte la mossa è più grande della stessa ora negli altri giorni (ultimi 30). Se il mercato era chiuso all'ora della notizia (azioni USA alle 14:30) la notizia non si conta. Le banche centrali fuori dagli USA si registrano da settembre 2026. Registro di quello che è successo, non una previsione né un consiglio.</p>
-   <div class="nm-ctl"><select class="nm-sel" aria-label="Strumento"></select><div class="nm-chips" role="group" aria-label="Driver"></div></div>
+   <p class="sub">Come reagiscono i mercati alle notizie macro più importanti. <b>Dollaro forte</b> o <b>debole</b> = come ha reagito il dollaro nella prima ora dopo la notizia, misurato su tutte le coppie di valute (per le banche centrali fuori dagli USA, la loro valuta): è l'esito letto dal prezzo. <b>90 volte su 100</b> = in 90 notizie su 100 con quell'esito il mercato è andato in quella direzione nella prima ora. <b>Quanto muove</b> = quanto è grande la prima ora rispetto alla stessa ora negli altri giorni. Tocca una card per vedere i numeri. Se il mercato era chiuso all'ora della notizia (azioni USA alle 14:30) la notizia non si conta. Registro di quello che è successo, non una previsione.</p>
+   <div class="nm-mk" role="group" aria-label="Mercato"></div>
+   <div class="chero nm-hero"></div>
+   <div class="fc-grid nm-cards"></div>
+   <div class="nm-ctl nm-ctl2"><div class="nm-chips" role="group" aria-label="Notizia"></div></div>
    <p class="nm-desc" hidden></p>
    <div class="nm-graf"></div>
-   <h3 class="vft">Dopo l'esito</h3>
-   <p class="sub">Mossa mediana dello strumento nella prima ora quando la notizia rende la sua valuta forte o debole, quante volte è salito e la mossa mediana a 24 ore. Servono almeno 8 casi.</p>
-   <div class="nm-es"></div>
-   <h3 class="vft nm-tutti-t">Su tutti gli strumenti</h3>
-   <p class="sub">La stessa misura su tutti i mercati, per il driver scelto. «Grandezza» = mediana della prima ora in volte un'ora normale. Tocca uno strumento per aprirlo.</p>
-   <div class="nm-tctl"><div class="vfc-seg nm-vis" role="group"></div><div class="nm-chips nm-fam" role="group" aria-label="Famiglia"></div></div>
-   <div class="nm-tutti"></div>
-   <h3 class="vft">Come reagisce</h3>
-   <p class="sub"><b>Forte</b> = notizie con una prima ora almeno 2 volte un'ora normale. <b>Prosegue</b> = quante volte, nelle 23 ore dopo, il prezzo continua nel verso della prima ora. Accanto, lo stesso conto su ore qualsiasi: il caso.</p>
-   <div class="nm-tab"></div>
-   <h3 class="vft">Registro</h3>
-   <div class="nm-reg"></div>`;
-  el.querySelector(".nm-sel").onchange=e=>{S.s=e.target.value;S.n=10;strumento();};
+   <h3 class="vft nm-tutti-t">Cosa fanno tutti i mercati</h3>
+   <p class="sub">Una notizia su 20 mercati che tutti conoscono: verde sale, rosso scende, grigio nessuna direzione chiara. Più è intenso il colore, più spesso va in quella direzione. Tocca un mercato per aprirlo.</p>
+   <div class="nm-chips nm-md" role="group" aria-label="Notizia della mappa"></div>
+   <div class="vfc-seg nm-mv" role="group"></div>
+   <div class="nm-map"></div>
+   <details class="nm-regd"><summary>Registro di tutte le notizie</summary><div class="nm-reg"></div></details>`;
   el.style.position="relative";
+  el.querySelector(".nm-mk").addEventListener("click",e=>{const b=e.target.closest("button[data-s]");if(!b)return;S.s=b.dataset.s;S.n=10;bottoni();strumento();});
+  el.querySelector(".nm-mk").addEventListener("change",e=>{if(!e.target.matches("select")||!e.target.value)return;S.s=e.target.value;S.n=10;bottoni();strumento();});
   const ch=el.querySelector(".nm-ctl .nm-chips");
-  ch.onclick=e=>{const b=e.target.closest("button");if(!b)return;S.d=b.dataset.d;S.n=10;togliFumetto();resto();};
+  ch.onclick=e=>{const b=e.target.closest("button");if(!b)return;S.d=b.dataset.d;S.n=10;togliFumetto();filtro();grafico();registro();};
   ch.addEventListener("pointerover",e=>{if(e.pointerType!="mouse")return;const b=e.target.closest("button[data-d]");if(!b||!INFO[b.dataset.d])return;
    togliFumetto();const f=document.createElement("div");f.className="nm-tt";f.setAttribute("role","tooltip");
    f.innerHTML=`<b>${esc(b.dataset.d)}</b>${esc(INFO[b.dataset.d])}`;el.appendChild(f);
@@ -89,18 +110,18 @@
   el.querySelector(".nm-reg").onclick=e=>{const r=e.target.closest("[data-t]");
    if(r){grafico(r.dataset.t);el.querySelector(".nm-graf").scrollIntoView({behavior:"smooth",block:"center"});return;}
    if(e.target.closest(".nm-piu")){S.n+=20;registro();}};
-  el.querySelector(".nm-tab").onclick=e=>{const r=e.target.closest("tr[data-d]");if(r){S.d=r.dataset.d;resto();}};
-  el.querySelector(".nm-es").onclick=e=>{const r=e.target.closest("tr[data-d]");if(r){S.d=r.dataset.d;resto();}};
-  el.querySelector(".nm-vis").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.v=b.dataset.v;tutti();};
-  el.querySelector(".nm-fam").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.f=b.dataset.f;S.tutti=false;tutti();};
-  el.querySelector(".nm-tutti").onclick=e=>{if(e.target.closest(".nm-ogni")){S.tutti=true;tutti();return;}
-   const r=e.target.closest("[data-s]");if(!r)return;S.s=r.dataset.s;S.n=10;
-   el.querySelector(".nm-sel").value=S.s;strumento();el.scrollIntoView({behavior:"smooth"});};}
+  el.querySelector(".nm-md").onclick=e=>{const b=e.target.closest("button");if(b){S.md=b.dataset.d;mappa();}};
+  el.querySelector(".nm-mv").onclick=e=>{const b=e.target.closest("button");if(b){S.mv=+b.dataset.v;mappa();}};
+  el.querySelector(".nm-map").onclick=e=>{const t=e.target.closest("[data-s]");if(!t)return;S.s=t.dataset.s;S.n=10;bottoni();strumento();
+   el.querySelector(".nm-mk").scrollIntoView({behavior:"smooth",block:"start"});};}
 
  function togliFumetto(){el.querySelectorAll(".nm-tt").forEach(x=>x.remove());}
- function menu(){const L=S.I.sim;if(!L.some(x=>x.s==S.s))S.s=L[0].s;
-  el.querySelector(".nm-sel").innerHTML=GRUPPI.map(([g,f])=>{const q=L.filter(x=>f(x.s));
-   return q.length?`<optgroup label="${g}">${q.map(x=>`<option value="${esc(x.s)}"${x.s==S.s?" selected":""}>${esc(etichetta(x.s))}${vecchio(x)?` (fino al ${x.al.slice(0,4)})`:""}</option>`).join("")}</optgroup>`:"";}).join("");}
+ // 1) mercati: 8 bottoni grandi + "Altri mercati" (tutti gli altri, per famiglia)
+ function bottoni(){const L=S.I.sim,ci=new Set(L.map(x=>x.s)),top=TOP.filter(t=>ci.has(t[0])),inTop=top.some(t=>t[0]==S.s);
+  el.querySelector(".nm-mk").innerHTML=top.map(([s,n])=>`<button type="button" data-s="${s}" class="${s==S.s?"on":""}">${n}</button>`).join("")+
+   `<select class="nm-sel${inTop?"":" on"}" aria-label="Altri mercati"><option value="">${inTop?"Altri mercati":esc(nomeM(S.s))}</option>`+
+   GRUPPI.map(([g,f])=>{const q=L.filter(x=>f(x.s)&&!top.some(t=>t[0]==x.s));
+    return q.length?`<optgroup label="${g}">${q.map(x=>`<option value="${esc(x.s)}">${esc(etichetta(x.s))}${vecchio(x)?` (fino al ${x.al.slice(0,4)})`:""}</option>`).join("")}</optgroup>`:"";}).join("")+`</select>`;}
 
  function strumento(){const g=el.querySelector(".nm-graf");g.innerHTML=`<p class="small">Caricamento&hellip;</p>`;
   leggi(BASE+S.s+".json").then(X=>{if(!X){g.innerHTML=`<p class="small">Dati non disponibili per questo strumento.</p>`;return;}
@@ -114,53 +135,53 @@
   if(!window.ebCandele){g.innerHTML="";return;}
   window.ebCandele(g,{id:"nm",generato:foco,opz:{sym:X.s,ann:E,dal:H1_DAL}});}
 
- function resto(){const X=S.X,n={};X.ev.forEach(e=>n[e[1]]=(n[e[1]]||0)+1);
+ function filtro(){const X=S.X,n={};X.ev.forEach(e=>n[e[1]]=(n[e[1]]||0)+1);
   const dd=Object.keys(n).sort((a,b)=>n[b]-n[a]);
   el.querySelector(".nm-ctl .nm-chips").innerHTML=[["","Tutte"]].concat(dd.map(d=>[d,d])).map(([d,t])=>`<button type="button" data-d="${esc(d)}" class="${d==S.d?"on":""}">${esc(t)}</button>`).join("");
-  const ds=el.querySelector(".nm-desc"),txt=TOCCO&&S.d&&INFO[S.d];ds.hidden=!txt;if(txt)ds.textContent=INFO[S.d];
-  esiti();tutti();tabella();registro();grafico();}
+  const ds=el.querySelector(".nm-desc"),txt=TOCCO&&S.d&&INFO[S.d];ds.hidden=!txt;if(txt)ds.textContent=INFO[S.d];}
 
- // 2) la formula per lo strumento scelto: valuta forte / valuta debole
- const cella=r=>r?`<b class="${cl(r[1])}">${pc(r[1])}</b><small>sale ${r[2]}% · ${r[0]} casi</small><small>24 ore ${pc(r[3])}</small>`:`<span class="nm-nd">pochi casi</span>`;
- function esiti(){const X=S.X,E=X.es||{},T=X.st.map(x=>x.n).filter(d=>(!S.d||d==S.d)&&E[d]),box=el.querySelector(".nm-es");
-  if(!T.length){box.innerHTML=`<p class="small">Non ancora abbastanza casi con un esito netto.</p>`;return;}
-  const uno=new Set(T.map(valuta)).size==1,v=uno?valuta(T[0]):"valuta";
-  box.innerHTML=`<div class="nm-tw"><table class="nm-t nm-e"><thead><tr><th>Driver</th><th>${v.charAt(0).toUpperCase()+v.slice(1)} forte</th><th>${uno?v.charAt(0).toUpperCase()+v.slice(1)+" debole":"Debole"}</th></tr></thead><tbody>`+
-   T.map(d=>`<tr data-d="${esc(d)}"><td><b>${esc(d)}</b>${uno?"":`<small>${valuta(d)}</small>`}</td><td>${cella(E[d]["+"])}</td><td>${cella(E[d]["-"])}</td></tr>`).join("")+`</tbody></table></div>`;}
+ function resto(){filtro();testata();carte();grafico();mappa();registro();}
 
- // 3) su tutti gli strumenti: esito forte, esito debole o grandezza; filtro per famiglia
- function tutti(){const d=S.d||"NFP USA",fam=GRUPPI.find(g=>g[0]==S.f),v=valuta(d);
-  el.querySelector(".nm-tutti-t").firstChild.textContent=`${d} su tutti gli strumenti`;
-  el.querySelector(".nm-vis").innerHTML=[["+",`${v.charAt(0).toUpperCase()+v.slice(1)} forte`],["-","Debole"],["x","Grandezza"]].map(([k,t])=>`<button type="button" data-v="${k}" class="${S.v==k?"on":""}">${t}</button>`).join("");
-  el.querySelector(".nm-fam").innerHTML=[["","Tutti"]].concat(GRUPPI.map(g=>[g[0],g[0]])).map(([k,t])=>`<button type="button" data-f="${k}" class="${S.f==k?"on":""}">${t}</button>`).join("");
-  const box=el.querySelector(".nm-tutti"),es=S.v!="x",idx=S.v=="+"?3:4;
-  let L=S.I.sim.filter(x=>x.m[d]&&(!fam||fam[1](x.s)));
-  L=es?L.filter(x=>x.m[d][idx]).sort((a,b)=>b.m[d][idx][1]-a.m[d][idx][1]):L.sort((a,b)=>b.m[d][1]-a.m[d][1]);
-  if(!L.length){box.innerHTML=`<p class="small">Non ancora abbastanza casi per questo driver.</p>`;return;}
-  const M=S.tutti?L:L.slice(0,12);
-  if(es){const mx=Math.max(...L.map(x=>Math.abs(x.m[d][idx][1])))||1;
-   box.innerHTML=`<div class="nm-bars nm-div">${M.map(x=>{const r=x.m[d][idx],w=(Math.abs(r[1])/mx*50).toFixed(1);
-    return `<button type="button" data-s="${esc(x.s)}" class="${x.s==S.s?"on":""}"><span>${esc(etichetta(x.s))}</span>
-     <i><i class="${r[1]>=0?"su":"giu"}" style="${r[1]>=0?"left:50%":"right:50%"};width:${w}%"></i></i><b class="${cl(r[1])}">${pc(r[1])}</b><small>sale ${r[2]}% · ${r[0]}</small></button>`;}).join("")}</div>`;}
-  else{const mx=Math.max(...L.map(x=>x.m[d][1]));
-   box.innerHTML=`<div class="nm-bars">${M.map(x=>`<button type="button" data-s="${esc(x.s)}" class="${x.s==S.s?"on":""}"><span>${esc(etichetta(x.s))}</span>
-    <i><i style="width:${(x.m[d][1]/mx*100).toFixed(1)}%"></i></i><b>${fx(x.m[d][1],1)}×</b><small>${fx(x.m[d][2],2)}% · ${x.m[d][0]}</small></button>`).join("")}</div>`;}
-  if(L.length>M.length)box.insertAdjacentHTML("beforeend",`<button type="button" class="nm-piu nm-ogni">Mostra tutti (${L.length})</button>`);}
+ // 2) frase in alto: le notizie che lo muovono di piu' e un esempio con l'esito
+ function testata(){const X=S.X,T=X.st.slice().sort((a,b)=>b.x-a.x),nm=nomeM(S.s);
+  const tre=T.slice(0,3).map(d=>esc(tn(d.n))).join(", ").replace(/, ([^,]*)$/,(EN_N?" and ":" e ")+"$1");
+  const d=T.find(d=>X.es&&X.es[d.n]&&verso(X.es[d.n]["+"])&&verso(X.es[d.n]["+"])[0]!="piatto"),v=d&&verso(X.es[d.n]["+"]);
+  el.querySelector(".nm-hero").innerHTML=`<small>Notizie · ${esc(nm)}</small><h3>Cosa muove ${nm=="Oro"?"l'oro":esc(nm)}</h3>
+   <p>${T.length?`Le notizie che lo muovono di più: <b>${tre}</b>.`:"Non ancora abbastanza notizie misurate."}${v?` Esempio: dopo ${d.n=="Fed"?"la Fed":esc(d.n)}, se il ${valuta(d.n)} esce forte <b class="${v[0]=="su"?"ch-su":"ch-giu"}">${v[1]}</b>.`:""}</p>`;}
 
- // 4) grandezza e prosecuzione contro il caso
- function tabella(){const X=S.X,c=X.ctrl||{},T=X.st.filter(x=>!S.d||x.n==S.d),box=el.querySelector(".nm-tab");
-  if(!T.length){box.innerHTML=`<p class="small">Meno di 12 notizie misurate: statistiche quando il registro sarà più lungo.</p>`;return;}
-  box.innerHTML=`<div class="nm-tw"><table class="nm-t"><thead><tr><th>Driver</th><th>Prima ora</th><th>Forte (≥2×)</th><th>Prosegue</th><th class="nm-x">Prosegue se grande (≥3×)</th></tr></thead><tbody>`+
-   T.map(x=>`<tr data-d="${esc(x.n)}"><td><b>${esc(x.n)}</b><small>${x.casi} casi · dal ${x.dal}</small></td>
-    <td>${fx(x.r1,2)}%<small>${fx(x.x,1)}× normale</small></td>
-    <td>${x.forte}%<small>caso ${c.forte}%</small></td>
-    <td>${x.seg}%<small>caso ${c.seg}%</small></td>
-    <td class="nm-x">${x.segG==null?"n/d":x.segG+"%"}<small>${x.nG} casi · caso ${c.segG}%</small></td></tr>`).join("")+`</tbody></table></div>`;}
+ // 3) una card per notizia: davanti il messaggio, dietro i numeri
+ function carte(){const X=S.X,T=X.st.slice().sort((a,b)=>b.x-a.x),c=X.ctrl||{},box=el.querySelector(".nm-cards");
+  if(!T.length){box.innerHTML=`<p class="small">Meno di 12 notizie misurate: le card arrivano quando il registro sarà più lungo.</p>`;return;}
+  box.innerHTML=T.map(d=>{const [k,w]=forza(d.x),e=(X.es||{})[d.n]||{},v=maiusc(valuta(d.n)),p=verso(e["+"]),m=verso(e["-"]);
+   const riga=(lab,r)=>`<div class="nm-er"><span class="fc-ic2 ${r?r[0]:"piatto"}">${fcIco(r?r[0]:"piatto")}</span><div><b>${r?r[1]:"pochi casi"}</b><small>${lab}</small></div></div>`;
+   const kv=[["Mossa tipica",`${fx(d.r1,2)}%<span class="nm-caso">${fx(d.x,1)}× il normale</span>`],["Prosegue dopo",`${d.seg}%<span class="nm-caso">caso ${c.seg}%</span>`],
+    e["+"]?[`${v} forte`,`${freccina(e["+"][1]>=0?"su":"giu")} ${pc(e["+"][1])}<span class="nm-caso">a 24 ore ${pc(e["+"][3])}</span>`]:null,
+    e["-"]?[`${v} debole`,`${freccina(e["-"][1]>=0?"su":"giu")} ${pc(e["-"][1])}<span class="nm-caso">a 24 ore ${pc(e["-"][3])}</span>`]:null].filter(Boolean);
+   return `<div class="fc nm-fc" role="button" tabindex="0" aria-pressed="false" aria-label="${esc(d.n)}: tocca per i numeri"><div class="fc-in">
+    <div class="fc-fr"><div class="fc-top"><div><b>${esc(d.n)}</b></div><span class="fc-gira" title="Tocca per i numeri">${fcIco("gira")}</span></div>
+     <p class="nm-cosa">${esc(BREVE[d.n]||INFO[d.n]||"")}</p>
+     <div class="nm-forza" title="Quanto è grande la prima ora rispetto a un'ora normale"><i>${[1,2,3,4].map(i=>`<b class="${i<=k?"on":""}"></b>`).join("")}</i>muove ${w}</div>
+     <div class="nm-esiti">${riga(v+" forte",p)}${riga(v+" debole",m)}</div></div>
+    <div class="fc-bk"><div class="fc-top"><div><b>${esc(d.n)}</b><small>${d.casi} notizie dal ${d.dal}</small></div><span class="fc-gira">${fcIco("gira")}</span></div>
+     <dl class="fc-kv nm-kv">${kv.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join("")}</dl></div></div></div>`;}).join("");}
 
- // 5) registro con l'esito di ogni notizia
+ // 5) mappa: una notizia su 20 mercati noti, con dollaro forte o debole
+ function mappa(){const I=S.I,usati=new Set(I.sim.flatMap(x=>Object.keys(x.m)));
+  const dd=Object.keys(BREVE).filter(d=>usati.has(d)&&I.sim.some(x=>x.m[d]&&(x.m[d][3]||x.m[d][4])));
+  if(!dd.includes(S.md))S.md=dd[0];const v=maiusc(valuta(S.md));
+  el.querySelector(".nm-tutti-t").firstChild.textContent=`${S.md}: cosa fanno tutti i mercati`;
+  el.querySelector(".nm-md").innerHTML=dd.map(d=>`<button type="button" data-d="${esc(d)}" class="${d==S.md?"on":""}">${esc(d)}</button>`).join("");
+  el.querySelector(".nm-mv").innerHTML=[[3,`Se esce ${v.toLowerCase()} forte`],[4,`Se esce ${v.toLowerCase()} debole`]].map(([k,t])=>`<button type="button" data-v="${k}" class="${S.mv==k?"on":""}">${t}</button>`).join("");
+  const per=Object.fromEntries(I.sim.map(x=>[x.s,x]));
+  el.querySelector(".nm-map").innerHTML=MAPPA.map(([f,L])=>{const q=L.filter(([s])=>per[s]&&per[s].m[S.md]&&per[s].m[S.md][S.mv]);
+   if(!q.length)return "";
+   return `<div class="nm-fam2">${f}</div><div class="nm-tiles">${q.map(([s,n])=>{const r=per[s].m[S.md][S.mv],vv=verso(r),a=vv[0]=="piatto"?0:Math.abs(r[2]-50)/50;
+    return `<button type="button" class="nm-tile ${vv[0]}${s==S.s?" sel":""}" data-s="${s}" style="--a:${a.toFixed(2)}" title="${esc(n)}: ${vv[1]} (${r[0]} notizie)"><b>${esc(n)}</b><span>${freccina(vv[0])}${vv[0]=="piatto"?"incerto":(vv[0]=="su"?r[2]:100-r[2])+" su 100"}</span></button>`;}).join("")}</div>`;}).join("")||`<p class="small">Non ancora abbastanza casi per questa notizia.</p>`;}
+
+ // 6) registro con l'esito di ogni notizia (chiuso: si apre a richiesta)
  function registro(){const X=S.X,E=X.ev.filter(e=>!S.d||e[1]==S.d).slice().reverse(),box=el.querySelector(".nm-reg");
   const conGraf=t=>t>=H1_DAL;
-  box.innerHTML=`<div class="nm-tw"><table class="nm-t nm-r"><thead><tr><th>Quando</th><th>Driver</th><th>Prima ora</th><th class="nm-x">4 ore</th><th>24 ore</th></tr></thead><tbody>`+
+  box.innerHTML=`<div class="nm-tw"><table class="nm-t nm-r"><thead><tr><th>Quando</th><th>Notizia</th><th>Prima ora</th><th class="nm-x">4 ore</th><th>24 ore</th></tr></thead><tbody>`+
    E.slice(0,S.n).map(e=>`<tr${conGraf(e[0])?` data-t="${e[0]}" class="nm-cl"`:""}><td>${GG.format(Date.parse(e[0]))}<small>${HH.format(Date.parse(e[0]))}</small></td>
     <td>${esc(e[1])}${e[7]!=null?`<small class="nm-es${e[7]}">${valuta(e[1])} ${ESITO[e[7]]}</small>`:""}</td>
     <td><b class="${cl(e[2])}">${pc(e[2])}</b><small>${fx(e[5],1)}×</small></td><td class="nm-x">${pc(e[3])}</td><td>${pc(e[4])}</td></tr>`).join("")+`</tbody></table></div>`+
@@ -170,7 +191,7 @@
  let fatto=false;
  function apri(){if(fatto||!EB_PREMIUM)return;fatto=true;struttura();
   leggi(BASE+"indice.json").then(I=>{if(!I||!I.sim||!I.sim.length){el.querySelector(".nm-graf").innerHTML=`<p class="small">Il registro delle notizie arriva con il prossimo aggiornamento notturno.</p>`;return;}
-   S.I=I;menu();strumento();});}
+   S.I=I;if(!I.sim.some(x=>x.s==S.s))S.s=I.sim[0].s;bottoni();strumento();});}
  if(bt)bt.addEventListener("click",apri);
  if(el.classList.contains("on"))apri();
  window.ebNotizieMacro={stato:S,apri};

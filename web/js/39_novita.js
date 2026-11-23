@@ -10,6 +10,8 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-23T22",t:"Aggiornamento scheda COT",x:"Più semplice: in alto dove comprano e vendono i grandi investitori, poi una card per strumento con una parola e una freccia. Tocca la card per girarla e vedere i numeri e il grafico.",s:"assets",h:"mercati",p:true},
+  {d:"2026-11-23T21",t:"Aggiornamento scheda Notizie",x:"Più semplice: per ogni mercato le notizie che lo muovono, con una frase e una freccia («scende 90 volte su 100»). Tocca la card per i numeri; sotto, la mappa di 20 mercati per notizia.",s:"notizie",h:"mercati",p:true},
   {d:"2026-11-23T20",t:"Aggiornamento scheda Notizie",x:"Cos'è ogni notizia: passa il mouse su NFP, CPI, Fed e le altre (da telefono sceglila) e leggi in due righe cosa misura e cosa muove.",s:"notizie",h:"mercati",p:true},
   {d:"2026-11-23T19",t:"Aggiornamento scheda Notizie",x:"Grafico più preciso da telefono e da PC: scala dei prezzi come TradingView, mirino tenendo fermo il dito, zoom anche trascinando la scala del tempo. Vale anche per il grafico della Live.",s:"notizie",h:"mercati",p:true},
   {d:"2026-11-23T17",t:"Nuova scheda Notizie",x:"NFP, CPI, Fed, vendite, PIL e banche centrali: come reagiscono cambi, oro, indici e crypto quando il dollaro esce forte o debole. Grafico orario con la traccia di ogni notizia.",s:"notizie",h:"mercati",p:true},
