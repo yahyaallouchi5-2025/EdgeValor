@@ -307,4 +307,19 @@ def vista(eventi, strum, integra, completi):
             "unita": {k: v[0] for k, v in unita.items()},
             "profilo": {k: motore.profilo(d["_pts"]) for k, d in strum.items()}, "eventi": len(eventi), "integra": integra,
             "ultimo_hash": eventi[-1]["hash"] if eventi else None, "completi": completi,
-            "dal": motore.ora_italia(eventi[0]["generato"]) if eventi and eventi[0].get("generato") else None}
+            "dal": motore.ora_italia(eventi[0]["generato"]) if eventi and eventi[0].get("generato") else None,
+            "mon": _monitoraggio(eventi)}
+
+
+def _monitoraggio(eventi):
+    """v8.83 annunci e uscite del COT dal primo segnale a oggi per le candele orarie (mai bloccante)."""
+    try:
+        from datetime import date, timedelta
+        from . import perche
+        if not eventi or not eventi[0].get("generato"):
+            return None
+        dal = date.fromisoformat(eventi[0]["generato"][:10]) - timedelta(days=3)
+        return perche.monitoraggio(dal, date.today())
+    except Exception as e:                            # le candele restano, senza linee in piu'
+        log.warning("registro: monitoraggio annunci/COT non calcolato (%s)", e)
+        return None

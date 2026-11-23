@@ -58,3 +58,21 @@ class TestPerche(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Monitoraggio(unittest.TestCase):
+    """v8.83 annunci e uscite del COT per le linee delle candele orarie (perche.monitoraggio)."""
+    def test_cot_e_annunci(self):
+        from datetime import date
+        from cot_radar import perche as P
+        m = P.monitoraggio(date(2026, 9, 1), date(2026, 11, 22))
+        self.assertIn("2026-11-16T20:30Z", m["cot"])       # Veterans Day: il COT esce lunedi' 16/11 (15:30 New York)
+        self.assertNotIn("2026-11-13T20:30Z", m["cot"])
+        self.assertIn("2026-09-04T19:30Z", m["cot"])       # ora legale USA: 15:30 New York = 19:30 UTC
+        nomi = {(a[0], a[1]) for a in m["ann"]}
+        self.assertIn(("2026-09-10T12:15Z", "BCE"), nomi)    # 14:15 Francoforte, ora legale
+        self.assertIn(("2026-09-02T02:00Z", "RBNZ"), nomi)   # 14:00 Wellington, ora solare
+        self.assertIn(("2026-09-29T04:30Z", "RBA"), nomi)
+        self.assertTrue(all(a[0][:10] >= "2026-09-01" for a in m["ann"]))
+        boj = [a for a in m["ann"] if a[1] == "BoJ"]
+        self.assertTrue(boj and all(len(a) == 4 for a in boj))   # ora indicativa segnata

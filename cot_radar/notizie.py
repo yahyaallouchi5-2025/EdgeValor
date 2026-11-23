@@ -49,6 +49,7 @@ CALENDARIO = [
     ("2027-07-28", 14, 0, "ET", "Fed (FOMC)", "USD", "banca"), ("2027-09-15", 14, 0, "ET", "Fed (FOMC)", "USD", "banca"),
     ("2027-10-27", 14, 0, "ET", "Fed (FOMC)", "USD", "banca"), ("2027-12-08", 14, 0, "ET", "Fed (FOMC)", "USD", "banca"),
     # --- Eurozona: decisione BCE (14:15 Francoforte, conferenza stampa 14:45)
+    ("2026-09-10", 14, 15, "CET", "BCE", "EUR", "banca"),   # v8.83 per le linee delle candele orarie (dal registro live)
     ("2026-10-29", 14, 15, "CET", "BCE", "EUR", "banca"), ("2026-12-17", 14, 15, "CET", "BCE", "EUR", "banca"),
     ("2027-02-04", 14, 15, "CET", "BCE", "EUR", "banca"), ("2027-03-18", 14, 15, "CET", "BCE", "EUR", "banca"),
     ("2027-04-29", 14, 15, "CET", "BCE", "EUR", "banca"), ("2027-06-10", 14, 15, "CET", "BCE", "EUR", "banca"),

@@ -117,3 +117,31 @@ def notizie_segnale(s, m, lista=None):
     pg = {"k": peggiore[1], "d": peggiore[2], "m": peggiore[0], "ev": peggiore[3]} if peggiore[0] < 0 else None
     return {"ev": ev, "pg": pg}
 
+
+# v8.83 MONITORAGGIO SULLE CANDELE ORARIE (richiesta di Ya, 23/11/2026): non solo gli annunci dentro il trade, ma TUTTI
+# gli annunci e TUTTE le uscite del report COT dal primo segnale del registro a oggi, per vedere come si muove il prezzo
+# dopo ogni notizia e dopo ogni COT anche quando il segnale e' chiuso. La pagina (13c_candele.js) sceglie gli annunci
+# pertinenti allo strumento con la stessa regola di valute(): coppia -> le sue due valute, tutto il resto -> USD.
+def monitoraggio(dal, al):
+    """{"ann": [[istante "AAAA-MM-GGTHH:MMZ", nome, valuta, (1 se ora indicativa)]], "cot": [istanti di uscita del COT]}
+    tra le date `dal` e `al` (oggetti date, estremi compresi). Uscita del COT = 15:30 di New York del giorno reale
+    (venerdi', o il lunedi' dopo nelle settimane con una festivita' federale: calendario.uscita_cot)."""
+    from datetime import timedelta
+    from .calendario import et_to_utc, uscita_cot
+    ann = []
+    for t, nome, val in annunci():
+        g = t.date()
+        if dal <= g <= al:
+            r = [t.strftime("%Y-%m-%dT%H:%MZ"), nome, val]
+            if nome == "BoJ":
+                r.append(1)
+            ann.append(r)
+    cot = []
+    ven = dal + timedelta(days=(4 - dal.weekday()) % 7)              # primo venerdi' da `dal`
+    while ven <= al + timedelta(days=4):
+        u = uscita_cot(ven)
+        if dal <= u <= al:
+            cot.append(_aware(et_to_utc(u, 15, 30)).strftime("%Y-%m-%dT%H:%MZ"))
+        ven += timedelta(days=7)
+    return {"ann": ann, "cot": cot}
+
