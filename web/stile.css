@@ -3910,3 +3910,7 @@ html.vfcaperto,html.vfcaperto body{overflow:hidden}
 .nm-regd[open]{padding-bottom:12px}
 @media (max-width:640px){.nm-mk button{padding:8px 12px;font-size:13.5px}.nm-tiles{grid-template-columns:1fr 1fr}.nm-mk .nm-sel{max-width:100%;flex:1}}
 .nm-ctl2{margin-top:22px}
+
+/* v8.92 pulsante ufficiale di Google (35z_google.js): centrato, altezza fissa per non far saltare la scheda */
+.gis{display:flex;justify-content:center;min-height:44px;width:100%}
+.gis iframe{margin:0 auto!important}

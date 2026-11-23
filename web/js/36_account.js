@@ -176,6 +176,8 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   const g=f.querySelector(".pfgoogle");if(g)g.onclick=()=>{try{window.ebStat&&ebStat.ev("accesso",{passo:"google"});}catch(_){}
    const torna=location.href.split("#")[0].split("?")[0];
    location.href=API+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(torna);};
+  // v8.92 pulsante ufficiale di Google (35z_google.js): la finestra di Google mostra edgevalor.com e non Supabase
+  if(g&&window.ebGoogle)ebGoogle.monta(f,{sel:".pfgoogle",tema:"outline",errore:m=>{es.className="fbesito ko";es.textContent=m;}});
   f.onsubmit=async e=>{e.preventDefault();const mail=f.email.value.trim().toLowerCase();
    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){es.className="fbesito ko";es.textContent="L'email non sembra valida.";f.email.focus();return;}
    if(Date.now()-ultimoInvio<60000){es.className="fbesito ko";es.textContent="Ti ho appena mandato un link: aspetta un minuto.";return;}
