@@ -31,18 +31,21 @@ CORTI = {"NFP": "NFP USA", "CPI": "CPI USA", "FOMC": "Fed", "boe": "BoE", "boj":
          "rbnz": "RBNZ", "snb": "SNB"}
 VALUTA = {"boe": "GBP", "boj": "JPY", "boc": "CAD", "rba": "AUD", "rbnz": "NZD", "snb": "CHF"}
 VALUTE = ("EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "MXN", "BRL", "ZAR", "USD")
-_cache = None
+_cache = {}
 
 
 def _aware(t):
     return t.replace(tzinfo=timezone.utc) if t.tzinfo is None else t.astimezone(timezone.utc)
 
 
-def annunci():
-    """[(istante UTC, nome breve, valuta)] in ordine di tempo, senza doppioni. Una volta per processo."""
-    global _cache
-    if _cache is not None:
-        return _cache
+def annunci(tutte=False, rete=False):
+    """[(istante UTC, nome breve, valuta)] in ordine di tempo, senza doppioni. Una volta per processo.
+    v8.87 tutte=True aggiunge gli altri dati USA ad alto impatto (uscite_usa.py: vendite, PPI, PCE, PIL, JOLTS), usati
+    dal registro delle Notizie macro (impatto.py). Il grafico della scheda Live resta con NFP, CPI e banche centrali.
+    Con tutte=True e rete=True si rileggono anche le date nuove da ALFRED (rilasci di ieri): lo fa solo il giro
+    notturno (stagionalita_orari.calcola), la prima chiamata riempie la cache e le altre la riusano."""
+    if tutte in _cache:
+        return _cache[tutte]
     from .calendario import et_to_utc
     out = set()
     try:                                              # USA: storico + date future (gia' uniti da eventi.carica)
@@ -67,8 +70,16 @@ def annunci():
                 out.add((datetime.strptime(u, "%Y-%m-%dT%H:%MZ").replace(tzinfo=timezone.utc), CORTI[cod], VALUTA[cod]))
     except Exception as e:
         log.warning("perche': banche centrali non lette (%s)", e)
-    _cache = sorted(out)
-    return _cache
+    if tutte:
+        try:
+            from .uscite_usa import carica as altre
+            for d, h, nome in altre(rete=rete):
+                ore = int(h)
+                out.add((_aware(et_to_utc(date.fromisoformat(d), ore, round((h - ore) * 60))), nome, "USD"))
+        except Exception as e:                        # noqa: BLE001 - mai bloccante
+            log.warning("perche': altri dati USA non letti (%s)", e)
+    _cache[tutte] = sorted(out)
+    return _cache[tutte]
 
 
 def valute(strumento, base=None, quote=None):

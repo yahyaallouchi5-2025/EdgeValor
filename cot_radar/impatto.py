@@ -25,10 +25,13 @@ Niente previsioni: e' un registro di quello che e' successo. La SORPRESA (dato u
 quando ci sara' una fonte del consenso.
 
 USCITA (<uscita>/impatto/):
-  <SIMBOLO>.json = {"s", "n", "ev": [[istante "AAAA-MM-GGTHH:MMZ", driver, r1, r4, r24, x, dopo]], "st": [...],
-                    "ctrl": {"forte", "seg", "segG"}}
-  indice.json    = {"agg", "sim": [{"s", "n", "c": numero notizie, "m": {driver: [casi, x mediana, r1 mediana]}}]}
-USO: stagionalita_orari.calcola() chiama scrivi() per ogni simbolo e indice() alla fine (mai bloccante).
+  <SIMBOLO>.json = {"s", "n", "ev": [[istante "AAAA-MM-GGTHH:MMZ", driver, r1, r4, r24, x, dopo, esito]], "st": [...],
+                    "es": {driver: {"+": [n, r1, %su, r24, %su24], "-": [...]}}, "ctrl": {"forte", "seg", "segG"}}
+                   esito = +1 valuta della notizia forte, -1 debole, 0 in linea, null se non si legge (v8.87, vedi sotto)
+  indice.json    = {"agg", "soglia", "val": {driver: valuta}, "sim": [{"s", "n", "c", "al", "m": {driver: [casi,
+                    x mediana, r1 mediana, esito+ [n, r1, %su, r24, %su24], esito- [...]]}}]}
+v8.87 DRIVER: anche vendite al dettaglio, PPI, PCE, PIL e JOLTS USA (uscite_usa.py, via perche.annunci(tutte=True)).
+USO: stagionalita_orari.calcola() chiama prepara() per ogni simbolo e chiudi() alla fine (mai bloccante).
 DEBUG: python -m cot_radar.impatto <cartella archivio> <simbolo>
 """
 import json
@@ -70,7 +73,7 @@ def reazioni(ore, valute, annunci=None):
     T = sorted(ore)
     C = [ore[t][3] for t in T]
     out = []
-    for t, nome, val in (perche.annunci() if annunci is None else annunci):
+    for t, nome, val in (perche.annunci(tutte=True) if annunci is None else annunci):
         if val not in valute:
             continue
         s = int(t.timestamp())
@@ -143,26 +146,117 @@ def valute(strumento):
     return perche.valute(strumento) | {"USD"}
 
 
-def scrivi(sym, nome, ore, uscita, strumento=None):
-    """Scrive <uscita>/impatto/<SIMBOLO>.json. Restituisce la riga dell'indice (None se meno di MIN_CASI notizie)."""
+# --------------------------------------------------------------------------- v8.87 ESITO LETTO DAL PREZZO
+# Richiesta di Ya (23/11/2026): per ogni notizia, in base all'ESITO, come si e' comportato ogni mercato.
+# Senza il dato atteso (consenso) l'esito si legge dal prezzo: come ha reagito la VALUTA della notizia nella prima ora.
+#   forza della valuta = media, su tutte le coppie di valute dell'archivio che la contengono, della mossa della prima ora
+#   in "volte un'ora normale" con il segno della valuta (+ se e' la prima valuta della coppia, - se e' la seconda);
+#   esito +1 (valuta forte) se la forza e' almeno SOGLIA, -1 (debole) se e' al massimo -SOGLIA, 0 (in linea) altrimenti.
+# Per una coppia di valute la sua stessa mossa non entra nel conto (niente cerchio: EUR/USD non "spiega" se stesso).
+# Poi, per ogni strumento e ogni driver: con esito forte e con esito debole, mossa mediana della prima ora e delle 24 ore
+# e quante volte e' salito. E' la "formula" per famiglia (cambi, metalli, indici, ETF, crypto).
+SOGLIA = 1.5            # forza minima della valuta (volte un'ora normale) per dire "forte" o "debole"
+MIN_COPPIE = 3          # coppie minime per leggere la forza della valuta
+MIN_ESITO = 8           # casi minimi per mostrare la reazione di uno strumento a un esito
+VAL = ("EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "USD")
+
+
+def _coppia(sym):
+    """'EURUSD.FOREX' -> ('EUR', 'USD'); None per tutto il resto (metalli compresi)."""
+    b = sym.split(".")[0]
+    return (b[:3], b[3:]) if sym.endswith(".FOREX") and len(b) == 6 and b[:3] in VAL and b[3:] in VAL else None
+
+
+def prepara(sym, nome, ore, strumento=None):
+    """Primo passo (un simbolo alla volta, poi le candele si liberano): reazioni e controllo. None se poche notizie."""
     k = strumento or sym.split(".")[0]
     ev = reazioni(ore, valute(k))
     if len(ev) < MIN_CASI:
         return None
-    stt = statistiche(ev)
-    cart = os.path.join(uscita, "impatto")
-    os.makedirs(cart, exist_ok=True)
-    with open(os.path.join(cart, sym.replace("/", "_") + ".json"), "w") as fh:
-        json.dump({"s": sym, "n": nome, "ev": ev, "st": stt, "ctrl": controllo(ore)}, fh, separators=(",", ":"))
-    return {"s": sym, "n": nome, "c": len(ev), "m": {d["n"]: [d["casi"], d["x"], d["r1"]] for d in stt}}
+    return {"s": sym, "n": nome, "ev": ev, "ctrl": controllo(ore)}
 
 
-def indice(righe, uscita):
+def _z(e):
+    return e[5] if e[2] >= 0 else -e[5]                     # mossa con segno, in volte un'ora normale
+
+
+def esiti(dati, valuta_di):
+    """{(istante, driver): (somma, numero, {simbolo: contributo})} = forza della valuta della notizia."""
+    F = {}
+    for d in dati:
+        cp = _coppia(d["s"])
+        if not cp:
+            continue
+        for e in d["ev"]:
+            v = valuta_di.get(e[1])
+            if v not in cp:
+                continue
+            c = _z(e) * (1 if cp[0] == v else -1)
+            k = (e[0], e[1])
+            s, n, per = F.get(k, (0.0, 0, {}))
+            per[d["s"]] = c
+            F[k] = (s + c, n + 1, per)
+    return F
+
+
+def esito(F, k, sym):
+    """+1 / -1 / 0 per la notizia k vista dallo strumento sym (senza la sua stessa mossa); None se non si legge."""
+    if k not in F:
+        return None
+    s, n, per = F[k]
+    if sym in per:
+        s, n = s - per[sym], n - 1
+    if n < MIN_COPPIE:
+        return None
+    f = s / n
+    return 1 if f >= SOGLIA else -1 if f <= -SOGLIA else 0
+
+
+def _reaz(L, i):
+    v = [e[i] for e in L if e[i] is not None]
+    if not v:
+        return None, None
+    return round(st.median(v), 3), round(sum(1 for x in v if x > 0) / len(v) * 100)
+
+
+def per_esito(ev):
+    """{driver: {"+": [n, r1 mediana, % su nella 1a ora, r24 mediana, % su a 24 ore], "-": [...]}} (solo con MIN_ESITO casi)."""
+    out = {}
+    for d in sorted({e[1] for e in ev}):
+        for seg, v in (("+", 1), ("-", -1)):
+            L = [e for e in ev if e[1] == d and len(e) > 7 and e[7] == v]
+            if len(L) < MIN_ESITO:
+                continue
+            m1, p1 = _reaz(L, 2)
+            m24, p24 = _reaz(L, 4)
+            out.setdefault(d, {})[seg] = [len(L), m1, p1, m24, p24]
+    return out
+
+
+def chiudi(dati, uscita, annunci=None):
+    """Secondo passo: esiti, statistiche, file per simbolo e indice. dati = lista di prepara() (None ignorati)."""
+    dati = [d for d in dati if d]
+    valuta_di = {n: v for _, n, v in (perche.annunci(tutte=True) if annunci is None else annunci)}
+    F = esiti(dati, valuta_di)
     cart = os.path.join(uscita, "impatto")
     os.makedirs(cart, exist_ok=True)
+    righe = []
+    for d in dati:
+        for e in d["ev"]:
+            del e[7:]
+            e.append(esito(F, (e[0], e[1]), d["s"]))
+        stt, es = statistiche(d["ev"]), per_esito(d["ev"])
+        with open(os.path.join(cart, d["s"].replace("/", "_") + ".json"), "w") as fh:
+            json.dump({"s": d["s"], "n": d["n"], "ev": d["ev"], "st": stt, "es": es, "ctrl": d["ctrl"]},
+                      fh, separators=(",", ":"))
+        righe.append({"s": d["s"], "n": d["n"], "c": len(d["ev"]), "al": d["ev"][-1][0][:10],   # ultima notizia misurata
+                      "m": {x["n"]: [x["casi"], x["x"], x["r1"], (es.get(x["n"]) or {}).get("+"),
+                                     (es.get(x["n"]) or {}).get("-")] for x in stt}})
+    usati = {e[1] for d in dati for e in d["ev"]}             # tutti i driver del registro (anche con pochi casi)
     with open(os.path.join(cart, "indice.json"), "w") as fh:
-        json.dump({"agg": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), "sim": [r for r in righe if r]},
-                  fh, separators=(",", ":"))
+        json.dump({"agg": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), "soglia": SOGLIA,
+                   "val": {n: v for n, v in valuta_di.items() if n in usati}, "sim": righe}, fh, separators=(",", ":"))
+    return righe
 
 
 if __name__ == "__main__":

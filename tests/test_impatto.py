@@ -69,32 +69,72 @@ class Reazioni(unittest.TestCase):
         self.assertEqual(impatto.valute("EURGBP"), {"EUR", "GBP", "USD"})
         self.assertEqual(impatto.valute("SPY"), {"USD"})
 
-    def test_scrivi_e_indice(self):
+    def test_prepara_chiudi_ed_esito(self):
+        # tre coppie con il dollaro: alla notizia il dollaro sale forte (+0,3% contro un'ora normale di 0,01%)
         A, mossa = [], {}
-        for g in range(31, 59):
+        for g in range(31, 70, 3):
             t = T0 + g * 86400 + 13 * 3600
-            mossa[t] = -0.002
+            mossa[t] = 0.003
             A.append(ann(t))
-        ore = serie(70, mossa)
+        sale, scende = serie(75, mossa), serie(75, {t: -0.003 for t in mossa})
         vecchio = impatto.perche.annunci
-        impatto.perche.annunci = lambda: A
+        impatto.perche.annunci = lambda tutte=False: A
         try:
+            dati = [impatto.prepara(s, s, o) for s, o in (("USDJPY.FOREX", sale), ("USDCHF.FOREX", sale),
+                                                         ("USDCAD.FOREX", sale), ("EURUSD.FOREX", scende),
+                                                         ("GLD.US", scende))]
             with tempfile.TemporaryDirectory() as d:
-                riga = impatto.scrivi("EURUSD.FOREX", "Euro / Dollaro", ore, d)
-                impatto.indice([riga, None], d)
-                X = json.load(open(os.path.join(d, "impatto", "EURUSD.FOREX.json")))
+                righe = impatto.chiudi(dati + [None], d)
+                X = json.load(open(os.path.join(d, "impatto", "GLD.US.json")))
                 I = json.load(open(os.path.join(d, "impatto", "indice.json")))
         finally:
             impatto.perche.annunci = vecchio
-        self.assertEqual(len(X["ev"]), 28)
-        self.assertEqual(len(X["ev"][0]), 7)
-        self.assertEqual(I["sim"][0]["s"], "EURUSD.FOREX")
-        self.assertIn("NFP USA", I["sim"][0]["m"])
+        self.assertEqual(len(righe), 5)
+        self.assertEqual(len(X["ev"][0]), 8)
+        self.assertTrue(all(e[7] == 1 for e in X["ev"]))          # dollaro forte in ogni notizia
+        r = X["es"]["NFP USA"]["+"]
+        self.assertEqual(r[0], 13)
+        self.assertLess(r[1], 0)                                  # GLD scende quando il dollaro e' forte
+        self.assertEqual(r[2], 0)
+        self.assertNotIn("-", X["es"]["NFP USA"])
+        self.assertEqual(I["val"]["NFP USA"], "USD")
+        g = [x for x in I["sim"] if x["s"] == "GLD.US"][0]
+        self.assertEqual(g["m"]["NFP USA"][3][0], 13)
+        self.assertIsNone(g["m"]["NFP USA"][4])
 
-    def test_pochi_casi_niente_file(self):
-        with tempfile.TemporaryDirectory() as d:
-            self.assertIsNone(impatto.scrivi("EURUSD.FOREX", "x", serie(), d))
-            self.assertFalse(os.path.exists(os.path.join(d, "impatto", "EURUSD.FOREX.json")))
+    def test_esito_senza_la_propria_coppia(self):
+        F = {("t", "NFP USA"): (6.0, 3, {"EURUSD.FOREX": 2.0, "USDJPY.FOREX": 2.0, "USDCHF.FOREX": 2.0})}
+        self.assertEqual(impatto.esito(F, ("t", "NFP USA"), "GLD.US"), 1)
+        self.assertIsNone(impatto.esito(F, ("t", "NFP USA"), "EURUSD.FOREX"))   # restano 2 coppie: troppo poche
+        self.assertIsNone(impatto.esito(F, ("x", "NFP USA"), "GLD.US"))
+
+    def test_pochi_casi_niente_dati(self):
+        self.assertIsNone(impatto.prepara("EURUSD.FOREX", "x", serie()))
+
+
+class UsciteUsa(unittest.TestCase):
+    def test_pulizia(self):
+        from cot_radar import uscite_usa as U
+        d = ["2024-03-14", "2024-04-15", "2024-04-26", "2024-05-15"]
+        self.assertEqual(U.pulisci(d, "mese"), ["2024-03-14", "2024-04-15", "2024-05-15"])   # revisione annuale fuori
+        self.assertEqual(U.pulisci(["2024-01-25", "2024-02-28", "2024-04-25", "2024-04-02"], "pil"),
+                         ["2024-01-25", "2024-04-25"])
+        self.assertEqual(U.pulisci(["2024-06-04", "2024-06-30"], "tutte"), ["2024-06-04", "2024-06-30"])
+
+    def test_costruisci_e_pce_nel_giorno_del_pil(self):
+        from cot_radar import uscite_usa as U
+        h = lambda *d: "".join(f'<option value="{x}">{x}</option>' for x in d)
+        r = U.costruisci({"GDPC1": h("2024-04-25"), "PCEPI": h("2024-04-25", "2024-05-31"), "RSAFS": h("2024-05-15")})
+        self.assertIn(("2024-04-25", 8.5, "PIL USA"), r)
+        self.assertNotIn(("2024-04-25", 8.5, "PCE USA"), r)
+        self.assertIn(("2024-05-31", 8.5, "PCE USA"), r)
+
+    def test_file_salvato(self):
+        from cot_radar import uscite_usa as U
+        L = U.carica()
+        nomi = {n for _, _, n in L}
+        self.assertEqual(nomi, {"Vendite USA", "PPI USA", "PCE USA", "PIL USA", "JOLTS USA"})
+        self.assertTrue(all(o in (8.5, 10.0) for _, o, _ in L))
 
 
 if __name__ == "__main__":

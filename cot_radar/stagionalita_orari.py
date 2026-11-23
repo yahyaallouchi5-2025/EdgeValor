@@ -342,6 +342,10 @@ def calcola(cartella, uscita):
     os.makedirs(uscita, exist_ok=True)
     indice = []
     righe_imp = []
+    try:                                                # v8.87 date nuove dei dati USA da ALFRED (una volta, in cache)
+        impatto.perche.annunci(tutte=True, rete=True)
+    except Exception as e:                              # noqa: BLE001 - mai bloccante
+        log.warning("annunci per l'impatto delle notizie non letti (%s)", e)
     for sym, fase, _ in orari.universo():
         ore = orari.utc_vero(sym, orari.leggi(orari.nome_file(cartella, sym)))   # v7.65 forex vecchio: da ora di New York a UTC
         try:                                            # v8.75 candele per la scheda Live (mai bloccante)
@@ -350,7 +354,7 @@ def calcola(cartella, uscita):
         except (OSError, ValueError) as e:
             log.warning("candele orarie mensili di %s non scritte (%s)", sym, e)
         try:                                            # v8.86 impatto delle notizie macro (mai bloccante)
-            righe_imp.append(impatto.scrivi(sym, nome(sym), ore, uscita))
+            righe_imp.append(impatto.prepara(sym, nome(sym), ore))
         except Exception as e:                          # noqa: BLE001 - un simbolo storto non ferma gli altri
             log.warning("impatto delle notizie di %s non calcolato (%s)", sym, e)
         # v7.64 REGOLA DEI 10 ANNI (scelta di Ya): una tabella si mostra solo con almeno 10 anni di storico.
@@ -388,8 +392,8 @@ def calcola(cartella, uscita):
         json.dump({"agg": datetime.now(ROMA).strftime("%Y-%m-%d %H:%M"), "fuso": "Europe/Rome",
                    "simboli": indice}, fh, separators=(",", ":"))
     try:
-        impatto.indice(righe_imp, uscita)
-    except OSError as e:
+        impatto.chiudi(righe_imp, uscita)
+    except Exception as e:                              # noqa: BLE001 - mai bloccante
         log.warning("indice dell'impatto delle notizie non scritto (%s)", e)
     log.info("stagionalita' oraria: %d strumenti calcolati", len(indice))
     return indice

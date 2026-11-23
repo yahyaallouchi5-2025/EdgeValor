@@ -20,6 +20,7 @@
   stag:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4M8 14h2M14 14h2M8 17h2"/>',
   corr:'<circle cx="7" cy="16" r="1.6"/><circle cx="11" cy="12" r="1.6"/><circle cx="15" cy="13" r="1.6"/><circle cx="17.5" cy="7.5" r="1.6"/><path d="M4 19L20 5"/>',
   verifica:'<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+  notizie:'<path d="M5 4h11a3 3 0 0 1 3 3v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/>',
   eventi:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M8 16l3-3 2 2 3-4"/>',
   registro:'<rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>'};
  const ART={
@@ -41,12 +42,14 @@
   verifica:`<path d="M0 82 H80 L95 56 L110 112 L128 30 L146 98 L160 82 H300" class="hbl hbacc"/><circle cx="196" cy="30" r="5" class="hblive"/><text x="207" y="35" class="hbt hblivet">LIVE</text>`,
   // percorso con il giorno dell'evento (linea verticale) e il pallino
   eventi:`<rect x="0" y="0" width="150" height="150" class="hbd" style="opacity:.08"/><line x1="150" x2="150" y1="8" y2="142" class="hbl"/><path d="M0 112 C30 104 60 98 90 84 S130 70 150 64 S200 74 230 70 S270 60 300 66" class="hbl hbacc"/><circle cx="150" cy="64" r="6" class="hblive"/>`,
+  // v8.87 candele con la linea gialla della notizia e la barretta della mossa della prima ora
+  notizie:[...Array(13)].map((_,i)=>{const x=14+i*22,h=14+((i*29)%30),y=i<6?54+((i*17)%18):(i==6?40:84+((i*13)%16));return `<rect x="${x-5}" y="${y}" width="10" height="${i==6?62:h}" rx="2" class="${i==6||i%4==1?"hbr":"hbg"}"/>`;}).join("")+`<line x1="146" x2="146" y1="10" y2="140" class="hbl hbacc" style="stroke-dasharray:4 4"/>`,
   // righe di registro
   registro:[...Array(6)].map((_,i)=>`<rect x="24" y="${18+i*21}" width="${150+((i*41)%110)}" height="7" rx="3.5" class="hbd"/>`).join("")};
  function disegna(){
   // v8.62 ORDINE deciso da Ya: Macro, COT, Stagionalita', Volatilita', Correlazioni, Forex, Crypto, Live, poi il resto.
   //   Si riordinano anche i bottoni del menu nascosto, cosi' l'ordine e' lo stesso ovunque.
-  const ORD=["mkt","assets","stag","volat","corr","pairs","btc","verifica","eventi","registro"],pos=t=>{const i=ORD.indexOf(t);return i<0?99:i;};
+  const ORD=["mkt","assets","stag","volat","corr","pairs","btc","verifica","notizie","eventi","registro"],pos=t=>{const i=ORD.indexOf(t);return i<0?99:i;};
   const menu=document.querySelector('#nav .nghub .ngm');
   if(menu){const tutti=[...menu.querySelectorAll('button[data-t]')].sort((x,y)=>pos(x.dataset.t)-pos(y.dataset.t));tutti.forEach(x=>x.parentElement.appendChild(x));}
   const bt=[...document.querySelectorAll('#nav .nghub .ngm button[data-t]')].filter(b=>b.style.display!="none").sort((x,y)=>pos(x.dataset.t)-pos(y.dataset.t));

@@ -21,7 +21,8 @@
   stag:["Stagionalità","Gli effetti stagionali affidabili, strumento per strumento."],
   corr:["Correlazioni","Chi si muove insieme e chi al contrario, tra prezzi e flussi."],
   mkt:["Macro","I driver del mercato, quanto è già scontato nei prezzi e la liquidità della Fed."],
-  verifica:["Live","Il registro dei segnali veri e cosa fa il prezzo quando gli speculatori spingono."]};
+  verifica:["Live","Il registro dei segnali veri e cosa fa il prezzo quando gli speculatori spingono."],
+  notizie:["Notizie","Come reagiscono cambi, oro, indici e crypto alle notizie macro, esito per esito."]};
  window.EB_CHIUSE=Object.keys(CHIUSE);
  // 1) schede chiuse
  for(const k in CHIUSE){const s=$(k);if(!s)continue;const [t,x]=CHIUSE[k];

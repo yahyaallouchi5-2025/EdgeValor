@@ -3806,3 +3806,16 @@ html.vfcaperto,html.vfcaperto body{overflow:hidden}
 .nm-bars button>i{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}.nm-bars button>i>i{display:block;height:100%;background:var(--warn);border-radius:4px}
 .nm-bars b{text-align:right;font-variant-numeric:tabular-nums}.nm-bars small{color:var(--mute);font-size:11.5px;text-align:right;white-space:nowrap}
 @media (max-width:600px){.nm-x{display:none}.nm-bars{grid-template-columns:1fr}.nm-bars button{grid-template-columns:70px 1fr 42px 84px}.nm-t{font-size:13px}.nm-t td,.nm-t th{padding:7px 4px}.nm-t th{font-size:10.5px;letter-spacing:0}}
+/* --- v8.87 scheda Notizie: esito forte/debole, barre divergenti, filtri --- */
+.nm-tctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:2px 0 10px}
+.nm-tctl .vfc-seg{margin-left:0}
+.nm-e td{width:38%}.nm-e td:first-child{width:24%}
+.nm-e td small+small{margin-top:1px}
+.nm-nd{color:var(--mute);font-size:12px}
+.nm-r small.nm-es1{color:var(--b)}.nm-r small.nm-es-1{color:var(--s)}.nm-r small.nm-es0{color:var(--mute)}
+.nm-div button>i{position:relative;background:var(--soft)}
+.nm-div button>i::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line)}
+.nm-div button>i>i{position:absolute;top:0;bottom:0;border-radius:0}
+.nm-div button>i>i.su{background:var(--b)}.nm-div button>i>i.giu{background:var(--s)}
+.nm-div b{font-size:12.5px}
+.nm-div button{grid-template-columns:78px 1fr 60px 84px}@media (max-width:600px){.nm-div button{grid-template-columns:66px 1fr 56px 78px}}
