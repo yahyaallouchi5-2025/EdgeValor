@@ -42,7 +42,8 @@
    <i class="evbt"><i class="${cl(v)}" style="${v<0?"right:50%":"left:50%"};width:${(Math.abs(v)/m*50).toFixed(1)}%"></i></i><b class="${cl(v)}">${pc(v)}</b><small>${k}</small></div>`).join("")}</div>`;};
  function disegna(){if(!ADMIN()){el.innerHTML="";return;}
   // la (i) del titolo la aggiunge 01_base.js: il paragrafo "sub" subito dopo l'<h2> diventa la spiegazione nascosta
-  el.innerHTML=`<h2>Eventi <span class="tag evtag">anteprima admin</span></h2>
+  // v8.86 in cima: Notizie macro (44b_notizie.js), poi le card degli eventi
+  el.innerHTML=`<div id="nmacro" class="nm"></div><h2>Eventi <span class="tag evtag">anteprima admin</span></h2>
    <p class="sub">Come si muovono i titoli intorno ai fatti noti, OLTRE l'S&amp;P 500. <b>Prima</b> = nei 60 giorni prima dell'evento; <b>dopo</b> = nei 5 e 60 giorni dopo. Il grafico è il percorso tipico (mediana dei casi): verde acqua l'attesa, bianco il dopo. <b>Regge</b> = stessa direzione nella grande maggioranza dei casi; con meno di 5 casi è un racconto, non una regola. Studio su 408 aziende dell'S&amp;P 500 dal 2008: si mostrano solo i gruppi che reggono e hanno una ragione economica.</p>
    <div class="evgrid">${CARD.map((c,i)=>`<article class="evc">
     <header><div><small>${c.chi}</small><h3>${c.t}</h3></div><span class="evb ${c.g[0]}">${c.g[1]} · ${c.n} ${c.n==1?"caso":"eventi"}</span>
@@ -52,7 +53,8 @@
      <div class="evn">${c.num.map(([l,v])=>`<div><small>${l}</small><b class="${cl(v)}">${pc(v)}</b></div>`).join("")}</div>`:barre(c.bar)}
     <p class="evf">${c.f}</p>
     ${c.tit||c.prox?`<div class="evpiede">${(c.tit||[]).map(t=>`<span class="evtk">${t}</span>`).join("")}${c.prox?`<span class="evnext">${c.prox}</span>`:""}</div>`:""}
-   </article>`).join("")}</div>`;}
+   </article>`).join("")}</div>`;
+  if(window.ebNotizieMacro)ebNotizieMacro($("nmacro"));}
  // pulsante nascosto finche' il database non conferma l'admin; poi compare (anche nella pagina Mercati a card)
  const aggiorna=()=>{if(bt)bt.style.display=ADMIN()?"":"none";};aggiorna();
  new MutationObserver(()=>{aggiorna();if(el.innerHTML==""||!ADMIN())disegna();}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});

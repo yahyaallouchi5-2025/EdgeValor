@@ -34,7 +34,8 @@
  const leggi=url=>cache[url]||(cache[url]=fetch(url).then(r=>r.ok?r.json():null).catch(()=>null));
  const mesi=(a,b)=>{const out=[];const d=new Date(Date.UTC(a.getUTCFullYear(),a.getUTCMonth(),1));
   while(d<=b){out.push(d.toISOString().slice(0,7));d.setUTCMonth(d.getUTCMonth()+1);}return out;};
- const ts=s=>s?Date.parse(s):NaN;                     // "2026-11-13T20:30Z" (ISO, UTC)
+ const ts=s=>s?Date.parse(s):NaN;
+ const pcM=v=>v==null?"n/d":(v>0?"+":v<0?"−":"")+fx(Math.abs(v),2)+"%";   // v8.86 mossa in % (modalita' notizie)                     // "2026-11-13T20:30Z" (ISO, UTC)
  const ORA=new Intl.DateTimeFormat(EB_LOC,{timeZone:"Europe/Rome",weekday:"short",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
  const GIORNO=new Intl.DateTimeFormat(EB_LOC,{timeZone:"Europe/Rome",weekday:"short",day:"numeric"});
  const DGIORNO=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"});
@@ -51,16 +52,18 @@
 
  /* box = contenitore; z = riga del registro (strumento, generato, m.ingresso.utc, m.A.fine.utc, nt.ev) */
  window.ebCandele=function(box,z){try{
-  const s=simbolo(z.strumento),t0=ts(z.generato);
+  // v8.86 z.opz = modalita' "notizie macro" (44b_notizie.js): {sym, nota, ann:[[ora UTC, driver, r1, r4, r24, x, dopo]], dal}
+  // -> niente segnale, niente COT, niente fasce: solo candele e traccia di ogni notizia con la mossa della prima ora
+  const O=z.opz||{},NM=!!O.ann,s=O.sym?[O.sym,O.nota]:simbolo(z.strumento),t0=ts(z.generato);
   if(!s||isNaN(t0)){box.innerHTML=`<p class="small vfc-v">Grafico non disponibile per questo strumento.</p>`;return;}
   const m=z.m||{},ing=ts((m.ingresso||{}).utc),fine=(m.A||{}).fine||{},aperto=!z.chiuso||(m.fine||{}).in_corso;
   const usc=aperto?NaN:ts(fine.utc);
   // notizie e uscite COT (registro); se il registro e' di una versione vecchia, solo le notizie dentro il trade
   const MON=(D.reg||{}).mon,VV=valute(z.strumento);
-  const ANN=MON?MON.ann.filter(a=>VV.includes(a[2])).map(a=>({t:ts(a[0]),n:a[1]+(a[3]?" ~":"")}))
+  const ANN=NM?O.ann.map(a=>({t:ts(a[0]),n:a[1],r:a})):MON?MON.ann.filter(a=>VV.includes(a[2])).map(a=>({t:ts(a[0]),n:a[1]+(a[3]?" ~":"")}))
               :((z.nt||{}).ev||[]).map(e=>({t:ts(e.t),n:e.n+(e.x?" ~":"")}));
-  const COT=MON?MON.cot.map(ts):[t0];
-  const EP=(((D.cmp||{}).ep||{})[z.strumento]||[]).map(e=>({a:e[0],b:e[1],v:e[2],forte:!!e[3]}));
+  const COT=NM?[]:MON?MON.cot.map(ts):[t0];
+  const EP=NM?[]:(((D.cmp||{}).ep||{})[z.strumento]||[]).map(e=>({a:e[0],b:e[1],v:e[2],forte:!!e[3]}));
   const S={tf:"h",B:{},v:{},yz:1,yo:0,full:false};     // stato: timeframe, candele, vista per timeframe, scala verticale
   box.innerHTML=`<div class="vfc-w"><div class="vfc-t"><b>Grafico</b>${s[1]?`<span class="vfc-n">${esc(s[1])}</span>`:""}
     <div class="vfc-seg" role="group"><button type="button" data-tf="d">Giornaliero</button><button type="button" data-tf="h" class="on">Orario</button></div>
@@ -73,18 +76,19 @@
   // ---------- dati: orari dal segnale (una settimana prima) a oggi; giornalieri gli ultimi ~2 anni
   function carica(tf){
    if(S.B[tf])return Promise.resolve(S.B[tf]);
-   if(tf=="h")return Promise.all(mesi(new Date(t0-8*864e5),new Date()).map(me=>leggi(BASE_H+s[0]+"/"+me+".json"))).then(L=>{
+   if(tf=="h")return Promise.all(mesi(new Date(O.dal?Date.parse(O.dal):t0-8*864e5),new Date()).map(me=>leggi(BASE_H+s[0]+"/"+me+".json"))).then(L=>{
      const B=[];for(const d of L){if(!d)continue;for(const r of d.b)B.push({t:(d.t0+r[0]*3600)*1000,o:r[1],h:r[2],l:r[3],c:r[4]});}
      B.sort((a,b)=>a.t-b.t);return S.B.h=B;});
    return leggi(BASE_D+s[0]+".json").then(d=>S.B.d=(d&&d.d||[]).map(r=>({t:Date.parse(r[0]+"T12:00Z"),g:r[0],o:r[1],h:r[2],l:r[3],c:r[4]})));}
   // vista iniziale: orario = la settimana del segnale; giornaliero = ultimi 6 mesi (3 da telefono)
   function vistaIniziale(tf){const B=S.B[tf],N=B.length;
-   if(tf=="h"){let a=B.findIndex(x=>x.t>=t0-864e5),b=B.findIndex(x=>x.t>=t0+6*864e5);if(a<0)a=Math.max(0,N-120);if(b<0)b=N;
+   if(tf=="h"){let a=B.findIndex(x=>x.t>=t0-(NM?2:1)*864e5),b=B.findIndex(x=>x.t>=t0+(NM?3:6)*864e5);if(a<0)a=Math.max(0,N-120);if(b<0)b=N;
     if(b-a<20){a=Math.max(0,N-120);b=N;}return {i0:a,i1:b+1};}
    const n=Math.min(N,(S.full?innerWidth:g.clientWidth)<560?66:130);return {i0:N-n,i1:N+2};}
   function mostra(tf){S.tf=tf;S.yz=1;S.yo=0;
    W0.querySelectorAll("[data-tf]").forEach(b=>b.classList.toggle("on",b.dataset.tf==tf));
-   leg.innerHTML=tf=="d"?`<span><i class="lg-su"></i>Speculatori comprano</span><span><i class="lg-giu"></i>vendono</span><span><i class="lg-cot"></i>Report COT</span><span><i class="lg-ev"></i>Notizie</span>`
+   leg.innerHTML=NM?(tf=="d"?`<span><i class="lg-ev"></i>Notizie</span>`:`<span><i class="lg-lev"></i>Notizie</span><span><i class="lg-rz"></i>Mossa della prima ora</span>`)
+    :tf=="d"?`<span><i class="lg-su"></i>Speculatori comprano</span><span><i class="lg-giu"></i>vendono</span><span><i class="lg-cot"></i>Report COT</span><span><i class="lg-ev"></i>Notizie</span>`
     :`<span><i class="lg-lcot"></i>Report COT</span><span><i class="lg-lev"></i>Notizie</span><span><i class="lg-sgn"></i>Segnale</span><span><i class="lg-ling"></i>Ingresso</span>`;
    if(!S.B[tf])g.innerHTML=`<p class="small vfc-v">Caricamento&hellip;</p>`;
    carica(tf).then(B=>{if(S.tf!=tf)return;
@@ -128,8 +132,8 @@
     svg+=`<line class="${c}" x1="${X(i)}" x2="${X(i)}" y1="${Y(x.h)}" y2="${Y(x.l)}"/><rect class="${c}" x="${X(i)-corpo/2}" y="${y1}" width="${corpo}" height="${Math.max(1,y2-y1)}"/>`;}
    const tMin=B[a0].t-(d?864e5:36e5),tMax=B[a1].t+(d?864e5:36e5);
    // etichetta di una linea: a destra della linea, oppure a sinistra se uscirebbe dal grafico (mai tagliata)
-   const etichetta=(x,y,cl,nome)=>{const w=nome.length*6.3+4,sx=x+3+w>W-pr;
-    return `<text class="vfc-lt ${cl}" x="${sx?x-3:x+3}" y="${y}"${sx?' text-anchor="end"':""}>${esc(nome)}</text>`;};
+   const etichetta=(x,y,cl,nome,r1)=>{const extra=r1==null?"":" "+pcM(r1),w=(nome.length+extra.length)*6.3+4,sx=x+3+w>W-pr;
+    return `<text class="vfc-lt ${cl}" x="${sx?x-3:x+3}" y="${y}"${sx?' text-anchor="end"':""}>${esc(nome)}${extra?`<tspan class="${r1>=0?"vfc-rs":"vfc-rg"}">${extra}</tspan>`:""}</text>`;};
    if(d){ // giornaliero: tacche COT sull'asse, punti delle notizie in basso, linee del segnale
     for(const t of COT){if(t<tMin||t>tMax)continue;const x=X(idxG(giornoDi(t)));svg+=`<line class="vfc-tk" x1="${x}" x2="${x}" y1="${H-pb}" y2="${H-pb+5}"/>`;}
     for(const a of ANN){if(a.t<tMin||a.t>tMax)continue;svg+=`<circle class="vfc-pt" cx="${X(idxG(giornoDi(a.t)))}" cy="${H-5}" r="2.6"/>`;}
@@ -138,10 +142,13 @@
    }else{ // orario: linee all'ora esatta (COT, notizie, ingresso, uscita), etichette sfalsate se vicine
     // "Segnale" = quando il terminale ha registrato il segnale (COT 70% + mercato 30%: non sempre coincide con l'uscita del COT)
     const L=[];for(const t of COT)if(t>=tMin&&t<=tMax)L.push([t,"cot","COT"]);
-    for(const a of ANN)if(a.t>=tMin&&a.t<=tMax)L.push([a.t,"ev",a.n]);
-    for(const [t,cl,nome] of [[t0,"sgn","Segnale"],[ing,"ing","Ingresso"],[usc,"usc","Uscita"]])if(!isNaN(t)&&t>=tMin&&t<=tMax)L.push([t,cl,nome]);
-    let ux=-99,r=0;L.sort((p,q)=>p[0]-q[0]).forEach(([t,cl,nome])=>{const k=idx(t),x=X(k+Math.max(0,Math.min(1,(t-B[k].t)/36e5))-.5);r=x-ux<48?(r+1)%3:0;ux=x;
-     svg+=`<line class="vfc-l ${cl}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/>`+etichetta(x,pt-7+r*11,cl,nome);});}
+    for(const a of ANN)if(a.t>=tMin&&a.t<=tMax){L.push([a.t,"ev",a.n,a.r&&a.r[2]]);
+     // v8.86 traccia della reazione: barretta dalla chiusura dell'ora prima alla chiusura della candela della notizia
+     if(a.r){const k=idx(a.t);if(k>0&&B[k].t<=a.t&&a.t<B[k].t+36e5){const x=X(k)+cw*.55;
+      svg+=`<line class="vfc-rz ${B[k].c>=B[k-1].c?"su":"giu"}" x1="${x}" x2="${x}" y1="${Y(B[k-1].c)}" y2="${Y(B[k].c)}"/>`;}}}
+    for(const [t,cl,nome] of (NM?[]:[[t0,"sgn","Segnale"],[ing,"ing","Ingresso"],[usc,"usc","Uscita"]]))if(!isNaN(t)&&t>=tMin&&t<=tMax)L.push([t,cl,nome]);
+    let ux=-99,r=0;L.sort((p,q)=>p[0]-q[0]).forEach(([t,cl,nome,r1])=>{const k=idx(t),x=X(k+Math.max(0,Math.min(1,(t-B[k].t)/36e5))-.5);r=x-ux<48?(r+1)%3:0;ux=x;
+     svg+=`<line class="vfc-l ${cl}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/>`+etichetta(x,pt-7+r*11,cl,nome,r1);});}
    svg+=`<line class="vfc-x" x1="0" x2="0" y1="${pt}" y2="${H-pb}" visibility="hidden"/></g>`;
    // scala dei prezzi (a destra): 5 livelli; trascinabile in verticale
    for(let k=0;k<5;k++){const p=lo+(hi-lo)*(k+.5)/5,y=Y(p);svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmt(p)}</text>`;}
@@ -153,10 +160,12 @@
    const i=Math.max(G.a0,Math.min(G.a1,Math.round(v.i0+(px-G.pl)/G.cw-.5))),x=B[i];if(!x)return;
    const cx=g.querySelector(".vfc-x");if(cx){cx.setAttribute("x1",G.X(i));cx.setAttribute("x2",G.X(i));cx.setAttribute("visibility","visible");}
    const dentro=t=>d?giornoDi(t)==x.g:t>=x.t&&t<x.t+36e5,g0=d?x.g:new Date(x.t).toISOString().slice(0,10);
-   const ep=EP.find(e=>g0>=e.a&&(!e.b||g0<=e.b)),nn=ANN.filter(a=>dentro(a.t)).map(a=>a.n),cc=COT.some(dentro);
+   const ep=EP.find(e=>g0>=e.a&&(!e.b||g0<=e.b)),na=ANN.filter(a=>dentro(a.t)),nn=na.map(a=>a.n),cc=COT.some(dentro);
+   const rz=!d&&na.find(a=>a.r);                       // v8.86 modalita' notizie: la reazione misurata (cot_radar/impatto.py)
    tip.innerHTML=`<b>${d?DATA.format(x.t):ORA.format(x.t)}</b><span>A ${fmt(x.o)} · Max ${fmt(x.h)} · Min ${fmt(x.l)} · C <b class="${x.c>=x.o?"up":"down"}">${fmt(x.c)}</b></span>`+
     (ep?`<span class="${ep.v>0?"up":"down"}">${ep.v>0?"Speculatori: comprano":"Speculatori: vendono"}${ep.forte?" (spinta forte)":""}</span>`:"")+
-    (nn.length?`<span class="vfc-tn">${nn.map(esc).join(", ")}</span>`:"")+(cc?`<span class="vfc-tc">Report COT</span>`:"");}
+    (nn.length?`<span class="vfc-tn">${nn.map(esc).join(", ")}</span>`:"")+
+    (rz?`<span>Prima ora <b class="${rz.r[2]>=0?"up":"down"}">${pcM(rz.r[2])}</b> (${fx(rz.r[5],1)}× la stessa ora) · 4 ore ${pcM(rz.r[3])} · 24 ore ${pcM(rz.r[4])}</span>`:"")+(cc?`<span class="vfc-tc">Report COT</span>`:"");}
   function nascondi(){const cx=g.querySelector(".vfc-x");if(cx)cx.setAttribute("visibility","hidden");tip.innerHTML=vuoto;}
 
   // ---------- gesti: trascina = sposta; due dita / rotella = zoom; scala prezzi = allunga; tocco = lettura

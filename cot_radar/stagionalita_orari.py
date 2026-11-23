@@ -38,7 +38,7 @@ from datetime import datetime, timedelta, timezone
 from statistics import NormalDist
 from zoneinfo import ZoneInfo
 
-from . import orari
+from . import impatto, orari
 from .log import log
 
 ROMA = ZoneInfo("Europe/Rome")
@@ -341,6 +341,7 @@ def calcola(cartella, uscita):
         return None
     os.makedirs(uscita, exist_ok=True)
     indice = []
+    righe_imp = []
     for sym, fase, _ in orari.universo():
         ore = orari.utc_vero(sym, orari.leggi(orari.nome_file(cartella, sym)))   # v7.65 forex vecchio: da ora di New York a UTC
         try:                                            # v8.75 candele per la scheda Live (mai bloccante)
@@ -348,6 +349,10 @@ def calcola(cartella, uscita):
             candele_giornaliere(sym, ore, uscita)       # v8.84 grafico giornaliero
         except (OSError, ValueError) as e:
             log.warning("candele orarie mensili di %s non scritte (%s)", sym, e)
+        try:                                            # v8.86 impatto delle notizie macro (mai bloccante)
+            righe_imp.append(impatto.scrivi(sym, nome(sym), ore, uscita))
+        except Exception as e:                          # noqa: BLE001 - un simbolo storto non ferma gli altri
+            log.warning("impatto delle notizie di %s non calcolato (%s)", sym, e)
         # v7.64 REGOLA DEI 10 ANNI (scelta di Ya): una tabella si mostra solo con almeno 10 anni di storico.
         #  - candele orarie EODHD >= 10 anni -> tutte le viste (Orario compreso);
         #  - meno di 10 anni ma Yahoo ha >= 10 anni di chiusure giornaliere -> solo Giornaliero, Settimanale, Mensile;
@@ -382,6 +387,10 @@ def calcola(cartella, uscita):
     with open(os.path.join(uscita, "indice.json"), "w") as fh:
         json.dump({"agg": datetime.now(ROMA).strftime("%Y-%m-%d %H:%M"), "fuso": "Europe/Rome",
                    "simboli": indice}, fh, separators=(",", ":"))
+    try:
+        impatto.indice(righe_imp, uscita)
+    except OSError as e:
+        log.warning("indice dell'impatto delle notizie non scritto (%s)", e)
     log.info("stagionalita' oraria: %d strumenti calcolati", len(indice))
     return indice
 
