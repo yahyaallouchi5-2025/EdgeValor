@@ -10,6 +10,8 @@ on:
   schedule:
     - cron: "41 6 * * 1-5"     # Europa (apre alle 07/08 UTC)
     - cron: "41 12 * * 1-5"    # meta' giornata + apertura USA
+    - cron: "11 9 * * 1-5"     # v9.13 riserva: il 24/11 GitHub non ha avviato il giro delle 12:41 (prezzi fermi 6 ore)
+    - cron: "11 15 * * 1-5"    # v9.13 riserva (una partenza nuova sostituisce quella in corso: nessun doppione)
     - cron: "41 18 * * 1-5"    # chiusura USA
     - cron: "41 22 * * 0-4"    # Sydney (notte italiana)
   workflow_dispatch:
