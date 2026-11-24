@@ -157,6 +157,32 @@ def _link(sito):
     portano sempre al dominio pubblico (SITO_PUBBLICO = edgevalor.com). Altri indirizzi (prove) restano uguali."""
     return SITO_PUBBLICO if "github.io" in (sito or "") else sito
 
+GIORNI_BREVI = ["lun", "mar", "mer", "gio", "ven", "sab", "dom"]
+
+
+def etichetta_cot(cot):
+    """v9.05 (Ya, 24/11/2026: "per me il COT e' uscito venerdi'") -> "report COT di ven 20/11 · posizioni al 17/11".
+    La data del COT e' il martedi' delle posizioni; il report esce il venerdi' (il lunedi' dopo nelle settimane di festa
+    USA, calendario.uscita_cot)."""
+    try:
+        from .calendario import uscita_cot
+        mar = datetime.strptime(cot, "%Y-%m-%d").date()
+        u = uscita_cot(mar + timedelta(days=3))
+        return f"report COT di {GIORNI_BREVI[u.weekday()]} {u.day:02d}/{u.month:02d} · posizioni al {mar.day:02d}/{mar.month:02d}"
+    except Exception:
+        return f"COT del {cot[8:10]}/{cot[5:7]}/{cot[:4]}"
+
+
+def ora_roma(t):
+    """datetime UTC -> "23/11 23:03" in ora di Roma (regola di Ya: tutto in ora italiana)."""
+    try:
+        from zoneinfo import ZoneInfo
+        r = (t if t.tzinfo else t.replace(tzinfo=timezone.utc)).astimezone(ZoneInfo("Europe/Rome"))
+        return r.strftime("%d/%m/%Y %H:%M") + " ora di Roma"
+    except Exception:
+        return t.strftime("%d/%m/%Y %H:%M UTC")
+
+
 def componi(blocchi, nuovi, sito):
     """Messaggi completi (lista: si divide solo se supera il limite di Telegram)."""
     if not blocchi:
@@ -165,8 +191,8 @@ def componi(blocchi, nuovi, sito):
     quando = next((e.get("quando") or e.get("generato") for e in reversed(nuovi)), "")
     t = _ora(quando)
     testa = "<b>EdgeValor · aggiornamento segnali</b>\n<i>" + \
-            (t.strftime("%d/%m/%Y %H:%M UTC") if t else "") + \
-            (f" · COT del {cot[8:10]}/{cot[5:7]}/{cot[:4]}" if cot else "") + "</i>\n\n"
+            (ora_roma(t) if t else "") + \
+            (f" · {etichetta_cot(cot)}" if cot else "") + "</i>\n\n"
     piede = "\n\n" + (f'<a href="{_escape(sito.rstrip("/"))}/terminale/#verifica">Registro completo e statistiche</a>\n'
                       if sito else "") + f"<i>{AVVERTENZA}</i>"
     return impagina(testa, blocchi, piede)
@@ -312,7 +338,7 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
         log.error("registro NON integro dall'evento %s: nessun avviso finche' l'admin non controlla", rotto)
         return {"esito": "registro_non_integro", "inviati": 0}
     ultimo_n = eventi[-1]["n"] if eventi else -1
-    dati = dati_sito if dati_sito is not None else riepilogo.scarica(sito)
+    dati = dati_sito if dati_sito is not None else riepilogo.completa(riepilogo.scarica(sito), cartella)   # v9.05 copia
     cot_sito = riepilogo.data_cot(dati)
     cursore = leggi_cursore(cartella)
     agenda_sito = (dati or {}).get("agenda")
@@ -327,6 +353,19 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
         return {"esito": "primo_avvio", "inviati": 0, "ultimo_n": ultimo_n}
     gia_cot = cursore.get("riepilogo_cot")
     settimanale = bool(cot_sito and gia_cot and cot_sito > gia_cot)
+    # v9.05 RIEPILOGO SOLO SE FRESCO: il report COT e' "del martedi'" ed esce il venerdi' (il lunedi' dopo nelle
+    # settimane di festa USA, cioe' martedi' + 6 giorni). Oltre, un riepilogo farebbe pensare a un report nuovo che
+    # non c'e': si segna come gia' fatto e si passa agli avvisi normali (successo il 24/11/2026 dopo la correzione).
+    tardivo = False
+    if settimanale:
+        try:
+            tardivo = (adesso.date() if hasattr(adesso, "date") else adesso) > \
+                datetime.strptime(cot_sito, "%Y-%m-%d").date() + timedelta(days=6)
+        except ValueError:
+            tardivo = False
+        if tardivo:
+            log.info("notifiche: COT %s gia' vecchio, riepilogo saltato (cursore aggiornato)", cot_sito)
+            settimanale = False
     if cot_sito and not gia_cot:
         gia_cot = cot_sito             # cursore di una versione precedente: il primo riepilogo sara' il prossimo
     # v8.27 ECCEZIONE DI YA: il riepilogo COT del venerdi' sera parte anche di notte; tutto il resto aspetta il mattino
@@ -361,7 +400,9 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
     briefing, lun_brief = [], cursore.get("briefing")
     if dati and dati.get("assets"):
         lun = adesso_utc.date() - timedelta(days=adesso_utc.weekday())
-        if cursore.get("briefing") != lun.isoformat() and adesso_utc.weekday() in (0, 1) and \
+        # v9.05 recupero solo il martedi' MATTINA (entro le 12 UTC): un "briefing del lunedi'" la sera di martedi' confonde
+        if cursore.get("briefing") != lun.isoformat() and (adesso_utc.weekday() == 0 or
+                                                            (adesso_utc.weekday() == 1 and adesso_utc.hour < 12)) and \
                 (adesso_utc.hour, adesso_utc.minute) >= (5, 30):
             from . import briefing as _br
             briefing = _br.testi(dati, _link(sito), adesso_utc)
@@ -401,7 +442,7 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
     elif testi:
         log.info("notifiche: Telegram non configurato (Secrets TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID)")
         esito["esito"] = "non_configurato"
-    nuovo_cot = cot_sito if settimanale else gia_cot
+    nuovo_cot = cot_sito if (settimanale or tardivo) else gia_cot      # v9.05 il riepilogo tardivo si segna come fatto
     if silenzio:                                          # notte: solo il riepilogo COT, agenda/notizie/briefing al mattino
         if esito["esito"] in ("inviato", "non_configurato"):
             scrivi_cursore(cartella, ultimo_n, ultimo_hash, adesso, nuovo_cot, cursore.get("agenda"), cursore.get("briefing"))
@@ -448,7 +489,7 @@ def prova_notizie(sito, env=None, dati_sito=None, adesso=None):
     from . import riepilogo
     env = os.environ if env is None else env
     token, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_CHAT_ID")
-    dati = dati_sito if dati_sito is not None else riepilogo.scarica(sito)
+    dati = dati_sito if dati_sito is not None else riepilogo.completa(riepilogo.scarica(sito), cartella)   # v9.05 copia
     adesso = adesso or datetime.now(timezone.utc).replace(tzinfo=None)
     testi = []
     if dati and dati.get("assets"):                       # esempi del riepilogo del venerdi' e del briefing del lunedi'
@@ -488,7 +529,7 @@ def prova(sito, env=None, dati_sito=None):
     from . import riepilogo
     env = os.environ if env is None else env
     token, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_CHAT_ID")
-    dati = dati_sito if dati_sito is not None else riepilogo.scarica(sito)
+    dati = dati_sito if dati_sito is not None else riepilogo.completa(riepilogo.scarica(sito), cartella)   # v9.05 copia
     if dati and dati.get("assets"):
         testi = riepilogo.testi(dati, _link(sito), test=True)
     else:

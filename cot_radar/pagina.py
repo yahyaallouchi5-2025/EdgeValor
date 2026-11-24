@@ -394,6 +394,10 @@ def build(data_source=load_all, demo=False, sito=False):
     # v7.93 DATI PREMIUM (premium.py): sul sito escono cifrati; senza chiave del database resta solo la parte Basic
     blocco = None
     if sito:
+        # v9.05 copia ridotta per il riepilogo COT del venerdi' e il briefing del lunedi' (Telegram): la pagina
+        # pubblica ha i blocchi COT cifrati, le notifiche leggono questa copia dal ramo "storico" (riepilogo.py)
+        from . import riepilogo, registro as _reg
+        riepilogo.salva_copia(clean(data), _reg.CARTELLA)
         from . import premium
         data, blocco = premium.pagina(data)
     payload = json.dumps(clean(data), ensure_ascii=False, separators=(",", ":"))

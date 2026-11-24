@@ -30,6 +30,73 @@ ORDINE = ["Forex"] + [s for s in SECTORS if s != "Valute"]
 SALTA = {"Valute"}                    # forza delle singole valute: gia' rappresentata dalle coppie del Forex
 
 
+# v9.05 COPIA PER LE NOTIFICHE: dal 18/11/2026 (v8.07) i blocchi COT del sito sono Premium e cifrati, quindi la pagina
+# pubblica ha "assets" vuoto e il riepilogo del venerdi' e il briefing del lunedi' non partivano piu' (cursore fermo al
+# COT del 10/11). La costruzione ufficiale del sito salva qui una copia RIDOTTA di quello che serve ai due messaggi
+# (solo valori singoli, niente serie storiche), nel ramo "storico" accanto al registro dei segnali. Contiene cio' che
+# il canale Telegram pubblica comunque (etichette, punteggi, rendimento del mese dei portafogli).
+COPIA = "dati_notifiche.json"
+
+
+def _piatto(o):
+    """Solo i valori singoli e i dizionari piccoli (es. "mkt"): via liste e serie storiche."""
+    return {k: v for k, v in (o or {}).items() if not isinstance(v, list)} if isinstance(o, dict) else o
+
+
+def _etichetta(cot):
+    """"report COT di ven 20/11 · posizioni al 17/11" (notifiche.etichetta_cot)."""
+    from .notifiche import etichetta_cot
+    return etichetta_cot(cot)
+
+
+def copia_notifiche(data):
+    """Dati della pagina (completi, prima della cifratura) -> copia ridotta per riepilogo e briefing."""
+    port = data.get("port") or {}
+    vol = data.get("vol") or {}
+    return {"assets": {k: _piatto(a) for k, a in (data.get("assets") or {}).items()},
+            "pairs": [_piatto(x) for x in data.get("pairs") or []],
+            "port": {"prossima": port.get("prossima"),
+                     "profili": [{"nome": x.get("nome"), "id": x.get("id"), "corrente": _piatto(x.get("corrente"))}
+                                 for x in port.get("profili") or []]},
+            "fed": _piatto(data.get("fed")),
+            "market": {"drivers": [_piatto(x) for x in (data.get("market") or {}).get("drivers") or []]},
+            "vol": {k: {"prezzo": v.get("prezzo"), "settimane": {"media": (v.get("settimane") or {}).get("media")}}
+                    for k, v in vol.items() if isinstance(v, dict)},
+            "eventi": data.get("eventi") or []}
+
+
+def salva_copia(data, cartella):
+    """Scrive la copia ridotta (mai bloccante: senza copia si torna al comportamento di prima)."""
+    import os
+    try:
+        os.makedirs(cartella, exist_ok=True)
+        with open(os.path.join(cartella, COPIA), "w", encoding="utf-8") as f:
+            json.dump(copia_notifiche(data), f, ensure_ascii=False, separators=(",", ":"))
+    except Exception as e:
+        log.warning("copia per le notifiche non salvata (%s)", type(e).__name__)
+
+
+def completa(dati, cartella):
+    """Se la pagina online ha i blocchi COT vuoti (cifrati) li prende dalla copia salvata dalla stessa costruzione."""
+    import os
+    if not dati or dati.get("assets"):
+        return dati
+    try:
+        with open(os.path.join(cartella, COPIA), encoding="utf-8") as f:
+            c = json.load(f)
+    except (OSError, ValueError):
+        return dati
+    d = dict(dati)
+    for k, v in c.items():
+        if k == "eventi" and d.get("eventi"):
+            continue
+        if not d.get(k) or k in ("assets", "pairs", "fed", "market", "vol"):
+            d[k] = v
+        elif k == "port":                                 # i portafogli pubblici hanno gia' "corrente": si tiene quello
+            continue
+    return d
+
+
 def scarica(sito, timeout=30):
     """Dati della pagina pubblicata (dizionario D) oppure None. Il parametro r evita copie vecchie in cache."""
     if not sito:
@@ -154,7 +221,7 @@ def testi(dati, sito, test=False, verifica=None):
     cot = data_cot(dati)
     n = sum(len(v) for v in attivi.values())
     testa = (("[TEST] " if test else "") + "<b>EdgeValor · segnali della settimana</b>\n<i>" +
-             (f"COT del {cot[8:10]}/{cot[5:7]}/{cot[:4]} · " if cot else "") +
+             (f"{_etichetta(cot)} · " if cot else "") +
              f"{n} segnali attivi</i>\n▲ acquisto · ▼ vendita · ★ nuovo con questo report\n\n")
     blocchi = [in_breve(dati, attivi, chiusi, verifica)]
     for cat, lista in attivi.items():

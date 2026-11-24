@@ -151,7 +151,7 @@ class Settimanale(unittest.TestCase):
         self.assertEqual((r["esito"], r["tipo"]), ("inviato", "settimanale"))
         t = self.inviati[0]
         self.assertIn("segnali della settimana", t)
-        self.assertIn("COT del 20/10/2026", t)
+        self.assertIn("report COT di ven 23/10 · posizioni al 20/10", t)
         self.assertNotIn("affid", t.lower())
         self.assertLess(t.index("<b>FOREX</b>"), t.index("<b>ENERGIA</b>"))           # Forex per primo
         self.assertIn("EUR/USD: <b>BUY</b> +31.0", t)
@@ -162,6 +162,28 @@ class Settimanale(unittest.TestCase):
         self.assertEqual(notifiche.leggi_cursore(self.dir)["riepilogo_cot"], "2026-10-20")
         notifiche.esegui(self.dir, "https://x/", ENV, ADESSO, dati_sito=d20)          # giro dopo: niente doppioni
         self.assertEqual(len(self.inviati), 1)
+
+    def test_riepilogo_tardivo_saltato(self):
+        # v9.05: un COT di oltre 6 giorni prima (es. martedi' dopo l'uscita) non manda il riepilogo: si segna e basta
+        from datetime import datetime
+        notifiche.esegui(self.dir, "https://x/", ENV, datetime(2026, 10, 30, 8, 0), dati_sito=dashboard("2026-10-13"))
+        r = notifiche.esegui(self.dir, "https://x/", ENV, datetime(2026, 10, 27, 8, 0),
+                             dati_sito=dashboard("2026-10-20", WTI=("SELL", "SELL")))
+        self.assertEqual(r["tipo"], "eventi")
+        self.assertEqual(self.inviati, [])
+        self.assertEqual(notifiche.leggi_cursore(self.dir)["riepilogo_cot"], "2026-10-20")
+
+    def test_copia_per_le_notifiche(self):
+        # v9.05: pagina pubblica con i blocchi COT vuoti (cifrati) -> si usa la copia della costruzione del sito
+        from cot_radar import riepilogo
+        pieno = dashboard("2026-10-20", WTI=("SELL", "SELL"))
+        pieno["assets"]["WTI"]["storia"] = [1, 2, 3]                 # le serie non finiscono nella copia
+        riepilogo.salva_copia(pieno, self.dir)
+        d = riepilogo.completa({"assets": {}, "pairs": [], "agenda": {"x": 1}}, self.dir)
+        self.assertEqual(riepilogo.data_cot(d), "2026-10-20")
+        self.assertNotIn("storia", d["assets"]["WTI"])
+        self.assertEqual(d["agenda"], {"x": 1})
+        self.assertEqual(len(d["pairs"]), 3)
 
     def test_sito_non_raggiungibile_riepilogo_rimandato(self):
         notifiche.esegui(self.dir, "", ENV, ADESSO, dati_sito=dashboard("2026-10-13"))
