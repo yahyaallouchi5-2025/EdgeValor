@@ -187,6 +187,8 @@ function ebBlocco(tit,txt,o){o=o||{};
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-premium]");if(!b)return;
  e.preventDefault();
  // v8.11 se l'area abbonamento e' accesa (per ora solo admin) si apre il pagamento PayPal, altrimenti il modulo Assistenza
+ // v9.15 durante la campagna Black Friday prima la finestra con il prezzo di oggi (47_blackfriday.js)
+ if(window.ebBlackFriday&&ebBlackFriday.intercetta())return;
  if(window.ebAbbonamento&&ebAbbonamento.attivo())ebAbbonamento.apri();else if(window.ebFeedback)ebFeedback({premium:true});});
 // v7.93 file JSON delle azioni con parte Premium ({"__p":...}): aperti con la chiave, altrimenti parte Basic
 const premJ=j=>j&&window.ebPrem?ebPrem.apri(j):j;

@@ -31,7 +31,7 @@ from zoneinfo import ZoneInfo
 CAMBIO = datetime(2026, 12, 1, tzinfo=ZoneInfo("Europe/Rome"))  # v9.14 nuovo listino e prova di 7 giorni
 NUOVI = datetime.now(ZoneInfo("Europe/Rome")) >= CAMBIO
 LISTINO_VECCHIO, LISTINO_NUOVO = (27.00, 19.99), (29.99, 24.99)
-BF_PUBBLICO = False                                          # v9.14 striscia Black Friday sulla pagina Prezzi (dopo l'ok di Ya)
+BF_PUBBLICO = True                                           # v9.15 ok di Ya; v9.14 striscia Black Friday sulla pagina Prezzi (dopo l'ok di Ya)
 MENSILE, ANNUALE = LISTINO_NUOVO if NUOVI else LISTINO_VECCHIO   # euro al mese: mensile, e annuale (pagato in un'unica rata)
 PROVA = 7 if NUOVI else 14                                   # giorni di prova Premium per chi si registra (privato.nuovo_utente)
 RISP = round((1 - ANNUALE / MENSILE) * 100)                  # sconto dell'annuale in %

@@ -10,9 +10,15 @@
    FASI (ora italiana): fino al 26/11 "Black Friday Week", 27/11 "Black Friday", 28-29/11 "Black Weekend",
    30/11 "Cyber Monday" (ultimo giorno). Dal 1/12 00:00 (EB_PREZZI.CAMBIO) tutto sparisce da solo.
    FONDATORE PRIMA: con PER_TUTTI=false la vede solo l'admin (classe eb-admin, anche se ha Premium a vita).
+   v9.15 FINESTRA "QUANDO SERVE" (come TradingView, idea di Ya): oltre all'apertura di fase si apre quando l'utente
+   mostra interesse, al massimo una volta al giorno in automatico:
+     - resta a guardare un contenuto Premium bloccato (.plk visibile per ATTESA_PLK secondi di fila);
+     - sul PC porta il mouse fuori dalla pagina verso l'alto (sta per chiudere la scheda), dopo almeno 30 secondi;
+     - tocca "Passa a Premium" su un contenuto bloccato: prima vede il prezzo di oggi e il conto alla rovescia
+       (01_base.js chiama ebBlackFriday.intercetta()), poi il pagamento. Al massimo una volta ogni 10 minuti.
    DEBUG (F12): ebBlackFriday.apri() apre la finestra; localStorage "ebBF" tiene fasi gia' mostrate e chiusure. */
 (function(){try{
- const PER_TUTTI=false;                               // true dopo l'ok di Ya
+ const PER_TUTTI=true;                                // v9.15 ok di Ya (24/11/2026): campagna per tutti
  const FINE=EB_PREZZI.CAMBIO;                          // 1/12/2026 00:00 ora italiana
  const V=EB_PREZZI.VECCHI,N=EB_PREZZI.NUOVI;
  const admin=()=>document.documentElement.classList.contains("eb-admin");
@@ -93,5 +99,23 @@
   const f=fase();if(!mem["vista_"+f.k])setTimeout(()=>{if(!document.querySelector(".cmodal"))apri();},2500);}
  if(Date.now()<FINE){new MutationObserver(prova).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});
   let n=0;const t=setInterval(()=>{prova();if(fatto||++n>30)clearInterval(t);},1000);}
- window.ebBlackFriday={apri,idoneo};
+ // ---------- v9.15 aperture "quando serve": interesse per Premium o uscita dalla pagina ----------
+ const ATTESA_PLK=6000,INIZIO=Date.now();
+ // apertura automatica: una sola al giorno (contando anche quella di fase), mai sopra un'altra finestra
+ function automatica(motivo){if(!fatto||Date.now()>=FINE||mem.auto==oggi()||document.querySelector(".cmodal"))return;
+  mem.auto=oggi();mem.motivo=motivo;salva();apri();}
+ // 1) contenuto Premium bloccato guardato a lungo
+ const visti=new Map();
+ const occhio=("IntersectionObserver" in window)?new IntersectionObserver(ee=>ee.forEach(e=>{
+  if(e.isIntersecting&&e.intersectionRatio>=.6){if(!visti.has(e.target))visti.set(e.target,setTimeout(()=>automatica("lucchetto"),ATTESA_PLK));}
+  else{clearTimeout(visti.get(e.target));visti.delete(e.target);}}),{threshold:[0,.6]}):null;
+ const osserva=()=>{if(occhio)document.querySelectorAll(".plk:not([data-bfv])").forEach(x=>{x.dataset.bfv=1;occhio.observe(x);});};
+ // le schede si disegnano quando si aprono: si ricontrolla ogni tanto (leggero, solo durante la campagna)
+ // 2) uscita dalla pagina (solo PC, mouse verso la barra del browser)
+ document.addEventListener("mouseout",e=>{if(!e.relatedTarget&&e.clientY<=0&&Date.now()-INIZIO>30000)automatica("uscita");});
+ // 3) "Passa a Premium": prima il prezzo di oggi (una volta ogni 10 minuti), poi il pagamento
+ function intercetta(){if(!fatto||Date.now()>=FINE||document.querySelector(".bfmodal"))return false;
+  if(Date.now()-(mem.inter||0)<600000)return false;mem.inter=Date.now();salva();apri();return true;}
+ if(Date.now()<FINE){const g2=setInterval(()=>{if(Date.now()>=FINE){clearInterval(g2);return;}if(fatto)osserva();},2000);}
+ window.ebBlackFriday={apri,idoneo,intercetta};
 }catch(e){console.warn("[EdgeValor] black friday",e);}})();
