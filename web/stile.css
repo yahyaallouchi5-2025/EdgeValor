@@ -4295,3 +4295,6 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* v9.24 striscia campagna su schermi medi (portatili piccoli, tablet orizzontali): etichette brevi e niente secondi,
    cosi' la frase dell'offerta si legge intera invece di finire con i puntini */
 @media (min-width:701px) and (max-width:1200px){.bfstrip .bflungo,.bfstrip .bfsec{display:none}.bfstrip .bfbreve{display:inline}}
+/* v9.26 (Ya) avviso festivita' sotto il menu a card di Mercati: era attaccato all'ultima card. Stessa distanza
+   delle card dal resto (22px), solo quando la sezione Mercati e' aperta (negli altri casi segue il menu, gia' distanziato) */
+#mercati.on+#avvisi>.avv{margin-top:22px}
