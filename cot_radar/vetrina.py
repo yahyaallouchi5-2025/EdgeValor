@@ -296,6 +296,13 @@ def crea(cartella):
         altre += archivio_cot.crea(cartella, home)
     except Exception as e:
         log.warning("archivio COT non creato (%s: %s)", type(e).__name__, e)
+    # v9.25 immagini di testa delle email delle campagne (servite da edgevalor.com/email/, le usa la funzione
+    # email-campagne di Supabase). Servono Pillow e il font Inter (workflow sito.yml); se mancano il sito esce lo stesso.
+    try:
+        from . import email_campagne_img
+        email_campagne_img.crea_tutte(cartella)
+    except Exception as e:
+        log.warning("immagini delle email non create (%s: %s)", type(e).__name__, e)
     # v8.06 icona del sito come file (per Google: favicon nei risultati e logo dell'organizzazione)
     with open(os.path.join(cartella, "favicon.svg"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(FAVICON_SVG)
