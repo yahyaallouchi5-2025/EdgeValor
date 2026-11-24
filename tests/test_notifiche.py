@@ -29,10 +29,23 @@ class Avvisi(unittest.TestCase):
         self.ok = True
         self._orig = notifiche.invia_telegram
         notifiche.invia_telegram = lambda token, chat, testo: (self.inviati.append(testo), self.ok)[1]
+        self._solo = notifiche.SOLO_SETTIMANALE
+        notifiche.SOLO_SETTIMANALE = False          # questi test provano gli avvisi singoli (regola fino alla v9.05)
 
     def tearDown(self):
         notifiche.invia_telegram = self._orig
+        notifiche.SOLO_SETTIMANALE = self._solo
         shutil.rmtree(self.dir)
+
+    def test_v906_avvisi_singoli_non_vanno_sul_canale(self):
+        # v9.06: fra un report e l'altro i cambi restano nel registro, sul canale niente; il cursore avanza
+        notifiche.SOLO_SETTIMANALE = True
+        self.scrivi([apertura("GBPUSD", "2026-10-23T22:59Z")])
+        notifiche.esegui(self.dir, "", ENV, ADESSO, dati_sito={})
+        self.aggiungi([apertura("SP500", "2026-10-24T22:15Z", "SELL")])
+        r = notifiche.esegui(self.dir, "", ENV, ADESSO, dati_sito={})
+        self.assertEqual(self.inviati, [])
+        self.assertEqual(notifiche.leggi_cursore(self.dir)["ultimo_n"], r["ultimo_n"])
 
     def scrivi(self, eventi):
         registro._scrivi(self.dir, registro.concatena(eventi, registro.ZERO, 0))

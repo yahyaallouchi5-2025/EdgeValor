@@ -63,6 +63,7 @@ MAX_ETA_ORE = 36                      # oltre: l'avviso e' troppo vecchio per es
 # Il cursore NON avanza: gli avvisi restano in coda e partono al primo giro del mattino (giro delle 05:30 UTC,
 # cioe' 06:30/07:30 in Italia). Gli eventi della sera hanno meno di 36 ore, quindi non vengono scartati.
 NOTTE_DA, NOTTE_A = 23, 6
+SOLO_SETTIMANALE = True               # v9.06 sul canale solo il riepilogo COT del giorno di uscita (vedi esegui)
 LIMITE_TG = 3800                      # Telegram accetta 4096 caratteri: margine per i tag HTML
 NOMI = {k: nome for k, _, nome, _ in ASSETS}
 def escape(t):
@@ -381,6 +382,16 @@ def esegui(cartella, sito, env=None, adesso=None, invia=True, dati_sito=None):
             log.warning("notifiche: %d eventi troppo vecchi (> %d ore) non inviati", len(vecchi), MAX_ETA_ORE)
         aperture = {e["id"]: e for e in eventi if e["tipo"] == "apertura"}
         testi = componi(righe_eventi(nuovi, aperture), nuovi, _link(sito))
+        # v9.06 UN SOLO MESSAGGIO COT A SETTIMANA (Ya, 24/11/2026: "perche' vedo il COT di martedi' se e' uscito
+        # venerdi'?"). I cambi di posizionamento fra un report e l'altro (dovuti ai dati macro giornalieri) restano
+        # nel registro del terminale ma NON vanno piu' sul canale: sul canale il COT esce solo con il riepilogo del
+        # giorno di uscita del report. All'admin arriva comunque la copia via e-mail.
+        if SOLO_SETTIMANALE and testi:
+            try:
+                invia_email(testi, env)
+            except Exception:
+                pass
+            testi = []
     # NOTIZIE MACRO (avvisi.py): "in arrivo" e "esito", ognuno una sola volta; stato nel cursore
     stato_ag = cursore.get("agenda")
     if stato_ag is None and agenda_sito:                  # cursore di una versione precedente: niente arretrati
