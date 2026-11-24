@@ -101,6 +101,15 @@ def build(data_source=load_all, demo=False, sito=False):
     assets, pairs, corr, market = analyse(cache["cot"]["data"], fred, ecb)
     if not assets:
         raise RuntimeError("nessun dato COT utilizzabile")
+    # v9.07 SEGNALI SOLO AL REPORT COT (fotografia.py): sul sito ufficiale etichette e punteggi restano quelli del
+    # giorno di uscita del report fino al report successivo (la parte macro giornaliera non fa nascere segnali)
+    if sito and not demo:
+        try:
+            from . import fotografia
+            cot_f = max((a.get("date") or "" for a in assets.values()), default="") or None
+            fotografia.applica(assets, pairs, cot_f, status, t0_utc.strftime("%Y-%m-%dT%H:%MZ"))
+        except Exception:
+            log.warning("fotografia dei segnali COT non applicata:\n%s", traceback.format_exc())
     # la liquidita' Fed e' un "extra": se fallisce la dashboard si crea lo stesso (scheda Mutui tolta in v6.35)
     mort = None
     try:

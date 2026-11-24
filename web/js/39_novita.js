@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-24T12",t:"Aggiornamento scheda COT",x:"I posizionamenti cambiano solo quando esce il report COT (il venerdì alle 21:30, il lunedì nelle settimane di festa USA): fra un report e l'altro restano fermi.",s:"assets",h:"mercati"},
   {d:"2026-11-24T10",t:"Aggiornamento scheda Portafogli",x:"Grafico del capitale rifatto: in alto le tre fasi (backtest, verifica e live) con rendimento e drawdown di ognuna; nel grafico il drawdown peggiore di ogni fase è segnato dal picco al minimo. Il live ora è in ambra.",s:"port"},
   {d:"2026-11-24T09",t:"Aggiornamento scheda Bitcoin",x:"Il prezzo di oggi ora si legge a destra del grafico, sulla colonna dei prezzi.",s:"btc"},
   {d:"2026-11-24T08",t:"Aggiornamento scheda Paesi",x:"Nuova colonna Inflazione: l'ultimo dato mensile di ogni paese, con la freccia se sale o scende. Anche con la stessa banca centrale, come la BCE, ogni paese ha la sua.",s:"sig"},
