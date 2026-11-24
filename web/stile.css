@@ -4120,12 +4120,13 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* striscia */
 .bfstrip{position:relative;display:flex;align-items:center;gap:14px;margin:0 0 14px;padding:10px 12px 10px 14px;border-radius:14px;isolation:isolate;
  background:#050505;color:#fff;border:1px solid rgba(255,255,255,.08);overflow:hidden;font:600 13.5px "Inter",system-ui;transition:opacity .25s,transform .25s}
-.bfstrip::before{content:"";position:absolute;z-index:-1;inset:-60% auto -60% -10%;width:55%;filter:blur(28px);opacity:.55;
- background:radial-gradient(closest-side,var(--c2),transparent),radial-gradient(closest-side at 70% 50%,var(--c1),transparent);animation:bfrespira 6s ease-in-out infinite alternate}
+.bfstrip::before{content:"";position:absolute;z-index:-1;inset:-60% auto -60% -10%;width:55%;filter:blur(28px);opacity:.6;
+ background:radial-gradient(closest-side,var(--c2),transparent),radial-gradient(closest-side at 70% 50%,var(--c1),transparent),radial-gradient(closest-side at 30% 50%,var(--c3),transparent);
+ animation:bfrespira 9s ease-in-out infinite alternate}
 .bfstrip::after{content:"";position:absolute;inset:auto 0 0 0;height:2px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c1));background-size:300% 100%;animation:bfscorre 6s linear infinite}
 .bfstrip.via{opacity:0;transform:translateY(-6px)}
 @keyframes bfscorre{to{background-position:300% 0}}
-@keyframes bfrespira{from{transform:translateX(0) scale(1)}to{transform:translateX(25%) scale(1.15)}}
+@keyframes bfrespira{0%{transform:translateX(0) scale(1)}50%{transform:translateX(90%) scale(1.2)}100%{transform:translateX(160%) scale(.95)}}
 .bftag{flex:none;padding:5px 10px;border-radius:8px;color:#0a0a0a;font:900 12px/1 "Inter",system-ui;letter-spacing:.6px;text-transform:uppercase;
  background:linear-gradient(100deg,var(--c1),var(--c2));box-shadow:0 0 18px color-mix(in srgb,var(--c2) 45%,transparent)}
 .bftesto{flex:1;min-width:0;color:#e6e6e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bftesto b{color:#fff}
@@ -4144,8 +4145,24 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
  background:conic-gradient(from 0deg at 50% 50%,var(--c1),var(--c2),var(--c3),var(--c1));border-radius:50%;animation:bfgira 14s linear infinite}
 .bfaura::after{content:"";position:absolute;inset:18%;border-radius:50%;background:#030303;filter:blur(30px)}
 @keyframes bfgira{to{transform:rotate(360deg)}}
-.bfgrana{position:absolute;z-index:-1;inset:0;pointer-events:none;opacity:.5;
- background:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px) 0 0/3px 3px,linear-gradient(180deg,transparent 0,rgba(3,3,3,.55) 38%,#030303 62%)}
+/* v9.17 luci colorate che si muovono in tutta la card (tre sfere sfocate su percorsi diversi) */
+.bfluci{position:absolute;z-index:-2;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.bfluci b{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;filter:blur(55px);opacity:.42;mix-blend-mode:screen}
+.bfluci b:nth-child(1){background:var(--c1);left:-20%;top:30%;animation:bfvaga1 16s ease-in-out infinite alternate}
+.bfluci b:nth-child(2){background:var(--c2);right:-25%;top:5%;animation:bfvaga2 19s ease-in-out infinite alternate}
+.bfluci b:nth-child(3){background:var(--c3);left:20%;bottom:-35%;animation:bfvaga3 22s ease-in-out infinite alternate}
+@keyframes bfvaga1{0%{transform:translate(0,0) scale(1)}50%{transform:translate(55%,-35%) scale(1.2)}100%{transform:translate(95%,25%) scale(.9)}}
+@keyframes bfvaga2{0%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-60%,55%) scale(.85)}100%{transform:translate(-25%,110%) scale(1.15)}}
+@keyframes bfvaga3{0%{transform:translate(0,0) scale(.9)}50%{transform:translate(-40%,-70%) scale(1.2)}100%{transform:translate(45%,-45%) scale(1)}}
+/* velo scuro uniforme sopra le luci: i testi restano leggibili, i colori si vedono muoversi sotto */
+.bfgrana{position:absolute;z-index:-1;inset:0;pointer-events:none;
+ background:radial-gradient(rgba(255,255,255,.045) 1px,transparent 1px) 0 0/3px 3px,linear-gradient(180deg,rgba(3,3,3,.15) 0,rgba(3,3,3,.5) 45%,rgba(3,3,3,.62) 100%)}
+/* bordo della card con una luce che gira (conic-gradient animato tramite angolo registrato) */
+@property --bfang{syntax:"<angle>";initial-value:0deg;inherits:false}
+.bfbox::before{content:"";position:absolute;z-index:-3;inset:0;padding:1px;border-radius:inherit;pointer-events:none;
+ background:conic-gradient(from var(--bfang),transparent 0 55%,var(--c1) 70%,var(--c2) 80%,var(--c3) 88%,transparent 100%);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bfbordo 6s linear infinite}
+@keyframes bfbordo{to{--bfang:360deg}}
 .bfbox .fbx{position:absolute;right:14px;top:14px;border-color:rgba(255,255,255,.16);color:#d0d0d0;background:rgba(0,0,0,.35)}
 .bfalto{display:flex;align-items:center;gap:10px;margin-bottom:16px}
 .bfalto .info{margin-left:auto;margin-right:44px}
@@ -4191,4 +4208,4 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* schermi bassi (portatili piccoli, finestra ridotta): la finestra resta senza barra di scorrimento */
 @media (max-height:720px){.bfbox{padding:22px 24px 16px}.bfbox h2{font-size:clamp(28px,5vw,36px)}.bfalto{margin-bottom:10px}
  .bfconto2{margin:12px 0 14px}.bfnum{padding:8px 0 7px}.bfnum b{font-size:24px}.bfpiani{margin-bottom:12px}.bfpiano{padding:12px 14px 10px}.bfvai{height:46px}}
-@media (prefers-reduced-motion:reduce){.bfstrip::before,.bfstrip::after,.bfaura,.bfvai::after{animation:none}}
+@media (prefers-reduced-motion:reduce){.bfstrip::before,.bfstrip::after,.bfaura,.bfvai::after,.bfluci b,.bfbox::before{animation:none}}

@@ -5,6 +5,8 @@
 //   v8.18 (Ya): disdetta = Premium fino a scadenza; rimborso, storno o CONTESTAZIONE (disputa) = piano Basic subito.
 //   4) ?azione=crea_piani (v9.14, SOLO ADMIN) {mensile:"29.99", annuale:"299.88"} -> crea su PayPal i piani con i prezzi
 //      nuovi copiando cicli, tasse e regole di pagamento da quelli attuali. Se esistono gia' (stesso nome) li restituisce.
+//      v9.18 {promo:"239.88", annuale:"299.88"} -> piano PROMOZIONALE annuale: primo anno a 239,88, poi 299,88
+//      (campagne stagionali: saldi d'inverno, Pasqua, saldi d'estate, Black Friday dal 2027).
 //   3) senza azione     (webhook di PayPal)  -> rinnovi, disdette, sospensioni, rimborsi: aggiorna la scadenza da solo
 // REGOLA DI SICUREZZA: non ci si fida MAI di quello che arriva (ne' dal browser ne' dal webhook). Si usa solo l'ID
 // dell'abbonamento e si RILEGGE lo stato vero da PayPal con le nostre credenziali: nessuno puo' fingersi PayPal.
@@ -82,6 +84,9 @@ async function allinea(t: string, id: string, chi: string | null) {
   const stato = String(s.status || "");                                                  // ACTIVE, CANCELLED, SUSPENDED, EXPIRED, APPROVAL_PENDING
   const fino = await rpc("paypal_registra", { p_id: id, p_utente: proprietario, p_piano: piano, p_stato: stato,
     p_fino: s.billing_info?.next_billing_time || null });
+  // v9.18 importo dell'ultimo pagamento (per le email: con l'offerta stagionale il primo anno costa meno)
+  const importo = Number(s.billing_info?.last_payment?.amount?.value);
+  if (importo > 0) await rpc("paypal_importo", { p_id: id, p_importo: importo }).catch(() => {});
   // v8.14 nome di battesimo dell'abbonato (per il "Ciao ..." delle email); se manca le email dicono solo "Ciao,"
   const nome = String(s.subscriber?.name?.given_name || "");
   if (nome) await rpc("paypal_nome", { p_id: id, p_nome: nome }).catch(() => {});
@@ -134,6 +139,26 @@ Deno.serve(async (req) => {
       }
       if (!ok) return json({ ok: false, errore: "solo admin" }, 403);
       const t = await gettone(), out: Record<string, unknown> = {};
+      // v9.18 piano promozionale: primo anno scontato (ciclo TRIAL di 1 anno) e poi prezzo pieno (REGULAR)
+      if (/^\d{1,4}\.\d{2}$/.test(String(b.promo || "")) && /^\d{1,4}\.\d{2}$/.test(String(b.annuale || ""))) {
+        const vecchio = Object.keys(PIANI).find((k) => PIANI[k] == "annuale")!;
+        const v = await (await pp(t, "/v1/billing/plans/" + vecchio)).json();
+        const nome = `EdgeValor Premium Annuale promo ${String(b.promo).replace(".", ",")} poi ${String(b.annuale).replace(".", ",")} EUR`;
+        const lista = await (await pp(t, `/v1/billing/plans?product_id=${v.product_id}&page_size=20`)).json();
+        const c = (lista.plans || []).find((x: { name?: string }) => x.name == nome);
+        if (c) return json({ ok: true, promo: { id: c.id, nuovo: false } });
+        const anno = { interval_unit: "YEAR", interval_count: 1 };
+        const r = await pp(t, "/v1/billing/plans", "POST", { product_id: v.product_id, name: nome, status: "ACTIVE",
+          description: "EdgeValor Premium annuale: offerta stagionale sul primo anno", payment_preferences: v.payment_preferences,
+          ...(v.taxes ? { taxes: v.taxes } : {}),
+          billing_cycles: [
+            { frequency: anno, tenure_type: "TRIAL", sequence: 1, total_cycles: 1, pricing_scheme: { fixed_price: { value: String(b.promo), currency_code: "EUR" } } },
+            { frequency: anno, tenure_type: "REGULAR", sequence: 2, total_cycles: 0, pricing_scheme: { fixed_price: { value: String(b.annuale), currency_code: "EUR" } } }] });
+        const j = await r.json();
+        if (!r.ok) throw new Error("PayPal piano promo HTTP " + r.status + " " + JSON.stringify(j).slice(0, 300));
+        console.log(`paypal: creato piano promo ${j.id}`);
+        return json({ ok: true, promo: { id: j.id, nuovo: true } });
+      }
       for (const [vecchio, tipo] of Object.entries(PIANI)) {
         const prezzo = String(b[tipo] || "");
         if (!/^\d{1,4}\.\d{2}$/.test(prezzo)) continue;

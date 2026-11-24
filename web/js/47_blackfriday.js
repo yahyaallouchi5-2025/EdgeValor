@@ -6,15 +6,16 @@
      estate    Saldi d'estate    dal primo sabato di luglio, 9 giorni (2027: 3-11 luglio)
      black     Black Friday      dal lunedi' prima del Black Friday al Cyber Monday (2026: 23-30 novembre)
                fasi: Black Friday Week, Black Friday, Black Weekend, Cyber Monday (ultimo giorno)
-   OFFERTA: nel 2026 il Black Friday "blocca la tariffa attuale" (il listino sale il 1/12, EB_PREZZI.CAMBIO).
-   Dalle campagne successive: Premium annuale -20% il primo anno (19,99 EUR al mese, poi 24,99). Una campagna con
-   pronta:false (manca ancora il piano PayPal promozionale) la vede SOLO l'admin in anteprima: ?campagna=estate.
+   OFFERTA: nel 2026 il Black Friday "blocca la tariffa attuale" (il listino sale il 1/12, EB_PREZZI.CAMBIO): annuale a
+   19,99 al mese invece di 24,99 (-20%). Dalle campagne successive: Premium annuale -20% il primo anno (19,99 EUR al
+   mese, poi 24,99) con il piano PayPal promozionale EB_PREZZI.PROMO. Anteprima per l'admin: ?campagna=estate.
    CHI LA VEDE: chi non ha un abbonamento pagato (e l'admin sempre, per controllarla).
    QUANDO SI APRE LA FINESTRA (come TradingView, idea di Ya), al massimo una volta al giorno in automatico:
      - all'inizio di ogni fase; - quando l'utente guarda un contenuto Premium bloccato per 6 secondi;
      - sul PC quando porta il mouse verso la barra del browser (sta per chiudere), dopo 30 secondi;
      - quando tocca "Passa a Premium": prima l'offerta, poi il pagamento (01_base.js -> ebBlackFriday.intercetta()).
-   TEMI: ogni campagna ha i suoi colori (classe .cmp-<tema>, stile.css "CAMPAGNE").
+   TEMI: ogni campagna ha i suoi colori (classe .cmp-<tema>, stile.css "CAMPAGNE"). v9.17 (Ya): luci colorate che si
+   muovono dentro tutta la card (.bfluci, tre sfere sfocate) e bordo con luce che gira, come TradingView.
    DEBUG (F12): ebCampagne.agenda(2027) elenca date e orari; ebCampagne.anteprima("pasqua") apre la finestra (admin). */
 (function(){try{
  const V=EB_PREZZI.VECCHI,N=EB_PREZZI.NUOVI;
@@ -47,7 +48,8 @@
   const est=primo(gg(y,7,1),6);metti("estate","estate","Saldi d'estate",est,piu(est,8));
   const bf=blackFriday(y);metti("black","black","Black Friday",piu(bf,-4),piu(bf,3),{bf});
   // offerta: 2026 = tariffa bloccata (sale il listino); dopo = -20% sull'annuale il primo anno (piano PayPal da creare)
-  L.forEach(c=>{c.offerta=(c.k=="black"&&y==2026)?"blocco":"sconto";c.pronta=c.offerta=="blocco";});
+  // v9.18 tutte pronte: il piano PayPal promozionale esiste (EB_PREZZI.PROMO)
+  L.forEach(c=>{c.offerta=(c.k=="black"&&y==2026)?"blocco":"sconto";c.pronta=true;});
   return L;}
  // campagna in corso adesso (o quella richiesta in anteprima dall'admin)
  let forzata=null;
@@ -69,12 +71,13 @@
  const dataLunga=dt=>dt.toLocaleDateString(typeof EB_LOC!="undefined"?EB_LOC:"it-IT",{day:"numeric",month:"long",timeZone:"UTC"});
  function testi(c,f){const fino=dataLunga(c.giornoFine);
   if(c.offerta=="blocco")return {
-   striscia:T("Tariffa attuale bloccata per sempre."),
+   // v9.18 (Ya): la leva e' l'annuale a 19,99 al mese, con lo sconto rispetto al prezzo pieno (24,99) sempre in vista
+   striscia:T("Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), bloccato per sempre."),
    titolo:T("Blocca la tariffa attuale."),
-   sott:T("Offerta valida fino al 30 novembre: mantieni questo prezzo finché resti abbonato. Dal 1° dicembre Premium passa a 29,99 € al mese."),
+   sott:T("Fino al 30 novembre: Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), finché resti abbonato."),
    info:T("La tariffa resta bloccata finché l'abbonamento è attivo, anche negli anni successivi. Se disdici e ti riabboni dal 1° dicembre vale il nuovo listino: 29,99 € al mese oppure 24,99 € al mese con l'annuale. Paghi con PayPal o carta, disdici quando vuoi dal Profilo."),
    cta:T("Blocca la tariffa"),ctaBreve:T("Blocca"),
-   piani:[["annuale",T("Annuale"),V.annuale.mese,N.annuale.mese,`${V.annuale.prezzo} ${T("all'anno")}`,T("Più conveniente")],
+   piani:[["annuale",T("Annuale"),V.annuale.mese,N.annuale.mese,`${V.annuale.prezzo} ${T("all'anno")}`,"−20%"],
           ["mensile",T("Mensile"),V.mensile.mese,N.mensile.mese,T("Mese per mese"),""]]};
   return {
    striscia:T("Premium annuale −20% il primo anno."),
@@ -122,7 +125,7 @@
     <span class="bfprezzo"><b>${oggiP}</b><i>${T("/mese")}</i></span>
     ${poiP?`<span class="bfpoi">${C.offerta=="blocco"?T("dal 1/12"):T("poi")} <s>${poiP}</s></span>`:`<span class="bfpoi">&nbsp;</span>`}<em>${sotto}</em></button>`;
   box.innerHTML=`<div class="cmodal-box bfbox" role="dialog" aria-modal="true" aria-labelledby="bft">
-   <i class="bfaura" aria-hidden="true"></i><i class="bfgrana" aria-hidden="true"></i>
+   <i class="bfaura" aria-hidden="true"></i><i class="bfluci" aria-hidden="true"><b></b><b></b><b></b></i><i class="bfgrana" aria-hidden="true"></i>
    <button type="button" class="fbx" aria-label="${T("Chiudi")}">&#x2715;</button>
    <div class="bfalto"><span class="bftag">${f.nome}</span>${f.ultimo?`<span class="bfultimo">${T("Ultimo giorno")}</span>`:""}
     <button type="button" class="info" data-apri="bfinfo" aria-expanded="false" aria-label="${T("Come funziona")}">i</button></div>

@@ -99,6 +99,12 @@
 
   // --- vista 2: scelta del piano + condizioni + PayPal. parte = data di partenza (riattivazione) o null (subito)
   function vistaScelta(parte,frase){let scelto=preferito||"annuale";
+   // v9.18 campagna stagionale con sconto: l'annuale passa al piano promozionale (primo anno -20%)
+   const cmp=window.ebCampagne&&ebCampagne.attuale&&ebCampagne.attuale(),promo=!!(cmp&&cmp.offerta=="sconto"&&cmp.pronta&&!parte);
+   if(promo)PIANI.annuale=Object.assign({},PIANI.annuale,{id:EB_PREZZI.PROMO.id,prezzo:EB_PREZZI.PROMO.prezzo,per:T("il primo anno"),
+    nota:`19,99 € ${T("al mese")} · −20% · ${T("poi")} 299,88 €`});
+   // Black Friday 2026: lo sconto si legge rispetto al prezzo dal 1/12 (24,99), non rispetto al mensile
+   else if(!EB_PREZZI.nuovi())PIANI.annuale=Object.assign({},PIANI.annuale,{nota:`19,99 € ${T("al mese")} · −20% ${T("sul prezzo dal 1/12")}`});
    sott.textContent=frase;
    corpo.innerHTML=`<div class="abpiani" role="radiogroup" aria-label="Piano">${Object.entries(PIANI).map(([k,p])=>`
      <button type="button" role="radio" class="abpiano${k==scelto?" on":""}" data-k="${k}" aria-checked="${k==scelto}">

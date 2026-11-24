@@ -39,7 +39,7 @@ const NOME_PIANO: Record<string, string> = { mensile: "Premium Mensile", annuale
 type Riga = { utente: string; email: string; numero: number | null; tipo: string; scadenza: string;
               rinnovo: boolean; piano: string | null; nome: string | null;
               motivo?: string | null; creato?: string | null; prova_fino?: string | null;   // v8.93
-              abbonato_il?: string | null };   // v9.14 data dell'abbonamento (per l'importo giusto)
+              abbonato_il?: string | null; importo?: number | null };   // v9.14 data dell'abbonamento, v9.18 importo pagato
 // contenuto di un'email: oggetto, riga in evidenza, paragrafi, riepilogo, sezioni con elenco, pulsante, chiusura, piede
 type Mail = { oggetto: string; testa: string; par: string[]; riep?: [string, string][]; riepT?: string; sez?: [string, string[]][];
               dopo?: string[]; btn?: [string, string]; fine?: string; piede: string };
@@ -76,7 +76,9 @@ function testi(x: Riga): Mail {
   switch (x.tipo) {
     case "attivo": {
       const riep: [string, string][] = [["Piano", x.piano ? NOME_PIANO[x.piano] || "Premium" : "Premium"]];
-      if (pagato) riep.push(["Importo", (nuovoListino(x.abbonato_il) ? IMPORTO_NUOVO : IMPORTO)[x.piano!] || "—"], ["Pagamento", "completato"]);
+      // v9.18 importo VERO dell'ultimo pagamento PayPal (offerte stagionali: il primo anno costa meno); se manca, il listino
+      const pagatoEur = x.importo && x.importo > 0 ? "€" + x.importo.toFixed(2).replace(".", ",") : null;
+      if (pagato) riep.push(["Importo", pagatoEur || (nuovoListino(x.abbonato_il) ? IMPORTO_NUOVO : IMPORTO)[x.piano!] || "—"], ["Pagamento", "completato"]);
       riep.push(["Data di attivazione", breve(Date.now())]);
       riep.push(x.rinnovo ? ["Prossimo rinnovo", rinnovo] : ["Scadenza", breve(x.scadenza)]);
       return {
@@ -383,7 +385,10 @@ Deno.serve(async (req) => {
       if (!(await rpc("email_prenota", k))) continue;
       try {
         // v9.14 per l'email di pagamento serve la data dell'abbonamento: importo del listino di allora
-        if (x.tipo == "attivo" && x.piano) x.abbonato_il = await rpc("abbonamento_creato_di", { p_utente: x.utente }).catch(() => null) as string | null;
+        if (x.tipo == "attivo" && x.piano) {
+          x.abbonato_il = await rpc("abbonamento_creato_di", { p_utente: x.utente }).catch(() => null) as string | null;
+          x.importo = Number(await rpc("abbonamento_importo_di", { p_utente: x.utente }).catch(() => null)) || null;
+        }
         const idr = await spedisci(x.email, x, `${x.utente}-${x.tipo}-${x.scadenza}`);
         await rpc("email_esito", { ...k, id_resend: idr }); esito.inviate++;
       } catch (e) {

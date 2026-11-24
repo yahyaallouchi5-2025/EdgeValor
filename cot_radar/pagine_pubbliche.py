@@ -10,7 +10,7 @@ COME FUNZIONA
   PREZZI (decisi da Ya): Basic gratis; Premium 27,00 EUR al mese oppure 19,99 EUR al mese con il piano annuale (239,88 EUR in un unico pagamento)
     v9.14 (Ya, 24/11/2026): dal 1/12/2026 29,99 EUR al mese oppure 24,99 con l'annuale (299,88 EUR) e prova di 7 giorni.
     La pagina si costruisce col listino del giorno; in piu' uno script cambia i numeri da solo a mezzanotte del 1/12
-    (prima della ricostruzione del mattino). Fino al 30/11 la striscia Black Friday (BF_PUBBLICO) dice che il prezzo sale.
+    (prima della ricostruzione del mattino). v9.18 la striscia delle campagne stagionali arriva da campagne.py.
     (il risparmio in % e in euro e' CALCOLATO qui sotto, non scritto a mano).
     v8.12: "Attiva Premium" porta al terminale (?premium=1) dove si paga con PayPal (abbonamento con rinnovo automatico).
     Prima (v8.07-8.11): "Contattaci" -> l'utente lasciava l'email -> arrivava al titolare (web3forms, la stessa
@@ -31,7 +31,6 @@ from zoneinfo import ZoneInfo
 CAMBIO = datetime(2026, 12, 1, tzinfo=ZoneInfo("Europe/Rome"))  # v9.14 nuovo listino e prova di 7 giorni
 NUOVI = datetime.now(ZoneInfo("Europe/Rome")) >= CAMBIO
 LISTINO_VECCHIO, LISTINO_NUOVO = (27.00, 19.99), (29.99, 24.99)
-BF_PUBBLICO = True                                           # v9.15 ok di Ya; v9.14 striscia Black Friday sulla pagina Prezzi (dopo l'ok di Ya)
 MENSILE, ANNUALE = LISTINO_NUOVO if NUOVI else LISTINO_VECCHIO   # euro al mese: mensile, e annuale (pagato in un'unica rata)
 PROVA = 7 if NUOVI else 14                                   # giorni di prova Premium per chi si registra (privato.nuovo_utente)
 RISP = round((1 - ANNUALE / MENSILE) * 100)                  # sconto dell'annuale in %
@@ -48,8 +47,6 @@ CSS = """
 .cambio em{font-style:normal;font-size:12px;font-weight:800;padding:3px 8px;border-radius:99px;color:#03141a;background:var(--acc)}
 .prezzo{display:flex;align-items:baseline;gap:8px;margin:14px 0 4px}.prezzo b{font:800 46px/1 "Inter Display","Inter",system-ui;letter-spacing:-1.6px}
 .prezzo span{color:var(--mute);font-size:15px}.prezzo s{color:var(--mute);font-size:18px}
-.bfpub{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-14px 0 26px;padding:12px 16px;border-radius:14px;background:#000;border:1px solid #222;color:#d6d6d6;font-size:14.5px;line-height:1.45}
-.bfpub .bftag{flex:none;padding:5px 10px;border-radius:8px;background:#fff;color:#000;font:900 12px/1 "Inter",system-ui;letter-spacing:.6px;text-transform:uppercase}
 .sotto{min-height:22px;margin:0 0 20px;font-size:14.5px;color:var(--mute)}.sotto b{color:var(--su,#4fd6a3)}
 .piano.pro .ptag{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,#ffe7a3,#f3c75f 55%,#c9962b);box-shadow:0 4px 14px rgba(243,199,95,.25)}
 .piano .btn{margin-top:26px;width:100%}.piano ul{flex:1;align-content:start}
@@ -106,7 +103,7 @@ PREZZI = f"""
 </div>
 <script>(function(){{
  // v9.14 listino del momento: se la pagina e' stata costruita prima del 1/12 ma la si apre dopo, i numeri cambiano qui
- var CAMBIO=Date.parse("2026-12-01T00:00:00+01:00"),NUOVO=Date.now()>=CAMBIO,BF={str(BF_PUBBLICO).lower()};
+ var CAMBIO=Date.parse("2026-12-01T00:00:00+01:00"),NUOVO=Date.now()>=CAMBIO;
  var L=NUOVO?[{LISTINO_NUOVO[0]},{LISTINO_NUOVO[1]},7]:[{LISTINO_VECCHIO[0]},{LISTINO_VECCHIO[1]},14];
  var e=function(v){{return v.toFixed(2).replace(".",",")+" \\u20ac"}},M=e(L[0]),A=e(L[1]),R=Math.round((1-L[1]/L[0])*100);
  var S=document.querySelector("[data-sotto]"),T=e(L[1]*12)+" all'anno &middot; <b>risparmi "+e((L[0]-L[1])*12)+" (&minus;"+R+"%)</b>";
@@ -115,10 +112,6 @@ PREZZI = f"""
  document.querySelectorAll(".cambio button").forEach(function(b){{b.onclick=function(){{var a=b.dataset.d=="a";
   document.querySelectorAll(".cambio button").forEach(function(x){{x.classList.toggle("on",x==b)}});
   document.querySelector("[data-prezzo]").textContent=a?A:M;document.querySelector("[data-vecchio]").hidden=!a;S.innerHTML=a?T:"Paghi mese per mese.";}}}});
- // v9.14 striscia Black Friday fino al 30/11: il prezzo di oggi resta a chi si abbona prima dell'aumento
- if(BF&&!NUOVO){{var f=document.createElement("div");f.className="bfpub";
-  f.innerHTML='<span class="bftag">Black Friday</span><span>Abbonati entro il 30 novembre e mantieni la tariffa attuale finch\\u00e9 resti abbonato. Dal 1\\u00b0 dicembre: {eu(LISTINO_NUOVO[0])} \\u20ac al mese.</span>';
-  var t=document.querySelector(".pag .titsez");t&&t.parentNode.insertBefore(f,t.nextSibling);}}
 }})();</script>
 """
 
@@ -222,6 +215,13 @@ def crea(cartella, home):
     fatte = []
     for nome, (titolo, desc, corpo) in PAGINE.items():
         corpo = corpo.replace("__FAQ__", domande.html(aperta=True))
-        fatte.append(scrivi(cartella, nome, titolo, desc, corpo, testa, piede, qui=nome, extra=extra.get(nome, ""),
-                            head=domande.dati_strutturati() if nome == "faq" else ""))   # v8.30 FAQPage anche su /faq/
+        head = domande.dati_strutturati() if nome == "faq" else ""        # v8.30 FAQPage anche su /faq/
+        if nome == "prezzi":                                     # v9.18 campagna stagionale: striscia e offerta per Google
+            from . import campagne
+            c = campagne.in_vista()
+            corpo = campagne.striscia(c, link="/terminale/?premium=1") + corpo
+            head += campagne.dati_strutturati(c, MENSILE, ANNUALE * 12)
+            if c and c["da"] <= datetime.now(ZoneInfo("Europe/Rome")):
+                desc = f"{c['nome']}: " + campagne._testi(c)[0]
+        fatte.append(scrivi(cartella, nome, titolo, desc, corpo, testa, piede, qui=nome, extra=extra.get(nome, ""), head=head))
     return fatte
