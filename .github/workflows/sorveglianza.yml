@@ -1,33 +1,35 @@
-# sorveglianza.yml - v7.24 ALLARME PER L'ADMIN: ogni ora controlla che sito, Azionario, prezzi live e workflow
-# principali siano freschi e senza errori (cot_radar/sorveglianza.py). Se qualcosa si ferma apre UNA issue
-# "sorveglianza" (mail + notifica dell'app GitHub) e la chiude da sola quando torna tutto regolare.
-# v9.20 avvisi solo per email privata al fondatore: Secrets SMTP_USER, SMTP_PASSWORD, ADMIN_EMAIL (niente Telegram). A mano: Actions -> Sorveglianza.
+# sorveglianza.yml - v7.24 ALLARME PER L'ADMIN: controlla che sito, Azionario, prezzi live e workflow principali siano
+# freschi e senza errori (cot_radar/sorveglianza.py).
+# v9.20 avvisi solo per email privata al fondatore: Secrets SMTP_USER, SMTP_PASSWORD, ADMIN_EMAIL (niente Telegram).
 # v9.13 REGISTRO ANOMALIE: ogni giro aggiorna anomalie.json nel ramo "anomalie" (aperte, risolte, ultime 72 ore),
 # letto dal terminale solo con l'account fondatore (Profilo -> sotto "Dati aggiornati").
+# v9.25 IN CICLO (come prezzi-live-continuo): GitHub avviava il controllo "ogni ora" solo 2-3 volte al giorno
+# (24/11: ultimo giro alle 14:59, poi niente per 7 ore). Ora ogni partenza resta accesa ~5h45 e controlla ogni ora;
+# alla fine si riavvia da sola (gh workflow run), cosi' la catena non si ferma. Le partenze programmate restano come
+# riserva: se la catena si interrompe, la prima che GitHub avvia la riprende. Mai due cicli insieme (concurrency).
+# A mano: Actions -> Sorveglianza -> Run workflow.
 name: Sorveglianza
 on:
   schedule:
-    - cron: "23 * * * *"
+    - cron: "23 */3 * * *"
   workflow_dispatch:
 permissions:
   contents: write
   issues: write
-  actions: read
+  actions: write
 concurrency:
   group: sorveglianza
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   controllo:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Registro anomalie precedente
-        run: git fetch -q --depth 1 origin anomalie && git show origin/anomalie:anomalie.json > /tmp/anomalie_prec.json || echo "primo giro del registro"
-      - name: Controllo
+      - name: Ciclo dei controlli (ogni ora)
         env:
           ANOMALIE_PREC: /tmp/anomalie_prec.json
           ANOMALIE_OUT: out_anomalie
@@ -37,12 +39,27 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
         run: |
+          FINE=$(( $(date +%s) + 340*60 ))
           gh label create sorveglianza --color B60205 --description "Allarme automatico" 2>/dev/null || true
-          python -m cot_radar.sorveglianza
-      - name: Pubblica il registro anomalie
+          while :; do
+            INIZIO=$(date +%s)
+            # registro del giro prima (dal ramo "anomalie"), controllo, pubblicazione del registro nuovo
+            rm -rf out_anomalie /tmp/anomalie_prec.json
+            git fetch -q --depth 1 origin anomalie 2>/dev/null && git show origin/anomalie:anomalie.json > /tmp/anomalie_prec.json || echo "primo giro del registro"
+            python -m cot_radar.sorveglianza || echo "controllo non riuscito, si riprova al giro dopo"
+            if [ -f out_anomalie/anomalie.json ]; then
+              ( cd out_anomalie && git init -q -b anomalie && git add -A \
+                && git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "registro anomalie" \
+                && git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}" anomalie ) || echo "registro non pubblicato"
+            fi
+            # prossimo giro tra un'ora (se c'e' ancora tempo in questa partenza)
+            PROSSIMO=$(( INIZIO + 3600 ))
+            [ "$PROSSIMO" -lt "$FINE" ] || break
+            sleep $(( PROSSIMO - $(date +%s) ))
+          done
+      - name: Riavvio della catena
         if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          [ -f out_anomalie/anomalie.json ] || exit 0
-          cd out_anomalie && git init -q -b anomalie && git add -A \
-            && git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "registro anomalie" \
-            && git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" anomalie
+          gh workflow run sorveglianza.yml --ref main || echo "riavvio non riuscito, ci pensa la prossima partenza programmata"
