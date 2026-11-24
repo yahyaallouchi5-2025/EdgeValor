@@ -33,6 +33,8 @@ try{(function(){
  // colori della stampa: stessi toni della pagina, scuriti per leggerli su carta bianca
  const C={ink:"#14202e",mute:"#5d6b80",line:"#d5dde8",soft:"#f3f6fa",acc:"#1a9e93",up:"#11935f",down:"#d2453f",navy:"#0a1628",warn:"#c98a14",bianco:"#ffffff"};
 
+ // v9.10 con il terminale in inglese anche il PDF esce in inglese: ogni testo passa dal traduttore della pagina (00t_lingua.js)
+ const trP=s=>typeof s=="string"&&window.ebTr?ebTr(s):s;
  function Doc(o){o=o||{};const land=!!o.land,PW=land?841.89:595.28,PH=land?595.28:841.89,M=36;
   const pg=[];let cur=null;
   const d={PW,PH,M,C,
@@ -40,14 +42,14 @@ try{(function(){
    pagina(){cur=[];pg.push(cur);return d;},
    larghezza(s,sz,b){return larg(codici(s),sz||9,b);},
    // testo: y = linea di base misurata dall'alto; op.a = "l" | "r" | "c"
-   testo(x,y,s,op){op=op||{};const sz=op.s||9,b=!!op.b,cod=codici(s),w=larg(cod,sz,b);
+   testo(x,y,s,op){op=op||{};s=trP(s);const sz=op.s||9,b=!!op.b,cod=codici(s),w=larg(cod,sz,b);
     const x0=op.a=="r"?x-w:op.a=="c"?x-w/2:x;
     cur.push(`BT ${rgb(op.c||C.ink)} rg /F${b?2:1} ${n2(sz)} Tf ${n2(x0)} ${n2(PH-y)} Td (${escP(cod)}) Tj ET`);return w;},
    // testo troncato con "..." se supera la larghezza w
-   taglia(s,w,sz,b){s=String(s==null?"":s);if(d.larghezza(s,sz,b)<=w)return s;let t=s;
+   taglia(s,w,sz,b){s=trP(String(s==null?"":s));if(d.larghezza(s,sz,b)<=w)return s;let t=s;
     while(t.length>1&&d.larghezza(t+"…",sz,b)>w)t=t.slice(0,-1);return t.trimEnd()+"…";},
    // a capo automatico: righe che stanno nella larghezza w
-   righe(s,w,sz,b){const out=[];let r="";for(const p of String(s||"").split(/\s+/)){if(!p)continue;const t=r?r+" "+p:p;
+   righe(s,w,sz,b){s=trP(s);const out=[];let r="";for(const p of String(s||"").split(/\s+/)){if(!p)continue;const t=r?r+" "+p:p;
      if(r&&d.larghezza(t,sz,b)>w){out.push(r);r=p;}else r=t;}if(r)out.push(r);return out;},
    // paragrafo a capo automatico; ritorna l'altezza occupata
    paragrafo(x,y,s,w,op){op=op||{};const sz=op.s||9,lh=op.lh||sz*1.38,r=d.righe(s,w,sz,op.b);r.forEach((t,i)=>d.testo(x,y+i*lh,t,op));
@@ -121,7 +123,7 @@ try{(function(){
  const bottone=(cls)=>`<button type="button" class="pdfbtn${cls?" "+cls:""}" title="Scarica in PDF quello che vedi">${ICONA}<span>Scarica PDF</span></button>`;
  // esegue la funzione che crea il PDF con il pulsante in stato "occupato" (niente doppi clic)
  function avvia(btn,fn){if(btn.disabled)return;const t=btn.querySelector("span"),orig=t.textContent;btn.disabled=true;t.textContent="Creo il PDF…";
-  setTimeout(()=>{Promise.resolve().then(fn).catch(e=>{console.error("[EdgeValor] pdf:",e);alert("PDF non creato: riprova tra poco.");})
+  setTimeout(()=>{Promise.resolve().then(fn).catch(e=>{console.error("[EdgeValor] pdf:",e);alert(trP("PDF non creato: riprova tra poco."));})
    .finally(()=>{btn.disabled=false;t.textContent=orig;});},30);}
 
  window.ebPdf={Doc,C,chiaro,testata,testataMini,piede,sezione,ora,scarica,nomeFile,bottone,avvia};

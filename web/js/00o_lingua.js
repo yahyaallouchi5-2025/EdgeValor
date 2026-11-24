@@ -60,7 +60,7 @@ Object.assign(EB_EN,{
 "Aggiornamento scheda COT":"COT tab update",
 "I posizionamenti cambiano solo quando esce il report COT (il venerdì alle 21:30, il lunedì nelle settimane di festa USA): fra un report e l'altro restano fermi.":"Positioning changes only when the COT report is released (Friday at 21:30 Italian time, Monday in US holiday weeks): between reports it stays unchanged.",
 // v9.09 novita'
-"Aggiornamento scheda Azionario":"Equities tab update",
+"Aggiornamento scheda Azionario":"Stocks tab update",
 "Nuovo riquadro Magnifiche 7: quanto pesano Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta e Tesla nell'S&P 500 e nel Nasdaq-100, chi ha spinto l'indice e una card per azienda da girare.":"New Magnificent 7 box: how much Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta and Tesla weigh in the S&P 500 and Nasdaq-100, who drove the index and a flip card for each company.",
 "Aggiornamento scheda Crypto":"Crypto tab update",
 "Nel profilo di Bitcoin il ciclo dell'halving: a che punto siamo del ciclo e il confronto con i cicli passati allo stesso giorno.":"In the Bitcoin profile, the halving cycle: where we are in the cycle and a comparison with past cycles on the same day.",

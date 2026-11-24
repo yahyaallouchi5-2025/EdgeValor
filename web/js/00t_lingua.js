@@ -43,6 +43,7 @@ function ebFrasi(s){for(const [a,b] of EB_FR)s=s.split(a).join(b);return s;}
  // selettore nel Profilo: IT / EN (si ricarica la pagina: ogni scheda si ridisegna nella lingua scelta)
  document.querySelectorAll("[data-lang]").forEach(b=>{b.classList.toggle("on",b.dataset.lang==EB_LANG);b.setAttribute("aria-pressed",b.dataset.lang==EB_LANG);
   b.onclick=()=>{if(b.dataset.lang==EB_LANG)return;try{localStorage.setItem("ebLang",b.dataset.lang);}catch(e){}location.reload();};});
+ window.ebTr=s=>s;                                     // v9.10 testi fuori dalla pagina (PDF, avvisi): in italiano restano come sono
  if(EB_LANG!="en"){window.ebLingua={lang:EB_LANG};return;}
  const SALTA=/^(SCRIPT|STYLE|TEXTAREA|CODE)$/,ATTR=["title","aria-label","placeholder"],manca=new Set();
  const NUM=/[+\-−]?\d[\d.,/:]*/g,SEP=[" · "," / ",": "," → "];
@@ -65,10 +66,13 @@ function ebFrasi(s){for(const [a,b] of EB_FR)s=s.split(a).join(b);return s;}
  function elem(e){for(const a of ATTR){const v=e.getAttribute&&e.getAttribute(a);if(v){const o=tr(v);if(o!=null)e.setAttribute(a,o.trim());}}}
  function giro(r){
   if(r.nodeType==3){const p=r.parentElement;if(p&&!SALTA.test(p.tagName)&&!p.closest("[data-noi18n]")){const o=tr(r.nodeValue);if(o!=null)r.nodeValue=o;}return;}
-  if(r.nodeType!=1||SALTA.test(r.tagName)||(r.closest&&r.closest("[data-noi18n]")))return;
+  if(r.nodeType!=1||(r.closest&&r.closest("[data-noi18n]")))return;
+  if(SALTA.test(r.tagName)){elem(r);return;}               // v9.10 caselle di testo: si traduce il placeholder, non quello che scrive l'utente
   elem(r);
-  const w=document.createTreeWalker(r,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:n=>n.nodeType==1&&(SALTA.test(n.tagName)||n.hasAttribute("data-noi18n"))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  const w=document.createTreeWalker(r,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:n=>n.nodeType==1&&(n.hasAttribute("data-noi18n")||(SALTA.test(n.tagName)&&(elem(n),true)))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
   let n;while(n=w.nextNode()){if(n.nodeType==3){const o=tr(n.nodeValue);if(o!=null)n.nodeValue=o;}else elem(n);}}
+ // v9.10 stesso traduttore per i testi che non passano dalla pagina: PDF (01b_pdf.js) e finestre di avviso
+ window.ebTr=s=>{if(s==null||typeof s!="string")return s;const o=tr(s);return o==null?s:o;};
  giro(document.body);document.title=document.title.replace("Terminale di analisi dei mercati","Market analysis terminal");
  // ogni cosa disegnata dopo (schede, popup, tabelle) passa dal traduttore prima di essere mostrata
  new MutationObserver(ms=>{for(const m of ms){if(m.type=="childList")m.addedNodes.forEach(giro);

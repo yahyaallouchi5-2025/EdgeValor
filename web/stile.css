@@ -2958,6 +2958,9 @@ html.senzaccesso body>*:not(#porta){visibility:hidden}
 .ptko{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:rgba(242,113,107,.12);border:1px solid rgba(242,113,107,.35);color:#ffb4ae;font-size:13px;line-height:1.45}
 .ptnota{margin:14px 0 0;color:#8ea3c4;font-size:12px;text-align:center;line-height:1.5}.ptnota a{color:#c3d1e6}
 .ptsito{display:block;text-align:center;margin-top:18px;color:#8ea3c4;font-size:13px;text-decoration:none}.ptsito:hover{color:#f1f5fb}
+/* v9.10 selettore della lingua sotto la scheda di accesso */
+.ptbox .ptlang{display:flex;justify-content:center;gap:4px;margin:12px auto 0;width:max-content;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+.ptbox .ptlang button{min-width:44px;min-height:32px;color:#8ea3c4}.ptbox .ptlang button.on{color:#f1f5fb;background:rgba(255,255,255,.1)}
 /* v7.93 LUCCHETTO PREMIUM (ebBlocco in 01_base.js): riquadro sobrio, icona, testo breve, un pulsante.
    .plk-velo = sopra righe finte sfocate che ricordano il contenuto (nessun dato vero sotto) */
 .plk{position:relative;overflow:hidden;padding:18px 20px;border-color:color-mix(in srgb,var(--c1) 45%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--c1) 10%,var(--card)),var(--card))}

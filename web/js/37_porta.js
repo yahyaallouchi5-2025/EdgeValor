@@ -99,7 +99,11 @@
  function apri(m,msg){if(m)modo=m;document.documentElement.classList.add("senzaccesso");
   if(!el){el=document.createElement("div");el.id="porta";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-label","Accedi a EdgeValor");
    el.innerHTML=`<div class="ptcielo"></div><main class="ptbox"><div class="ptlogo"><i></i><b>EDGE<br><em>VALOR</em></b></div><div class="ptcard"></div>
-    <a class="ptsito" href="../">Cos'è EdgeValor?</a></main>`;document.body.appendChild(el);}
+    <a class="ptsito" href="../">Cos'è EdgeValor?</a>
+    <div class="ptlang vfseg" role="group" aria-label="Lingua"><button type="button" data-l="it">IT</button><button type="button" data-l="en">EN</button></div></main>`;document.body.appendChild(el);
+   // v9.10 lingua scelta anche prima dell'accesso: chi non legge l'italiano passa all'inglese da qui
+   el.querySelectorAll(".ptlang button").forEach(x=>{const on=x.dataset.l==(typeof EB_LANG!="undefined"?EB_LANG:"it");x.classList.toggle("on",on);x.setAttribute("aria-pressed",on);
+    x.onclick=()=>{if(on)return;try{localStorage.setItem("ebLang",x.dataset.l);}catch(e){}location.reload();};});}
   disegna(msg);}
  function chiudi(){document.documentElement.classList.remove("senzaccesso");if(el){el.remove();el=null;}}
 

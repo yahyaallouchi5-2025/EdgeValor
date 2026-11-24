@@ -54,7 +54,7 @@
    varia.innerHTML=tipo=="segnalazione"?sel("tipologia","Tipologia",SEGN)+area("messaggio","Cosa succede","","Descrivi cosa hai visto e in quale scheda",4)
     :tipo=="call"?sel("tema","Tema da trattare",TEMI)+area("presentazione","Presentati in breve","(chi sei, cosa ti serve)","Es.: investo da 2 anni con un ETF, vorrei capire come usare i portafogli modello",4)
      +`<p class="small fbnota">Ti scriviamo per fissare giorno e ora della call.</p>`
-    :area("messaggio","Messaggio","","Cosa vuoi sapere sull'abbonamento?",4,o.rinnova?"Vorrei rinnovare il mio abbonamento Premium.":o.premium?"Vorrei passare a Premium.":"");
+    :area("messaggio","Messaggio","","Cosa vuoi sapere sull'abbonamento?",4,T(o.rinnova?"Vorrei rinnovare il mio abbonamento Premium.":o.premium?"Vorrei passare a Premium.":""));
    varia.querySelectorAll("textarea").forEach(ta=>ta.addEventListener("input",()=>{ta.nextElementSibling.textContent=ta.value.length+" / 2000";}));
    esito.textContent="";esito.className="fbesito";
    setTimeout(()=>{const ta=varia.querySelector("textarea");ta&&ta.focus();},60);}

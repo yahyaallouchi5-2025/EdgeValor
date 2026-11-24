@@ -45,7 +45,8 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  const RISK={conservativo:["Basso","r1"],moderato:["Medio","r2"],aggressivo:["Alto","r3"]};
  const pc=(v,d=1)=>v==null?"n/d":(v>0?"+":"")+fx(v,d)+"%";
  // v7.36 migliaia SEMPRE con il punto: Intl it-IT non separa i numeri di 4 cifre ("5000 €" accanto a "10.000 €")
- const mil=v=>{const n=Math.round(v),t=String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".");return (n<0?"-":"")+t;};
+ // v9.10 migliaia con il separatore della lingua scelta: 10.000 in italiano, 10,000 in inglese (le caselle leggono solo le cifre)
+ const mil=v=>{const n=Math.round(v),t=String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g,EB_LANG=="en"?",":".");return (n<0?"-":"")+t;};
  const eur=v=>v==null?"n/d":mil(v)+" €";
  const gg=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
  const nomeK=k=>{for(const p of P.profili){const c=p.composizione.find(x=>x.k==k);if(c)return c.nome;const a=p.ammessi.find(x=>x.k==k);if(a)return a.nome;}return k;};

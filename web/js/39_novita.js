@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-24T19",t:"Inglese in tutto il terminale",x:"Ora è in inglese anche la schermata di accesso (dove scegli la lingua prima di entrare), l'assistenza, l'abbonamento e i PDF scaricati.",s:""},
   {d:"2026-11-24T18",t:"Aggiornamento scheda Azionario",x:"Nuovo riquadro Magnifiche 7: quanto pesano Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta e Tesla nell'S&P 500 e nel Nasdaq-100, chi ha spinto l'indice e una card per azienda da girare.",s:"azioni"},
   {d:"2026-11-24T17",t:"Aggiornamento scheda Crypto",x:"Nel profilo di Bitcoin il ciclo dell'halving: a che punto siamo del ciclo e il confronto con i cicli passati allo stesso giorno.",s:"btc"},
   {d:"2026-11-24T16",t:"Aggiornamento scheda Paesi",x:"Su telefono il nome del paese si legge per intero e Tendenza e Regime hanno la loro etichetta, senza sovrapposizioni.",s:"sig"},
