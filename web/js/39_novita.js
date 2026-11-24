@@ -10,7 +10,8 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
-  {d:"2026-11-24T21",t:"Aggiornamento scheda Abbonamento",x:"Black Friday: abbonati entro lunedì 30 novembre e tieni il prezzo di oggi finché resti abbonato. Dal 1° dicembre Premium costa 29,99 € al mese.",s:""},
+  {d:"2026-11-24T22",t:"Aggiornamento scheda Azionario",x:"Magnifiche 7: nella barra del peso ogni azienda ha il suo nome, anche le più piccole.",s:"azioni"},
+  {d:"2026-11-24T21",t:"Aggiornamento scheda Abbonamento",x:"Black Friday: abbonati entro lunedì 30 novembre e mantieni la tariffa attuale finché resti abbonato. Dal 1° dicembre Premium passa a 29,99 € al mese.",s:""},
   {d:"2026-11-24T20",t:"Aggiornamento scheda Dashboard",x:"Il nastro dei prossimi eventi è di nuovo visibile e ora include gli ordini di beni durevoli e i sussidi di disoccupazione USA. Il comunicato PCE si chiama ora «Redditi, spese e PCE USA».",s:"sig"},
   {d:"2026-11-24T19",t:"Inglese in tutto il terminale",x:"Ora è in inglese anche la schermata di accesso (dove scegli la lingua prima di entrare), l'assistenza, l'abbonamento e i PDF scaricati.",s:""},
   {d:"2026-11-24T18",t:"Aggiornamento scheda Azionario",x:"Nuovo riquadro Magnifiche 7: quanto pesano Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta e Tesla nell'S&P 500 e nel Nasdaq-100, chi ha spinto l'indice e una card per azienda da girare.",s:"azioni"},

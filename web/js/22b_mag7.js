@@ -41,12 +41,16 @@
 
  function peso(d,I){const T=d.titoli,altri=I.n-T.filter(t=>I.pesi[t.t]!=null).length,st=I.storia||[],
    prima=st.length?st[0][1]:null,dlt=prima!=null?I.peso7-prima:null;
+  const ZOOM=Math.max(1,60/Math.max(I.peso7||60,1));        // v9.16 le 7 occupano almeno il 60% della barra
   const fd=dlt==null?"":Math.abs(dlt)<0.5?`<span class="m7dl flat">&#9658; stabile in un anno</span>`
    :`<span class="m7dl ${dlt>0?"up":"down"}">${dlt>0?"&#9650;":"&#9660;"} <b>${seg(dlt)}${fx(dlt,1)}</b> punti in un anno</span>`;
   return `<div class="m7peso"><div class="m7big"><b>${fx(I.peso7,0)}%</b><span>${S.idx=="ndx"?"del Nasdaq-100":"dell'S&amp;P 500"}</span>${fd}</div>${linea(st)}</div>
    <div class="m7bar" role="img" aria-label="Peso delle 7: ${fx(I.peso7,1)}%">${T.map((t,i)=>{const w=I.pesi[t.t];if(w==null)return "";
-     return `<i style="width:${w}%;background:${COL[i]}" title="${esc(t.n)} ${fx(w,1)}%">${w>=6.5?esc(t.t):""}</i>`;}).join("")}
-    <i class="m7alt" style="width:${Math.max(0,100-I.peso7)}%" title="Altre ${altri} aziende ${fx(100-I.peso7,1)}%"><span>Le altre</span></i></div>
+     // v9.16 (Ya): ogni azienda ha sempre il suo nome nella barra. Le 7 si "allargano" insieme (fattore ZOOM, stesse
+     // proporzioni tra loro) fino ad occupare almeno il 60% della barra; "Le altre" (rigata) prende il resto.
+     // Il peso esatto di ciascuna resta nella legenda sotto e nel fumetto.
+     return `<i style="flex:${w*ZOOM} 1 0;background:${COL[i]}" title="${esc(t.n)} ${fx(w,1)}%">${esc(t.t)}</i>`;}).join("")}
+    <i class="m7alt" style="flex:${Math.max(0,100-I.peso7*ZOOM)} 1 0" title="Altre ${altri} aziende ${fx(100-I.peso7,1)}%"><span>Le altre ${fx(100-I.peso7,0)}%</span></i></div>
    <div class="m7leg">${T.map((t,i)=>I.pesi[t.t]==null?"":`<span><i style="background:${COL[i]}"></i>${esc(t.t)} <b>${fx(I.pesi[t.t],1)}%</b></span>`).join("")}</div>`;}
 
  function spinta(I){const c=I.contrib[S.per];if(!c)return "";

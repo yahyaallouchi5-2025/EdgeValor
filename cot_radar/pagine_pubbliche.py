@@ -117,7 +117,7 @@ PREZZI = f"""
   document.querySelector("[data-prezzo]").textContent=a?A:M;document.querySelector("[data-vecchio]").hidden=!a;S.innerHTML=a?T:"Paghi mese per mese.";}}}});
  // v9.14 striscia Black Friday fino al 30/11: il prezzo di oggi resta a chi si abbona prima dell'aumento
  if(BF&&!NUOVO){{var f=document.createElement("div");f.className="bfpub";
-  f.innerHTML='<span class="bftag">Black Friday</span><span>Abbonati entro il 30 novembre: paghi il prezzo di oggi finch\\u00e9 resti abbonato. Dal 1\\u00b0 dicembre: {eu(LISTINO_NUOVO[0])} \\u20ac al mese.</span>';
+  f.innerHTML='<span class="bftag">Black Friday</span><span>Abbonati entro il 30 novembre e mantieni la tariffa attuale finch\\u00e9 resti abbonato. Dal 1\\u00b0 dicembre: {eu(LISTINO_NUOVO[0])} \\u20ac al mese.</span>';
   var t=document.querySelector(".pag .titsez");t&&t.parentNode.insertBefore(f,t.nextSibling);}}
 }})();</script>
 """

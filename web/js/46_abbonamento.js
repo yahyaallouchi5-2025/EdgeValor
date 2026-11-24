@@ -103,7 +103,7 @@
    corpo.innerHTML=`<div class="abpiani" role="radiogroup" aria-label="Piano">${Object.entries(PIANI).map(([k,p])=>`
      <button type="button" role="radio" class="abpiano${k==scelto?" on":""}" data-k="${k}" aria-checked="${k==scelto}">
       ${k=="annuale"?'<span class="abtag">Più conveniente</span>':""}<small>${p.nome}</small><b>${p.prezzo}</b><span>${p.per}</span><em>${p.nota}</em></button>`).join("")}</div>
-    ${EB_PREZZI.nuovi()?"":`<p class="abblocca"><b>${T("Prezzo bloccato")}</b> ${T("Abbonati entro il 30 novembre: paghi questo prezzo finché resti abbonato. Dal 1° dicembre il listino sale a 29,99 € al mese.")}</p>`}
+    ${EB_PREZZI.nuovi()?"":`<p class="abblocca"><b>${T("Tariffa bloccata")}</b> ${T("Abbonati entro il 30 novembre: mantieni questa tariffa finché resti abbonato. Dal 1° dicembre il listino passa a 29,99 € al mese.")}</p>`}
     <label class="abok"><input type="checkbox"><span>Accetto le <a href="../legale/#abbonamento" target="_blank" rel="noopener">condizioni</a> e ho compreso che EdgeValor non è un broker né un consulente: offre analisi a scopo educativo. Si rinnova da solo, disdici quando vuoi.</span></label>
     ${parte?`<p class="small abparte">Il primo addebito parte il ${data(parte)}, alla fine del periodo già pagato.</p>`:""}
     <div class="abpp" aria-disabled="true"><div class="abppin"></div></div>
