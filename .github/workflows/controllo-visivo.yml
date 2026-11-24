@@ -1,0 +1,31 @@
+# controllo-visivo.yml - v9.24 CONTROLLI VISIVI AUTOMATICI (cot_radar/controllo_visivo.py).
+# Due volte al giorno apre home, Prezzi e terminale con un browser vero, su PC e su telefono, e cerca: errori
+# JavaScript, pagina piu' larga dello schermo, testi sovrapposti, animazioni che possono far sfarfallare.
+# Se trova qualcosa il giro FALLISCE: la sorveglianza (ogni ora) lo vede e manda l'email privata al fondatore.
+# L'elenco dei difetti e' nel riepilogo del giro (Actions -> Controllo visivo). A mano: Run workflow.
+name: Controllo visivo
+on:
+  schedule:
+    - cron: "41 5 * * *"
+    - cron: "41 17 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: controllo-visivo
+  cancel-in-progress: true
+jobs:
+  controllo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Browser
+        run: |
+          pip install -q playwright==1.48.0
+          python -m playwright install --with-deps chromium
+      - name: Controllo
+        run: python -m cot_radar.controllo_visivo
