@@ -414,7 +414,7 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
  // riepilogo dei mesi mostrati (dal piu' vecchio al mese in corso)
  function cfrTesta(p){const c=p.cfr_sp;if(!c)return "";
   // stessa griglia delle righe delle rotazioni (colonna della data a sinistra): le tabelline restano in colonna
-  return `<div class="pcfs"><div class="pcfs-t"><b>Ultimi ${c.n} mesi</b><span>contro l'S&amp;P 500</span><span class="pcfs-d">dal ${gg(c.dal)} <br>al ${gg(c.al)}</span></div>
+  return `<div class="pcfs"><div class="pcfs-t"><b>Riepilogo ultimi ${c.n} mesi</b><span>contro l'S&amp;P 500</span><span class="pcfs-d">dal ${gg(c.dal)} <br>al ${gg(c.al)}</span></div>
    <div class="pcfs-c">${tabCfr(c.port,c.sp,"Risultato","Drawdown")}
    <div class="pmcr-b"><p class="pcfs-n">Drawdown pi&ugrave; basso in <b>${c.meglio_dd} mesi su ${c.n}</b><br>Risultato pi&ugrave; alto in <b>${c.meglio_r} su ${c.n}</b></p>
     <button type="button" class="pcf-apri" data-k="tot" aria-label="Grafico degli ultimi ${c.n} mesi">${ICO_GRAF}Grafico</button></div></div></div>`;}
@@ -702,10 +702,12 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   const cor=p.corrente;if(cor&&cor.serie)cfrDati.cor={titolo:titM(cor.dal.slice(0,7)),sotto:`dal ${gg(cor.dal)} &middot; in corso`,nome:nomeP,serie:cor.serie,port:cor,sp:cor.sp};
   if(p.cfr_sp){const ms=p.rotazioni.slice().reverse().map(r=>r.attesa?null:(r===p.rotazioni[0]&&cor&&cor.serie?cor:perMese[r.data.slice(0,7)])).filter(m=>m&&m.serie);
    if(ms.length>1)cfrDati.tot={titolo:`Ultimi ${p.cfr_sp.n} mesi`,sotto:`${gg(p.cfr_sp.dal)} &ndash; ${gg(p.cfr_sp.al)}`,nome:nomeP,serie:serieTot(ms),port:p.cfr_sp.port,sp:p.cfr_sp.sp};}
-  return `${cfrTesta(p)}<div class="prot${tutteRot?" aperta":""}">${p.rotazioni.map((r,i)=>`<div class="protr${i>=3?" pextra":""}"><b>${gg(r.data)}</b><div class="pgrs">
+  // v9.08 (Ya: "guardo novembre, voglio novembre"): in alto la rotazione in vigore con il mese in corso contro
+  //   l'S&P 500 e il suo grafico; il riepilogo degli ultimi 12 mesi va IN FONDO, dopo l'elenco dei mesi
+  return `<div class="prot${tutteRot?" aperta":""}">${p.rotazioni.map((r,i)=>`<div class="protr${i>=3?" pextra":""}"><b>${gg(r.data)}</b><div class="pgrs">
    ${gr("pin","Entrati",r.entrati)}${gr("pout","Usciti",r.usciti)}${gr("pten","Restano",r.tenuti)}${!r.entrati.length&&!r.usciti.length&&!r.tenuti.length?'<div class="small">tutto in liquidit&agrave;</div>':""}</div>
    <span class="pliq${r.liquidita?"":" zero"}" title="Quota tenuta in liquidit&agrave; in questa rotazione">liquidit&agrave; ${r.liquidita||0}%</span>${r.attesa?`<div class="prisul small"><span class="pmc-b">si esegue all'apertura del ${gg(r.data)}</span></div>`:dettMese(perMese[r.data.slice(0,7)],i==0?p.corrente:null,fonteMese(r.data.slice(0,7),p.id),perMese[r.data.slice(0,7)]?r.data.slice(0,7):"cor")}</div>`).join("")}
-   ${p.rotazioni.length>3?`<button class="ptutte">${tutteRot?"Mostra meno":`Mostra tutte (${p.rotazioni.length})`}</button>`:""}</div>`;}
+   ${p.rotazioni.length>3?`<button class="ptutte">${tutteRot?"Mostra meno":`Mostra tutte (${p.rotazioni.length})`}</button>`:""}</div>${cfrTesta(p)}`;}
 
  // --- CONFRONTO DEI 3 PROFILI mese per mese (v6.56): stessi mesi chiusi delle rotazioni, i tre profili affiancati,
  //     con rischio (volatilita' annua e drawdown sul periodo), mesi negativi, peggior mese, correlazione e la spiegazione
