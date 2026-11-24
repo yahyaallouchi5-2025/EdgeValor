@@ -215,7 +215,7 @@ Object.assign(EB_EN,{
 "Lo sconto vale per il primo anno del piano annuale: 239,88 € invece di 299,88 €. Dal secondo anno si rinnova a 299,88 €. Il piano mensile resta a 29,99 €. Paghi con PayPal o carta, disdici quando vuoi dal Profilo.":"The discount applies to the first year of the annual plan: €239.88 instead of €299.88. From the second year it renews at €299.88. The monthly plan stays at €29.99. Pay with PayPal or card, cancel anytime from your Profile.",
 "Attiva l'offerta":"Get the offer","Attiva":"Get it","il primo anno":"first year","poi":"then",
 "Saldi d'inverno":"Winter Sale","Le altre #%":"The others #%","Magnifiche 7: nella barra del peso ogni azienda ha il suo nome, anche le più piccole. Classifica: i numeri del mese allineati in colonna.":"agnificent 7: in the weight bar every company now shows its name, even the smallest ones. Ranking: the month's figures aligned in columns.","Offerta di Pasqua":"Easter Offer","Saldi d'estate":"Summer Sale"
-,"Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), bloccato per sempre.":"Annual Premium at €19.99 a month instead of €24.99 (−20%), locked in forever.",
+,"Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), blocca subito.":"Annual Premium at €19.99 a month instead of €24.99 (−20%), lock it in now.",
 "Fino al 30 novembre: Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), finché resti abbonato.":"Until 30 November: annual Premium at €19.99 a month instead of €24.99 (−20%), for as long as you stay subscribed.",
 "sul prezzo dal 1/12":"off the price from 1/12","al mese":"a month"
 });

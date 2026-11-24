@@ -75,7 +75,7 @@
  function testi(c,f){const fino=dataLunga(c.giornoFine);
   if(c.offerta=="blocco")return {
    // v9.18 (Ya): la leva e' l'annuale a 19,99 al mese, con lo sconto rispetto al prezzo pieno (24,99) sempre in vista
-   striscia:T("Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), bloccato per sempre."),
+   striscia:T("Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), blocca subito."),
    titolo:T("Blocca la tariffa attuale."),
    sott:T("Fino al 30 novembre: Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), finché resti abbonato."),
    info:T("La tariffa resta bloccata finché l'abbonamento è attivo, anche negli anni successivi. Se disdici e ti riabboni dal 1° dicembre vale il nuovo listino: 29,99 € al mese oppure 24,99 € al mese con l'annuale. Paghi con PayPal o carta, disdici quando vuoi dal Profilo."),
