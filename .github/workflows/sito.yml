@@ -83,7 +83,8 @@ jobs:
           else
             git worktree add -q --detach storico && cd storico && git checkout -q --orphan storico && git rm -rfq .
           fi
-      - run: pip install -q cryptography
+      - run: pip install -q cryptography pillow   # v9.25 pillow: immagini delle email delle campagne (email_campagne_img.py)
+      - run: (sudo apt-get update -qq && sudo apt-get install -y -qq fonts-inter) >/dev/null 2>&1 || echo "font Inter non installato"   # v9.25
       - run: python -m unittest discover -s tests
       - id: crea
         env:
