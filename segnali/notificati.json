@@ -22,7 +22,9 @@
    "us-employment-situation-non-farm-payrolls-november-2026": "2026-11-06",
    "us-cpi-report-november-2026": "2026-11-10",
    "us-ppi-2026-11-13": "2026-11-13",
-   "us-retail-sales-2026-11-17": "2026-11-17"
+   "us-retail-sales-2026-11-17": "2026-11-17",
+   "us-gdp-2026-11-25": "2026-11-25",
+   "us-pce-2026-11-25": "2026-11-25"
   },
   "esito": {
    "CAD-2026-10-19": "2026-10-19",
@@ -48,5 +50,5 @@
   "rinvio": "2026-11-16-edgevalor"
  },
  "briefing": "2026-11-23",
- "aggiornato": "2026-11-24T06:20Z"
+ "aggiornato": "2026-11-24T16:16Z"
 }
