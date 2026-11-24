@@ -1,7 +1,7 @@
 # sorveglianza.yml - v7.24 ALLARME PER L'ADMIN: ogni ora controlla che sito, Azionario, prezzi live e workflow
 # principali siano freschi e senza errori (cot_radar/sorveglianza.py). Se qualcosa si ferma apre UNA issue
 # "sorveglianza" (mail + notifica dell'app GitHub) e la chiude da sola quando torna tutto regolare.
-# Telegram privato facoltativo: Secrets TELEGRAM_BOT_TOKEN e TELEGRAM_ADMIN_CHAT. A mano: Actions -> Sorveglianza.
+# v9.20 avvisi solo per email privata al fondatore: Secrets SMTP_USER, SMTP_PASSWORD, ADMIN_EMAIL (niente Telegram). A mano: Actions -> Sorveglianza.
 # v9.13 REGISTRO ANOMALIE: ogni giro aggiorna anomalie.json nel ramo "anomalie" (aperte, risolte, ultime 72 ore),
 # letto dal terminale solo con l'account fondatore (Profilo -> sotto "Dati aggiornati").
 name: Sorveglianza
@@ -33,8 +33,9 @@ jobs:
           ANOMALIE_OUT: out_anomalie
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_ADMIN_CHAT: ${{ secrets.TELEGRAM_ADMIN_CHAT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
         run: |
           gh label create sorveglianza --color B60205 --description "Allarme automatico" 2>/dev/null || true
           python -m cot_radar.sorveglianza
