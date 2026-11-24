@@ -2,13 +2,15 @@
 # principali siano freschi e senza errori (cot_radar/sorveglianza.py). Se qualcosa si ferma apre UNA issue
 # "sorveglianza" (mail + notifica dell'app GitHub) e la chiude da sola quando torna tutto regolare.
 # Telegram privato facoltativo: Secrets TELEGRAM_BOT_TOKEN e TELEGRAM_ADMIN_CHAT. A mano: Actions -> Sorveglianza.
+# v9.13 REGISTRO ANOMALIE: ogni giro aggiorna anomalie.json nel ramo "anomalie" (aperte, risolte, ultime 72 ore),
+# letto dal terminale solo con l'account fondatore (Profilo -> sotto "Dati aggiornati").
 name: Sorveglianza
 on:
   schedule:
     - cron: "23 * * * *"
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   issues: write
   actions: read
 concurrency:
@@ -23,8 +25,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Registro anomalie precedente
+        run: git fetch -q --depth 1 origin anomalie && git show origin/anomalie:anomalie.json > /tmp/anomalie_prec.json || echo "primo giro del registro"
       - name: Controllo
         env:
+          ANOMALIE_PREC: /tmp/anomalie_prec.json
+          ANOMALIE_OUT: out_anomalie
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -32,3 +38,10 @@ jobs:
         run: |
           gh label create sorveglianza --color B60205 --description "Allarme automatico" 2>/dev/null || true
           python -m cot_radar.sorveglianza
+      - name: Pubblica il registro anomalie
+        if: always()
+        run: |
+          [ -f out_anomalie/anomalie.json ] || exit 0
+          cd out_anomalie && git init -q -b anomalie && git add -A \
+            && git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "registro anomalie" \
+            && git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" anomalie
