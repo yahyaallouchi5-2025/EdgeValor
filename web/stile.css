@@ -849,6 +849,7 @@ html.cbloccato,html.cbloccato body{overflow:hidden}
  background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.55);
  transform:translateY(10px) scale(.98);transition:transform .22s}
 .cmodal.on .cmodal-box{transform:none}
+.bfmodal.on .bfbox{transform:translateZ(0)}
 .cmodal-picc{width:min(420px,100%);text-align:center;align-items:center}.cmodal-picc p{margin:0;color:var(--ink2)}
 .cmodal-testa{display:flex;align-items:flex-start;gap:14px}.cmodal-testa h3{margin:0 0 4px;font-size:20px;text-transform:none;letter-spacing:-.3px;color:var(--ink)}
 .cmodal-testa p{margin:0;color:var(--ink2);font-size:14px;line-height:1.5}
@@ -4138,16 +4139,17 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .bfx{flex:none;width:28px;height:28px;border-radius:8px;border:0;background:transparent;color:#8a8a8a;cursor:pointer;font-size:13px}
 .bfx:hover{color:#fff;background:rgba(255,255,255,.08)}
 /* finestra */
-.bfmodal{background:rgba(0,0,0,.84)}
-.bfbox{position:relative;isolation:isolate;width:min(560px,100%);gap:0;padding:30px 30px 22px;border-radius:26px;background:#030303;color:#fff;
+/* v9.19 niente sfocatura dietro la finestra: con le luci animate faceva sfarfallare la card al passaggio del mouse */
+.bfmodal{background:rgba(0,0,0,.86);backdrop-filter:none;-webkit-backdrop-filter:none}
+.bfbox{contain:paint;transform:translateZ(0);position:relative;isolation:isolate;width:min(560px,100%);gap:0;padding:30px 30px 22px;border-radius:26px;background:#030303;color:#fff;
  border:1px solid rgba(255,255,255,.09);box-shadow:0 40px 120px rgba(0,0,0,.85),0 0 80px color-mix(in srgb,var(--c2) 18%,transparent);overflow-x:hidden;overflow-y:auto}
-.bfaura{position:absolute;z-index:-2;inset:-35% -30% auto -30%;height:85%;pointer-events:none;filter:blur(40px);opacity:.75;
+.bfaura{will-change:transform;backface-visibility:hidden;position:absolute;z-index:-2;inset:-35% -30% auto -30%;height:85%;pointer-events:none;filter:blur(40px);opacity:.75;
  background:conic-gradient(from 0deg at 50% 50%,var(--c1),var(--c2),var(--c3),var(--c1));border-radius:50%;animation:bfgira 14s linear infinite}
 .bfaura::after{content:"";position:absolute;inset:18%;border-radius:50%;background:#030303;filter:blur(30px)}
 @keyframes bfgira{to{transform:rotate(360deg)}}
 /* v9.17 luci colorate che si muovono in tutta la card (tre sfere sfocate su percorsi diversi) */
 .bfluci{position:absolute;z-index:-2;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit}
-.bfluci b{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;filter:blur(55px);opacity:.42;mix-blend-mode:screen}
+.bfluci b{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;filter:blur(55px);opacity:.42;will-change:transform;backface-visibility:hidden}
 .bfluci b:nth-child(1){background:var(--c1);left:-20%;top:30%;animation:bfvaga1 16s ease-in-out infinite alternate}
 .bfluci b:nth-child(2){background:var(--c2);right:-25%;top:5%;animation:bfvaga2 19s ease-in-out infinite alternate}
 .bfluci b:nth-child(3){background:var(--c3);left:20%;bottom:-35%;animation:bfvaga3 22s ease-in-out infinite alternate}
@@ -4157,12 +4159,11 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* velo scuro uniforme sopra le luci: i testi restano leggibili, i colori si vedono muoversi sotto */
 .bfgrana{position:absolute;z-index:-1;inset:0;pointer-events:none;
  background:radial-gradient(rgba(255,255,255,.045) 1px,transparent 1px) 0 0/3px 3px,linear-gradient(180deg,rgba(3,3,3,.15) 0,rgba(3,3,3,.5) 45%,rgba(3,3,3,.62) 100%)}
-/* bordo della card con una luce che gira (conic-gradient animato tramite angolo registrato) */
-@property --bfang{syntax:"<angle>";initial-value:0deg;inherits:false}
-.bfbox::before{content:"";position:absolute;z-index:-3;inset:0;padding:1px;border-radius:inherit;pointer-events:none;
- background:conic-gradient(from var(--bfang),transparent 0 55%,var(--c1) 70%,var(--c2) 80%,var(--c3) 88%,transparent 100%);
- -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:bfbordo 6s linear infinite}
-@keyframes bfbordo{to{--bfang:360deg}}
+/* bordo della card: sfumatura fissa dei colori della campagna (v9.19: la luce che girava ridisegnava tutta la card a
+   ogni fotogramma e la faceva sfarfallare; il movimento resta nelle luci interne, che si muovono senza ridisegni) */
+.bfbox::before{content:"";position:absolute;z-index:-3;inset:0;padding:1px;border-radius:inherit;pointer-events:none;opacity:.7;
+ background:linear-gradient(135deg,var(--c1),transparent 35%,transparent 65%,var(--c3));
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 .bfbox .fbx{position:absolute;right:14px;top:14px;border-color:rgba(255,255,255,.16);color:#d0d0d0;background:rgba(0,0,0,.35)}
 .bfalto{display:flex;align-items:center;gap:10px;margin-bottom:16px}
 .bfalto .info{margin-left:auto;margin-right:44px}
@@ -4172,15 +4173,15 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .bfsott{margin:0 0 6px;color:#cfcfcf;font-size:15px;line-height:1.5}
 .bfbox .infotesto{color:#bdbdbd;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)}
 .bfconto2{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:20px 0 20px}
-.bfnum{position:relative;display:grid;justify-items:center;gap:4px;padding:12px 0 10px;border-radius:14px;background:rgba(255,255,255,.05);
- border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow:hidden}
+.bfnum{position:relative;display:grid;justify-items:center;gap:4px;padding:12px 0 10px;border-radius:14px;background:rgba(10,10,10,.55);
+ border:1px solid rgba(255,255,255,.1);overflow:hidden}
 .bfnum::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,var(--c1),var(--c2))}
 .bfnum b{font:800 30px/1 "JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;color:#fff}
 .bfnum small{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#8d8d8d}
 .bfpiani{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
 .bfpiano{position:relative;display:grid;gap:4px;text-align:left;padding:16px 16px 14px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;
  transition:border-color .2s,transform .15s,background .2s}
-.bfpiano:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.25)}
+.bfpiano:hover{border-color:rgba(255,255,255,.28)}
 .bfpiano.on{background:linear-gradient(#0b0b0b,#0b0b0b) padding-box,linear-gradient(135deg,var(--c1),var(--c2),var(--c3)) border-box;border:1px solid transparent;
  box-shadow:0 10px 40px color-mix(in srgb,var(--c2) 22%,transparent)}
 .bfpiano small{font:700 12px "Inter",system-ui;letter-spacing:.5px;text-transform:uppercase;color:#a0a0a0}
@@ -4194,7 +4195,7 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .bfvai::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.32) 50%,transparent 65%);transform:translateX(-120%);animation:bfriflesso 3.2s ease-in-out infinite}
 @keyframes bfriflesso{55%,100%{transform:translateX(120%)}}
 .bfvai svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
-.bfvai:hover{transform:translateY(-1px);box-shadow:0 0 0 5px color-mix(in srgb,var(--c2) 22%,transparent),0 14px 44px color-mix(in srgb,var(--c2) 45%,transparent)}
+.bfvai:hover{box-shadow:0 0 0 5px color-mix(in srgb,var(--c2) 22%,transparent),0 14px 44px color-mix(in srgb,var(--c2) 45%,transparent)}
 .bfvai:hover svg{transform:translateX(3px)}
 .bfdopo{display:block;margin:10px auto 0;border:0;background:none;color:#8a8a8a;font:600 13.5px "Inter",system-ui;cursor:pointer}.bfdopo:hover{color:#fff}
 /* nota "prezzo bloccato" nella finestra di pagamento (46_abbonamento.js) */
@@ -4208,4 +4209,4 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* schermi bassi (portatili piccoli, finestra ridotta): la finestra resta senza barra di scorrimento */
 @media (max-height:720px){.bfbox{padding:22px 24px 16px}.bfbox h2{font-size:clamp(28px,5vw,36px)}.bfalto{margin-bottom:10px}
  .bfconto2{margin:12px 0 14px}.bfnum{padding:8px 0 7px}.bfnum b{font-size:24px}.bfpiani{margin-bottom:12px}.bfpiano{padding:12px 14px 10px}.bfvai{height:46px}}
-@media (prefers-reduced-motion:reduce){.bfstrip::before,.bfstrip::after,.bfaura,.bfvai::after,.bfluci b,.bfbox::before{animation:none}}
+@media (prefers-reduced-motion:reduce){.bfstrip::before,.bfstrip::after,.bfaura,.bfvai::after,.bfluci b{animation:none}}
