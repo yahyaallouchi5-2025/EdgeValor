@@ -39,8 +39,11 @@ CACHE = os.path.join(ROOT, "dati", "agenda.json")
 SERIE = {
     "fomc": ("Fed (FOMC)", "USD", "banca", True), "ecb": ("BCE", "EUR", "banca", True),
     "us-nfp": ("NFP USA (occupazione)", "USD", "dato", True), "us-cpi": ("CPI USA (inflazione)", "USD", "dato", True),
-    "us-pce": ("PCE USA (inflazione)", "USD", "dato", False), "us-ppi": ("PPI USA (prezzi alla produzione)", "USD", "dato", False),
+    "us-pce": ("Redditi, spese e PCE USA", "USD", "dato", False), "us-ppi": ("PPI USA (prezzi alla produzione)", "USD", "dato", False),
     "us-gdp": ("PIL USA", "USD", "dato", False), "us-retail-sales": ("Vendite al dettaglio USA", "USD", "dato", False),
+    # v9.12 aggiunti gli ordini di beni durevoli e i sussidi di disoccupazione settimanali (calendario FRED)
+    "us-durable": ("Beni durevoli USA (ordini)", "USD", "dato", False),
+    "us-claims": ("Sussidi di disoccupazione USA", "USD", "dato", False),
     "us-ism-manufacturing": ("ISM manifatturiero USA", "USD", "dato", False),
     "us-ism-services": ("ISM servizi USA", "USD", "dato", False),
     "eu-cpi": ("CPI Eurozona (stima flash)", "EUR", "dato", False),
@@ -104,7 +107,15 @@ def normalizza(e):
 #   2) BANCHE CENTRALI scritte a mano dai calendari ufficiali (pubblicati un anno prima): giorno dell'ANNUNCIO e ora locale.
 #      Bank of Japan: nessun orario fisso (di solito verso mezzogiorno a Tokyo) -> solo il giorno.
 #      Fed e BCE restano in notizie.CALENDARIO (entrano anche nel correttivo del punteggio).
-FRED_RELEASE = {"us-cpi": 10, "us-ppi": 46, "us-nfp": 50, "us-retail-sales": 9, "us-gdp": 53, "us-pce": 54}
+FRED_RELEASE = {"us-cpi": 10, "us-ppi": 46, "us-nfp": 50, "us-retail-sales": 9, "us-gdp": 53, "us-pce": 54,
+                "us-durable": 95, "us-claims": 180}
+
+
+def uscita_valida(codice, giorno):
+    """v9.12 la release FRED 95 (indagine M3) esce due volte al mese: verso fine mese il rapporto ANTICIPATO sui beni
+    durevoli (08:30 di New York, quello che muove il mercato), nei primi giorni il rapporto completo sugli ordini
+    all'industria (10:00, effetto minimo). Per "us-durable" vale solo la prima: giorno del mese dal 15 in poi."""
+    return not (codice == "us-durable" and int(giorno[8:10]) < 15)
 FRED_DATE = "https://api.stlouisfed.org/fred/release/dates"
 BANCHE = {   # codice: (fuso, ora, minuti, date dell'annuncio)  fonti: siti ufficiali di ogni banca, novembre 2026
     # v8.83 aggiunte le riunioni da agosto 2026 (primo segnale del registro: 21/08): servono alle linee delle candele orarie
@@ -173,7 +184,7 @@ def dati_fred(oggi=None, chiave=None, leggi=None):
             continue
         for x in js.get("release_dates") or []:
             g = str(x.get("date") or "")[:10]
-            if da <= g <= a:
+            if da <= g <= a and uscita_valida(codice, g):
                 out.append(_evento(codice, g, _utc_locale(g, 8, 30, "America/New_York")))
     return out
 

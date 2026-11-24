@@ -88,12 +88,12 @@ try{const VEL=38,SC=(D.agenda&&D.agenda.scenari)||{};
   const incorso=dm<=0,quando=incorso?"IN CORSO":diff<=0?"OGGI":diff==1?"DOMANI":`tra ${diff} giorni`;
   return `<span class="evp ${e.tipo=="banca"?"banca":"dato"}${incorso&&!e.senzaora?" incorso":diff<=0?" oggi":diff==1?" domani":""}" data-i="${ev.indexOf(e)}">
    <span class="evv">${esc(e.valuta)}</span><b>${esc(e.nome)}</b><span class="evq">${GG[q.getDay()]} ${e.quando.slice(8,10)}/${e.quando.slice(5,7)}${e.senzaora?"":` <b>${e.quando.slice(11)}</b>`}</span><em>${incorso&&!e.senzaora?"<i class='evlive'></i>IN CORSO":incorso?"OGGI":quando}</em></span>`;};
- $("eventi").innerHTML=attivi().length?`<div class="card eventi"><div class="evhead"><h3>Prossimi eventi ad alto impatto</h3>
+ $("prossimi").innerHTML=attivi().length?`<div class="card eventi"><div class="evhead"><h3>Prossimi eventi ad alto impatto</h3>
   <details class="info"><summary title="Come usarli" aria-label="Informazioni">i</summary><div>Il giorno del dato la volatilit&agrave; sale: per lo swing conviene valutare l'ingresso <b>dopo</b> l'uscita. Dopo il dato la riga "Notizie" delle card mostra se la sorpresa rafforza o penalizza il segnale.<br><br><b>Passa il mouse (o tocca) un evento</b> per lo scenario: cosa misura, dato precedente, cosa succede alla valuta se esce sopra o sotto e quanto reagisce di solito il mercato. Il confronto &egrave; con il dato precedente, non con le attese degli analisti (non incluse nei nostri dati). Reazione tipica = quante delle ultime uscite hanno mosso il tasso USA a 2 anni pi&ugrave; di una giornata normale (solo dati USA).</div></details>
   ${false&&D.agenda&&String(D.agenda.fonte||"").startsWith("financecalendar")?`<span class="small evfonte">Calendario: <a href="https://www.financecalendar.com" target="_blank" rel="noopener">financecalendar.com</a></span>`
    :false&&D.agenda&&String(D.agenda.fonte||"").startsWith("FRED")?`<span class="small evfonte">Fonti: <a href="https://fred.stlouisfed.org/releases/calendar" target="_blank" rel="noopener">FRED</a> e calendari ufficiali delle banche centrali</span>`:""}</div>
   <div class="evnastro" role="marquee" aria-label="Prossimi eventi"><div class="evtrack"></div></div></div>`:"";
- const nastro=$("eventi").querySelector(".evnastro"),track=nastro&&nastro.querySelector(".evtrack");
+ const nastro=$("prossimi").querySelector(".evnastro"),track=nastro&&nastro.querySelector(".evtrack");
  let base=attivi().map(pill).join("");
  // Nastro a scorrimento lento CONTROLLATO DA JS (non piu' da CSS): si puo' trascinare avanti e indietro con dito o mouse,
  // al rilascio prosegue per inerzia e poi torna dolcemente alla velocita' di crociera (mai "inchiodato").
@@ -117,7 +117,7 @@ try{const VEL=38,SC=(D.agenda&&D.agenda.scenari)||{};
  monta();
  // ogni minuto: se un evento e' scaduto o e' appena iniziato, si ridisegna; se non resta nulla la card sparisce
  setInterval(()=>{const l=attivi(),nb=l.map(pill).join("");if(nb==base)return;base=nb;
-  if(!l.length){$("eventi").innerHTML="";return;}monta();},60000);
+  if(!l.length){$("prossimi").innerHTML="";return;}monta();},60000);
  let rt=0;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(monta,250);});
  if(nastro&&track){
   nastro.addEventListener("pointerdown",e=>{if(e.pointerType=="mouse"&&e.button!==0)return;
@@ -140,13 +140,17 @@ try{const VEL=38,SC=(D.agenda&&D.agenda.scenari)||{};
      posizionato sotto la pillola. PC: compare al passaggio del mouse. Telefono: tocco apre/chiude, tocco fuori chiude. */
   const pop=document.body.appendChild(Object.assign(document.createElement("div"),{id:"evpop",className:"evpop",hidden:true}));
   pop.setAttribute("role","tooltip");
-  const LIV={forte:["Forte","up"],media:["Media","flat"],debole:["Debole","down"]};
+  const LIV={forte:["Forte","up"],media:[EB_LANG=="en"?"Medium":"Media","flat"],debole:["Debole","down"]};
+  // v9.12 valori del precedente scritti all'italiana dal server (+1,8%): in inglese il punto decimale
+  const numL=t=>EB_LANG=="en"?String(t).replace(/(\d),(\d)/g,"$1.$2"):t;
   const testo=e=>{const s=SC[e.cod]||{},V=esc(e.valuta),r=s.reaz,q=new Date(e.quando.replace(" ","T"));
    return `<div class="eptesta"><span class="evv">${V}</span><b>${esc(e.nomeL||e.nome)}</b></div>
    <div class="small">${GG[q.getDay()]} ${e.quando.slice(8,10)}/${e.quando.slice(5,7)}${e.senzaora?"":" ore "+e.quando.slice(11)}${s.cosa?" &middot; "+esc(s.cosa):""}</div>
-   ${s.prec?`<div class="eprec">Precedente: <b>${esc(s.prec)}</b>${s.periodo?` <span class="small">(${esc(s.periodo)})</span>`:""}</div>`:""}
-   ${s.alto?`<div class="epcaso"><span class="up">&#9650; ${e.tipo=="banca"?"Falco":"Sopra"}</span><span><b class="up">${V} pi&ugrave; forte</b>: ${esc(s.alto)}</span></div>
-   <div class="epcaso"><span class="down">&#9660; ${e.tipo=="banca"?"Colomba":"Sotto"}</span><span><b class="down">${V} pi&ugrave; debole</b>: ${esc(s.basso)}</span></div>`:""}
+   ${s.prec?`<div class="eprec">Precedente: <b>${esc(numL(s.prec))}</b>${s.periodo?` <span class="small">(${esc(s.periodo)})</span>`:""}</div>`:""}
+   ${s.alto?(s.inv?`<div class="epcaso"><span class="down">&#9650; Sopra</span><span><b class="down">${V} pi&ugrave; debole</b>: ${esc(s.alto)}</span></div>
+   <div class="epcaso"><span class="up">&#9660; Sotto</span><span><b class="up">${V} pi&ugrave; forte</b>: ${esc(s.basso)}</span></div>`
+   :`<div class="epcaso"><span class="up">&#9650; ${e.tipo=="banca"?"Falco":"Sopra"}</span><span><b class="up">${V} pi&ugrave; forte</b>: ${esc(s.alto)}</span></div>
+   <div class="epcaso"><span class="down">&#9660; ${e.tipo=="banca"?"Colomba":"Sotto"}</span><span><b class="down">${V} pi&ugrave; debole</b>: ${esc(s.basso)}</span></div>`):""}
    ${r?`<div class="epreaz">Reazione tipica <b class="${LIV[r.livello][1]}">${LIV[r.livello][0]}</b> <span class="small">${r.quota}% delle ultime ${r.n} uscite</span></div>`:""}`;};
   let aperto=null;
   const mostra=el=>{const e=ev[+el.dataset.i];if(!e)return;pop.innerHTML=testo(e);pop.className="evpop"+(e.tipo=="banca"?" banca":"");pop.hidden=false;aperto=el;

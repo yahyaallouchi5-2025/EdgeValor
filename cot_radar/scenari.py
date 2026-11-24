@@ -44,12 +44,17 @@ REGOLE = {
     "inflazione": ("prezzi in salita, la banca centrale tiene i tassi alti", "prezzi in calo, più spazio per tagliare i tassi"),
     "crescita": ("economia più forte, tassi alti più a lungo", "economia più debole, tassi verso il basso"),
     "banca": ("tassi alzati o tono restrittivo (falco)", "tassi tagliati o tono accomodante (colomba)"),
+    # v9.12 famiglia "al contrario": piu' sussidi = lavoro piu' debole = valuta piu' DEBOLE (inv=True nella pagina)
+    "sussidi": ("più persone senza lavoro, la banca centrale taglia di più i tassi", "mercato del lavoro solido, meno tagli dei tassi"),
 }
+INVERSE = {"sussidi"}                 # famiglie in cui un dato SOPRA il precedente indebolisce la valuta
 # codice agenda -> (cosa misura, famiglia)
 COSA = {
     "us-nfp": ("Nuovi posti di lavoro nel mese", "lavoro"),
     "us-cpi": ("Inflazione dei prezzi al consumo", "inflazione"),
-    "us-pce": ("Inflazione PCE, la misura preferita dalla Fed", "inflazione"),
+    "us-pce": ("Inflazione PCE core (senza cibo ed energia), la misura preferita dalla Fed; nello stesso comunicato redditi e spese delle famiglie", "inflazione"),
+    "us-durable": ("Ordini di beni durevoli: quanto investono imprese e famiglie", "crescita"),
+    "us-claims": ("Nuove richieste di sussidio di disoccupazione nella settimana", "sussidi"),
     "us-ppi": ("Prezzi alla produzione: anticipano l'inflazione", "inflazione"),
     "us-gdp": ("Crescita dell'economia (PIL)", "crescita"),
     "us-retail-sales": ("Spesa dei consumatori nei negozi", "crescita"),
@@ -69,9 +74,10 @@ COSA = {
 # codice -> (serie FRED, trasformazione, id della "release" FRED per lo storico delle uscite o None)
 #   diff = variazione sul mese prima (migliaia), yoy = % sull'anno prima, mom = % sul mese prima, livello = valore
 FRED = {
-    "us-nfp": ("PAYEMS", "diff", 50), "us-cpi": ("CPIAUCSL", "yoy", 10), "us-pce": ("PCEPI", "yoy", 54),
+    "us-nfp": ("PAYEMS", "diff", 50), "us-cpi": ("CPIAUCSL", "yoy", 10), "us-pce": ("PCEPILFE", "mom", 54),
     "us-ppi": ("PPIFIS", "yoy", 46), "us-gdp": ("A191RL1Q225SBEA", "livello", 53), "us-retail-sales": ("RSAFS", "mom", 9),
     "fomc": ("DFEDTARU", "fed", 101), "ecb": ("ECBDFR", "tasso", None),
+    "us-durable": ("DGORDER", "mom", 95), "us-claims": ("ICSA", "migliaia", 180),
 }
 
 
@@ -101,6 +107,8 @@ def precedente(serie, trasf, extra=None):
         return f"{_num((v / serie[-2][1] - 1) * 100)}% sul mese", periodo
     if trasf == "livello":
         return f"{_num(v)}% annualizzato", periodo
+    if trasf == "migliaia":                              # v9.12 sussidi settimanali: persone in migliaia, settimana al giorno
+        return f"{v / 1000:.0f} mila", f"settimana al {d[8:10]}/{d[5:7]}"
     if trasf == "fed":                                   # forchetta dei Fed Funds: limite basso e alto
         basso = (extra or [[None, None]])[-1][1]
         testo = f"{basso:.2f}-{v:.2f}%" if basso is not None else f"{v:.2f}%"
@@ -130,6 +138,12 @@ def _date_uscita(rid, chiave, da):
     return [x["date"] for x in json.loads(http(DATE_API + "?" + q)).get("release_dates", []) if x.get("date")]
 
 
+def _date_evento(cod, rid, chiave, da):
+    """v9.12 date di uscita dell'evento: per i beni durevoli solo il rapporto anticipato (agenda.uscita_valida)."""
+    from .agenda import uscita_valida
+    return [g for g in _date_uscita(rid, chiave, da) if uscita_valida(cod, g)]
+
+
 def calcola(fred, scarica=True, oggi=None):
     """{codice: {cosa, fam, alto, basso, prec, periodo, reaz}} per tutti i tipi di evento dell'agenda.
     fred = serie gia' scaricate dal sito (DGS2, ECBDFR); le altre serie USA si scaricano qui."""
@@ -141,7 +155,8 @@ def calcola(fred, scarica=True, oggi=None):
     out = {}
     for cod, (cosa, fam) in COSA.items():
         alto, basso = REGOLE[fam]
-        out[cod] = {"cosa": cosa, "fam": fam, "alto": alto, "basso": basso, "prec": None, "periodo": None, "reaz": None}
+        out[cod] = {"cosa": cosa, "fam": fam, "alto": alto, "basso": basso, "prec": None, "periodo": None, "reaz": None,
+                    "inv": fam in INVERSE}
     for cod, (sid, trasf, rid) in FRED.items():
         vecchio = (copia or {}).get(cod) or {}
         try:
@@ -156,7 +171,7 @@ def calcola(fred, scarica=True, oggi=None):
         r = None
         if rid and chiave:
             try:
-                r = reazione(_date_uscita(rid, chiave, da), fred.get("DGS2") or [])
+                r = reazione(_date_evento(cod, rid, chiave, da), fred.get("DGS2") or [])
             except Exception as e:
                 log.warning("scenari: date di uscita FRED %s non scaricate (%s)", rid, type(e).__name__)
         out[cod]["reaz"] = r or vecchio.get("reaz")

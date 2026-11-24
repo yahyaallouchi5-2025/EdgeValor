@@ -221,7 +221,7 @@ table.compatta th,table.compatta td{padding:9px 10px}
 /* data dell'ultimo aggiornamento: pillola discreta in alto a destra */
 .dataagg{display:inline-block;padding:6px 12px;border:1px solid var(--line);border-radius:99px;font-size:13px;color:var(--ink2);background:color-mix(in srgb,var(--card) 70%,transparent);font-variant-numeric:tabular-nums}
 /* prossimi eventi: mini card colorate */
-#eventi{margin-top:28px}#eventi:empty{display:none}
+#prossimi{margin-top:28px}#prossimi:empty{display:none}
 .evhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .info{position:relative}.info summary{list-style:none;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);color:var(--mute);
  display:flex;align-items:center;justify-content:center;font:italic 700 13px Georgia,serif;cursor:pointer}
@@ -1553,8 +1553,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media (max-width:900px){.tzsc-g{grid-template-columns:1fr}}
 
 /* ===== v6.67 · respiro tra i blocchi della Dashboard (multipli di 8) e schede raggruppate in menu ===== */
-#sig>#eventi:not(:empty){margin-bottom:24px}
-#sig>#eventi .card{margin:0}
+#sig>#prossimi:not(:empty){margin-bottom:24px}
+#sig>#prossimi .card{margin:0}
 #topaz .tz{margin-bottom:24px}
 #topaz .tzsc{margin:0 0 32px}
 .kzg{gap:24px;margin-bottom:40px}

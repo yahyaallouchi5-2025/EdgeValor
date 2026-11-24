@@ -125,3 +125,56 @@ EB_RX.unshift(
  [/^Le azioni \(fino a (\d+)\) si scelgono l'ultimo giorno di borsa del mese, dopo la chiusura, ed entrano con la rotazione del (\S+)\.$/,
   (m,n,d)=>"The stocks (up to "+n+") are chosen on the last trading day of the month, after the close, and enter with the rotation of "+d+"."]
 );
+
+// --- v9.12 nastro "Prossimi eventi" della Dashboard e fumetto dello scenario (04_dashboard.js, scenari.py)
+Object.assign(EB_EN,{
+"Prossimi eventi ad alto impatto":"Upcoming high-impact events",
+"Aggiornamento scheda Dashboard":"Dashboard tab update",
+"Il nastro dei prossimi eventi è di nuovo visibile e ora include gli ordini di beni durevoli e i sussidi di disoccupazione USA. Il comunicato PCE si chiama ora «Redditi, spese e PCE USA».":"The upcoming-events ticker is visible again and now includes US durable goods orders and jobless claims. The PCE release is now called «US income, spending and PCE».","Prossimi eventi":"Upcoming events",
+"OGGI":"TODAY","DOMANI":"TOMORROW","IN CORSO":"LIVE","tra # giorni":"in # days",
+"Fed (FOMC)":"Fed (FOMC)","NFP USA (occupazione)":"US NFP (jobs)","CPI USA (inflazione)":"US CPI (inflation)",
+"Redditi, spese e PCE USA":"US income, spending and PCE","PPI USA (prezzi alla produzione)":"US PPI (producer prices)",
+"Beni durevoli USA (ordini)":"US durable goods (orders)","Sussidi di disoccupazione USA":"US jobless claims",
+"ISM manifatturiero USA":"US ISM manufacturing","ISM servizi USA":"US ISM services","CPI Eurozona (stima flash)":"Eurozone CPI (flash)",
+"Bank of England":"Bank of England","CPI Regno Unito":"UK CPI","Bank of Japan":"Bank of Japan","Bank of Canada":"Bank of Canada",
+"CPI Canada":"Canada CPI","RBA (Australia)":"RBA (Australia)","CPI Australia":"Australia CPI","RBNZ (Nuova Zelanda)":"RBNZ (New Zealand)",
+"SNB (Svizzera)":"SNB (Switzerland)","NFP USA":"US NFP","CPI USA":"US CPI","PCE USA":"US PCE","PPI USA":"US PPI",
+"Beni durevoli USA":"US durable goods","CPI Eurozona":"Eurozone CPI","RBA":"RBA","RBNZ":"RBNZ","SNB":"SNB",
+"Nuovi posti di lavoro nel mese":"New jobs in the month","Inflazione dei prezzi al consumo":"Consumer price inflation",
+"Inflazione PCE core (senza cibo ed energia), la misura preferita dalla Fed; nello stesso comunicato redditi e spese delle famiglie":"Core PCE inflation (excluding food and energy), the Fed's preferred measure; household income and spending in the same release",
+"Ordini di beni durevoli: quanto investono imprese e famiglie":"Durable goods orders: how much businesses and households invest",
+"Nuove richieste di sussidio di disoccupazione nella settimana":"New unemployment benefit claims in the week",
+"Prezzi alla produzione: anticipano l'inflazione":"Producer prices: they anticipate inflation",
+"Crescita dell'economia (PIL)":"Economic growth (GDP)","Spesa dei consumatori nei negozi":"Consumer spending in shops",
+"Fiducia delle imprese industriali (sopra 50 = espansione)":"Manufacturing business confidence (above 50 = expansion)",
+"Fiducia delle imprese dei servizi (sopra 50 = espansione)":"Services business confidence (above 50 = expansion)",
+"Inflazione dell'Eurozona (prima stima)":"Eurozone inflation (first estimate)","Inflazione del Regno Unito":"UK inflation",
+"Inflazione del Canada":"Canada inflation","Inflazione dell'Australia":"Australia inflation",
+"Decisione sui tassi della Fed":"Fed rate decision","Decisione sui tassi della BCE":"ECB rate decision",
+"Decisione sui tassi della Bank of England":"Bank of England rate decision","Decisione sui tassi della Bank of Japan":"Bank of Japan rate decision",
+"Decisione sui tassi della Bank of Canada":"Bank of Canada rate decision","Decisione sui tassi della RBA":"RBA rate decision",
+"Decisione sui tassi della RBNZ":"RBNZ rate decision","Decisione sui tassi della SNB":"SNB rate decision",
+"economia solida, la banca centrale taglia meno i tassi":"solid economy, the central bank cuts rates less",
+"economia che rallenta, più tagli dei tassi":"slowing economy, more rate cuts",
+"prezzi in salita, la banca centrale tiene i tassi alti":"rising prices, the central bank keeps rates high",
+"prezzi in calo, più spazio per tagliare i tassi":"falling prices, more room to cut rates",
+"economia più forte, tassi alti più a lungo":"stronger economy, rates high for longer",
+"economia più debole, tassi verso il basso":"weaker economy, rates heading lower",
+"tassi alzati o tono restrittivo (falco)":"rates raised or a restrictive tone (hawk)",
+"tassi tagliati o tono accomodante (colomba)":"rates cut or an accommodative tone (dove)",
+"più persone senza lavoro, la banca centrale taglia di più i tassi":"more people out of work, the central bank cuts rates more",
+"mercato del lavoro solido, meno tagli dei tassi":"solid labour market, fewer rate cuts",
+"Precedente:":"Previous:","Sopra":"Above","Falco":"Hawk","Colomba":"Dove","Reazione tipica":"Typical reaction",
+"#% delle ultime # uscite":"#% of the last # releases","ore #":"at #",
+"#% sul mese":"#% month on month","#% sull'anno":"#% year on year","# mila":"# thousand","#% annualizzato":"#% annualized",
+"▲ Sopra":"▲ Above","▼ Sotto":"▼ Below","▲ Falco":"▲ Hawk","▼ Colomba":"▼ Dove",
+"tassi attuali #%":"current rates #%","tasso attuale #%":"current rate #%","settimana al #":"week to #","T# #":"Q# #"
+});
+EB_RX.unshift(
+ [/^\((gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre) (\d{4})\)$/,(m,a,y)=>"("+ebMese(a)+" "+y+")"],
+ [/^\((settimana al|T\d) (.+)\)$/,(m,a,b)=>"("+(a=="settimana al"?"week to":a.replace("T","Q"))+" "+b+")"],
+ [/^(\S{3}) più forte$/,"$1 stronger"],[/^(\S{3}) più debole$/,"$1 weaker"],
+ [/^(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|settembre|ottobre|novembre|dicembre) (\d{4})$/,(m,a,y)=>ebMese(a)+" "+y],
+ [/^(lun|mar|mer|gio|ven|sab|dom) (\d{2}\/\d{2})$/,(m,g,d)=>(EB_GG_IT[g]||g)+" "+d],
+ [/^(lun|mar|mer|gio|ven|sab|dom) (\d{2}\/\d{2}) ore (\d{2}:\d{2})$/,(m,g,d,o)=>(EB_GG_IT[g]||g)+" "+d+" at "+o]
+);

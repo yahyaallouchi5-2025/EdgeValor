@@ -238,6 +238,7 @@ COSA = {
     "us-nfp": "nuovi posti di lavoro e disoccupazione", "us-cpi": "inflazione dei prezzi al consumo",
     "us-pce": "l'inflazione che guarda la Fed", "us-ppi": "prezzi alla produzione (anticipano l'inflazione)",
     "us-gdp": "crescita dell'economia nel trimestre", "us-retail-sales": "spesa delle famiglie",
+    "us-durable": "ordini di beni durevoli (investimenti)", "us-claims": "nuovi sussidi di disoccupazione",
     "us-ism-manufacturing": "fiducia delle fabbriche (sopra 50 = crescita)",
     "us-ism-services": "fiducia dei servizi (sopra 50 = crescita)",
     "eu-cpi": "inflazione, prima stima", "gb-cpi": "inflazione", "ca-cpi": "inflazione", "au-cpi": "inflazione",
