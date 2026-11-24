@@ -114,8 +114,8 @@ def striscia(c, link="/prezzi/"):
 <style>.evpromo{{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1180px;margin:14px auto 0;padding:12px 16px;border-radius:16px;background:#050505;border:1px solid rgba(255,255,255,.08);color:#e8e8e8;font:600 14.5px/1.45 "Inter",system-ui}}
 .evpromo[hidden]{{display:none}}
 .evpromo::before{{content:"";position:absolute;z-index:-1;inset:-80% auto -80% -10%;width:60%;filter:blur(34px);opacity:.6;background:radial-gradient(closest-side,var(--c2),transparent),radial-gradient(closest-side at 70% 50%,var(--c1),transparent),radial-gradient(closest-side at 30% 50%,var(--c3),transparent);animation:evresp 9s ease-in-out infinite alternate}}
-.evpromo::after{{content:"";position:absolute;inset:auto 0 0 0;height:2px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c1));background-size:300% 100%;animation:evscor 6s linear infinite}}
-@keyframes evresp{{50%{{transform:translateX(90%) scale(1.2)}}100%{{transform:translateX(160%) scale(.95)}}}}@keyframes evscor{{to{{background-position:300% 0}}}}
+.evpromo::after{{content:"";position:absolute;left:0;bottom:0;width:300%;height:2px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c1));background-size:33.334% 100%;animation:evscor 6s linear infinite;will-change:transform}}
+@keyframes evresp{{50%{{transform:translateX(90%) scale(1.2)}}100%{{transform:translateX(160%) scale(.95)}}}}@keyframes evscor{{to{{transform:translateX(-33.333%)}}}}
 .evpromo .evt{{flex:none;padding:5px 10px;border-radius:8px;color:#0a0a0a;font:900 12px/1 "Inter",system-ui;letter-spacing:.6px;text-transform:uppercase;background:linear-gradient(100deg,var(--c1),var(--c2))}}
 .evpromo .evx{{flex:1;min-width:220px}}.evpromo .evc{{font:700 14px ui-monospace,monospace;color:#fff;font-variant-numeric:tabular-nums}}
 .evpromo a{{flex:none;padding:9px 16px;border-radius:99px;color:#0a0a0a;font:800 13.5px "Inter",system-ui;text-decoration:none;background:linear-gradient(100deg,var(--c1),var(--c2))}}

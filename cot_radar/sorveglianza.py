@@ -55,7 +55,8 @@ ORE_AZIONI = 30          # tre giri al giorno (Asia, Europa, USA)
 ORE_FINE_SETTIMANA = 64  # venerdi' sera -> lunedi' mattina
 MIN_LIVE = 75            # prezzi live: ogni 15 minuti a borsa aperta (GitHub puo' ritardare)
 WORKFLOW = {"sito.yml": "Sito", "azioni.yml": "Azioni", "prezzi-live-continuo.yml": "Prezzi live", "test.yml": "Test",
-            "orari.yml": "Orari", "pattern.yml": "Pattern"}     # v7.66
+            "orari.yml": "Orari", "pattern.yml": "Pattern",     # v7.66
+            "controllo-visivo.yml": "Controllo visivo"}         # v9.24 difetti grafici (cot_radar/controllo_visivo.py)
 ORARI = "https://raw.githubusercontent.com/" + REPO + "/orari/pubblico/indice.json"
 ORE_ORARI = 54           # la stagionalita' oraria si ricalcola ogni notte (anche nel fine settimana)
 MARGINE_ARCHIVIO = 11    # giorni: i cambi della Fed escono una volta a settimana (fino a 11 giorni di distanza)
