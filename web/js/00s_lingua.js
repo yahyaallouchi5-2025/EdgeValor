@@ -191,3 +191,15 @@ Object.assign(EB_EN,{
 "Sito":"Site","Fonti":"Sources","Workflow":"Workflows","Archivio":"Archive",
 "Ogni ora la sorveglianza controlla: sito pubblicato e senza errori, fonti COT, FRED e BCE, report COT arrivato dopo l'uscita CFTC, riepilogo COT su Telegram, Azionario, prezzi live a borsa aperta, giri automatici, archivio storico e stagionalità oraria. Se qualcosa non va arrivano anche issue GitHub e Telegram. Visibile solo all'account fondatore.":"Every hour monitoring checks: site published without errors, COT, FRED and ECB sources, COT report arrived after the CFTC release, COT recap on Telegram, Stocks, live prices while markets are open, automatic runs, historical archive and hourly seasonality. If something is wrong a GitHub issue and a Telegram message are sent too. Visible only to the founder account."
 });
+
+// --- v9.14 nuovi prezzi, prova di 7 giorni e campagna Black Friday (01c_prezzi.js, 46_abbonamento.js, 47_blackfriday.js)
+Object.assign(EB_EN,{
+"Niente password: ti mando un link. La prima volta parte la prova Premium gratuita di # giorni.":"No password: I'll send you a link. The first time, your free #-day Premium trial starts.",
+"Prezzo bloccato":"Price locked","Abbonati entro il 30 novembre: paghi questo prezzo finché resti abbonato. Dal 1° dicembre il listino sale a 29,99 € al mese.":"Subscribe by 30 November: you pay this price for as long as you stay subscribed. From 1 December the list price rises to €29.99 a month.",
+"Ultimo giorno:":"Last day:","blocca il prezzo di oggi, per sempre.":"lock in today's price, forever.","Blocca il prezzo":"Lock in the price","Blocca":"Lock in","g":"d",
+"Ultimo giorno":"Last day","Il prezzo sale il 1° dicembre.":"The price goes up on 1 December.",
+"Abbonati entro lunedì 30 novembre: paghi il prezzo di oggi finché resti abbonato.":"Subscribe by Monday 30 November: you pay today's price for as long as you stay subscribed.",
+"Il prezzo resta bloccato finché l'abbonamento è attivo, anche negli anni successivi. Se disdici e ti riabboni dal 1° dicembre vale il nuovo listino: 29,99 € al mese oppure 24,99 € al mese con l'annuale. Paghi con PayPal o carta, disdici quando vuoi dal Profilo.":"The price stays locked as long as your subscription is active, in the following years too. If you cancel and subscribe again from 1 December, the new list price applies: €29.99 a month or €24.99 a month with the annual plan. Pay with PayPal or card, cancel anytime from your Profile.",
+"Tempo rimasto":"Time left","/mese":"/month","dal 1/12":"from 1/12",
+"Annuale":"Annual","all'anno":"a year","Mese per mese":"Month by month","Piano":"Plan"
+});

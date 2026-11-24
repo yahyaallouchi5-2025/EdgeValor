@@ -8,6 +8,9 @@ piu' pagine vere, ognuna con titolo e descrizione propri e collegata dal menu. P
 COME FUNZIONA
   Le pagine riusano stile, sfondo e pie' di pagina della home gia' costruita (vetrina.html): qui cambia solo il centro.
   PREZZI (decisi da Ya): Basic gratis; Premium 27,00 EUR al mese oppure 19,99 EUR al mese con il piano annuale (239,88 EUR in un unico pagamento)
+    v9.14 (Ya, 24/11/2026): dal 1/12/2026 29,99 EUR al mese oppure 24,99 con l'annuale (299,88 EUR) e prova di 7 giorni.
+    La pagina si costruisce col listino del giorno; in piu' uno script cambia i numeri da solo a mezzanotte del 1/12
+    (prima della ricostruzione del mattino). Fino al 30/11 la striscia Black Friday (BF_PUBBLICO) dice che il prezzo sale.
     (il risparmio in % e in euro e' CALCOLATO qui sotto, non scritto a mano).
     v8.12: "Attiva Premium" porta al terminale (?premium=1) dove si paga con PayPal (abbonamento con rinnovo automatico).
     Prima (v8.07-8.11): "Contattaci" -> l'utente lasciava l'email -> arrivava al titolare (web3forms, la stessa
@@ -23,7 +26,14 @@ from .config import SITO_PUBBLICO, SUPABASE_PUBBLICA, SUPABASE_URL, TELEGRAM_CAN
 from .log import log
 
 TG = TELEGRAM_CANALE
-MENSILE, ANNUALE = 27.00, 19.99                              # euro al mese: mensile, e annuale (pagato in un'unica rata)
+from datetime import datetime
+from zoneinfo import ZoneInfo
+CAMBIO = datetime(2026, 12, 1, tzinfo=ZoneInfo("Europe/Rome"))  # v9.14 nuovo listino e prova di 7 giorni
+NUOVI = datetime.now(ZoneInfo("Europe/Rome")) >= CAMBIO
+LISTINO_VECCHIO, LISTINO_NUOVO = (27.00, 19.99), (29.99, 24.99)
+BF_PUBBLICO = False                                          # v9.14 striscia Black Friday sulla pagina Prezzi (dopo l'ok di Ya)
+MENSILE, ANNUALE = LISTINO_NUOVO if NUOVI else LISTINO_VECCHIO   # euro al mese: mensile, e annuale (pagato in un'unica rata)
+PROVA = 7 if NUOVI else 14                                   # giorni di prova Premium per chi si registra (privato.nuovo_utente)
 RISP = round((1 - ANNUALE / MENSILE) * 100)                  # sconto dell'annuale in %
 ANNO_TOT, ANNO_RISP = ANNUALE * 12, (MENSILE - ANNUALE) * 12
 eu = lambda v: ("%.2f" % v).replace(".", ",")
@@ -38,6 +48,8 @@ CSS = """
 .cambio em{font-style:normal;font-size:12px;font-weight:800;padding:3px 8px;border-radius:99px;color:#03141a;background:var(--acc)}
 .prezzo{display:flex;align-items:baseline;gap:8px;margin:14px 0 4px}.prezzo b{font:800 46px/1 "Inter Display","Inter",system-ui;letter-spacing:-1.6px}
 .prezzo span{color:var(--mute);font-size:15px}.prezzo s{color:var(--mute);font-size:18px}
+.bfpub{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-14px 0 26px;padding:12px 16px;border-radius:14px;background:#000;border:1px solid #222;color:#d6d6d6;font-size:14.5px;line-height:1.45}
+.bfpub .bftag{flex:none;padding:5px 10px;border-radius:8px;background:#fff;color:#000;font:900 12px/1 "Inter",system-ui;letter-spacing:.6px;text-transform:uppercase}
 .sotto{min-height:22px;margin:0 0 20px;font-size:14.5px;color:var(--mute)}.sotto b{color:var(--su,#4fd6a3)}
 .piano.pro .ptag{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,#ffe7a3,#f3c75f 55%,#c9962b);box-shadow:0 4px 14px rgba(243,199,95,.25)}
 .piano .btn{margin-top:26px;width:100%}.piano ul{flex:1;align-content:start}
@@ -76,7 +88,7 @@ def testata(qui):
 FRECCIA = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 
 PREZZI = f"""
-<div class="titsez"><small>Piani e prezzi</small><h1>Prova Premium gratis per 14 giorni.</h1>
+<div class="titsez"><small>Piani e prezzi</small><h1>Prova Premium gratis per <span data-prova>{PROVA}</span> giorni.</h1>
  <p>Ti registri con l'email, nessuna carta richiesta. Poi scegli tu.</p></div>
 <div class="cambio" role="group" aria-label="Durata"><button type="button" data-d="m">Mensile</button><button type="button" class="on" data-d="a">Annuale <em>&minus;{RISP}%</em></button></div>
 <div class="piani">
@@ -92,15 +104,27 @@ PREZZI = f"""
   <a class="btn pri" href="/terminale/?premium=1">{FRECCIA}Attiva Premium</a>
   <p class="sotto" style="margin:12px 0 0;text-align:center">Paghi con PayPal o carta. Si rinnova da solo, disdici quando vuoi.</p></div>
 </div>
-<script>(function(){{var M="{eu(MENSILE)} \\u20ac",A="{eu(ANNUALE)} \\u20ac",S=document.querySelector("[data-sotto]"),T=S.innerHTML;
+<script>(function(){{
+ // v9.14 listino del momento: se la pagina e' stata costruita prima del 1/12 ma la si apre dopo, i numeri cambiano qui
+ var CAMBIO=Date.parse("2026-12-01T00:00:00+01:00"),NUOVO=Date.now()>=CAMBIO,BF={str(BF_PUBBLICO).lower()};
+ var L=NUOVO?[{LISTINO_NUOVO[0]},{LISTINO_NUOVO[1]},7]:[{LISTINO_VECCHIO[0]},{LISTINO_VECCHIO[1]},14];
+ var e=function(v){{return v.toFixed(2).replace(".",",")+" \\u20ac"}},M=e(L[0]),A=e(L[1]),R=Math.round((1-L[1]/L[0])*100);
+ var S=document.querySelector("[data-sotto]"),T=e(L[1]*12)+" all'anno &middot; <b>risparmi "+e((L[0]-L[1])*12)+" (&minus;"+R+"%)</b>";
+ document.querySelector("[data-prezzo]").textContent=A;document.querySelector("[data-vecchio]").textContent=M;S.innerHTML=T;
+ document.querySelector("[data-prova]").textContent=L[2];document.querySelector(".cambio em").innerHTML="&minus;"+R+"%";
  document.querySelectorAll(".cambio button").forEach(function(b){{b.onclick=function(){{var a=b.dataset.d=="a";
   document.querySelectorAll(".cambio button").forEach(function(x){{x.classList.toggle("on",x==b)}});
-  document.querySelector("[data-prezzo]").textContent=a?A:M;document.querySelector("[data-vecchio]").hidden=!a;S.innerHTML=a?T:"Paghi mese per mese.";}}}});}})();</script>
+  document.querySelector("[data-prezzo]").textContent=a?A:M;document.querySelector("[data-vecchio]").hidden=!a;S.innerHTML=a?T:"Paghi mese per mese.";}}}});
+ // v9.14 striscia Black Friday fino al 30/11: il prezzo di oggi resta a chi si abbona prima dell'aumento
+ if(BF&&!NUOVO){{var f=document.createElement("div");f.className="bfpub";
+  f.innerHTML='<span class="bftag">Black Friday</span><span>Abbonati entro il 30 novembre: paghi il prezzo di oggi finch\\u00e9 resti abbonato. Dal 1\\u00b0 dicembre: {eu(LISTINO_NUOVO[0])} \\u20ac al mese.</span>';
+  var t=document.querySelector(".pag .titsez");t&&t.parentNode.insertBefore(f,t.nextSibling);}}
+}})();</script>
 """
 
 ACCEDI = f"""
 <div class="titsez" style="margin-left:auto;margin-right:auto;text-align:center"><small>Accesso</small><h1>Entra nel terminale.</h1>
- <p>Niente password: ti arriva un link via email. Se è la prima volta, parte la prova di 14 giorni.</p></div>
+ <p>Niente password: ti arriva un link via email. Se è la prima volta, parte la prova di {PROVA} giorni.</p></div>
 <form class="modulo" id="facc" novalidate>
  <a class="gbtn" href="{SUPABASE_URL}/auth/v1/authorize?provider=google&amp;redirect_to={quote(SITO_PUBBLICO + "terminale/", safe="")}"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>Continua con Google</a>
  <div class="oppure"><span>oppure con il link via email</span></div>
@@ -131,8 +155,8 @@ METODO = f"""
 FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, prima di entrare.</h1></div><div class="faq">__FAQ__' +
        f'</div><div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="{TG}" target="_blank" rel="noopener">Iscriviti al canale Telegram</a></div>')
 
-PAGINE = {"prezzi": ("Prezzi · EdgeValor", "Prova Premium gratis per 14 giorni, senza carta. Poi Basic oppure Premium a 27,00 € al mese o 19,99 € al mese con il piano annuale. 14 giorni di prova senza carta.", PREZZI),
-          "accedi": ("Accedi o registrati · EdgeValor", "Entra nel terminale EdgeValor con la tua email: nessuna password, 14 giorni di Premium in prova.", ACCEDI),
+PAGINE = {"prezzi": ("Prezzi · EdgeValor", f"Prova Premium gratis per {PROVA} giorni, senza carta. Poi Basic oppure Premium a {eu(MENSILE)} € al mese o {eu(ANNUALE)} € al mese con il piano annuale.", PREZZI),
+          "accedi": ("Accedi o registrati · EdgeValor", f"Entra nel terminale EdgeValor con la tua email: nessuna password, {PROVA} giorni di Premium in prova.", ACCEDI),
           "metodo": ("Il metodo · EdgeValor", "Come nascono i portafogli modello di EdgeValor: dati pubblici, filtro di trend, prova su vent'anni di storico e rotazione mensile.", METODO),
           "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi del mondo), canale Telegram, prezzi e rischi.", FAQ)}
 

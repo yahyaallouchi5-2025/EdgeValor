@@ -4105,3 +4105,63 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .anleg{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute)}
 .anvuoto{margin:0;color:var(--mute);font-size:13px}
 @media (max-width:600px){.anv{flex-direction:column;gap:6px}.antag{min-width:0}.anstato b{font-size:24px}}
+
+/* ===== v9.14 BLACK FRIDAY / CYBER MONDAY (47_blackfriday.js) - stile "campagna" scuro e netto =====
+   .bfstrip = striscia in cima | .bfmodal = finestra | .bftag = etichetta bianca della fase | .bfnum = cifre del conto */
+.bfstrip{--bfa:#2ec4b6;--bfb:#7c5cff;position:relative;display:flex;align-items:center;gap:14px;margin:0 0 14px;padding:10px 12px 10px 14px;border-radius:14px;
+ background:#000;color:#fff;border:1px solid #1d1d1d;overflow:hidden;font:600 13.5px "Inter",system-ui;transition:opacity .25s,transform .25s}
+.bfstrip::before{content:"";position:absolute;inset:auto 0 0 0;height:2px;background:linear-gradient(90deg,var(--bfa),var(--bfb),#ff4d8d,var(--bfa));background-size:300% 100%;animation:bfscorre 6s linear infinite}
+.bfstrip.via{opacity:0;transform:translateY(-6px)}
+.bf-cyber{--bfa:#00e0ff;--bfb:#3d7bff}
+@keyframes bfscorre{to{background-position:300% 0}}
+.bftag{flex:none;padding:5px 10px;border-radius:8px;background:#fff;color:#000;font:900 12px/1 "Inter",system-ui;letter-spacing:.6px;text-transform:uppercase}
+.bftesto{flex:1;min-width:0;color:#d6d6d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bfconto{flex:none;font:700 14px "JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:.3px}
+.bfcta{flex:none;height:34px;padding:0 16px;border:0;border-radius:99px;background:#fff;color:#000;font:800 13px "Inter",system-ui;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.bfcta:hover{transform:translateY(-1px);box-shadow:0 0 0 4px rgba(255,255,255,.14)}
+.bfbreve{display:none}
+.bfx{flex:none;width:28px;height:28px;border-radius:8px;border:0;background:transparent;color:#8a8a8a;cursor:pointer;font-size:13px}
+.bfx:hover{color:#fff;background:#151515}
+.bfmodal{background:rgba(0,0,0,.82)}
+.bfbox{--bfa:#2ec4b6;--bfb:#7c5cff;position:relative;width:min(560px,100%);gap:0;padding:30px 30px 22px;border-radius:24px;background:#000;border:1px solid #222;
+ box-shadow:0 40px 120px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.03) inset;overflow-y:auto;color:#fff}
+.bfbox::before{content:"";position:absolute;inset:-40% -20% auto -20%;height:70%;pointer-events:none;
+ background:radial-gradient(closest-side,color-mix(in srgb,var(--bfa) 26%,transparent),transparent),radial-gradient(closest-side at 80% 50%,color-mix(in srgb,var(--bfb) 22%,transparent),transparent);filter:blur(10px)}
+.bf-cyber .bfbox{--bfa:#00e0ff;--bfb:#3d7bff}
+.bfbox>*{position:relative}
+.bfbox .fbx{position:absolute;right:14px;top:14px;border-color:#2a2a2a;color:#9a9a9a}
+.bfalto{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.bfultimo{font:800 11.5px "Inter",system-ui;letter-spacing:.5px;text-transform:uppercase;color:#ff5c8a}
+.bfbox h2{margin:0 0 10px;font:900 clamp(30px,6vw,42px)/1.04 "Inter Display","Inter",system-ui;letter-spacing:-1.6px;color:#fff;text-transform:none}
+.bfsott{margin:0 0 6px;color:#bdbdbd;font-size:15px;line-height:1.5}
+.bfbox .infotesto{color:#a8a8a8}
+.bfconto2{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 20px}
+.bfnum{display:grid;justify-items:center;gap:4px;padding:12px 0 10px;border-radius:14px;background:#0c0c0c;border:1px solid #1f1f1f}
+.bfnum b{font:800 30px/1 "JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;color:#fff}
+.bfnum small{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#7d7d7d}
+.bfpiani{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.bfpiano{position:relative;display:grid;gap:4px;text-align:left;padding:16px 16px 14px;border-radius:16px;background:#0a0a0a;border:1px solid #262626;color:#fff;cursor:pointer;
+ transition:border-color .2s,transform .15s,background .2s}
+.bfpiano:hover{transform:translateY(-1px);border-color:#3a3a3a}
+.bfpiano.on{background:linear-gradient(#0a0a0a,#0a0a0a) padding-box,linear-gradient(135deg,var(--bfa),var(--bfb)) border-box;border:1px solid transparent}
+.bfpiano small{font:700 12px "Inter",system-ui;letter-spacing:.5px;text-transform:uppercase;color:#9a9a9a}
+.bfprezzo{display:flex;align-items:baseline;gap:4px}.bfprezzo b{font:900 30px/1.05 "Inter Display","Inter",system-ui;letter-spacing:-1px}
+.bfprezzo i{font-style:normal;color:#9a9a9a;font-size:13px}
+.bfpoi{font-size:12.5px;color:#8a8a8a}.bfpoi s{color:#8a8a8a}
+.bfpiano em{font-style:normal;font-size:12.5px;color:#bdbdbd}
+.bfpiu{position:absolute;top:-9px;right:12px;padding:3px 8px;border-radius:99px;font:800 10.5px "Inter",system-ui;letter-spacing:.3px;color:#000;background:linear-gradient(90deg,var(--bfa),var(--bfb))}
+.bfvai{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border:0;border-radius:99px;background:#fff;color:#000;font:800 16px "Inter",system-ui;cursor:pointer;
+ transition:transform .15s,box-shadow .2s}
+.bfvai svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.bfvai:hover{transform:translateY(-1px);box-shadow:0 0 0 5px rgba(255,255,255,.12),0 12px 40px color-mix(in srgb,var(--bfa) 35%,transparent)}
+.bfvai:hover svg{transform:translateX(3px)}
+.bfdopo{display:block;margin:10px auto 0;border:0;background:none;color:#8a8a8a;font:600 13.5px "Inter",system-ui;cursor:pointer}.bfdopo:hover{color:#fff}
+/* nota "prezzo bloccato" nella finestra di pagamento (46_abbonamento.js) */
+.abblocca{margin:0;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.45;color:var(--ink2);background:#000;border:1px solid #262626}
+.abblocca b{display:inline-block;margin-right:4px;padding:2px 7px;border-radius:6px;background:#fff;color:#000;font-size:11px;letter-spacing:.4px;text-transform:uppercase}
+@media (max-width:760px){
+ .bfstrip{gap:8px;padding:7px 6px 7px 8px}.bftesto,.bfsec,.bflungo{display:none}.bfbreve{display:inline}
+ .bftag{font-size:10.5px;padding:5px 7px}.bfconto{margin-left:auto;font-size:12.5px}.bfcta{height:30px;padding:0 12px;font-size:12.5px}.bfx{width:24px}
+ .bfbox{padding:24px 18px 18px;border-radius:20px}.bfnum b{font-size:24px}.bfprezzo b{font-size:25px}.bfpiano{padding:14px 12px 12px}}
+@media (max-width:360px){.bftag{font-size:9.5px;letter-spacing:.3px}.bfcta{padding:0 9px}}
+@media (prefers-reduced-motion:reduce){.bfstrip::before{animation:none}}

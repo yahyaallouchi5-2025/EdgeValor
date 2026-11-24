@@ -29,12 +29,17 @@ const TERMINALE = "https://edgevalor.com/terminale/";
 const TRUSTPILOT = "https://www.trustpilot.com/evaluate/edgevalor.com";   // v8.29 pagina per scrivere la recensione
 const PREMIUM = TERMINALE + "?premium=1";            // apre la finestra dell'abbonamento (46_abbonamento.js)
 const PRIVACY = "https://edgevalor.com/legale/#privacy", CONDIZIONI = "https://edgevalor.com/legale/#termini";
+// v9.14 importi: listino fino al 30/11/2026 e dal 1/12/2026 (chi si e' abbonato prima tiene il suo prezzo)
 const IMPORTO: Record<string, string> = { mensile: "€27,00", annuale: "€239,88" };
+const IMPORTO_NUOVO: Record<string, string> = { mensile: "€29,99", annuale: "€299,88" };
+const CAMBIO = Date.parse("2026-12-01T00:00:00+01:00");
+const nuovoListino = (d?: string | null) => (d ? Date.parse(d) : Date.now()) >= CAMBIO;
 const NOME_PIANO: Record<string, string> = { mensile: "Premium Mensile", annuale: "Premium Annuale" };
 
 type Riga = { utente: string; email: string; numero: number | null; tipo: string; scadenza: string;
               rinnovo: boolean; piano: string | null; nome: string | null;
-              motivo?: string | null; creato?: string | null; prova_fino?: string | null };   // v8.93
+              motivo?: string | null; creato?: string | null; prova_fino?: string | null;   // v8.93
+              abbonato_il?: string | null };   // v9.14 data dell'abbonamento (per l'importo giusto)
 // contenuto di un'email: oggetto, riga in evidenza, paragrafi, riepilogo, sezioni con elenco, pulsante, chiusura, piede
 type Mail = { oggetto: string; testa: string; par: string[]; riep?: [string, string][]; riepT?: string; sez?: [string, string[]][];
               dopo?: string[]; btn?: [string, string]; fine?: string; piede: string };
@@ -59,6 +64,10 @@ const breve = (d: string | number) => new Date(d).toLocaleDateString("it-IT", { 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 const PIEDE_INFO = "Contenuti a scopo educativo e informativo, non consulenza finanziaria.";
 
+// v9.14 giorni di prova: 14 per chi si e' registrato fino al 30/11/2026, 7 dopo (dalla registrazione alla fine della prova)
+const giorniProva = (x: Riga) => x.creato && x.prova_fino
+  ? (Math.round((Date.parse(x.prova_fino) - Date.parse(x.creato)) / 864e5) > 10 ? 14 : 7) : (nuovoListino() ? 7 : 14);
+
 // x = riga del database. Con PayPal la scadenza salvata e' "prossimo addebito + 1 giorno": il rinnovo e' il giorno prima.
 function testi(x: Riga): Mail {
   const d = lunga(x.scadenza), rinnovo = breve(Date.parse(x.scadenza) - 864e5), pagato = !!x.piano;
@@ -67,7 +76,7 @@ function testi(x: Riga): Mail {
   switch (x.tipo) {
     case "attivo": {
       const riep: [string, string][] = [["Piano", x.piano ? NOME_PIANO[x.piano] || "Premium" : "Premium"]];
-      if (pagato) riep.push(["Importo", IMPORTO[x.piano!] || "—"], ["Pagamento", "completato"]);
+      if (pagato) riep.push(["Importo", (nuovoListino(x.abbonato_il) ? IMPORTO_NUOVO : IMPORTO)[x.piano!] || "—"], ["Pagamento", "completato"]);
       riep.push(["Data di attivazione", breve(Date.now())]);
       riep.push(x.rinnovo ? ["Prossimo rinnovo", rinnovo] : ["Scadenza", breve(x.scadenza)]);
       return {
@@ -147,7 +156,7 @@ function testi(x: Riga): Mail {
         oggetto: prova ? "Benvenuto su EdgeValor: la tua prova Premium è attiva" : "Benvenuto su EdgeValor",
         testa: "Benvenuto su EdgeValor.",
         par: ["grazie per esserti registrato e per aver confermato la tua email: il tuo account è attivo.",
-              prova ? `Hai <b>14 giorni di ${P}</b> per provare tutto il terminale, fino al <b>${lunga(x.prova_fino!)}</b>. Alla fine della prova il tuo account passa al piano <b>Basic</b>, senza addebiti: non serve nessuna carta.`
+              prova ? `Hai <b>${giorniProva(x)} giorni di ${P}</b> per provare tutto il terminale, fino al <b>${lunga(x.prova_fino!)}</b>. Alla fine della prova il tuo account passa al piano <b>Basic</b>, senza addebiti: non serve nessuna carta.`
                     : "Il tuo account è nel piano <b>Basic</b>: puoi passare a Premium quando vuoi dal terminale."],
         riep, riepT: "Il tuo account",
         sez: [["Da dove iniziare", ["<b>Dashboard</b>: il quadro dei mercati in una pagina.",
@@ -373,6 +382,8 @@ Deno.serve(async (req) => {
       const k = { utente: x.utente, tipo: x.tipo, scadenza: x.scadenza };
       if (!(await rpc("email_prenota", k))) continue;
       try {
+        // v9.14 per l'email di pagamento serve la data dell'abbonamento: importo del listino di allora
+        if (x.tipo == "attivo" && x.piano) x.abbonato_il = await rpc("abbonamento_creato_di", { p_utente: x.utente }).catch(() => null) as string | null;
         const idr = await spedisci(x.email, x, `${x.utente}-${x.tipo}-${x.scadenza}`);
         await rpc("email_esito", { ...k, id_resend: idr }); esito.inviate++;
       } catch (e) {

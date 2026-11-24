@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from html import escape, unescape
 
 from . import domande, pagina, riepilogo
+from .pagine_pubbliche import PROVA                 # v9.14 giorni di prova del listino di oggi
 from .config import CONTATTO_EMAIL, FEEDBACK_CHIAVE, NORMAL, SECTORS, SITO_PUBBLICO, STRONG, TELEGRAM_CANALE, TITOLARE, WEB_DIR
 from .log import log
 
@@ -243,6 +244,7 @@ def html(ultimi, cartella=None):
         "{{FAQ_LD}}": domande.dati_strutturati(),
         "{{ANNO}}": str(datetime.now().year),
         "{{NASTRO}}": nastro(dati),
+        "{{PROVA}}": str(PROVA),                       # v9.14 giorni di prova: 14, oppure 7 dal 1/12/2026
         # "</" spezzato: dentro <script> chiuderebbe il tag
         "{{DENTRO_JSON}}": json.dumps(dentro(ultimi, cartella), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/"),
     }
@@ -316,7 +318,7 @@ def crea(cartella):
     # v7.94 llms.txt: presentazione in testo semplice per gli assistenti AI (ChatGPT, Claude, Perplexity, Gemini...),
     # che lo leggono per spiegare cos'e' il sito e chi l'ha fondato. Solo informazioni pubbliche, mai email private.
     with open(os.path.join(cartella, "llms.txt"), "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(LLMS)
+        fh.write(LLMS.replace("{PROVA}", str(PROVA)))
     log.info("Landing page creata: %s", f)
     return f
 
@@ -336,7 +338,7 @@ LLMS = """# EdgeValor
 - Clima di mercato e fase delle grandi economie; posizionamento dei grandi operatori (report COT della CFTC).
 - Azionario per settore, schede delle aziende, stagionalita' degli strumenti.
 - Scheda Bitcoin: bussola macro (condizioni finanziarie, dollaro, credito) e termometro del sentiment.
-- Piano Basic e Premium, con 14 giorni di prova; canale Telegram pubblico con le analisi settimanali.
+- Piano Basic e Premium, con {PROVA} giorni di prova; canale Telegram pubblico con le analisi settimanali.
 
 ## Fonti dei dati
 CFTC, Federal Reserve (FRED), Banca Centrale Europea, Fondo Monetario Internazionale, prezzi di borsa da fornitori di dati di mercato.

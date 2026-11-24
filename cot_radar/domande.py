@@ -15,7 +15,7 @@ Nei testi i collegamenti sono assoluti ("/prezzi/"): per la home si tolgono gli 
 import json
 import re
 
-from .pagine_pubbliche import ANNO_TOT, ANNUALE, MENSILE, eu
+from .pagine_pubbliche import ANNO_TOT, ANNUALE, MENSILE, PROVA, eu
 
 # (domanda, risposta in HTML semplice: solo <b> e <a>)
 DOMANDE = [
@@ -73,7 +73,7 @@ DOMANDE = [
      "COT diviso per mercato, il lunedì il quadro della settimana con portafoglio, forex e banche centrali, e "
      "durante la settimana gli avvisi quando un mercato cambia direzione."),
     ("Quanto costa?",
-     f"La registrazione a EdgeValor comprende 14 giorni di Premium gratis, senza carta. Finita la prova resti "
+     f"La registrazione a EdgeValor comprende {PROVA} giorni di Premium gratis, senza carta. Finita la prova resti "
      f"nel piano Basic. Premium costa {eu(MENSILE)} € al mese, oppure {eu(ANNUALE)} € al mese "
      f"con il piano annuale ({eu(ANNO_TOT)} € all'anno); si disdice quando vuoi. Vedi <a href=\"/prezzi/\">piani e prezzi</a>."),
     ("I risultati includono commissioni, spread e slippage?",

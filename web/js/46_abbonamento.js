@@ -2,7 +2,7 @@
    Finestra "Passa a Premium" / "Il tuo abbonamento". L'utente deve aver fatto l'accesso: l'abbonamento PayPal porta con se'
    il suo ID (custom_id) e la funzione Supabase "paypal" attiva Premium SOLO dopo aver riletto lo stato vero da PayPal.
    FLUSSO:
-     1) scelta del piano (Annuale 239,88 EUR/anno oppure Mensile 27,00 EUR/mese);
+     1) scelta del piano (prezzi da EB_PREZZI, 01c_prezzi.js: 27,00 / 19,99 fino al 30/11/2026, poi 29,99 / 24,99);
      2) casella obbligatoria "Accetto le condizioni. Si rinnova da solo, disdici quando vuoi." (senza spunta niente pagamento);
      3) pulsanti PayPal (conto PayPal o carta) -> abbonamento creato -> ?azione=attiva -> Premium attivo;
      4) chi ha gia' un abbonamento vede stato, prossimo rinnovo e "Disdici abbonamento";
@@ -18,8 +18,11 @@
  const APERTO=true;                                          // true = per tutti (dopo il pagamento di prova di Ya)
  const API="https://cwwmqujccwzmqougtedh.supabase.co/functions/v1/paypal";
  const CLIENT="BAAG2KF3dRqXUD-lXpCqjZ9inaD5AOT6OKetoDMtkowcMNatVIBKLZ5-2_Rp4BFb9bP5skp1mrJE52zWtA";
- const PIANI={annuale:{id:"P-89G164691L706501LNL7CALY",nome:"Annuale",prezzo:"239,88 €",per:"all'anno",nota:"19,99 € al mese · risparmi il 26%"},
-              mensile:{id:"P-5HA71857XX328563CNL7B7XI",nome:"Mensile",prezzo:"27,00 €",per:"al mese",nota:"Massima flessibilità"}};
+ // v9.14 prezzi da EB_PREZZI (01c_prezzi.js): dal 1/12/2026 listino nuovo; chi si e' abbonato prima vede il suo prezzo
+ const piani=listino=>({annuale:{id:listino.annuale.id,nome:"Annuale",prezzo:listino.annuale.prezzo,per:"all'anno",
+                         nota:`${listino.annuale.mese} al mese · risparmi il ${listino.annuale.risp}%`},
+                        mensile:{id:listino.mensile.id,nome:"Mensile",prezzo:listino.mensile.prezzo,per:"al mese",nota:"Massima flessibilità"}});
+ let PIANI=piani(EB_PREZZI.listino());
  const attivo=()=>APERTO||document.documentElement.classList.contains("eb-admin");
  const data=d=>new Date(d).toLocaleDateString(typeof EB_LOC!="undefined"?EB_LOC:"it-IT",{day:"numeric",month:"long",year:"numeric"});
  const ICO='<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>';
@@ -35,7 +38,9 @@
   const r=await fetch(API+"?azione="+azione,{method:"POST",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(corpo||{})});
   const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw new Error(j.errore||("HTTP "+r.status));return j;}
 
- function apri(){if(document.querySelector(".abmodal"))return;
+ // v9.14 apri("mensile"|"annuale"): piano gia' scelto (es. dalla finestra Black Friday)
+ let preferito=null;
+ function apri(pref){if(document.querySelector(".abmodal"))return;preferito=pref=="mensile"||pref=="annuale"?pref:null;
   const st=window.ebAccount&&ebAccount.stato();
   if(!st||!st.sessione){if(window.ebFeedback)ebFeedback({premium:true});return;}       // senza accesso: prima si entra
   const box=document.createElement("div");box.className="cmodal abmodal";
@@ -56,14 +61,17 @@
     <div class="cmodal-btn"><button type="button" class="csi abchiudi">Chiudi</button></div>`;
    corpo.querySelector(".abchiudi").onclick=chiudi;return;}
   // --- stato attuale (database) -> quale vista mostrare
-  (window.ebAccount.rpc("mio_abbonamento").catch(()=>[])).then(r=>{const a=(r||[])[0];
+  PIANI=piani(EB_PREZZI.listino());                             // il listino giusto all'apertura (anche dopo mezzanotte)
+  (window.ebAccount.rpc("mio_abbonamento").catch(()=>[])).then(async r=>{const a=(r||[])[0];
+   // v9.14 abbonamento attivo: prezzo del listino valido quando si e' abbonato (prezzo bloccato)
+   if(a&&a.stato=="ACTIVE"){const dal=await window.ebAccount.rpc("mio_abbonamento_creato").catch(()=>null);
+    return vistaAttivo(a,piani(EB_PREZZI.di(dal)));}
    const fino=a&&a.premium_fino&&Date.parse(a.premium_fino)>Date.now()?a.premium_fino:null;
-   if(a&&a.stato=="ACTIVE")return vistaAttivo(a);
    if(a&&fino&&a.stato!="RIMBORSATO")return vistaScelta(fino,`Disdetto · Premium attivo fino al ${data(fino)}`);
    vistaScelta(null,"Sblocca tutte le potenzialità del terminale.");});
 
   // --- vista 1: abbonamento attivo -> stato + Disdici abbonamento
-  function vistaAttivo(a){const p=PIANI[a.piano]||PIANI.mensile;
+  function vistaAttivo(a,lis){lis=lis||PIANI;vistaAttivo.lis=lis;const p=lis[a.piano]||lis.mensile;
    sott.textContent="Il tuo abbonamento è attivo.";
    corpo.innerHTML=`<div class="abstato"><div><small>Piano</small><b>${p.nome} · ${p.prezzo} ${p.per}</b></div>
      <div><small>Prossimo rinnovo</small><b>${a.prossimo?data(a.prossimo):"—"}</b></div></div>
@@ -80,7 +88,7 @@
     <div class="abesito" role="status" aria-live="polite"></div>
     <div class="cmodal-btn"><button type="button" class="cno abannulla">Sì, disdici</button><button type="button" class="csi abtieni">Mantieni Premium</button></div>`;
    const d=corpo.querySelector(".abannulla"),es=corpo.querySelector(".abesito");
-   corpo.querySelector(".abtieni").onclick=()=>vistaAttivo(a);
+   corpo.querySelector(".abtieni").onclick=()=>vistaAttivo(a,vistaAttivo.lis);
    d.onclick=async()=>{d.disabled=true;d.textContent="Disdetta…";
     try{await chiama("disdici");sott.textContent="Disdetta confermata.";
      corpo.innerHTML=`<p class="abesito ok">${fine?"Premium resta attivo fino al "+data(fine)+".":"Premium resta attivo fino alla scadenza."} Ti abbiamo mandato la conferma via email.</p>
@@ -90,11 +98,12 @@
      es.className="abesito ko";es.textContent="Disdetta non riuscita. Riprova tra poco.";}};}
 
   // --- vista 2: scelta del piano + condizioni + PayPal. parte = data di partenza (riattivazione) o null (subito)
-  function vistaScelta(parte,frase){let scelto="annuale";
+  function vistaScelta(parte,frase){let scelto=preferito||"annuale";
    sott.textContent=frase;
    corpo.innerHTML=`<div class="abpiani" role="radiogroup" aria-label="Piano">${Object.entries(PIANI).map(([k,p])=>`
      <button type="button" role="radio" class="abpiano${k==scelto?" on":""}" data-k="${k}" aria-checked="${k==scelto}">
       ${k=="annuale"?'<span class="abtag">Più conveniente</span>':""}<small>${p.nome}</small><b>${p.prezzo}</b><span>${p.per}</span><em>${p.nota}</em></button>`).join("")}</div>
+    ${EB_PREZZI.nuovi()?"":`<p class="abblocca"><b>${T("Prezzo bloccato")}</b> ${T("Abbonati entro il 30 novembre: paghi questo prezzo finché resti abbonato. Dal 1° dicembre il listino sale a 29,99 € al mese.")}</p>`}
     <label class="abok"><input type="checkbox"><span>Accetto le <a href="../legale/#abbonamento" target="_blank" rel="noopener">condizioni</a> e ho compreso che EdgeValor non è un broker né un consulente: offre analisi a scopo educativo. Si rinnova da solo, disdici quando vuoi.</span></label>
     ${parte?`<p class="small abparte">Il primo addebito parte il ${data(parte)}, alla fine del periodo già pagato.</p>`:""}
     <div class="abpp" aria-disabled="true"><div class="abppin"></div></div>

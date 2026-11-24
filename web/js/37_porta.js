@@ -9,7 +9,7 @@
      - v8.20 CLASSIFICATORE EMAIL (funzione public.email_stato nel database): 'temporanea' -> registrazione rifiutata;
        'registrata' -> in Registrati si propone Accedi / Password dimenticata; 'nuova' -> in Accedi si propone Registrati.
    Dopo l'accesso la sessione si salva e la pagina si ricarica: da li' in poi pensa a tutto 36_account.js.
-   La prova di 14 giorni la crea il database alla registrazione (funzione privato.nuovo_utente).
+   La prova (14 giorni, 7 dal 1/12/2026: EB_PREZZI.prova()) la crea il database alla registrazione (privato.nuovo_utente).
    NOTA: e' una porta "di comodo" per l'utente; i dati riservati veri andranno protetti anche sul server (passo successivo).
    DEBUG (F12 -> Console): gli errori iniziano con "[EdgeValor] porta"; ebPorta.apri("reg") mostra la schermata. */
 (function(){try{
@@ -42,7 +42,7 @@
   const vai={acc:"Accedi",reg:"Crea account",dim:"Mandami il link",nuova:"Salva e entra"}[modo];
   const nota={reg:`<p class="ptnota">Ti mandiamo un'email per confermare l'indirizzo.<br>Registrandoti accetti <a href="../legale/" target="_blank" rel="noopener">condizioni e privacy</a>.</p>`,
    dim:`<div class="ptriga ptc2"><button type="button" class="ptlink" data-va="acc">Torna all'accesso</button></div>`,acc:"",nuova:""}[modo];
-  return `<h1>${testa[0]}</h1>${testa[1]?`<p class="ptsub">${testa[1]}</p>`:""}${modo=="reg"?`<p class="ptprova">Premium gratis per 14 giorni <b>·</b> senza carta</p>`:""}
+  return `<h1>${testa[0]}</h1>${testa[1]?`<p class="ptsub">${testa[1]}</p>`:""}${modo=="reg"?`<p class="ptprova">Premium gratis per ${EB_PREZZI.prova()} giorni <b>·</b> senza carta</p>`:""}
    ${tab}${goo}<form novalidate>${mail}${pw}${sotto}${err}<button type="submit" class="ptvai">${vai}</button></form>${nota}`;}
 
  function disegna(msg){if(!el)return;const c=el.querySelector(".ptcard");c.innerHTML=html(msg);

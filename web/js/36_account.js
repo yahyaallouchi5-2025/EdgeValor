@@ -77,10 +77,14 @@
   return ["Basic","Sei in Basic: le funzioni Basic restano attive.",""];}
  // v7.93 ID UTENTE leggibile (EV-0001...): numero progressivo dato dal database alla registrazione
  const idUtente=()=>P&&P.numero?"EV-"+String(P.numero).padStart(4,"0"):"";
- /* --- v7.92 RIEPILOGO DELLA PROVA (solo durante i 14 giorni): giorno X di 14, barra, data di fine e (i) con cosa resta
+ /* --- v7.92 RIEPILOGO DELLA PROVA (solo durante la prova: 14 giorni, 7 dal 1/12/2026): giorno X di 14, barra, data di fine e (i) con cosa resta
         in Basic. Il giorno si ricava dalla fine della prova (prova_fino - 14 giorni = inizio). --- */
- const PROVA=14;
+ // v9.14 la prova dura 14 giorni per chi si e' registrato fino al 30/11/2026, 7 giorni dopo: si ricava dalla
+ // registrazione (created_at) e dalla fine della prova; senza data di registrazione vale la regola di oggi.
+ let PROVA=14;
  function riepilogoProva(){if(!P||!P.prova_fino)return "";const fine=Date.parse(P.prova_fino),ora=Date.now();
+  const u=chi(),inizio=u&&Date.parse(u.created_at||"");
+  PROVA=inizio?(Math.round((fine-inizio)/864e5)>10?14:7):EB_PREZZI.prova();
   const g=Math.min(PROVA,Math.max(1,Math.floor((ora-(fine-PROVA*864e5))/864e5)+1)),pc=Math.round(g/PROVA*100);
   const data=new Date(fine).toLocaleDateString(EB_LOC,{day:"numeric",month:"long"});
   return `<div class="pfprova"><div class="pfpt"><b>Prova Premium</b><button type="button" class="info" data-apri="pfprinfo" data-k="pfprova" aria-expanded="false" aria-label="Cosa succede dopo la prova">i</button></div>
@@ -165,7 +169,7 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   if(inviato){conto.innerHTML=`<div class="pfchi"><b>Controlla la posta</b><span class="pfst">Ho mandato un link a ${esc(inviato)}. Aprilo da questo dispositivo. Se non lo vedi, guarda nello spam.</span></div>
     <button type="button" class="sitem pfvoce pfaltra"><span>Usa un'altra email</span></button>`;
    box.querySelector(".pfaltra").onclick=()=>{inviato="";disegna();};return;}
-  conto.innerHTML=`<form class="pfform" novalidate><div class="pfchi"><b>Entra con la tua email</b><span class="pfst">Niente password: ti mando un link. La prima volta parte la prova Premium gratuita di 14 giorni.</span></div>
+  conto.innerHTML=`<form class="pfform" novalidate><div class="pfchi"><b>Entra con la tua email</b><span class="pfst">Niente password: ti mando un link. La prima volta parte la prova Premium gratuita di ${EB_PREZZI.prova()} giorni.</span></div>
     ${msg?`<p class="pfko">${msg}</p>`:""}
     ${conGoogle()?`<button type="button" class="pfgoogle">${GICO}<span>Continua con Google</span></button><div class="pfoppure"><span>oppure</span></div>`:""}
     <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="nome@esempio.it" aria-label="La tua email" required>
