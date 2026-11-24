@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""v9.14 listino Premium e prova: fino al 30/11/2026 27,00 / 19,99 e 14 giorni, dal 1/12/2026 29,99 / 24,99 e 7 giorni."""
+"""v9.14 listino Premium e prova: fino al 30/11/2026 27,00 / 19,99 e 14 giorni, dal 1/12/2026 39,99 / 29,99 e 7 giorni."""
 import importlib
 import unittest
 from datetime import datetime
@@ -36,8 +36,8 @@ class Listino(unittest.TestCase):
 
     def test_dopo_il_cambio(self):
         m = carica(datetime(2026, 12, 1, 0, 0, tzinfo=ZoneInfo("Europe/Rome")))
-        self.assertEqual((m.MENSILE, m.ANNUALE, m.PROVA, m.RISP), (29.99, 24.99, 7, 17))
-        self.assertEqual(m.eu(m.ANNO_TOT), "299,88")
+        self.assertEqual((m.MENSILE, m.ANNUALE, m.PROVA, m.RISP), (39.99, 29.99, 7, 25))
+        self.assertEqual(m.eu(m.ANNO_TOT), "359,88")
         self.assertIn("7 giorni di Premium in prova", m.PAGINE["accedi"][1])
 
 

@@ -31,7 +31,7 @@ const PREMIUM = TERMINALE + "?premium=1";            // apre la finestra dell'ab
 const PRIVACY = "https://edgevalor.com/legale/#privacy", CONDIZIONI = "https://edgevalor.com/legale/#termini";
 // v9.14 importi: listino fino al 30/11/2026 e dal 1/12/2026 (chi si e' abbonato prima tiene il suo prezzo)
 const IMPORTO: Record<string, string> = { mensile: "€27,00", annuale: "€239,88" };
-const IMPORTO_NUOVO: Record<string, string> = { mensile: "€29,99", annuale: "€299,88" };
+const IMPORTO_NUOVO: Record<string, string> = { mensile: "€39,99", annuale: "€359,88" };
 const CAMBIO = Date.parse("2026-12-01T00:00:00+01:00");
 const nuovoListino = (d?: string | null) => (d ? Date.parse(d) : Date.now()) >= CAMBIO;
 const NOME_PIANO: Record<string, string> = { mensile: "Premium Mensile", annuale: "Premium Annuale" };

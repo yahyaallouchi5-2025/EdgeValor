@@ -8,7 +8,7 @@ piu' pagine vere, ognuna con titolo e descrizione propri e collegata dal menu. P
 COME FUNZIONA
   Le pagine riusano stile, sfondo e pie' di pagina della home gia' costruita (vetrina.html): qui cambia solo il centro.
   PREZZI (decisi da Ya): Basic gratis; Premium 27,00 EUR al mese oppure 19,99 EUR al mese con il piano annuale (239,88 EUR in un unico pagamento)
-    v9.14 (Ya, 24/11/2026): dal 1/12/2026 29,99 EUR al mese oppure 24,99 con l'annuale (299,88 EUR) e prova di 7 giorni.
+    v9.14 (Ya, 24/11/2026): dal 1/12/2026 39,99 EUR al mese oppure 29,99 con l'annuale (359,88 EUR) e prova di 7 giorni.
     La pagina si costruisce col listino del giorno; in piu' uno script cambia i numeri da solo a mezzanotte del 1/12
     (prima della ricostruzione del mattino). v9.18 la striscia delle campagne stagionali arriva da campagne.py.
     (il risparmio in % e in euro e' CALCOLATO qui sotto, non scritto a mano).
@@ -30,7 +30,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 CAMBIO = datetime(2026, 12, 1, tzinfo=ZoneInfo("Europe/Rome"))  # v9.14 nuovo listino e prova di 7 giorni
 NUOVI = datetime.now(ZoneInfo("Europe/Rome")) >= CAMBIO
-LISTINO_VECCHIO, LISTINO_NUOVO = (27.00, 19.99), (29.99, 24.99)
+LISTINO_VECCHIO, LISTINO_NUOVO = (27.00, 19.99), (39.99, 29.99)
 MENSILE, ANNUALE = LISTINO_NUOVO if NUOVI else LISTINO_VECCHIO   # euro al mese: mensile, e annuale (pagato in un'unica rata)
 PROVA = 7 if datetime.now(ZoneInfo("Europe/Rome")) >= datetime(2026, 11, 24, 20, 40, tzinfo=ZoneInfo("Europe/Rome")) else 14   # v9.20 (Ya) 7 giorni da oggi
 #                                  # giorni di prova Premium per chi si registra (privato.nuovo_utente)

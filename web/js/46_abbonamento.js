@@ -2,7 +2,7 @@
    Finestra "Passa a Premium" / "Il tuo abbonamento". L'utente deve aver fatto l'accesso: l'abbonamento PayPal porta con se'
    il suo ID (custom_id) e la funzione Supabase "paypal" attiva Premium SOLO dopo aver riletto lo stato vero da PayPal.
    FLUSSO:
-     1) scelta del piano (prezzi da EB_PREZZI, 01c_prezzi.js: 27,00 / 19,99 fino al 30/11/2026, poi 29,99 / 24,99);
+     1) scelta del piano (prezzi da EB_PREZZI, 01c_prezzi.js: 27,00 / 19,99 fino al 30/11/2026, poi 39,99 / 29,99);
      2) casella obbligatoria "Accetto le condizioni. Si rinnova da solo, disdici quando vuoi." (senza spunta niente pagamento);
      3) pulsanti PayPal (conto PayPal o carta) -> abbonamento creato -> ?azione=attiva -> Premium attivo;
      4) chi ha gia' un abbonamento vede stato, prossimo rinnovo e "Disdici abbonamento";
@@ -99,17 +99,17 @@
 
   // --- vista 2: scelta del piano + condizioni + PayPal. parte = data di partenza (riattivazione) o null (subito)
   function vistaScelta(parte,frase){let scelto=preferito||"annuale";
-   // v9.18 campagna stagionale con sconto: l'annuale passa al piano promozionale (primo anno -20%)
+   // v9.18 campagna stagionale con sconto: l'annuale passa al piano promozionale (primo anno -33%)
    const cmp=window.ebCampagne&&ebCampagne.attuale&&ebCampagne.attuale(),promo=!!(cmp&&cmp.offerta=="sconto"&&cmp.pronta&&!parte);
    if(promo)PIANI.annuale=Object.assign({},PIANI.annuale,{id:EB_PREZZI.PROMO.id,prezzo:EB_PREZZI.PROMO.prezzo,per:T("il primo anno"),
-    nota:`19,99 € ${T("al mese")} · −20% · ${T("poi")} 299,88 €`});
-   // Black Friday 2026: lo sconto si legge rispetto al prezzo dal 1/12 (24,99), non rispetto al mensile
-   else if(!EB_PREZZI.nuovi())PIANI.annuale=Object.assign({},PIANI.annuale,{nota:`19,99 € ${T("al mese")} · −20% ${T("sul prezzo dal 1/12")}`});
+    nota:`19,99 € ${T("al mese")} · −33% · ${T("poi")} 359,88 €`});
+   // Black Friday 2026: lo sconto si legge rispetto al prezzo dal 1/12 (29,99), non rispetto al mensile
+   else if(!EB_PREZZI.nuovi())PIANI.annuale=Object.assign({},PIANI.annuale,{nota:`19,99 € ${T("al mese")} · −33% ${T("sul prezzo dal 1/12")}`});
    sott.textContent=frase;
    corpo.innerHTML=`<div class="abpiani" role="radiogroup" aria-label="Piano">${Object.entries(PIANI).map(([k,p])=>`
      <button type="button" role="radio" class="abpiano${k==scelto?" on":""}" data-k="${k}" aria-checked="${k==scelto}">
       ${k=="annuale"?'<span class="abtag">Più conveniente</span>':""}<small>${p.nome}</small><b>${p.prezzo}</b><span>${p.per}</span><em>${p.nota}</em></button>`).join("")}</div>
-    ${EB_PREZZI.nuovi()?"":`<p class="abblocca"><b>${T("Tariffa bloccata")}</b> ${T("Abbonati entro il 30 novembre: mantieni questa tariffa finché resti abbonato. Dal 1° dicembre il listino passa a 29,99 € al mese.")}</p>`}
+    ${EB_PREZZI.nuovi()?"":`<p class="abblocca"><b>${T("Tariffa bloccata")}</b> ${T("Abbonati entro il 30 novembre: mantieni questa tariffa finché resti abbonato. Dal 1° dicembre il listino passa a 39,99 € al mese.")}</p>`}
     <label class="abok"><input type="checkbox"><span>Accetto le <a href="../legale/#abbonamento" target="_blank" rel="noopener">condizioni</a> e ho compreso che EdgeValor non è un broker né un consulente: offre analisi a scopo educativo. Si rinnova da solo, disdici quando vuoi.</span></label>
     ${parte?`<p class="small abparte">Il primo addebito parte il ${data(parte)}, alla fine del periodo già pagato.</p>`:""}
     <div class="abpp" aria-disabled="true"><div class="abppin"></div></div>

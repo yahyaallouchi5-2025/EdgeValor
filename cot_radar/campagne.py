@@ -8,7 +8,7 @@ e solare comprese):
   pasqua    Offerta di Pasqua   dal lunedi' della Settimana Santa a Pasquetta
   estate    Saldi d'estate      dal primo sabato di luglio, 9 giorni
   black     Black Friday        dal lunedi' prima del Black Friday al Cyber Monday (Cyber Monday = ultimo giorno)
-Offerta: 2026 Black Friday = tariffa attuale bloccata (il listino sale il 1/12/2026); dopo = Premium annuale -20%
+Offerta: 2026 Black Friday = tariffa attuale bloccata (il listino sale il 1/12/2026); dopo = Premium annuale -33%
 il primo anno (piano PayPal promozionale, vedi supabase/functions/paypal).
 
 COME SI VEDE
@@ -32,7 +32,7 @@ ROMA = ZoneInfo("Europe/Rome")
 COLORI = {"black": ("#ff8a00", "#ff2e7e", "#8b5cf6"), "cyber": ("#00e5ff", "#3d7bff", "#b14bff"),
           "inverno": ("#7dd3fc", "#818cf8", "#e0f2fe"), "pasqua": ("#34d399", "#f472b6", "#fde047"),
           "estate": ("#fde047", "#fb923c", "#f43f5e")}
-PROMO_PRONTA = True           # v9.18 piano PayPal promozionale creato (P-9WC59158HM233862FNMC6AXQ, -20% il primo anno)
+PROMO_PRONTA = True           # v9.18 piano PayPal promozionale creato (P-160435523W6069530NMDAQBI, -33% il primo anno)
 
 
 def pasqua(y):
@@ -96,9 +96,9 @@ def _testi(c):
             "novembre", "dicembre"]
     data = f"{fino} {mesi[c['ultimo'].month - 1]}"
     if c["offerta"] == "blocco":
-        return (f"Fino al {data}: Premium annuale a 19,99 € al mese invece di 24,99 € (−20%), "
+        return (f"Fino al {data}: Premium annuale a 19,99 € al mese invece di 29,99 € (−33%), "
                 "bloccato finché resti abbonato.", "Blocca la tariffa")
-    return (f"Fino al {data}: Premium annuale −20% il primo anno, 19,99 € al mese invece di 24,99 €.",
+    return (f"Fino al {data}: Premium annuale −33% il primo anno, 19,99 € al mese invece di 29,99 €.",
             "Attiva l'offerta")
 
 
@@ -163,10 +163,10 @@ def finestra(c, link="/terminale/?premium=1"):
     fino = f"{c['ultimo'].day} {mesi[c['ultimo'].month - 1]}"
     if c["offerta"] == "blocco":
         tit, sott, poi, cta = ("Blocca la tariffa attuale.",
-                               f"Fino al {fino}: Premium annuale a 19,99 € al mese invece di 24,99 €, finché resti abbonato.",
+                               f"Fino al {fino}: Premium annuale a 19,99 € al mese invece di 29,99 €, finché resti abbonato.",
                                "239,88 € all'anno · dal 1/12", "Blocca la tariffa")
     else:
-        tit, sott, poi, cta = ("Premium annuale −20%.", f"Fino al {fino}: il primo anno a 19,99 € al mese invece di 24,99 €.",
+        tit, sott, poi, cta = ("Premium annuale −33%.", f"Fino al {fino}: il primo anno a 19,99 € al mese invece di 29,99 €.",
                                "239,88 € il primo anno · invece di", "Attiva l'offerta")
     return f"""<div class="evf" id="evf" hidden data-da="{da}" data-a="{a}" data-bf="{bf}" data-sab="{sab}" data-cy="{cy}" data-k="{c['k']}" data-anno="{c['anno']}" style="--c1:{c1};--c2:{c2};--c3:{c3}">
 <style>.evf{{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.72);opacity:0;transition:opacity .22s}}
@@ -197,7 +197,7 @@ def finestra(c, link="/terminale/?premium=1"):
 <div class="eva"><span class="evt">{c["nome"]}</span><span class="evu"></span></div>
 <h2 id="evft">{tit}</h2><p class="evs">{sott}</p>
 <div class="evn" role="timer" aria-label="Tempo rimasto"><span><b>00</b><small>giorni</small></span><span><b>00</b><small>ore</small></span><span><b>00</b><small>min</small></span><span><b>00</b><small>sec</small></span></div>
-<div class="evp"><i>−20%</i><small>Premium annuale</small><div><strong>19,99 €</strong><span>/mese</span></div><small>{poi} <s>24,99 €</s></small></div>
+<div class="evp"><i>−33%</i><small>Premium annuale</small><div><strong>19,99 €</strong><span>/mese</span></div><small>{poi} <s>29,99 €</s></small></div>
 <a class="evv" href="{link}">{cta} &rarr;</a><button type="button" class="evd">Più tardi</button></div>
 <script>(function(){{var f=document.getElementById("evf");if(!f)return;var D=f.dataset,da=+D.da,a=+D.a,bf=+D.bf,sab=+D.sab,cy=+D.cy,ORE8=288e5;
 var oggi=function(){{return new Intl.DateTimeFormat("en-CA",{{timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"}}).format(new Date());}};

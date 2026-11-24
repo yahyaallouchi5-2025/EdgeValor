@@ -1,5 +1,5 @@
 // ---------- email-campagne (v9.25): email delle offerte stagionali EdgeValor (Black Friday, Cyber Monday, Pasqua, saldi) ----------
-// Stile TradingView (idea di Ya): una grande immagine con il design delle card del sito (luci colorate, titolo, -20%)
+// Stile TradingView (idea di Ya): una grande immagine con il design delle card del sito (luci colorate, titolo, -33%)
 // e sotto poche righe semplici, un pulsante e la scadenza. L'immagine e' servita dal sito (edgevalor.com/email/,
 // creata da cot_radar/email_campagne_img.py) e allegata in linea (cid:testa), cosi' si vede subito senza "mostra immagini".
 // MODALITA':
@@ -21,25 +21,25 @@ const NO_OFFERTE = "mailto:info@edgevalor.com?subject=No%20offerte";
 type Testi = { oggetto: string; antep: string; par: string[]; cta: string; fine: string; colore: string };
 // testi brevi, come nelle email di TradingView: cosa, quanto, fino a quando
 const CAMPAGNE: Record<string, Testi> = {
-  black: { oggetto: "Black Friday: blocca la tariffa attuale (−20%)", antep: "Premium annuale a 19,99 € al mese invece di 24,99 €.",
-    par: ["fino a lunedì 30 novembre Premium annuale costa <b>19,99 € al mese</b> invece di 24,99 €: il <b>20% in meno</b>.",
-          "La tariffa resta bloccata finché resti abbonato. Dal 1° dicembre il listino passa a 29,99 € al mese (24,99 € con l'annuale)."],
+  black: { oggetto: "Black Friday: blocca la tariffa attuale (−33%)", antep: "Premium annuale a 19,99 € al mese invece di 29,99 €.",
+    par: ["fino a lunedì 30 novembre Premium annuale costa <b>19,99 € al mese</b> invece di 29,99 €: il <b>33% in meno</b>, la metà del piano mensile.",
+          "La tariffa resta bloccata finché resti abbonato. Dal 1° dicembre il listino passa a 39,99 € al mese (29,99 € con l'annuale)."],
     cta: "Blocca la tariffa", fine: "L'offerta termina lunedì 30 novembre alle 23:59 (ora italiana).", colore: "#ff5a3c" },
-  cyber: { oggetto: "Cyber Monday: ultimo giorno per bloccare la tariffa", antep: "Oggi è l'ultimo giorno: 19,99 € al mese invece di 24,99 €.",
-    par: ["oggi è l'ultimo giorno per avere Premium annuale a <b>19,99 € al mese</b> invece di 24,99 €: il <b>20% in meno</b>, bloccato finché resti abbonato.",
-          "Da domani il listino passa a 29,99 € al mese (24,99 € con l'annuale)."],
+  cyber: { oggetto: "Cyber Monday: ultimo giorno per bloccare la tariffa", antep: "Oggi è l'ultimo giorno: 19,99 € al mese invece di 29,99 €.",
+    par: ["oggi è l'ultimo giorno per avere Premium annuale a <b>19,99 € al mese</b> invece di 29,99 €: il <b>33% in meno</b>, bloccato finché resti abbonato.",
+          "Da domani il listino passa a 39,99 € al mese (29,99 € con l'annuale)."],
     cta: "Blocca la tariffa", fine: "L'offerta termina stasera alle 23:59 (ora italiana).", colore: "#3d7bff" },
-  pasqua: { oggetto: "Offerta di Pasqua: Premium annuale −20%", antep: "Il primo anno a 19,99 € al mese invece di 24,99 €.",
-    par: ["per qualche giorno Premium annuale costa <b>19,99 € al mese</b> il primo anno invece di 24,99 €: il <b>20% in meno</b>.",
-          "Dal secondo anno si rinnova a 299,88 €. Disdici quando vuoi dal Profilo."],
+  pasqua: { oggetto: "Offerta di Pasqua: Premium annuale −33%", antep: "Il primo anno a 19,99 € al mese invece di 29,99 €.",
+    par: ["per qualche giorno Premium annuale costa <b>19,99 € al mese</b> il primo anno invece di 29,99 €: il <b>33% in meno</b>, la metà del piano mensile.",
+          "Dal secondo anno si rinnova a 359,88 €. Disdici quando vuoi dal Profilo."],
     cta: "Attiva l'offerta", fine: "L'offerta termina il lunedì di Pasquetta alle 23:59 (ora italiana).", colore: "#34d399" },
-  estate: { oggetto: "Saldi d'estate: Premium annuale −20%", antep: "Il primo anno a 19,99 € al mese invece di 24,99 €.",
-    par: ["per i saldi d'estate Premium annuale costa <b>19,99 € al mese</b> il primo anno invece di 24,99 €: il <b>20% in meno</b>.",
-          "Dal secondo anno si rinnova a 299,88 €. Disdici quando vuoi dal Profilo."],
+  estate: { oggetto: "Saldi d'estate: Premium annuale −33%", antep: "Il primo anno a 19,99 € al mese invece di 29,99 €.",
+    par: ["per i saldi d'estate Premium annuale costa <b>19,99 € al mese</b> il primo anno invece di 29,99 €: il <b>33% in meno</b>, la metà del piano mensile.",
+          "Dal secondo anno si rinnova a 359,88 €. Disdici quando vuoi dal Profilo."],
     cta: "Attiva l'offerta", fine: "L'offerta dura 9 giorni, fino alle 23:59 dell'ultimo giorno (ora italiana).", colore: "#fb923c" },
-  inverno: { oggetto: "Saldi d'inverno: Premium annuale −20%", antep: "Il primo anno a 19,99 € al mese invece di 24,99 €.",
-    par: ["per i saldi d'inverno Premium annuale costa <b>19,99 € al mese</b> il primo anno invece di 24,99 €: il <b>20% in meno</b>.",
-          "Dal secondo anno si rinnova a 299,88 €. Disdici quando vuoi dal Profilo."],
+  inverno: { oggetto: "Saldi d'inverno: Premium annuale −33%", antep: "Il primo anno a 19,99 € al mese invece di 29,99 €.",
+    par: ["per i saldi d'inverno Premium annuale costa <b>19,99 € al mese</b> il primo anno invece di 29,99 €: il <b>33% in meno</b>, la metà del piano mensile.",
+          "Dal secondo anno si rinnova a 359,88 €. Disdici quando vuoi dal Profilo."],
     cta: "Attiva l'offerta", fine: "L'offerta termina il 10 gennaio alle 23:59 (ora italiana).", colore: "#818cf8" },
 };
 

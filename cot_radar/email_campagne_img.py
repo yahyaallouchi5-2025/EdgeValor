@@ -18,11 +18,11 @@ COLORI = {"black": ("#ff8a00", "#ff2e7e", "#8b5cf6"), "cyber": ("#00e5ff", "#3d7
           "inverno": ("#7dd3fc", "#818cf8", "#e0f2fe"), "pasqua": ("#34d399", "#f472b6", "#fde047"),
           "estate": ("#fde047", "#fb923c", "#f43f5e")}            # stessi colori di campagne.py / stile.css
 TESTI = {   # titolo, riga sotto il titolo, numero grande, riga finale
-    "black": ("Black Friday", "BLOCCA LA TARIFFA ADESSO", "−20%", "Premium annuale a 19,99 € al mese"),
-    "cyber": ("Cyber Monday", "ULTIMO GIORNO", "−20%", "Premium annuale a 19,99 € al mese"),
-    "pasqua": ("Offerta di Pasqua", "SOLO PER POCHI GIORNI", "−20%", "Premium annuale il primo anno"),
-    "estate": ("Saldi d'estate", "SOLO PER POCHI GIORNI", "−20%", "Premium annuale il primo anno"),
-    "inverno": ("Saldi d'inverno", "SOLO PER POCHI GIORNI", "−20%", "Premium annuale il primo anno"),
+    "black": ("Black Friday", "BLOCCA LA TARIFFA ADESSO", "−33%", "Premium annuale a 19,99 € al mese"),
+    "cyber": ("Cyber Monday", "ULTIMO GIORNO", "−33%", "Premium annuale a 19,99 € al mese"),
+    "pasqua": ("Offerta di Pasqua", "SOLO PER POCHI GIORNI", "−33%", "Premium annuale il primo anno"),
+    "estate": ("Saldi d'estate", "SOLO PER POCHI GIORNI", "−33%", "Premium annuale il primo anno"),
+    "inverno": ("Saldi d'inverno", "SOLO PER POCHI GIORNI", "−33%", "Premium annuale il primo anno"),
 }
 W, H = 1200, 960                       # 2x per gli schermi nitidi (in email si mostra a 600 x 480)
 
