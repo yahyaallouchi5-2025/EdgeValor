@@ -15,6 +15,14 @@ COSA CONTROLLA (workflow sorveglianza.yml, ogni ora)
   6) v7.66 archivio storico (archivio.json del sito): nessuna serie FERMA (ultimo dato troppo vecchio per il suo passo);
   7) v7.66 stagionalita' oraria: ricalcolata ogni notte; workflow Orari e Pattern tra quelli sorvegliati;
   5) v7.27 titoli tolti dalla borsa o con i prezzi fermi (azioni/eventi_titoli.json): da togliere dall'elenco CSV.
+  8) v9.13 fonti dell'ultimo aggiornamento (COT, FRED, BCE) non raggiunte: il sito usa i dati salvati;
+  9) v9.13 report COT uscito ma non ancora nel sito (calendario CFTC con le festivita' USA);
+ 10) v9.13 riepilogo COT settimanale su Telegram non inviato (cursore notificati.json del ramo "storico").
+
+REGISTRO ANOMALIE (v9.13, solo per il fondatore)
+  Ogni giro scrive anomalie.json nel ramo "anomalie": anomalie aperte (da quando), chiuse (con durata), ultimi giri
+  con esito OK/anomalie. Il terminale lo legge nel Profilo, sotto "Dati aggiornati", solo con l'account fondatore
+  (web/js/14b_anomalie.js). Nessun dato personale: solo testi dei controlli.
   Nel fine settimana (e il lunedi' mattina) le soglie si allungano: le borse sono chiuse e i giri non partono.
 
 COME AVVISA
@@ -47,6 +55,11 @@ ORARI = "https://raw.githubusercontent.com/" + REPO + "/orari/pubblico/indice.js
 ORE_ORARI = 54           # la stagionalita' oraria si ricalcola ogni notte (anche nel fine settimana)
 MARGINE_ARCHIVIO = 11    # giorni: i cambi della Fed escono una volta a settimana (fino a 11 giorni di distanza)
 ETICHETTA = "sorveglianza"
+CURSORE_TG = "https://raw.githubusercontent.com/" + REPO + "/storico/segnali/notificati.json"   # v9.13 riepilogo COT
+ORE_COT = 5              # v9.13 ore dopo l'uscita ufficiale del COT prima di dire "non ancora nel sito"
+ORE_RIEPILOGO = 12       # v9.13 ore dopo l'uscita del COT entro cui deve partire il riepilogo Telegram (di notte attende)
+GIRI_REG = 72            # v9.13 giri tenuti nel registro anomalie (3 giorni, uno all'ora)
+CHIUSE_REG = 40          # v9.13 anomalie chiuse tenute nel registro
 UA = {"User-Agent": "cot-radar/sorveglianza"}
 
 
@@ -92,9 +105,28 @@ def archivio_fermo(adesso, archivio):
     return out
 
 
-def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, eventi=None, archivio=None, orari=None):
+def orari_cot(adesso, ultimo, tolleranza_ore=ORE_COT):
+    """v9.13 calendario COT (calendario.weekly_schedule) calcolato all'istante `adesso` invece che all'ora del PC:
+    data attesa, ritardo, ultima uscita reale (ora italiana)."""
+    from . import calendario as C
+    vero = C.utcnow
+    C.utcnow = lambda: adesso.astimezone(timezone.utc).replace(tzinfo=None)
+    try:
+        return C.weekly_schedule(ultimo, 4, 15, 30, 3, tolleranza_ore=tolleranza_ore, sposta=C.uscita_cot)
+    finally:
+        C.utcnow = vero
+
+
+def _gm(iso):
+    """2026-11-17 -> 17/11"""
+    return iso[8:10] + "/" + iso[5:7]
+
+
+def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, eventi=None, archivio=None, orari=None,
+             cursore=None):
     """Lista di frasi (in italiano) con cio' che non va. Vuota = tutto regolare.
-    stato = stato.json del sito; indice = azioni/indice.json; live = live.json; giri = {nome: (conclusione, url)}."""
+    stato = stato.json del sito; indice = azioni/indice.json; live = live.json; giri = {nome: (conclusione, url)};
+    cursore = notificati.json (v9.13, riepilogo COT su Telegram)."""
     out = []
     # 1) sito
     try:
@@ -106,6 +138,27 @@ def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, ev
             out.append("Ultimo aggiornamento del sito con esito \"%s\"." % stato["esito"])
     except (TypeError, KeyError, ValueError):
         out.append("stato.json del sito non leggibile: il sito potrebbe essere giu'.")
+    # 8) v9.13 fonti non raggiunte nell'ultimo aggiornamento ("fred_riserva" = serie prese da fonti di riserva: va bene)
+    for k, v in sorted(((stato or {}).get("fonti") or {}).items()):
+        if k != "fred_riserva" and v != "online":
+            out.append("Fonte %s non raggiunta nell'ultimo aggiornamento: in uso i dati salvati (%s)." % (k.upper(), v))
+    # 9-10) v9.13 COT: report uscito ma non nel sito; riepilogo settimanale su Telegram non partito
+    ultimo = (stato or {}).get("cot_ultimo")
+    if ultimo:
+        try:
+            c = orari_cot(adesso, ultimo)
+            if c["late"]:
+                out.append("Report COT del %s (uscito %s) non ancora nel sito: ultimo dato del %s."
+                           % (_gm(c["expected"]), c["last_pub"].strftime("%d/%m %H:%M"), _gm(ultimo)))
+            elif cursore is not None:
+                from zoneinfo import ZoneInfo
+                ora_it = adesso.astimezone(ZoneInfo("Europe/Rome")).replace(tzinfo=None)
+                inviato = (cursore or {}).get("riepilogo_cot") or ""
+                if inviato < ultimo and _ore(ora_it, c["last_pub"]) > ORE_RIEPILOGO:
+                    out.append("Riepilogo COT del %s non inviato su Telegram (ultimo inviato: %s)."
+                               % (_gm(ultimo), _gm(inviato) if inviato else "nessuno"))
+        except (TypeError, ValueError, KeyError):
+            out.append("Data dell'ultimo COT nel sito non leggibile (%s)." % ultimo)
     # 2) Azionario (ora italiana: si confronta con un margine di 2 ore, il fuso non conta a queste soglie)
     try:
         gen = _roma(indice["generato"], "%Y-%m-%d %H:%M")
@@ -152,6 +205,64 @@ def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, ev
         out.append("Prezzi fermi da oltre una settimana (sospesi o delistati?): %s."
                    % ", ".join("%s dal %s" % (t, ev["fermi"][t]) for t in fe))
     return out
+
+
+# --------------------------------------------------------------------------- registro anomalie (v9.13)
+AREE = (("Sito", ("Sito ", "stato.json", "Ultimo aggiornamento del sito")), ("Fonti", ("Fonte ",)),
+        ("COT", ("Report COT", "Data dell'ultimo COT")), ("Telegram", ("Riepilogo COT",)),
+        ("Azionario", ("Azionario", "azioni/indice", "Titoli tolti", "Prezzi fermi da")),
+        ("Prezzi live", ("Prezzi live", "live.json")), ("Workflow", ("Ultimo giro",)), ("Archivio", ("Archivio",)),
+        ("Stagionalità", ("Stagionalita'", "Indice della stagionalita'")))
+
+
+def area(testo):
+    """Area del terminale a cui appartiene un problema (per il registro)."""
+    for nome, inizi in AREE:
+        if any(testo.startswith(i) for i in inizi):
+            return nome
+    return "Altro"
+
+
+def chiave(testo):
+    """Stessa anomalia anche se cambiano i numeri ("da 31 ore" -> "da 32 ore"): i numeri non contano."""
+    import re
+    return re.sub(r"\d+", "#", testo)
+
+
+def aggiorna_registro(reg, prob, adesso):
+    """Registro anomalie aggiornato con i problemi di questo giro (orari in ora italiana, "AAAA-MM-GG HH:MM").
+    aperte = problemi ancora presenti (dal = prima volta visto); chiuse = risolti (al = primo giro regolare);
+    giri = esito degli ultimi giri; ok_dal = da quando e' tutto regolare."""
+    from zoneinfo import ZoneInfo
+    ora = adesso.astimezone(ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d %H:%M")
+    reg = reg if isinstance(reg, dict) else {}
+    prima = {a.get("k"): a for a in reg.get("aperte") or [] if isinstance(a, dict)}
+    aperte = []
+    for p in prob:
+        k = chiave(p)
+        a = prima.pop(k, None) or {"k": k, "area": area(p), "dal": ora}
+        a.update(testo=p, visto=ora)
+        aperte.append(a)
+    chiuse = [dict(a, al=ora) for a in prima.values()] + [c for c in reg.get("chiuse") or [] if isinstance(c, dict)]
+    giri = [{"t": ora, "n": len(prob)}] + [g for g in reg.get("giri") or [] if isinstance(g, dict)]
+    ok_dal = None if prob else (reg.get("ok_dal") if reg.get("esito") == "ok" and reg.get("ok_dal") else ora)
+    return {"v": 1, "agg": ora, "esito": "anomalie" if prob else "ok", "ok_dal": ok_dal,
+            "aperte": aperte, "chiuse": chiuse[:CHIUSE_REG], "giri": giri[:GIRI_REG]}
+
+
+def scrivi_registro(reg, cartella):
+    os.makedirs(cartella, exist_ok=True)
+    with open(os.path.join(cartella, "anomalie.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump(reg, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+
+
+def leggi_json(percorso):
+    try:
+        with open(percorso, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
 
 
 def testo_issue(prob, adesso):
@@ -237,8 +348,13 @@ def main(argv):
     from . import orari_borse
     archivio = _prova(lambda: _json(SITO + "archivio.json?t=%d" % adesso.timestamp()))
     orari = _prova(lambda: _json(ORARI)) or {}
-    prob = problemi(adesso, stato, indice, live, giri, orari_borse.leggi_remoto(), eventi, archivio, orari)
+    cursore = _prova(lambda: _json(CURSORE_TG))
+    prob = problemi(adesso, stato, indice, live, giri, orari_borse.leggi_remoto(), eventi, archivio, orari, cursore)
     print("\n".join(prob) if prob else "Tutto regolare.")
+    # v9.13 registro anomalie: il workflow mette il file precedente in ANOMALIE_PREC e pubblica ANOMALIE_OUT
+    uscita = env.get("ANOMALIE_OUT")
+    if uscita:
+        scrivi_registro(aggiorna_registro(leggi_json(env.get("ANOMALIE_PREC") or ""), prob, adesso), uscita)
     if "--prova" not in argv and token:
         avvisa(prob, adesso, token, env)
     return 0

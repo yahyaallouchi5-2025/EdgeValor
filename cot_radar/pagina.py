@@ -377,6 +377,8 @@ def build(data_source=load_all, demo=False, sito=False):
         "errori": n_err, "avvisi": n_warn, "fonti": status,
         "strumenti": len(assets), "coppie": len(pairs), "mercato": bool(market),
         "voci": raccoglitore.voci[-200:],             # ultimi avvisi/errori di questa esecuzione
+        # v9.13 data dell'ultimo COT nel sito: la sorveglianza controlla che il report uscito sia arrivato
+        "cot_ultimo": max((str(a["date"])[:10] for a in assets.values() if a.get("date")), default=None),
         "controlli": controlli, "demo": demo, "storico": rie_storico, "archivio_cot": rie_cot, "archivi_extra": rie_extra,
     }
     meta = {"now": datetime.now().strftime("%d/%m/%Y %H:%M"), "w": WEIGHTS, "strong": STRONG, "normal": NORMAL,

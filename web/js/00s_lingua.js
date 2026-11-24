@@ -178,3 +178,16 @@ EB_RX.unshift(
  [/^(lun|mar|mer|gio|ven|sab|dom) (\d{2}\/\d{2})$/,(m,g,d)=>(EB_GG_IT[g]||g)+" "+d],
  [/^(lun|mar|mer|gio|ven|sab|dom) (\d{2}\/\d{2}) ore (\d{2}:\d{2})$/,(m,g,d,o)=>(EB_GG_IT[g]||g)+" "+d+" at "+o]
 );
+
+// --- v9.13 registro anomalie (14b_anomalie.js, solo fondatore)
+Object.assign(EB_EN,{
+"Registro anomalie":"Anomaly log","Nessuna anomalia":"No anomalies","1 anomalia":"1 anomaly","anomalie":"anomalies",
+"Controllo":"Check","non raggiungibile":"unreachable","carico…":"loading…","in ritardo":"late","errore":"error",
+"Registro anomalie non raggiungibile.":"Anomaly log unreachable.","Sorveglianza ferma: ultimo controllo":"Monitoring stopped: last check",
+"anomalia aperta":"open anomaly","anomalie aperte":"open anomalies","Tutto regolare dal":"All clear since","Tutto regolare":"All clear",
+"Aperte":"Open","adesso, da questa pagina":"now, from this page","dal":"since","Ultime 72 ore":"Last 72 hours",
+"Esito dei controlli orari":"Result of hourly checks","Risolte":"Resolved","Ultimo controllo":"Last check","ogni ora":"hourly",
+"Controllo ogni ora":"Checked hourly","apri il giro":"open run","Terminale":"Terminal","Sorveglianza":"Monitoring",
+"Sito":"Site","Fonti":"Sources","Workflow":"Workflows","Archivio":"Archive",
+"Ogni ora la sorveglianza controlla: sito pubblicato e senza errori, fonti COT, FRED e BCE, report COT arrivato dopo l'uscita CFTC, riepilogo COT su Telegram, Azionario, prezzi live a borsa aperta, giri automatici, archivio storico e stagionalità oraria. Se qualcosa non va arrivano anche issue GitHub e Telegram. Visibile solo all'account fondatore.":"Every hour monitoring checks: site published without errors, COT, FRED and ECB sources, COT report arrived after the CFTC release, COT recap on Telegram, Stocks, live prices while markets are open, automatic runs, historical archive and hourly seasonality. If something is wrong a GitHub issue and a Telegram message are sent too. Visible only to the founder account."
+});

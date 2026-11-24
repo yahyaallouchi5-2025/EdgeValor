@@ -20,7 +20,7 @@ import os
 ITERAZIONI = 250_000          # PBKDF2: piu' alto = piu' lento indovinare la password (il browser ci mette ~0,2 s)
 
 # campi di stato.json che restano PUBBLICI (servono al sito e ai controlli automatici, nessun dettaglio interno)
-CAMPI_PUBBLICI = ("creato", "esito", "fonti", "strumenti", "coppie", "mercato", "demo")
+CAMPI_PUBBLICI = ("creato", "esito", "fonti", "strumenti", "coppie", "mercato", "demo", "cot_ultimo")   # v9.13 cot_ultimo
 
 
 def pubblico(stato):
