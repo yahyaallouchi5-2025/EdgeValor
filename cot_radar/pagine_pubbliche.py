@@ -32,7 +32,8 @@ CAMBIO = datetime(2026, 12, 1, tzinfo=ZoneInfo("Europe/Rome"))  # v9.14 nuovo li
 NUOVI = datetime.now(ZoneInfo("Europe/Rome")) >= CAMBIO
 LISTINO_VECCHIO, LISTINO_NUOVO = (27.00, 19.99), (29.99, 24.99)
 MENSILE, ANNUALE = LISTINO_NUOVO if NUOVI else LISTINO_VECCHIO   # euro al mese: mensile, e annuale (pagato in un'unica rata)
-PROVA = 7 if NUOVI else 14                                   # giorni di prova Premium per chi si registra (privato.nuovo_utente)
+PROVA = 7 if datetime.now(ZoneInfo("Europe/Rome")) >= datetime(2026, 11, 24, 20, 40, tzinfo=ZoneInfo("Europe/Rome")) else 14   # v9.20 (Ya) 7 giorni da oggi
+#                                  # giorni di prova Premium per chi si registra (privato.nuovo_utente)
 RISP = round((1 - ANNUALE / MENSILE) * 100)                  # sconto dell'annuale in %
 ANNO_TOT, ANNO_RISP = ANNUALE * 12, (MENSILE - ANNUALE) * 12
 eu = lambda v: ("%.2f" % v).replace(".", ",")
@@ -104,7 +105,7 @@ PREZZI = f"""
 <script>(function(){{
  // v9.14 listino del momento: se la pagina e' stata costruita prima del 1/12 ma la si apre dopo, i numeri cambiano qui
  var CAMBIO=Date.parse("2026-12-01T00:00:00+01:00"),NUOVO=Date.now()>=CAMBIO;
- var L=NUOVO?[{LISTINO_NUOVO[0]},{LISTINO_NUOVO[1]},7]:[{LISTINO_VECCHIO[0]},{LISTINO_VECCHIO[1]},14];
+ var L=NUOVO?[{LISTINO_NUOVO[0]},{LISTINO_NUOVO[1]},7]:[{LISTINO_VECCHIO[0]},{LISTINO_VECCHIO[1]},{PROVA}];   // v9.20 prova dal listino Python (7 dal 24/11)
  var e=function(v){{return v.toFixed(2).replace(".",",")+" \\u20ac"}},M=e(L[0]),A=e(L[1]),R=Math.round((1-L[1]/L[0])*100);
  var S=document.querySelector("[data-sotto]"),T=e(L[1]*12)+" all'anno &middot; <b>risparmi "+e((L[0]-L[1])*12)+" (&minus;"+R+"%)</b>";
  document.querySelector("[data-prezzo]").textContent=A;document.querySelector("[data-vecchio]").textContent=M;S.innerHTML=T;

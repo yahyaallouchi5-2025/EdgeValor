@@ -84,3 +84,20 @@ class Registro(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestEmailAdmin(unittest.TestCase):
+    """v9.20 avvisi solo per email privata: problema nuovo -> email; stesso problema -> niente; risolto -> email."""
+    def test_email(self):
+        from cot_radar import sorveglianza as s
+        from datetime import datetime, timezone
+        ora = datetime(2026, 11, 24, 17, 0, tzinfo=timezone.utc)
+        inv = []
+        f = lambda o, t, e: (inv.append(o), True)[1]
+        self.assertTrue(s.avvisa_email({}, ["Prezzi live fermi da 3 ore."], ora, {}, f))
+        reg = s.aggiorna_registro({}, ["Prezzi live fermi da 3 ore."], ora)
+        self.assertIsNone(s.avvisa_email(reg, ["Prezzi live fermi da 4 ore."], ora, {}, f))
+        self.assertTrue(s.avvisa_email(reg, [], ora, {}, f))
+        self.assertEqual(len(inv), 2)
+        self.assertIn("regolare", inv[1])
+        self.assertIsNone(s.telegram("x", {"TELEGRAM_BOT_TOKEN": "a", "TELEGRAM_ADMIN_CHAT": "b"}))

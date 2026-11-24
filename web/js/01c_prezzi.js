@@ -14,9 +14,11 @@ const EB_PREZZI=(()=>{
               annuale:{id:"P-7FU70441YK886462BNMC5ARY",mese:"24,99 €",prezzo:"299,88 €",per:"all'anno",risp:17}};
  // v9.18 piano PROMOZIONALE delle campagne stagionali (47_blackfriday.js): primo anno 239,88 (19,99 al mese), poi 299,88
  const PROMO={id:"P-9WC59158HM233862FNMC6AXQ",mese:"19,99 €",prezzo:"239,88 €",per:"il primo anno",poi:"299,88 €"};
+ // v9.20 (Ya) prova di 7 giorni per chi si registra dal 24/11/2026 ore 20:40 (prima 14): stessa data del database
+ const PROVA7=Date.parse("2026-11-24T20:40:00+01:00");
  const nuovi=t=>(t==null?Date.now():t)>=CAMBIO;
  return {CAMBIO,VECCHI,NUOVI,PROMO,nuovi:()=>nuovi(),listino:()=>nuovi()?NUOVI:VECCHI,
   di:d=>{const t=Date.parse(d||"");return isNaN(t)?(nuovi()?NUOVI:VECCHI):(nuovi(t)?NUOVI:VECCHI);},
   // durata della prova per chi si registra adesso (la crea il database: privato.nuovo_utente, stessa data)
-  prova:()=>nuovi()?7:14};
+  prova:()=>Date.now()>=PROVA7?7:14};
 })();

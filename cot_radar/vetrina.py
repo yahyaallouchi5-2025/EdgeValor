@@ -245,7 +245,7 @@ def html(ultimi, cartella=None):
         "{{ANNO}}": str(datetime.now().year),
         "{{NASTRO}}": nastro(dati),
         "{{PROVA}}": str(PROVA),
-        "{{CAMPAGNA}}": campagne.striscia(campagne.in_vista()),   # v9.18 offerta stagionale (anche per Google)                       # v9.14 giorni di prova: 14, oppure 7 dal 1/12/2026
+        "{{CAMPAGNA}}": campagne.striscia(campagne.in_vista()) + campagne.finestra(campagne.in_vista()),   # v9.20 + finestra   # v9.18 offerta stagionale (anche per Google)                       # v9.14 giorni di prova: 14, oppure 7 dal 1/12/2026
         # "</" spezzato: dentro <script> chiuderebbe il tag
         "{{DENTRO_JSON}}": json.dumps(dentro(ultimi, cartella), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/"),
     }

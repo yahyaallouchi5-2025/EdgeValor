@@ -53,7 +53,7 @@
    <div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span>
     <div><h3 id="ant">${T("Registro anomalie")} <button type="button" class="info" data-apri="aninfo" aria-expanded="false" aria-label="${T("Come funziona")}">i</button></h3><p class="ansott"></p></div>
     <button type="button" class="fbx" aria-label="${T("Chiudi")}">&#x2715;</button></div>
-   <p id="aninfo" class="sub infotesto">${T("Ogni ora la sorveglianza controlla: sito pubblicato e senza errori, fonti COT, FRED e BCE, report COT arrivato dopo l'uscita CFTC, riepilogo COT su Telegram, Azionario, prezzi live a borsa aperta, giri automatici, archivio storico e stagionalità oraria. Se qualcosa non va arrivano anche issue GitHub e Telegram. Visibile solo all'account fondatore.")}</p>
+   <p id="aninfo" class="sub infotesto">${T("Ogni ora la sorveglianza controlla: sito pubblicato e senza errori, fonti COT, FRED e BCE, report COT arrivato dopo l'uscita CFTC, riepilogo COT su Telegram, Azionario, prezzi live a borsa aperta, giri automatici, archivio storico e stagionalità oraria. Se qualcosa non va ti arriva un'email privata. Gli iscritti non ricevono nulla. Visibile solo all'account fondatore.")}</p>
    <div class="ancorpo" aria-live="polite"></div></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
   const chiudi=()=>{box.classList.remove("on");setTimeout(()=>box.remove(),220);document.removeEventListener("keydown",tasto);};

@@ -25,11 +25,13 @@ REGISTRO ANOMALIE (v9.13, solo per il fondatore)
   (web/js/14b_anomalie.js). Nessun dato personale: solo testi dei controlli.
   Nel fine settimana (e il lunedi' mattina) le soglie si allungano: le borse sono chiuse e i giri non partono.
 
-COME AVVISA
-  - apre una "issue" su GitHub con l'etichetta "sorveglianza" (GitHub manda una mail e una notifica sull'app):
+COME AVVISA (v9.20 Ya: avvisi RISERVATI al fondatore, niente Telegram, nessun iscritto vede nulla)
+  - EMAIL privata all'admin (Secrets SMTP_USER, SMTP_PASSWORD, ADMIN_EMAIL, gli stessi di notifiche.yml) solo quando
+    compare un problema NUOVO rispetto al giro prima (registro anomalie precedente) e una quando tutto torna regolare;
+  - se l'email non e' configurata o non parte, ripiego: issue GitHub come prima.
+  (prima della v9.20) apre una "issue" su GitHub con l'etichetta "sorveglianza" (GitHub manda una mail e una notifica sull'app):
     una sola issue aperta alla volta; se cambiano i problemi aggiunge un commento, mai doppioni;
   - quando tutto torna a posto commenta "risolto" e la CHIUDE da sola;
-  - se nei Secrets ci sono TELEGRAM_BOT_TOKEN e TELEGRAM_ADMIN_CHAT manda anche un messaggio Telegram privato.
   Nessuna chiave nel codice: il token di GitHub e' quello del workflow.
 
 USO: python -m cot_radar.sorveglianza            (giro normale, nel workflow)
@@ -37,6 +39,9 @@ USO: python -m cot_radar.sorveglianza            (giro normale, nel workflow)
 """
 import json
 import os
+import smtplib
+import ssl
+from email.message import EmailMessage
 import sys
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -304,12 +309,43 @@ def giri_workflow(token):
 
 
 def telegram(testo, env):
-    tok, chat = env.get("TELEGRAM_BOT_TOKEN"), env.get("TELEGRAM_ADMIN_CHAT")
-    if not tok or not chat:
-        return
-    _prova(lambda: _json("https://api.telegram.org/bot%s/sendMessage" % tok, metodo="POST",
-                         corpo={"chat_id": chat, "text": "EdgeValor - sorveglianza\n\n" + testo,
-                                "disable_web_page_preview": True}))
+    """v9.20 (Ya) disattivato: gli avvisi della sorveglianza non vanno su Telegram (vedi email_admin)."""
+    return None
+
+
+def email_admin(oggetto, testo, env):
+    """v9.20 email privata al fondatore. True = inviata, None = non configurata, False = errore (si ripiega sulla issue)."""
+    utente, password, dest = env.get("SMTP_USER"), env.get("SMTP_PASSWORD"), env.get("ADMIN_EMAIL")
+    if not (utente and password and dest):
+        return None
+    msg = EmailMessage()
+    msg["Subject"], msg["From"], msg["To"] = oggetto, utente, dest
+    msg.set_content(testo + "\n\nRegistro completo: terminale, account fondatore, riga \"Registro anomalie\".")
+    try:
+        with smtplib.SMTP_SSL(env.get("SMTP_HOST", "smtp.gmail.com"), int(env.get("SMTP_PORT", "465")),
+                              context=ssl.create_default_context(), timeout=30) as srv:
+            srv.login(utente, password)
+            srv.send_message(msg)
+        return True
+    except (smtplib.SMTPException, OSError) as e:
+        print("email all'admin non inviata (%s)" % type(e).__name__)
+        return False
+
+
+def avvisa_email(prec, prob, adesso, env, invia=None):
+    """v9.20 decide l'email: problemi nuovi rispetto al registro precedente, oppure ritorno alla normalita'.
+    Restituisce (inviata o None se non serviva/non configurata). invia = funzione per i test."""
+    invia = invia or email_admin
+    prima = {a.get("k") for a in (prec or {}).get("aperte") or [] if isinstance(a, dict)}
+    from zoneinfo import ZoneInfo
+    ora = adesso.astimezone(ZoneInfo("Europe/Rome")).strftime("%d/%m %H:%M")
+    nuovi = [p for p in prob if chiave(p) not in prima]
+    if nuovi:
+        return invia("EdgeValor: anomalia (%s)" % ora, "Controllo automatico delle %s (ora italiana).\n\n- " % ora
+                     + "\n- ".join(prob), env)
+    if not prob and (prec or {}).get("esito") == "anomalie":
+        return invia("EdgeValor: tutto di nuovo regolare (%s)" % ora, "Tutto di nuovo regolare dalle %s." % ora, env)
+    return None
 
 
 def avvisa(prob, adesso, token, env):
@@ -355,8 +391,12 @@ def main(argv):
     uscita = env.get("ANOMALIE_OUT")
     if uscita:
         scrivi_registro(aggiorna_registro(leggi_json(env.get("ANOMALIE_PREC") or ""), prob, adesso), uscita)
-    if "--prova" not in argv and token:
-        avvisa(prob, adesso, token, env)
+    if "--prova" not in argv:
+        # v9.20 prima l'email privata; la issue GitHub solo se l'email non e' configurata o non parte
+        esito = avvisa_email(leggi_json(env.get("ANOMALIE_PREC") or ""), prob, adesso, env)
+        configurata = env.get("SMTP_USER") and env.get("SMTP_PASSWORD") and env.get("ADMIN_EMAIL")
+        if token and (not configurata or esito is False):
+            avvisa(prob, adesso, token, env)
     return 0
 
 

@@ -27,8 +27,12 @@ class Listino(unittest.TestCase):
 
     def test_prima_del_cambio(self):
         m = carica(datetime(2026, 11, 30, 23, 59, tzinfo=ZoneInfo("Europe/Rome")))
-        self.assertEqual((m.MENSILE, m.ANNUALE, m.PROVA, m.RISP), (27.00, 19.99, 14, 26))
-        self.assertIn("per <span data-prova>14</span> giorni", m.PREZZI)
+        self.assertEqual((m.MENSILE, m.ANNUALE, m.PROVA, m.RISP), (27.00, 19.99, 7, 26))   # v9.20 prova 7 giorni dal 24/11
+        self.assertIn("per <span data-prova>7</span> giorni", m.PREZZI)
+
+    def test_prova_14_prima_del_24(self):
+        m = carica(datetime(2026, 11, 24, 20, 39, tzinfo=ZoneInfo("Europe/Rome")))
+        self.assertEqual(m.PROVA, 14)
 
     def test_dopo_il_cambio(self):
         m = carica(datetime(2026, 12, 1, 0, 0, tzinfo=ZoneInfo("Europe/Rome")))

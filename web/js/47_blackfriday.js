@@ -16,6 +16,9 @@
      - quando tocca "Passa a Premium": prima l'offerta, poi il pagamento (01_base.js -> ebBlackFriday.intercetta()).
    TEMI: ogni campagna ha i suoi colori (classe .cmp-<tema>, stile.css "CAMPAGNE"). v9.17 (Ya): luci colorate che si
    muovono dentro tutta la card (.bfluci, tre sfere sfocate) e bordo con luce che gira, come TradingView.
+   v9.20 (Ya) ULTIME 8 ORE di ogni campagna: la striscia dice "Ultime ore." e la finestra si apre una volta in piu'
+   (anche se e' gia' uscita quel giorno). La landing ha la stessa finestra (cot_radar/campagne.py finestra()) e
+   condivide la memoria ebBF: chi l'ha vista li' non la rivede subito nel terminale.
    DEBUG (F12): ebCampagne.agenda(2027) elenca date e orari; ebCampagne.anteprima("pasqua") apre la finestra (admin). */
 (function(){try{
  const V=EB_PREZZI.VECCHI,N=EB_PREZZI.NUOVI;
@@ -91,6 +94,7 @@
  let mem={};try{mem=JSON.parse(localStorage.getItem("ebBF")||"{}");}catch(e){}
  const salva=()=>{try{localStorage.setItem("ebBF",JSON.stringify(mem));}catch(e){}};
  const due=n=>String(n).padStart(2,"0");
+ const ORE8=8*36e5,ultimeOre=c=>c&&(c.a-(forzata?forzata.ora:Date.now()))<ORE8;
  function resto(c){const s=Math.max(0,Math.floor((c.a-(forzata?forzata.ora:Date.now()))/1000));
   return [Math.floor(s/86400),Math.floor(s%86400/3600),Math.floor(s%3600/60),s%60];}
  // chi la vede: niente a chi ha gia' Premium pagato o a vita; l'admin sempre; campagne non pronte solo all'admin
@@ -103,7 +107,7 @@
  function mostraStriscia(){if(striscia||mem.chiusa==oggi()&&!forzata)return;const f=fase(C),x=testi(C,f);
   striscia=document.createElement("div");striscia.className="bfstrip cmp-"+f.tema;striscia.setAttribute("role","region");striscia.setAttribute("aria-label",f.nome);
   striscia.innerHTML=`<span class="bftag"><span class="bflungo">${f.nome}</span><span class="bfbreve">${f.breve}</span></span>
-   <span class="bftesto">${f.ultimo?`<b>${T("Ultimo giorno.")}</b> `:""}${x.striscia}</span>
+   <span class="bftesto"><b class="bfora">${ultimeOre(C)?T("Ultime ore."):f.ultimo?T("Ultimo giorno."):""}</b> ${x.striscia}</span>
    <span class="bfconto" aria-live="off"></span>
    <button type="button" class="bfcta"><span class="bflungo">${x.cta}</span><span class="bfbreve">${x.ctaBreve}</span></button>
    <button type="button" class="bfx" aria-label="${T("Chiudi")}">&#x2715;</button>`;
@@ -114,6 +118,9 @@
  function tic(){if(!C)return;const r=resto(C);
   // sul telefono i secondi si nascondono (.bfsec): resta "5g 13:59"
   if(striscia)striscia.querySelector(".bfconto").innerHTML=`${r[0]}${T("g")} ${due(r[1])}:${due(r[2])}<span class="bfsec">:${due(r[3])}</span>`;
+  // v9.20 ultime 8 ore: etichetta aggiornata e una finestra in piu' (una sola volta per campagna)
+  if(ultimeOre(C)){const o=striscia&&striscia.querySelector(".bfora");if(o&&o.textContent!=T("Ultime ore."))o.textContent=T("Ultime ore.");
+   if(!forzata&&fatto&&Date.now()-INIZIO>4000&&!mem["ore8_"+C.anno+"_"+C.k]&&!document.querySelector(".cmodal")){mem["ore8_"+C.anno+"_"+C.k]=1;mem.auto=oggi();salva();apri();}}
   const m=document.querySelector(".bfmodal");if(m)m.querySelectorAll(".bfnum b").forEach((b,i)=>{b.textContent=due(r[i]);});
   if(!forzata&&Date.now()>=C.a){striscia&&striscia.remove();striscia=null;m&&m.remove();clearInterval(giro);C=null;}}
 
@@ -127,7 +134,7 @@
   box.innerHTML=`<div class="cmodal-box bfbox" role="dialog" aria-modal="true" aria-labelledby="bft">
    <i class="bfaura" aria-hidden="true"></i><i class="bfluci" aria-hidden="true"><b></b><b></b><b></b></i><i class="bfgrana" aria-hidden="true"></i>
    <button type="button" class="fbx" aria-label="${T("Chiudi")}">&#x2715;</button>
-   <div class="bfalto"><span class="bftag">${f.nome}</span>${f.ultimo?`<span class="bfultimo">${T("Ultimo giorno")}</span>`:""}
+   <div class="bfalto"><span class="bftag">${f.nome}</span>${ultimeOre(C)?`<span class="bfultimo">${T("Ultime ore")}</span>`:f.ultimo?`<span class="bfultimo">${T("Ultimo giorno")}</span>`:""}
     <button type="button" class="info" data-apri="bfinfo" aria-expanded="false" aria-label="${T("Come funziona")}">i</button></div>
    <h2 id="bft">${x.titolo}</h2>
    <p class="bfsott">${x.sott}</p>
@@ -145,7 +152,7 @@
    box.querySelectorAll(".bfpiano").forEach(y=>{y.classList.toggle("on",y==b);y.setAttribute("aria-checked",y==b);});});
   // pagamento: la finestra PayPal di sempre con il piano scelto (senza accesso chiede prima di entrare)
   box.querySelector(".bfvai").onclick=()=>{chiudi();setTimeout(()=>window.ebAbbonamento&&ebAbbonamento.apri(scelto),230);};
-  if(!forzata){mem["vista_"+C.anno+"_"+f.k]=1;salva();}}
+  if(!forzata){mem["vista_"+C.anno+"_"+f.k]=1;if(ultimeOre(C))mem["ore8_"+C.anno+"_"+C.k]=1;salva();}}
 
  // ---------- avvio: quando l'account e' letto (classe eb-admin o profilo) ----------
  let fatto=false;

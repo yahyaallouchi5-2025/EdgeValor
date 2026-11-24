@@ -66,7 +66,7 @@ const PIEDE_INFO = "Contenuti a scopo educativo e informativo, non consulenza fi
 
 // v9.14 giorni di prova: 14 per chi si e' registrato fino al 30/11/2026, 7 dopo (dalla registrazione alla fine della prova)
 const giorniProva = (x: Riga) => x.creato && x.prova_fino
-  ? (Math.round((Date.parse(x.prova_fino) - Date.parse(x.creato)) / 864e5) > 10 ? 14 : 7) : (nuovoListino() ? 7 : 14);
+  ? (Math.round((Date.parse(x.prova_fino) - Date.parse(x.creato)) / 864e5) > 10 ? 14 : 7) : (Date.now() >= Date.parse("2026-11-24T20:40:00+01:00") ? 7 : 14);   // v9.20 prova di 7 giorni da oggi
 
 // x = riga del database. Con PayPal la scadenza salvata e' "prossimo addebito + 1 giorno": il rinnovo e' il giorno prima.
 function testi(x: Riga): Mail {
