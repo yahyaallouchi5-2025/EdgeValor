@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-24T26",t:"Aggiornamento scheda Macro",x:"Quanto è già scontato, a colpo d'occhio: anello del punteggio, dove doveva arrivare il prezzo e dove è arrivato, affidabilità a tacche.",s:"mkt",p:true},
   {d:"2026-11-24T25",t:"Aggiornamento scheda Macro",x:"Clima di mercato più chiaro: una barra da sfavorevole a favorevole, il cerchio tratteggiato della settimana prima e quanto pesa ogni indicatore.",s:"mkt",p:true},
   {d:"2026-11-24T24",t:"Aggiornamento scheda Macro",x:"Quanto è già scontato: passa il mouse o tocca una card per sapere cosa significa il numero. I nomi degli strumenti tornano visibili nei pulsanti.",s:"mkt"},
   {d:"2026-11-24T23",t:"Aggiornamento scheda COT",x:"Il pallino della barra ha il colore del segnale: verde chiaro forte, verde, nero neutro, rosso, rosso acceso forte. Si posiziona nella fascia del segnale.",s:"assets"},

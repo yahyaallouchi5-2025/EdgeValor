@@ -4255,3 +4255,40 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .cl-div i.neg{right:50%;background:linear-gradient(270deg,var(--s),#ff2a2a)}.cl-div i.pos{left:50%;background:linear-gradient(90deg,var(--b),#8dffd0)}
 .cl-v{text-align:right;font:800 14px "Inter",system-ui;font-variant-numeric:tabular-nums}
 @media (max-width:640px){.clima{padding:16px 16px 18px}.cl-riga{grid-template-columns:128px 1fr 40px;gap:10px}.cl-riga>span:first-child b{font-size:13px;white-space:nowrap}.cl-testa>b{font-size:14px}.cl-metro i{width:20px;height:20px}}
+/* v9.23 (Ya) "QUANTO E' GIA' SCONTATO" visivo (07_macro.js scontoHTML): anello del punteggio + righello doveva/ha fatto.
+   Colori m1..m5 come la barra COT e il clima. Statico: niente animazioni. */
+.sct{display:grid;grid-template-columns:250px 1fr;gap:14px;margin-bottom:12px}
+.sct .card h3{display:flex;align-items:center;gap:8px}.sct .card h3 .info{margin:0}
+.sct-anello{display:flex;flex-direction:column}
+.sct-ac{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
+.sct-ac svg{width:128px;height:128px;display:block}
+.sct-fondo{fill:none;stroke:#16223a;stroke-width:11}
+.sct-arco{fill:none;stroke-width:11;stroke-linecap:round}
+.sct-num{font:800 24px "Inter",system-ui;fill:currentColor;letter-spacing:-.3px}
+.sct-ver{display:block;font:800 12.5px/1.3 "Inter",system-ui;letter-spacing:.7px}
+.sct-ac small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+.sct .m1{color:#ff4a4a;stroke:#ff4a4a}.sct .m2{color:var(--s);stroke:var(--s)}.sct .m3{color:var(--ink2);stroke:var(--ink2)}.sct .m4{color:var(--b);stroke:var(--b)}.sct .m5{color:#8dffd0;stroke:#8dffd0}
+.sct-arco.m1{filter:drop-shadow(0 0 5px rgba(255,74,74,.55))}.sct-arco.m5{filter:drop-shadow(0 0 5px rgba(141,255,208,.5))}
+.sct-frase{margin:8px 0 4px;font:600 16px/1.45 "Inter",system-ui;color:var(--ink)}.sct-frase b{font-weight:800}
+.sct-riga{position:relative;height:96px;margin:18px 10px 0}
+.sct-linea{position:absolute;left:0;right:0;top:46px;height:4px;border-radius:99px;background:#16223a}
+.sct-zero{position:absolute;top:37px;width:2px;height:22px;background:#3a4d70;transform:translateX(-50%)}
+.sct-zero b{position:absolute;top:24px;left:50%;transform:translateX(-50%);font:600 11px "Inter",system-ui;color:var(--mute)}
+.sct-spazio{position:absolute;top:43px;height:10px;border-radius:99px}
+.sct-spazio.su.dx{background:linear-gradient(90deg,rgba(79,214,163,.2),var(--b))}.sct-spazio.su.sx{background:linear-gradient(270deg,rgba(79,214,163,.2),var(--b))}
+.sct-spazio.giu.dx{background:linear-gradient(90deg,rgba(242,113,107,.2),var(--s))}.sct-spazio.giu.sx{background:linear-gradient(270deg,rgba(242,113,107,.2),var(--s))}
+.sct-pin{position:absolute;top:48px;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%)}
+.sct-pin.pieno{border:4px solid var(--card)}.sct-pin.pieno.giu{background:var(--s);box-shadow:0 0 0 2px var(--s),0 0 10px rgba(242,113,107,.6)}
+.sct-pin.pieno.su{background:var(--b);box-shadow:0 0 0 2px var(--b),0 0 10px rgba(79,214,163,.6)}
+.sct-pin.vuoto{border:3px solid var(--ink2);background:var(--card)}
+.sct-et{position:absolute;transform:translateX(-50%);white-space:nowrap;text-align:center;font:600 12px "Inter",system-ui;color:var(--mute)}
+.sct-et b{display:block;font:800 15px "Inter",system-ui;color:var(--ink);font-variant-numeric:tabular-nums}
+.sct-et.alto{top:-6px}.sct-et.basso{top:62px}
+.sct-aff{display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent);font-size:13.5px;color:var(--mute)}
+.sct-aff b{color:var(--ink)}
+.sct-tacche{display:flex;align-items:flex-end;gap:3px;height:18px;flex:none}.sct-tacche i{width:6px;border-radius:2px;background:#22314d}
+.sct-tacche i:nth-child(1){height:7px}.sct-tacche i:nth-child(2){height:12px}.sct-tacche i:nth-child(3){height:18px}
+.sct-tacche.l1 i:nth-child(1){background:#f5b84a}.sct-tacche.l2 i:nth-child(-n+2){background:#e8d35a}.sct-tacche.l3 i{background:var(--b)}
+/* telefono: anello piccolo accanto al verdetto, card piu' bassa */
+@media (max-width:760px){.sct{grid-template-columns:1fr}.sct-ac{flex-direction:row;justify-content:flex-start;text-align:left;gap:14px}
+ .sct-ac svg{width:92px;height:92px}.sct-num{font-size:26px}.sct-ac{padding:4px 0 2px}.sct-frase{font-size:15px}.sct-riga{margin:0 6px}}

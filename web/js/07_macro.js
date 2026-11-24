@@ -48,6 +48,38 @@ try{
  const rows=Object.values(D.assets).filter(a=>a.mkt&&a.key!="USD").sort((a,b)=>Math.abs(b.mkt.score)-Math.abs(a.mkt.score));
  // v8.62 SCREENER (prima solo il fondatore, come la Live): si sceglie lo strumento e si legge solo il suo dato;
  //   la tabella completa resta, chiusa, sotto "Tutti gli strumenti". Stessi numeri, solo in ordine.
+ // v9.23 (Ya) "QUANTO E' GIA' SCONTATO" IN FORMA VISIVA (al posto delle 4 card Punteggio/Mossa implicita/Mossa reale/Differenza):
+ //   - anello del punteggio: si riempie col colore del segnale, verdetto in parole sotto;
+ //   - una frase: "il macro giustificava X, il prezzo e' sceso/salito Y: e' rimasto sotto / e' andato oltre di Z";
+ //   - righello: pallino pieno = dove e' arrivato il prezzo (mossa reale 4s), pallino vuoto = dove doveva arrivare
+ //     (mossa implicita), barra colorata tra i due = lo spazio (verde: puo' recuperare, rossa: e' andato oltre);
+ //   - affidabilita' a tacche al posto dell'R2 (<0,10 bassa, <0,30 media, altrimenti alta).
+ //   Stessi numeri di prima (mercato.py: impl, act, gap = impl - act, score, r2). Statico: niente animazioni.
+ const pcS=v=>{v=Math.round(v*10)/10;return (v>0?"+":v<0?"&minus;":"")+fx(Math.abs(v),1)+"%";};
+ const scFascia=s=>s>=40?["SPAZIO AL RIALZO","m5"]:s>=15?["UN PO' DI SPAZIO AL RIALZO","m4"]:s>-15?["GIÀ NEL PREZZO","m3"]:s>-40?["UN PO' DI SPAZIO AL RIBASSO","m2"]:["SPAZIO AL RIBASSO","m1"];
+ function scontoHTML(nome,m){const s=Math.round(m.score),[ver,cl]=scFascia(s),R=52,L=2*Math.PI*R,f=Math.min(1,Math.abs(s)/100);
+  const impl=m.impl,act=m.act,gap=impl-act,su=gap>0;
+  let lo=Math.min(0,impl,act),hi=Math.max(0,impl,act);const pad=(hi-lo||1)*.14;lo-=pad;hi+=pad;
+  const x=v=>+((v-lo)/(hi-lo)*100).toFixed(2),xa=x(act),xd=x(impl),cA=act<0?"giu":"su";
+  const frase=Math.abs(gap)<1?`${T("Il prezzo ha fatto")} <b>${T("quello che chiedeva il macro")}</b>: ${T("la notizia è già nel prezzo.")}`
+   :`${T("Il macro giustificava")} <b>${pcS(impl)}</b>, ${Math.abs(act)<.05?`${T("il prezzo è rimasto fermo")}`:`${T(act<0?"il prezzo è sceso":"il prezzo è salito")} <b class="${act<0?"down":"up"}">${pcS(act)}</b>`}: ${su?`<b class="up">${T("è sotto di")} ${pcS(gap).replace(/^\+/,"")}</b>`:`<b class="down">${T("è sopra di")} ${pcS(-gap).replace(/^\+/,"")}</b>`} ${T("rispetto al macro")}.`;
+  const liv=m.r2<.1?[1,"il prezzo segue poco il macro: dato da prendere con cautela."]:m.r2<.3?[2,"il prezzo segue in parte il macro."]:[3,"il prezzo segue bene il macro."];
+  const inf=t=>`<details class="info"><summary title="Come si legge" aria-label="Come si legge">i</summary><div>${t}</div></details>`;
+  return `<div class="sct">
+   <div class="card sct-anello"><h3>${T("Punteggio")}${inf("<b>Punteggio</b>: da &minus;100 a +100. Pi&ugrave; l'anello &egrave; pieno, pi&ugrave; spazio resta al prezzo rispetto a quello che chiedono i driver macro. Verde: spazio al rialzo. Rosso: spazio al ribasso. Vicino a 0: gi&agrave; nel prezzo.")}</h3>
+    <div class="sct-ac"><svg viewBox="0 0 128 128" aria-hidden="true"><circle cx="64" cy="64" r="${R}" class="sct-fondo"/>
+     <circle cx="64" cy="64" r="${R}" class="sct-arco ${cl}" stroke-dasharray="${(L*f).toFixed(1)} ${L.toFixed(1)}" transform="${s<0?"translate(128 0) scale(-1 1) ":""}rotate(-90 64 64)"/>
+     <text x="64" y="64" class="sct-num ${cl}" text-anchor="middle" dominant-baseline="central">${s>0?"+":s<0?"−":""}${Math.abs(s)}</text></svg>
+     <div><b class="sct-ver ${cl}">${T(ver)}</b><small>${T("da −100 a +100")}</small></div></div></div>
+   <div class="card sct-rig"><h3>${T("Ultime 4 settimane")}${inf("<b>Pallino pieno</b>: quanto si &egrave; mosso davvero il prezzo nelle ultime 4 settimane. <b>Pallino vuoto</b>: quanto si sarebbe dovuto muovere seguendo i driver macro (VIX, tassi, dollaro, inflazione attesa). <b>Barra colorata</b>: la differenza, cio&egrave; lo spazio. <b>Affidabilit&agrave;</b>: quanto il prezzo segue davvero il macro (R&sup2; "+fx(m.r2,2)+").")}</h3>
+    <p class="sct-frase">${frase}</p>
+    <div class="sct-riga"><span class="sct-linea"></span><span class="sct-zero" style="left:${x(0)}%">${Math.abs(xd-x(0))<14?"":"<b>0%</b>"}</span>
+     ${Math.abs(gap)>=1?`<span class="sct-spazio ${su?"su":"giu"} ${xd>xa?"dx":"sx"}" style="left:${Math.min(xa,xd)}%;width:${Math.abs(xd-xa)}%"></span>`:""}
+     <span class="sct-pin vuoto" style="left:${xd}%"></span><span class="sct-pin pieno ${cA}" style="left:${xa}%"></span>
+     <span class="sct-et alto" style="left:${Math.min(90,Math.max(10,xa))}%">${T("Ha fatto")}<b class="${act<0?"down":"up"}">${pcS(act)}</b></span>
+     <span class="sct-et basso" style="left:${Math.min(90,Math.max(10,xd))}%">${T("Doveva")}<b>${pcS(impl)}</b></span></div>
+    <div class="sct-aff"><span class="sct-tacche l${liv[0]}"><i></i><i></i><i></i></span><span><b>${T("Affidabilità")}</b> · ${T(liv[1])}</span></div></div>
+  </div>`;}
  const screener=()=>{
   let sel="";try{sel=localStorage.getItem("ebMacroSel")||"";}catch(e){}
   if(sel&&!rows.some(a=>a.key==sel))sel="";
@@ -64,12 +96,8 @@ try{
    let corpo;
    if(!a)corpo=`<div class="card vfvuoto2"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><b>Scegli uno strumento</b><p>Vedrai quanto i driver macro hanno gi&agrave; spinto il suo prezzo.</p></div>`;
    else{const m=a.mkt,t=m.top||[],l=lett(m);
-    corpo=`<div class="vfsl-t"><span class="vfsl-n">${esc(a.name)}</span><span class="tag ${l[1]}">${l[0]}</span></div>
-    <div class="grid k4 vfkpi">
-     <div class="card kpi" data-spiega="Sintesi da −100 a +100 di quanto spazio resta al prezzo rispetto ai driver macro. Sopra +25 spazio al rialzo, sotto −25 spazio al ribasso, vicino a 0 già scontato."><h3>Punteggio</h3><div class="big ${m.score>=25?"up":m.score<=-25?"down":""}">${fmt(m.score)}</div><div class="note">da &minus;100 a +100</div></div>
-     <div class="card kpi" data-spiega="Quanto si sarebbe dovuto muovere il prezzo nelle ultime 4 settimane seguendo i driver macro (VIX, tassi, dollaro, inflazione attesa)."><h3>Mossa implicita 4s</h3><div class="big">${sg(m.impl)}%</div><div class="note">quanto spingevano i driver</div></div>
-     <div class="card kpi" data-spiega="Quanto si è mosso davvero il prezzo nelle ultime 4 settimane."><h3>Mossa reale 4s</h3><div class="big ${m.act>=0?"up":"down"}">${sg(m.act)}%</div><div class="note">quanto si &egrave; mosso il prezzo</div></div>
-     <div class="card kpi" data-spiega="Mossa implicita meno mossa reale. Positiva: il prezzo è rimasto indietro rispetto ai driver; negativa: è andato oltre. R² da 0 a 1 dice quanto il prezzo segue il macro: sotto 0,05 il dato conta poco."><h3>Differenza</h3><div class="big">${sg(m.gap)}%</div><div class="note">R&sup2; ${fx(m.r2)} &middot; legame con il macro</div></div></div>
+    corpo=`<div class="vfsl-t"><span class="vfsl-n">${esc(a.name)}</span></div>
+    ${scontoHTML(a.name,m)}
     <div class="card"><h3>Driver che pesano di pi&ugrave;</h3><div class="kv">${t.map(x=>`<span>${esc(x.name)}</span><b class="${x.c>0?"up":"down"}">${sg(x.c)}%</b>`).join("")||"<span>n/d</span>"}</div></div>`;}
    scr.innerHTML=chip+corpo;
    const scegli=k=>{sel=k;try{localStorage.setItem("ebMacroSel",sel);}catch(e){}disegnaSel();};
