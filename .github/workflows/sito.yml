@@ -2,14 +2,20 @@
 name: Sito
 on:
   schedule:
-    - cron: "5 20 * * 5"     # venerdi', dopo il COT (ora legale USA)
-    - cron: "5 21 * * 5"     # venerdi', ora solare USA
+    # v9.06 VENERDI' COT (Ya: esce alle 21:30 italiane, entro le 22:00 tutto aggiornato). La CFTC pubblica alle 15:30 di
+    # New York = 21:30 in Italia tutto l'anno (tranne 2-3 settimane l'anno con i cambi d'ora sfasati).
+    - cron: "35 20 * * 5"    # 21:35 in Italia (ora solare): primo giro dopo l'uscita del COT
+    - cron: "48 20 * * 5"    # 21:48 in Italia: secondo giro se il primo e' partito in ritardo o il COT non c'era ancora
+    - cron: "35 19 * * 5"    # 21:35 in Italia con l'ora legale (estate)
+    - cron: "48 19 * * 5"    # 21:48 in Italia con l'ora legale
     - cron: "0 22 * * 4"     # giovedi', bilancio Fed
     - cron: "30 5 * * 1-5"   # mattine feriali: mercati e BCE
     - cron: "15 22 * * 1-5"  # FINE GIORNATA: tentativo 1 (+ archivio storico)
     - cron: "20 22 * * 1-5"  # tentativo 2: solo se il primo non e' andato bene
     - cron: "25 22 * * 1-5"  # tentativo 3: se fallisce anche questo arriva la mail all'admin
     - cron: "40 * * * *"     # ogni ora: solo se FRED era in manutenzione
+    - cron: "35 7 * * 6,0"   # v9.06 sabato e domenica 08:35/09:35 in Italia: recupero del COT se il venerdi' e' saltato
+                             #       (cosi' il riepilogo COT esce al massimo entro il weekend; festivita' USA -> lunedi')
   # FLUSSO SERALE IN ORDINE: appena finisce il workflow "Azioni" (21:35 UTC, ~20 minuti) parte il sito, che cosi'
   # pubblica subito azioni, 5 azioni scelte e bilanci della sera. Il giro delle 22:15 resta come rete di sicurezza:
   # se il sito e' gia' stato aggiornato bene dopo le 21:40 si ferma da solo (vedi "sonda").
