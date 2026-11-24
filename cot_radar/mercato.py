@@ -56,12 +56,15 @@ def market_model(fred, ecb):
         v = X[d[0]]
         dv = [x * mult[d[0]] for x in (chg(v, i) for i in range(1, len(v))) if x is not None]
         c1, c4 = chg(v, len(v) - 1), chg(v, len(v) - 1, 4)
+        s4 = [sum(dv[i - 3:i + 1]) for i in range(3, len(dv))]          # mosse di 4 settimane, una per settimana
         drivers.append({
             "key": d[0], "name": d[1], "unit": d[3], "value": v[-1],
             "d1": round(c1 * mult[d[0]], 1) if c1 is not None else None,
             "d4": round(c4 * mult[d[0]], 1) if c4 is not None else None,
             # quanto e' insolita la mossa di 4 settimane rispetto agli ultimi 2 anni
-            "z4": round(zlast([sum(dv[i - 3:i + 1]) for i in range(3, len(dv))], REG_WEEKS), 2),
+            "z4": round(zlast(s4, REG_WEEKS), 2),
+            # v9.22 stesso z-score una settimana fa (per il pallino "una settimana fa" del clima di mercato)
+            "z4p": round(zlast(s4[:-1], REG_WEEKS), 2),
             "spark": [round(x, 3) if x is not None else None for x in v[-104:]],
         })
 
@@ -120,9 +123,13 @@ def market_model(fred, ecb):
         }
 
     # clima di rischio: VIX, spread e rendimenti reali in salita = negativo per gli asset rischiosi
-    zz = {d["key"]: d["z4"] for d in drivers}
-    risk = -(zz.get("vix", 0) + zz.get("hy", 0)) / 2 - zz.get("real", 0) / 2
-    return {"drivers": drivers, "anchor": anchor, "risk": round(100 * clip(risk / 2)), "weeks": weeks[-104:]}, out
+    def clima(campo):
+        """Clima da -100 (sfavorevole) a +100 (favorevole): VIX, spread e rendimenti reali in salita = negativo."""
+        zz = {d["key"]: d[campo] for d in drivers}
+        return round(100 * clip((-(zz.get("vix", 0) + zz.get("hy", 0)) / 2 - zz.get("real", 0) / 2) / 2))
+    # v9.22 risk_prev = clima di una settimana fa (stessa formula sugli z-score della settimana prima)
+    return {"drivers": drivers, "anchor": anchor, "risk": clima("z4"), "risk_prev": clima("z4p"),
+            "weeks": weeks[-104:]}, out
 
 
 def fed_liquidity(fred):

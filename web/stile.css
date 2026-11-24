@@ -4224,3 +4224,34 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .fc-metro i.m3{background:#05070c;border-color:#5b6577;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
 .fc-metro i.m2{background:var(--s);border-color:var(--bg);box-shadow:0 0 0 1px rgba(242,113,107,.6)}
 .fc-metro i.m1{background:#ff2a2a;border-color:#2a0707;box-shadow:0 0 0 1px #ff2a2a,0 0 10px rgba(255,42,42,.75)}
+/* v9.22 (Ya) CLIMA DI MERCATO (07_macro.js climaHTML): barra a 5 fasce, sfavorevole a sinistra e favorevole a destra.
+   Colori del pallino come la barra COT (.fc-metro i.m1..m5). Tutto statico: niente transizioni, niente sfarfallio. */
+.clima{padding:20px 24px 22px;margin-bottom:24px}
+.cl-testa{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;margin-bottom:16px}
+.cl-testa>b{font:800 15px/1.2 "Inter",system-ui;letter-spacing:.9px}
+.cl-testa>span:not(.cl-pt){color:var(--mute);font-size:14px}
+.cl-pt{padding:3px 9px;border-radius:99px;font:800 12.5px "Inter",system-ui;font-variant-numeric:tabular-nums;background:var(--soft)}
+.cl-testa .info{margin-left:2px}
+.cl-m1{color:#ff4a4a}.cl-m2{color:var(--s)}.cl-m3{color:var(--ink2)}.cl-m4{color:var(--b)}.cl-m5{color:#8dffd0}
+.cl-pt.cl-m1{background:rgba(255,42,42,.14)}.cl-pt.cl-m2{background:rgba(242,113,107,.12)}.cl-pt.cl-m4{background:rgba(79,214,163,.12)}.cl-pt.cl-m5{background:rgba(141,255,208,.12)}
+.cl-metro{position:relative;height:12px;border-radius:99px;background:linear-gradient(90deg,#ff2a2a,var(--s) 25%,#2a2f44 42%,#1f2a3d 50%,#203d3c 58%,var(--b) 75%,#8dffd0)}
+.cl-metro::before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(90deg,transparent 0 calc(20% - 2px),var(--card) calc(20% - 2px) 20%)}
+.cl-metro i{position:absolute;top:50%;width:22px;height:22px;border-radius:50%;transform:translate(-50%,-50%);border:4px solid var(--card)}
+.cl-metro i.m1{background:#ff2a2a;box-shadow:0 0 0 1px #ff2a2a,0 0 14px rgba(255,42,42,.75)}
+.cl-metro i.m2{background:var(--s);box-shadow:0 0 0 1px var(--s)}
+.cl-metro i.m3{background:#05070c;border-color:#5b6577;box-shadow:0 0 0 1px rgba(255,255,255,.1)}
+.cl-metro i.m4{background:var(--b);box-shadow:0 0 0 1px var(--b)}
+.cl-metro i.m5{background:#8dffd0;box-shadow:0 0 0 1px #8dffd0,0 0 14px rgba(141,255,208,.7)}
+.cl-prima{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;transform:translate(-50%,-50%);border:2px dashed var(--mute);background:rgba(9,15,27,.6)}
+.cl-lab{display:flex;justify-content:space-between;margin-top:10px;font:700 11.5px "Inter",system-ui;letter-spacing:.6px;text-transform:uppercase}
+.cl-lab span:first-child{color:var(--s)}.cl-lab span:nth-child(2){color:var(--n)}.cl-lab span:last-child{color:var(--b)}
+.cl-parti{margin-top:18px;padding-top:14px;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.cl-parti>small{display:block;font:700 11.5px "Inter",system-ui;letter-spacing:.6px;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.cl-riga{display:grid;grid-template-columns:180px 1fr 52px;align-items:center;gap:14px;padding:7px 0}
+.cl-riga>span:first-child b{display:block;font-weight:600;font-size:14px;color:var(--ink)}.cl-riga em{font-style:normal;font-size:12px;color:var(--mute)}
+.cl-div{position:relative;height:8px;border-radius:99px;background:var(--soft)}
+.cl-div::after{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;width:1px;background:var(--line)}
+.cl-div i{position:absolute;top:0;bottom:0;border-radius:99px}
+.cl-div i.neg{right:50%;background:linear-gradient(270deg,var(--s),#ff2a2a)}.cl-div i.pos{left:50%;background:linear-gradient(90deg,var(--b),#8dffd0)}
+.cl-v{text-align:right;font:800 14px "Inter",system-ui;font-variant-numeric:tabular-nums}
+@media (max-width:640px){.clima{padding:16px 16px 18px}.cl-riga{grid-template-columns:128px 1fr 40px;gap:10px}.cl-riga>span:first-child b{font-size:13px;white-space:nowrap}.cl-testa>b{font-size:14px}.cl-metro i{width:20px;height:20px}}

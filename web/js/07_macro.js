@@ -5,6 +5,27 @@ try{
  if(!EB_PREMIUM&&X&&!X.drivers)return;                  // v8.08 Macro chiusa al Basic: disegna il lucchetto 45_chiuse.js
  if(!X){el.innerHTML=`<h2>Mercato e macro</h2><div class="card">Dati di mercato non disponibili: i segnali usano solo il COT.</div>`;return;}
  const r=X.risk,env=r>=30?["FAVOREVOLE agli asset di rischio","var(--sb)"]:r<=-30?["SFAVOREVOLE agli asset di rischio","var(--ss)"]:["NEUTRO per gli asset di rischio","var(--n)"];
+ // v9.22 (Ya) CLIMA DI MERCATO, proposta A: barra orizzontale con 5 fasce, sfavorevole fisso a sinistra (rosso),
+ //   favorevole a destra (verde). Il pallino ha il colore della fascia (come la barra COT, 06_strumenti.js) e sta
+ //   nella sua fascia; il cerchio tratteggiato e' il clima di una settimana fa (X.risk_prev, mercato.py).
+ //   Sotto: quanto ogni driver spinge il clima (stessa formula di mercato.py: -z4/4*100 per VIX, spread HY e
+ //   rendimenti reali), con barre che partono dal centro. Statico: niente animazioni, niente sfarfallio.
+ const CL_F=[[-100,-60,4,20],[-60,-30,22,38],[-30,30,42,58],[30,60,62,78],[60,100,80,96]];
+ const CL_N=["MOLTO SFAVOREVOLE","SFAVOREVOLE","NEUTRO","FAVOREVOLE","MOLTO FAVOREVOLE"];
+ const clFascia=v=>v<=-60?0:v<=-30?1:v<30?2:v<60?3:4;
+ const clPos=v=>{const f=CL_F[clFascia(v)],t=Math.max(0,Math.min(1,(v-f[0])/(f[1]-f[0])));return (f[2]+t*(f[3]-f[2])).toFixed(1);};
+ function climaHTML(v,X){const f=clFascia(v),cls=["m1","m2","m3","m4","m5"][f],segno=n=>(n>0?"+":n<0?"&minus;":"")+Math.abs(n);
+  const P=X.risk_prev,dz=Object.fromEntries((X.drivers||[]).map(d=>[d.key,d.z4]));
+  const PARTI=[["vix","VIX",["sale: più paura","scende: meno paura"]],["hy","Spread high yield",["si allarga","si restringe"]],["real","Rendimenti reali",["salgono","scendono"]]]
+   .filter(p=>dz[p[0]]!=null).map(([k,n,t])=>{const c=Math.round(-dz[k]/4*100);return {n,c,t:Math.abs(c)<5?"stabile":c<0?t[0]:t[1]};});
+  return `<div class="card clima">
+   <div class="cl-testa"><b class="cl-${cls}">${T(CL_N[f])}</b><span>${T("per gli asset di rischio")}</span><span class="cl-pt cl-${cls}">${segno(v)}</span>
+    <details class="info"><summary title="Come si legge" aria-label="Come si legge">i</summary><div><b>Clima di mercato</b>: combina VIX, spread delle obbligazioni high yield e rendimenti reali delle ultime 4 settimane, da &minus;100 a +100. Quando salgono, il denaro costa di pi&ugrave; e c'&egrave; pi&ugrave; paura: male per azioni e crypto. Il <b>cerchio tratteggiato</b> &egrave; il clima di una settimana fa. Sotto, quanti punti porta ogni indicatore: a sinistra peggiora il clima, a destra lo migliora.</div></details></div>
+   <div class="cl-metro">${P!=null&&Math.abs(P-v)>=3?`<span class="cl-prima" style="left:${clPos(P)}%" data-spiega="${T("Una settimana fa")}: ${P>0?"+":""}${P}"></span>`:""}<i class="${cls}" style="left:${clPos(v)}%"></i></div>
+   <div class="cl-lab"><span>${T("Sfavorevole")}</span><span>${T("Neutro")}</span><span>${T("Favorevole")}</span></div>
+   ${PARTI.length?`<div class="cl-parti"><small>${T("Chi spinge il clima")}</small>${PARTI.map(p=>`<div class="cl-riga"><span><b>${p.n}</b><em>${T(p.t)}</em></span>
+    <div class="cl-div"><i class="${p.c<0?"neg":"pos"}" style="width:${(Math.min(100,Math.abs(p.c))/2).toFixed(1)}%"></i></div><span class="cl-v ${p.c<0?"down":p.c>0?"up":""}">${segno(p.c)}</span></div>`).join("")}</div>`:""}
+  </div>`;}
  const dcard=d=>{const u=d.unit=="pb"?" pb":"";const val=d.unit=="pb"?fx(d.value)+"%":fx(d.value,1);const bad=["vix","hy","real"].includes(d.key);
   const cls=d.d4==null?'flat':(d.d4>0)==bad?'down':'up';
   // v8.61 SPREAD HIGH YIELD: direzione delle ultime 4 settimane in chiaro (si allarga / stabile / si restringe).
@@ -14,7 +35,7 @@ try{
   return `<div class="card"><h3>${d.name}${inf}</h3><div class="kpi"><div class="big">${val}${dir?` <span class="tag ${dir[1]} hydir">${dir[0]}</span>`:""}</div></div>
   <div class="kv"><span>1 settimana</span><b>${sg(d.d1,1)}${u}</b><span>4 settimane</span><b class="${cls}">${sg(d.d4,1)}${u}</b><span>Forza del movimento</span><b>${Math.abs(d.z4)>=1.5?'forte':Math.abs(d.z4)>=.75?'media':'debole'} (z ${sg(d.z4,1)})</b></div>${spark(d.spark,"var(--c1)")}</div>`;};
  let h=`<h2>Il mercato in questo momento</h2><p class="sub">Solo indicatori prezzati ogni giorno dal mercato: anticipano le notizie invece di inseguirle. Ultimo dato: ${fd(X.anchor)}.</p>
- <div class="env" style="--bc:${env[1]}"><b>Clima ${env[0]}</b>Combina VIX, spread delle obbligazioni high yield e rendimenti reali delle ultime 4 settimane (punteggio ${fmt(r)}).</div>
+ ${climaHTML(r,X)}
  <div class="grid k3">${X.drivers.map(dcard).join("")}</div>
  <h2>Quanto e' gia' scontato nei prezzi</h2><p class="sub">Per ogni strumento con un prezzo pubblico: una regressione su ${M.regw} settimane stima quanto i driver qui sopra muovono il prezzo.
  Poi confronta la mossa che i driver <b>implicavano</b> nelle ultime 4 settimane con quella che il prezzo ha <b>fatto davvero</b>. Se coincidono la notizia e' gia' nel prezzo; se il prezzo e' rimasto indietro resta uno spazio, che diventa il punteggio "Mercato".</p>
