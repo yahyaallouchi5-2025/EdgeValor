@@ -1,56 +1,86 @@
-# dati-cot.yml - SCARICA I REPORT COT COMPLETI DELLA CFTC (TFF e Legacy, solo futures e futures + opzioni)
-# per lo studio sull'affidabilita' del COT forex. Scrive solo nel ramo "dati-cot": il sito e il ramo main non cambiano.
-# Fonte pubblica e gratuita: publicreporting.cftc.gov (nessuna chiave). Parte da solo quando si crea/modifica
-# questo file, oppure a mano da Actions -> "Dati COT completi" -> Run workflow.
+# dati-cot.yml - v9.11 ARCHIVIO COMPLETO DI TUTTO QUELLO CHE PUBBLICA LA CFTC (report COT)
+# Scarica i 7 report ufficiali con TUTTI i mercati (anche quelli che il sito non usa) e TUTTE le colonne
+# (posizioni, spread, variazioni, numero di trader, concentrazione, vecchio/nuovo raccolto):
+#   legacy_futures      Legacy, solo futures                     dal 1986
+#   legacy_combinato    Legacy, futures + opzioni                dal 1995
+#   disagg_futures      Disaggregated, solo futures              dal 2006 (materie prime: produttori, swap dealer, managed money)
+#   disagg_combinato    Disaggregated, futures + opzioni         dal 2006
+#   tff_futures         Traders in Financial Futures, solo fut.  dal 2006 (valute, indici, tassi: dealer, asset manager, hedge fund)
+#   tff_combinato       Traders in Financial Futures, combinato  dal 2006
+#   cit_supplementare   Supplemental CIT (fondi indicizzati sulle materie prime agricole)
+# Ogni file e' il CSV ufficiale compresso (.csv.gz). manifest.json dice per ogni report: righe, mercati, prima e
+# ultima data, colonne. Il giro si ferma con errore se un file ha MENO righe di quante ne dichiara la CFTC.
+# Scrive solo nel ramo "dati-cot": il sito e il ramo main non cambiano.
+# Fonte pubblica: publicreporting.cftc.gov (esportazione completa di ogni report, nessuna chiave).
+# Orari (UTC): sabato 06:20 (dopo il report del venerdi') e martedi' 05:20 (settimane di festa USA, report di lunedi').
+# A mano: Actions -> "Dati COT completi" -> Run workflow.
 name: Dati COT completi
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "20 6 * * 6"
+    - cron: "20 5 * * 2"
   push:
     branches: [main]
     paths: ['.github/workflows/dati-cot.yml']
 permissions:
   contents: write
+concurrency:
+  group: dati-cot
+  cancel-in-progress: false
 jobs:
   scarica:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
-      - name: Scarica i report dalla CFTC
+      - name: Scarica tutti i report COT dalla CFTC
         run: |
           mkdir out && cd out
           python3 - <<'PY'
-          # una riga per settimana e mercato; solo le colonne utili (posizioni long/short per categoria)
-          import csv, json, time, urllib.request
-          MERCATI = {"EUR": "099741", "GBP": "096742", "JPY": "097741", "CHF": "092741", "CAD": "090741",
-                     "AUD": "232741", "NZD": "112741", "DXY": "098662", "MXN": "095741"}
-          TFF = ("open_interest_all,dealer_positions_long_all,dealer_positions_short_all,asset_mgr_positions_long,"
-                 "asset_mgr_positions_short,lev_money_positions_long,lev_money_positions_short,other_rept_positions_long,"
-                 "other_rept_positions_short,nonrept_positions_long_all,nonrept_positions_short_all")
-          LEG = ("open_interest_all,noncomm_positions_long_all,noncomm_positions_short_all,"
-                 "comm_positions_long_all,comm_positions_short_all,nonrept_positions_long_all,nonrept_positions_short_all")
-          REPORT = {"tff_futures": ("gpe5-46if", TFF), "tff_combinato": ("yw9f-hn96", TFF),
-                    "legacy_futures": ("6dca-aqww", LEG), "legacy_combinato": ("jun7-fc8e", LEG)}
-          def scarica(url):
-              for n in range(3):                               # 3 tentativi con attesa crescente
+          # esportazione completa di ogni report (un solo file CSV), compressa mentre arriva; poi controllo delle righe
+          import csv, gzip, json, time, urllib.request
+          REPORT = {"legacy_futures": "6dca-aqww", "legacy_combinato": "jun7-fc8e", "disagg_futures": "72hh-3qpy",
+                    "disagg_combinato": "kh3c-gbw2", "tff_futures": "gpe5-46if", "tff_combinato": "yw9f-hn96",
+                    "cit_supplementare": "4zgm-a668"}
+          BASE = "https://publicreporting.cftc.gov"
+          def apri(url):
+              return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "edgevalor/dati-cot"}), timeout=600)
+          def tenta(f, cosa):
+              for n in range(4):                                       # 4 tentativi con attesa crescente
                   try:
-                      req = urllib.request.Request(url, headers={"User-Agent": "cot-radar/dati-cot"})
-                      with urllib.request.urlopen(req, timeout=60) as r:
-                          return json.load(r)
+                      return f()
                   except Exception as e:
-                      print("tentativo", n + 1, "fallito:", type(e).__name__)
-                      time.sleep(5 * (n + 1))
-              raise SystemExit("CFTC non raggiungibile: " + url)
-          for nome, (ds, col) in REPORT.items():
-              campi = ["valuta", "data"] + col.split(",")
-              with open(nome + ".csv", "w", newline="") as f:
-                  w = csv.writer(f); w.writerow(campi)
-                  for k, codice in MERCATI.items():
-                      url = (f"https://publicreporting.cftc.gov/resource/{ds}.json?$select=report_date_as_yyyy_mm_dd,{col}"
-                             f"&cftc_contract_market_code={codice}&$order=report_date_as_yyyy_mm_dd&$limit=50000")
-                      righe = scarica(url)
-                      for r in righe:
-                          w.writerow([k, r["report_date_as_yyyy_mm_dd"][:10]] + [r.get(c, "") for c in col.split(",")])
-                      print(nome, k, len(righe), "settimane")
+                      print(cosa, "tentativo", n + 1, "fallito:", type(e).__name__, e)
+                      time.sleep(30 * (n + 1))
+              raise SystemExit("CFTC non raggiungibile: " + cosa)
+          def scarica(nome, ds):
+              with apri(f"{BASE}/api/views/{ds}/rows.csv?accessType=DOWNLOAD") as r, gzip.open(nome + ".csv.gz", "wb", 6) as g:
+                  while True:
+                      b = r.read(1 << 20)
+                      if not b:
+                          return
+                      g.write(b)
+          man = {"creato_utc": time.strftime("%Y-%m-%dT%H:%MZ", time.gmtime()), "fonte": BASE, "report": {}}
+          for nome, ds in REPORT.items():
+              attese = int(tenta(lambda: json.load(apri(f"{BASE}/resource/{ds}.json?$select=count(*)")), nome + " conteggio")[0]["count"])
+              tenta(lambda: scarica(nome, ds), nome)
+              righe, mercati, date = 0, set(), set()
+              with gzip.open(nome + ".csv.gz", "rt", newline="") as f:
+                  lettore = csv.DictReader(f)
+                  colonne = lettore.fieldnames
+                  for r in lettore:
+                      righe += 1
+                      mercati.add(r.get("CFTC_Contract_Market_Code", ""))
+                      d = r.get("Report_Date_as_YYYY_MM_DD", "")[:10]      # formato MM/DD/YYYY
+                      if d:
+                          date.add(d[6:10] + "-" + d[0:2] + "-" + d[3:5])
+              if righe < attese:
+                  raise SystemExit(f"{nome}: {righe} righe scaricate, la CFTC ne dichiara {attese}")
+              man["report"][nome] = {"id": ds, "righe": righe, "mercati": len(mercati), "dal": min(date), "al": max(date),
+                                     "colonne": len(colonne), "nomi_colonne": colonne}
+              print(f"{nome}: {righe} righe, {len(mercati)} mercati, {min(date)} -> {max(date)}, {len(colonne)} colonne")
+          json.dump(man, open("manifest.json", "w"), indent=1)
           PY
           git init -q && git checkout -q -b dati-cot && git add . \
-            && git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "dati COT completi" \
+            && git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "dati COT completi (tutti i report CFTC)" \
             && git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" dati-cot
