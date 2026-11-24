@@ -4124,7 +4124,7 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .bfx:hover{color:#fff;background:#151515}
 .bfmodal{background:rgba(0,0,0,.82)}
 .bfbox{--bfa:#2ec4b6;--bfb:#7c5cff;position:relative;width:min(560px,100%);gap:0;padding:30px 30px 22px;border-radius:24px;background:#000;border:1px solid #222;
- box-shadow:0 40px 120px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.03) inset;overflow-y:auto;color:#fff}
+ box-shadow:0 40px 120px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.03) inset;overflow-x:hidden;overflow-y:auto;color:#fff}
 .bfbox::before{content:"";position:absolute;inset:-40% -20% auto -20%;height:70%;pointer-events:none;
  background:radial-gradient(closest-side,color-mix(in srgb,var(--bfa) 26%,transparent),transparent),radial-gradient(closest-side at 80% 50%,color-mix(in srgb,var(--bfb) 22%,transparent),transparent);filter:blur(10px)}
 .bf-cyber .bfbox{--bfa:#00e0ff;--bfb:#3d7bff}
@@ -4165,3 +4165,6 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
  .bfbox{padding:24px 18px 18px;border-radius:20px}.bfnum b{font-size:24px}.bfprezzo b{font-size:25px}.bfpiano{padding:14px 12px 12px}}
 @media (max-width:360px){.bftag{font-size:9.5px;letter-spacing:.3px}.bfcta{padding:0 9px}}
 @media (prefers-reduced-motion:reduce){.bfstrip::before{animation:none}}
+/* v9.15 schermi bassi (portatili piccoli, finestra ridotta): la finestra Black Friday resta senza barra di scorrimento */
+@media (max-height:720px){.bfbox{padding:22px 24px 16px}.bfbox h2{font-size:clamp(26px,5vw,34px)}.bfalto{margin-bottom:10px}
+ .bfconto2{margin:12px 0 14px}.bfnum{padding:8px 0 7px}.bfnum b{font-size:24px}.bfpiani{margin-bottom:12px}.bfpiano{padding:12px 14px 10px}.bfvai{height:46px}}
