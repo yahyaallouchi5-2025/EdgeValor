@@ -10,6 +10,8 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-24T24",t:"Aggiornamento scheda Macro",x:"Quanto è già scontato: passa il mouse o tocca una card per sapere cosa significa il numero. I nomi degli strumenti tornano visibili nei pulsanti.",s:"mkt"},
+  {d:"2026-11-24T23",t:"Aggiornamento scheda COT",x:"Il pallino della barra ha il colore del segnale: verde chiaro forte, verde, nero neutro, rosso, rosso acceso forte. Si posiziona nella fascia del segnale.",s:"assets"},
   {d:"2026-11-24T22",t:"Aggiornamento scheda Azionario",x:"Magnifiche 7: nella barra del peso ogni azienda ha il suo nome, anche le più piccole. Classifica: i numeri del mese allineati in colonna.",s:"azioni"},
   {d:"2026-11-24T21",t:"Aggiornamento scheda Abbonamento",x:"Black Friday: abbonati entro lunedì 30 novembre e mantieni la tariffa attuale finché resti abbonato. Dal 1° dicembre Premium passa a 29,99 € al mese.",s:""},
   {d:"2026-11-24T20",t:"Aggiornamento scheda Dashboard",x:"Il nastro dei prossimi eventi è di nuovo visibile e ora include gli ordini di beni durevoli e i sussidi di disoccupazione USA. Il comunicato PCE si chiama ora «Redditi, spese e PCE USA».",s:"sig"},

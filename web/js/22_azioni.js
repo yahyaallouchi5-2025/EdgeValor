@@ -99,7 +99,7 @@ try{(function(){const el=$("azioni");if(!el)return;
  // --- v7.22c STATO DEI MERCATI (rosso lampeggiante = chiusi, verde = aperti). v7.25: logica e festivita' in
  //     02b_mercati.js (window.ebMercati), condivisa con i Portafogli.
  const mercatiHTML=()=>window.ebMercati?ebMercati.html():"";
- function aggiornaMercati(){document.querySelectorAll("[data-mk]").forEach(c=>{if(c.querySelector("details[open]"))return;const h=mercatiHTML();if(c.innerHTML!==h)c.innerHTML=h;});}
+ function aggiornaMercati(){document.querySelectorAll(".azmkw[data-mk]").forEach(c=>{if(c.querySelector("details[open]"))return;const h=mercatiHTML();if(c.innerHTML!==h)c.innerHTML=h;});}
  setInterval(aggiornaMercati,60000);window.addEventListener("eb-mercati",aggiornaMercati);   // v7.25 calendario arrivato
 
  // --- titoli dopo i filtri (listino + ricerca); il settore si applica alla tabella, non alle card

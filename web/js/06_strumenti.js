@@ -58,6 +58,10 @@ function testata(){const L=Object.values(D.assets).filter(a=>a.key!="USD"&&!a.co
   <div class="clanes"><div class="clane cl-su"><h4>Comprano di più</h4><ol>${su.map(riga).join("")}</ol></div>
    <div class="clane cl-giu"><h4>Vendono di più</h4><ol>${giu.map(riga).join("")}</ol></div></div>`;}
 
+// v9.21 (Ya) il pallino sta nella fascia del segnale (5 fasce da 20%: vendono forte | vendono | neutri | comprano | comprano forte)
+// e dentro la fascia si sposta col punteggio; colore per segnale (stile.css .fc-metro i.m1..m5). Niente animazioni: niente sfarfallio.
+const FASCE={1:[-100,-40,4,20],2:[-40,-15,22,38],3:[-15,15,42,58],4:[15,40,62,78],5:[40,100,80,96]};
+function posMetro(s,c){const [a,b,x,y]=FASCE[c],t=Math.max(0,Math.min(1,((+s||0)-a)/(b-a)));return (x+t*(y-x)).toFixed(1);}
 function carta(a){const s=a.score,[c,t,ic]=livello(s),n=nomeS(a);
  const kv=[["Punteggio",fmt(s)],["Livello sui 3 anni",a.idx!=null?a.idx+"/100":null],["Netto",a.pct_oi!=null?(a.pct_oi>0?"+":"")+fx(a.pct_oi,1)+"%":null],
   ["In 4 settimane",a.d_net4!=null?`<i class="qe-fr ${a.d_net4>0?"up":a.d_net4<0?"down":"neu"}">${a.d_net4>0?"&#9650;":a.d_net4<0?"&#9660;":"&#9654;"}</i> ${fmt(a.d_net4)}`:null],["Produttori e banche",a.comm?a.comm.idx+"/100":null],
@@ -67,7 +71,7 @@ function carta(a){const s=a.score,[c,t,ic]=livello(s),n=nomeS(a);
    ${a.d_net4?`<span class="fc-tend"><i class="qe-fr ${a.d_net4>0?"up":"down"}">${a.d_net4>0?"&#9650;":"&#9660;"}</i>${a.d_net4>0?"più acquisti":"più vendite"} nel mese</span>`:""}
    ${a.crowded?`<span class="fc-pill" title="Quasi tutti già dalla stessa parte: spesso è lì che il prezzo gira">Affollato</span>`:""}
    <div class="fc-stato"><div class="fc-ic">${fcIco(ic)}</div><div><strong>${t}</strong><span>${significato(a,c)}</span></div></div>
-   <div class="fc-metro"><i style="left:${((Math.max(-100,Math.min(100,s))+100)/2).toFixed(1)}%"></i></div><div class="fc-metro-l"><span>vendono</span><span>comprano</span></div></div>
+   <div class="fc-metro"><i class="m${c}" style="left:${posMetro(s,c)}%"></i></div><div class="fc-metro-l"><span>vendono</span><span>comprano</span></div></div>
   <div class="fc-bk"><div class="fc-top"><div><b>${esc(n)}</b><small>I numeri</small></div><span class="fc-azioni"><span class="fc-graf" role="button" tabindex="0" data-tv="a:${a.key}" title="Grafico a candele">${fcIco("graf")}Grafico</span><span class="fc-gira">${fcIco("gira")}</span></span></div>
    <dl class="fc-kv">${kv.map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl></div></div></div>`;}
 

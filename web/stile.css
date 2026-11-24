@@ -4214,3 +4214,13 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 @media (max-height:720px){.bfbox{padding:22px 24px 16px}.bfbox h2{font-size:clamp(28px,5vw,36px)}.bfalto{margin-bottom:10px}
  .bfconto2{margin:12px 0 14px}.bfnum{padding:8px 0 7px}.bfnum b{font-size:24px}.bfpiani{margin-bottom:12px}.bfpiano{padding:12px 14px 10px}.bfvai{height:46px}}
 @media (prefers-reduced-motion:reduce){.bfstrip::before,.bfstrip::after,.bfaura,.bfvai::after,.bfluci b{animation:none}}
+/* v9.21 spiegazioni brevi al passaggio del mouse o al tocco (web/js/01e_spiega.js); solo transform e opacity */
+[data-spiega]{cursor:help}[data-spiega] h3{text-decoration:underline dotted rgba(255,255,255,.35);text-underline-offset:4px}
+.spiega{position:fixed;left:0;top:0;z-index:9000;padding:9px 12px;border-radius:10px;background:#0f1b2e;border:1px solid rgba(255,255,255,.14);color:#e8eef7;font:500 13px/1.45 "Inter",system-ui;box-shadow:0 10px 30px rgba(0,0,0,.45);pointer-events:none;opacity:0;transition:opacity .12s}
+.spiega.on{opacity:1}
+/* v9.21 (Ya) pallino della barra COT colorato per segnale: verde chiaro (forte), verde, nero neutro, rosso, rosso acceso (forte). Statico: niente transizioni */
+.fc-metro i.m5{background:#8dffd0;border-color:#0b2a22;box-shadow:0 0 0 1px #8dffd0,0 0 10px rgba(141,255,208,.75)}
+.fc-metro i.m4{background:var(--b);border-color:var(--bg);box-shadow:0 0 0 1px rgba(79,214,163,.6)}
+.fc-metro i.m3{background:#05070c;border-color:#5b6577;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.fc-metro i.m2{background:var(--s);border-color:var(--bg);box-shadow:0 0 0 1px rgba(242,113,107,.6)}
+.fc-metro i.m1{background:#ff2a2a;border-color:#2a0707;box-shadow:0 0 0 1px #ff2a2a,0 0 10px rgba(255,42,42,.75)}
