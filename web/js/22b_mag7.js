@@ -11,7 +11,7 @@
      scelte (indice, periodo, card girate) restano in memoria, cosi' il ridisegno della tabella non le perde.
    DEBUG (F12 -> Console): ebMag7.dati() = ultimo file letto; gli errori iniziano con "[EdgeValor] mag7". */
 (function(){try{
- const PER_TUTTI=false;
+ const PER_TUTTI=true;                                   // v9.09 aperto a tutti (ok di Ya, 24/11/2026)
  const URL="../azioni/mag7.json";
  const COL=["#5b9bff","#2ec4b6","#9b8cff","#f5a524","#4fd6a3","#e879a6","#e9b44c"];   // un colore per azienda (stesso ordine del file)
  const S={idx:"sp500",per:"1m",gira:{},dati:null,prom:null};

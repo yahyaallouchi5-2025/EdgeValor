@@ -115,7 +115,8 @@
 
  // v8.05 l'inglese e' ancora parziale: finche' non e' completo lo usa solo l'admin. Chi non e' admin e aveva scelto EN
  // torna all'italiano (si cancella la scelta e si ricarica la pagina una sola volta).
- function soloItaliano(){if(typeof EB_LANG=="undefined"||EB_LANG!="en")return;
+ // v9.09 lingua inglese aperta a tutti (ok di Ya, 24/11/2026): niente piu' ritorno forzato all'italiano
+ function soloItaliano(){return;if(typeof EB_LANG=="undefined"||EB_LANG!="en")return;
   try{localStorage.removeItem("ebLang");}catch(e){}location.reload();}
  async function carica(){if(!S){soloItaliano();return aggiorna();}aggiorna();
   try{const r=await db("profili?select=prova_fino,premium_fino,sempre_premium,codice_invito,numero");P=(r&&r[0])||null;}

@@ -58,5 +58,14 @@ Object.assign(EB_EN,{
 "Grafico del capitale rifatto: in alto le tre fasi (backtest, verifica e live) con rendimento e drawdown di ognuna; nel grafico il drawdown peggiore di ogni fase è segnato dal picco al minimo. Il live ora è in ambra.":"Equity chart redesigned: the three phases (backtest, validation and live) at the top with the return and drawdown of each; in the chart the worst drawdown of every phase is marked from peak to low. Live is now amber.",
 "Il prezzo di oggi ora si legge a destra del grafico, sulla colonna dei prezzi.":"Today's price now sits on the right of the chart, on the price column.",
 "Aggiornamento scheda COT":"COT tab update",
-"I posizionamenti cambiano solo quando esce il report COT (il venerdì alle 21:30, il lunedì nelle settimane di festa USA): fra un report e l'altro restano fermi.":"Positioning changes only when the COT report is released (Friday at 21:30 Italian time, Monday in US holiday weeks): between reports it stays unchanged."
+"I posizionamenti cambiano solo quando esce il report COT (il venerdì alle 21:30, il lunedì nelle settimane di festa USA): fra un report e l'altro restano fermi.":"Positioning changes only when the COT report is released (Friday at 21:30 Italian time, Monday in US holiday weeks): between reports it stays unchanged.",
+// v9.09 novita'
+"Aggiornamento scheda Azionario":"Equities tab update",
+"Nuovo riquadro Magnifiche 7: quanto pesano Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta e Tesla nell'S&P 500 e nel Nasdaq-100, chi ha spinto l'indice e una card per azienda da girare.":"New Magnificent 7 box: how much Apple, Microsoft, Nvidia, Amazon, Alphabet, Meta and Tesla weigh in the S&P 500 and Nasdaq-100, who drove the index and a flip card for each company.",
+"Aggiornamento scheda Crypto":"Crypto tab update",
+"Nel profilo di Bitcoin il ciclo dell'halving: a che punto siamo del ciclo e il confronto con i cicli passati allo stesso giorno.":"In the Bitcoin profile, the halving cycle: where we are in the cycle and a comparison with past cycles on the same day.",
+"Aggiornamento scheda Paesi":"Countries tab update",
+"Su telefono il nome del paese si legge per intero e Tendenza e Regime hanno la loro etichetta, senza sovrapposizioni.":"On phones the country name is shown in full and Trend and Regime have their own label, with no overlaps.",
+"Inglese per tutti":"English for everyone",
+"Nel Profilo puoi scegliere la lingua del terminale: italiano o inglese.":"In your Profile you can choose the terminal language: Italian or English."
 });

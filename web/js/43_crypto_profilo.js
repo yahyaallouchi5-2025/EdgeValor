@@ -8,7 +8,7 @@ try{(function(){
  function html(m,A){const {pr,pc,cl,gr,gg,ico}=A;
   // v9.03 (prima solo per il fondatore): via "Drawdown dal massimo" e "Volatilita' 30 giorni", gia' nella riga della
   //   tabella (colonne "Dal max" e "Volatilita'"); al loro posto, per Bitcoin, il ciclo dell'halving sotto il grafico
-  const adm=document.documentElement.classList.contains("eb-admin");
+  const adm=true;                                          // v9.09 aperto a tutti (ok di Ya, 24/11/2026)
   const fatti=[["Massimo storico",`${pr(m.ath)}`,gg(m.ath_d)],...(adm?[]:[["Drawdown dal massimo",`<span class="${cl(m.dd)}">${pc(m.dd)}</span>`,""]]),
    ["1 anno",`<span class="${cl(m.v1a)}">${pc(m.v1a)}</span>`,""],["Da inizio anno",`<span class="${cl(m.vytd)}">${pc(m.vytd)}</span>`,""],
    ...(adm?[]:[["Volatilit&agrave; 30 giorni",m.vol30==null?"&ndash;":fx(m.vol30,0)+"%","annua"]]),["Volume medio 30 giorni",gr(m.volm,"&nbsp;$"),"al giorno"],
