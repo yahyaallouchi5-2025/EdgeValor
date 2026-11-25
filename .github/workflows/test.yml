@@ -5,6 +5,7 @@ name: Test
 on:
   push:
   pull_request:
+  workflow_dispatch:   # v9.31 la sorveglianza puo' rilanciare i test sul codice piu' recente (non solo rifare un giro vecchio)
 
 jobs:
   test:
