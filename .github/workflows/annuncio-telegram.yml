@@ -1,0 +1,31 @@
+# annuncio-telegram.yml - v9.32 ANNUNCIO DI UNA CAMPAGNA SUL CANALE TELEGRAM (cot_radar/annuncio_tg.py): la card
+# della campagna (stessa immagine dell'email e del sito), un testo breve e il pulsante "Blocca la tariffa".
+# SOLO A MANO (Actions -> Annuncio Telegram -> Run workflow) e solo dopo il si' di Ya sul testo.
+# Mai il venerdi' dalle 20 alle 23 (ora di Roma): lo script si ferma da solo in quella fascia.
+name: Annuncio Telegram
+on:
+  workflow_dispatch:
+    inputs:
+      campagna:
+        description: "Campagna (black)"
+        required: true
+        default: "black"
+permissions:
+  contents: read
+concurrency:
+  group: annuncio-telegram
+  cancel-in-progress: false
+jobs:
+  annuncio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Pubblica l'annuncio sul canale
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m cot_radar.annuncio_tg "${{ inputs.campagna }}"
