@@ -92,8 +92,11 @@
    d.onclick=async()=>{d.disabled=true;d.textContent="Disdetta…";
     try{await chiama("disdici");sott.textContent="Disdetta confermata.";
      corpo.innerHTML=`<p class="abesito ok">${fine?"Premium resta attivo fino al "+data(fine)+".":"Premium resta attivo fino alla scadenza."} Ti abbiamo mandato la conferma via email.</p>
-      <div class="cmodal-btn"><button type="button" class="csi abchiudi">Chiudi</button></div>`;
-     corpo.querySelector(".abchiudi").onclick=chiudi;window.ebAccount.ricarica&&ebAccount.ricarica();}
+      <div class="abmotivo"></div>
+      <div class="cmodal-btn"><button type="button" class="cno abchiudi">Chiudi</button></div>`;
+     corpo.querySelector(".abchiudi").onclick=chiudi;window.ebAccount.ricarica&&ebAccount.ricarica();
+     // v9.33 motivo della disdetta: facoltativo e chiesto DOPO (la disdetta e' gia' fatta) -> feedback a Ya
+     if(window.ebMotivo)ebMotivo.monta(corpo.querySelector(".abmotivo"),{tipo:"abbonamento"});}
     catch(e){console.warn("[EdgeValor] abbonamento: disdetta",e);d.disabled=false;d.textContent="Sì, disdici";
      es.className="abesito ko";es.textContent="Disdetta non riuscita. Riprova tra poco.";}};}
 

@@ -3468,6 +3468,36 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 .abperdi b{font-size:14px;color:var(--ink)}.abperdi ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--ink2)}
 .abnota{margin:-4px 0 0;color:var(--ink2);line-height:1.45}
 .abesito{font-size:14px;color:var(--ink2);min-height:0}.abesito:empty{display:none}.abesito.ok{color:var(--b)}.abesito.ko{color:var(--s)}
+/* v9.33 MOTIVI DI USCITA nel pannello admin (40_admin.js) */
+.admotivi{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--card2) 70%,transparent)}
+.admotivi summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 16px;font-weight:700;font-size:14px;color:var(--ink)}
+.admotivi summary::-webkit-details-marker{display:none}
+.admotivi summary::before{content:"►";font-size:10px;color:var(--mute);transition:transform .2s}.admotivi[open] summary::before{transform:rotate(90deg)}
+.admn:empty{display:none}.admn{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--soft);color:var(--ink2)}
+.admcorpo{padding:0 16px 14px;display:flex;flex-direction:column;gap:10px}
+.admconta{display:grid;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.admconta div{display:grid;grid-template-columns:150px 1fr 28px;align-items:center;gap:10px;font-size:13px;color:var(--ink2)}
+.admconta i{display:block;height:6px;border-radius:99px;background:linear-gradient(90deg,var(--acc) var(--w),var(--soft) var(--w))}.admconta b{text-align:right;color:var(--ink)}
+.admriga{display:flex;flex-direction:column;gap:2px;font-size:13.5px}.admriga small{color:var(--mute);font-size:12px}.admriga b{color:var(--ink)}
+.admriga p{margin:4px 0 0;padding:8px 10px;border-radius:10px;background:var(--bg);color:var(--ink2);white-space:pre-wrap;line-height:1.45}
+@media (max-width:520px){.admconta div{grid-template-columns:110px 1fr 24px}}
+/* v9.33 MOTIVO DI USCITA (48_motivo.js): scelte a pillola, nota facoltativa, grazie con spunta */
+.mvbox{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--card2) 70%,transparent)}
+.mvtit{margin:0;font-size:14px;font-weight:700;color:var(--ink)}.mvtit span{margin-left:6px;font-size:12px;font-weight:500;color:var(--mute)}
+.mvchip{display:flex;flex-wrap:wrap;gap:8px}
+.mvchip button{border:1px solid var(--line);background:var(--bg);color:var(--ink2);font:600 13px system-ui;padding:7px 13px;border-radius:99px;cursor:pointer;
+ transition:border-color .15s,color .15s,background .15s,transform .15s}
+.mvchip button:hover:not(:disabled){border-color:color-mix(in srgb,var(--acc) 60%,var(--line));color:var(--ink);transform:translateY(-1px)}
+.mvchip button.on{border-color:var(--acc);color:var(--ink);background:color-mix(in srgb,var(--acc) 14%,var(--bg))}
+.mvchip button:disabled{cursor:default}.mvchip button:disabled:not(.on){opacity:.45}
+.mvnota{width:100%;box-sizing:border-box;resize:vertical;min-height:72px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);
+ color:var(--ink);font:14px/1.45 system-ui}.mvnota:focus{outline:none;border-color:var(--acc)}
+.mvazioni{display:flex;justify-content:flex-end;margin:0}.mvazioni .csi{height:38px;padding:0 18px}
+.mvesito{margin:0;font-size:13px}.mvesito:empty{display:none}.mvesito.ko{color:var(--s)}
+.mvgrazie{display:flex;align-items:center;gap:8px;margin:0;font-size:14px;font-weight:600;color:var(--b)}
+.mvgrazie svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.mvbox.mvok{padding:12px 16px}
+.pfmotivo{padding:0 12px 10px}.mvc{padding:10px 12px;gap:8px}.mvc .mvtit{font-size:13px}.mvc .mvchip{gap:6px}.mvc .mvchip button{font-size:12px;padding:5px 10px}
 @media (max-width:520px){.abstato{grid-template-columns:1fr}.abpiano{padding:16px 12px 12px}.abpiano b{font-size:21px}.abtag{right:8px}}
 
 /* v8.30 COMMISSIONI DEL BROKER (Acquisto diretto): campo della commissione + stima sul capitale dell'utente */

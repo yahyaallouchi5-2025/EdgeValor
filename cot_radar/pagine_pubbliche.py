@@ -177,14 +177,40 @@ JS_ACCEDI = """<script>(function(){var f=document.getElementById("facc");if(!f)r
 OFFERTE = f"""
 <div class="titsez" style="margin-left:auto;margin-right:auto;text-align:center"><small>Email</small><h1 id="otit">Un momento…</h1>
  <p id="otxt">Sto aggiornando la tua scelta.</p></div>
+<div id="omot" class="omot" hidden></div>
 <div class="fine" style="justify-content:center;text-align:center"><a class="btn sec" href="/terminale/">Torna al terminale</a></div>
+"""
+# v9.33 MOTIVO (facoltativo) dopo la disiscrizione: scelte a pillola + nota + Invia -> funzione motivo-uscita (email a Ya)
+CSS_OFFERTE = """
+.omot{max-width:560px;margin:36px auto 0;padding:22px;border-radius:18px;border:1px solid var(--line);background:rgba(11,29,66,.45);display:flex;flex-direction:column;gap:14px}
+.omot[hidden]{display:none}.omot h2{margin:0;font-size:17px;color:var(--ink)}.omot h2 span{margin-left:8px;font-size:13px;font-weight:500;opacity:.65}
+.omch{display:flex;flex-wrap:wrap;gap:8px}
+.omch button{border:1px solid var(--line);background:rgba(4,12,30,.6);color:var(--ink);opacity:.85;font:600 14px "Inter",system-ui;padding:9px 15px;border-radius:99px;cursor:pointer;transition:border-color .15s,opacity .15s,transform .15s}
+.omch button:hover{opacity:1;border-color:var(--acc);transform:translateY(-1px)}.omch button.on{opacity:1;border-color:var(--acc);background:rgba(46,196,182,.14)}
+.omot textarea{width:100%;box-sizing:border-box;min-height:84px;resize:vertical;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(4,12,30,.6);color:var(--ink);font:15px/1.5 "Inter",system-ui}
+.omot textarea:focus{outline:none;border-color:var(--acc)}
+.omot .btn{align-self:flex-end;padding:11px 22px}.omot .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.omes{margin:0;font-size:14px}.omes:empty{display:none}.omok{margin:0;text-align:center;font-weight:600;color:var(--acc)}
+@media (max-width:560px){.omot{padding:18px 16px}.omot .btn{align-self:stretch}}
 """
 JS_OFFERTE = """<script>(function(){var t=document.getElementById("otit"),p=document.getElementById("otxt");
  var no=(location.search.match(/[?&]no=([0-9a-fA-F-]{36})/)||[])[1];
  function fine(a,b){t.textContent=a;p.textContent=b;}
+ // v9.33 motivo facoltativo: una scelta (obbligatoria per inviare) e una nota libera
+ function motivo(){var m=document.getElementById("omot"),scelto="",M=[["troppe_email","Troppe email"],["non_interessa","Le offerte non mi interessano"],["costo","Costa troppo"],["altro","Altro"]];
+  m.innerHTML='<h2>Ci dici perché?<span>Facoltativo</span></h2><div class="omch" role="radiogroup" aria-label="Motivo">'+M.map(function(x){return '<button type="button" role="radio" aria-checked="false" data-m="'+x[0]+'">'+x[1]+'</button>';}).join("")+
+   '</div><textarea maxlength="500" placeholder="Vuoi aggiungere qualcosa? Lo leggo personalmente." aria-label="Nota facoltativa"></textarea><button type="button" class="btn pri" disabled>Invia</button><p class="omes" role="status" aria-live="polite"></p>';
+  m.hidden=false;var bs=m.querySelectorAll(".omch button"),ok=m.querySelector(".btn"),es=m.querySelector(".omes");
+  Array.prototype.forEach.call(bs,function(b){b.onclick=function(){scelto=b.getAttribute("data-m");ok.disabled=false;
+   Array.prototype.forEach.call(bs,function(x){x.classList.toggle("on",x==b);x.setAttribute("aria-checked",x==b?"true":"false");});};});
+  ok.onclick=function(){if(!scelto)return;ok.disabled=true;ok.textContent="Invio…";
+   fetch("__API__/functions/v1/motivo-uscita",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({tipo:"offerte",motivo:scelto,nota:m.querySelector("textarea").value.trim(),no:no})})
+   .then(function(r){return r.json();}).then(function(j){if(!j||!j.ok)throw 0;m.innerHTML='<p class="omok">Grazie, ricevuto.</p>';})
+   .catch(function(){ok.disabled=false;ok.textContent="Invia";es.textContent="Invio non riuscito. Riprova tra poco.";});};}
  if(!no){fine("Link non valido","Apri il link dall'email, oppure spegni le offerte dal tuo Profilo nel terminale.");return;}
  fetch("__API__/functions/v1/email-campagne",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({no:no})})
- .then(function(r){return r.json();}).then(function(j){if(j&&j.ok)fine("Fatto.","Non riceverai più email con le offerte. Le email sul tuo account continuano ad arrivare. Puoi riattivarle quando vuoi dal Profilo.");
+ .then(function(r){return r.json();}).then(function(j){if(j&&j.ok){fine("Fatto.","Non riceverai più email con le offerte. Le email sul tuo account continuano ad arrivare. Puoi riattivarle quando vuoi dal Profilo.");motivo();}
   else fine("Link non valido","Il link non è più attivo. Puoi spegnere le offerte dal tuo Profilo nel terminale.");})
  .catch(function(){fine("Non riuscito","Riprova tra poco, oppure spegni le offerte dal tuo Profilo nel terminale.");});})();</script>"""
 
@@ -245,5 +271,6 @@ def crea(cartella, home):
         fatte.append(scrivi(cartella, nome, titolo, desc, corpo, testa, piede, qui=nome, extra=extra.get(nome, ""), head=head))
     # v9.28 disiscrizione dalle offerte: pagina scritta ma NON restituita (fuori dalla sitemap) e fuori da Google
     scrivi(cartella, "offerte", "Email con le offerte · EdgeValor", "Scegli se ricevere le email con le offerte di EdgeValor.",
-           OFFERTE, testa, piede, extra=JS_OFFERTE.replace("__API__", SUPABASE_URL), head='<meta name="robots" content="noindex">')
+           OFFERTE, testa, piede, extra=JS_OFFERTE.replace("__API__", SUPABASE_URL), css=CSS_OFFERTE,
+           head='<meta name="robots" content="noindex">')
     return fatte

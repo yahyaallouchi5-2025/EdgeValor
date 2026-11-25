@@ -161,7 +161,10 @@
   const segna=v=>bs.forEach(b=>{b.classList.toggle("on",(b.dataset.off=="1")==!!v);b.disabled=false;});bs.forEach(b=>b.disabled=true);
   ebAccount.rpc("mie_offerte").then(v=>segna(v!==false)).catch(()=>{});
   bs.forEach(b=>b.onclick=()=>{const si=b.dataset.off=="1";bs.forEach(x=>x.disabled=true);
-   ebAccount.rpc("imposta_offerte",{si}).then(v=>{segna(v!==false&&si);avviso(si?"Riceverai le email con le offerte":"Non riceverai più email con le offerte");})
+   ebAccount.rpc("imposta_offerte",{si}).then(v=>{segna(v!==false&&si);avviso(si?"Riceverai le email con le offerte":"Non riceverai più email con le offerte");
+    // v9.33 dopo il "No": motivo facoltativo con un tocco, sotto la riga (sparisce se si torna a "Sì")
+    const m=box.querySelector(".pfmotivo");if(m)m.remove();
+    if(!si&&window.ebMotivo){const d=document.createElement("div");d.className="pfmotivo";r.after(d);ebMotivo.monta(d,{tipo:"offerte",compatto:true});}})
    .catch(()=>{ebAccount.rpc("mie_offerte").then(v=>segna(v!==false)).catch(()=>{});avviso("Non riuscito: riprova tra poco");});});}
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.setAttribute("role","status");a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3800);}
  function disegna(msg){const u=S&&chi();if(coda&&!u)coda.innerHTML="";

@@ -10,6 +10,7 @@
    Il rinnovo si somma alla scadenza se e' ancora attiva (chi rinnova prima non perde giorni).
    Ogni azione finisce nel registro del database (privato.admin_registro) per riconciliare i pagamenti PayPal.
    Se un utente qualsiasi chiamasse queste funzioni, il database risponde "non autorizzato".
+   v9.33 in fondo "Motivi di uscita": rpc admin_motivi_uscita() (perche' disdicono o spengono le offerte).
    DEBUG: ebAdmin.apri() apre il riquadro; ebAdmin.dati() restituisce l'ultimo elenco letto. */
 (function(){try{
  const GIORNO=864e5;
@@ -44,7 +45,8 @@
    <p id="adinfo" class="sub infotesto">+1 mese aggiunge 30 giorni, +1 anno 365: se l'utente è ancora Premium si sommano alla scadenza, altrimenti partono da oggi. Revoca riporta subito a Basic. Alla scadenza l'utente torna Basic da solo. Ogni azione resta registrata.</p>
    <div class="adnum"></div>
    <input type="search" class="adcerca" placeholder="Cerca email o ID" aria-label="Cerca email o ID">
-   <div class="adlista" aria-live="polite"><p class="advuoto">Carico gli iscritti…</p></div></div>`;
+   <div class="adlista" aria-live="polite"><p class="advuoto">Carico gli iscritti…</p></div>
+   <details class="admotivi"><summary>Motivi di uscita <b class="admn"></b></summary><div class="admcorpo"><p class="advuoto">Carico…</p></div></details></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
   const chiudi=()=>{box.classList.remove("on");setTimeout(()=>box.remove(),220);document.removeEventListener("keydown",tasto);};
   const tasto=e=>{if(e.key=="Escape")chiudi();};document.addEventListener("keydown",tasto);
@@ -92,6 +94,20 @@
     // l'utente riceve l'email (regalo o revoca) al prossimo giro delle email (entro un'ora)
     disegna();avviso(a=="revoca2"?`${idDi(u)} è tornato Basic · email all'utente entro un'ora`:`${idDi(u)} Premium fino al ${data(f)} · email all'utente entro un'ora`);}
    catch(e){console.warn("[EdgeValor] admin: azione non riuscita",e);disegna();avviso("Azione non riuscita: riprova.");}}
+
+  // v9.33 MOTIVI DI USCITA: perche' disdicono Premium o spengono le offerte (facoltativo per l'utente). Conteggio per
+  // motivo in alto, poi le ultime risposte con la nota. Ogni nuovo motivo arriva anche via email all'admin.
+  const MOT={costo:"Costa troppo",manca:"Manca qualcosa",complesso:"Troppo complesso",poco_uso:"Lo usa poco",altro_servizio:"Altro servizio",
+   troppe_email:"Troppe email",non_interessa:"Offerte non interessano",altro:"Altro"};
+  const mc=box.querySelector(".admcorpo"),mn=box.querySelector(".admn");
+  ebAccount.rpc("admin_motivi_uscita",{}).then(r=>{r=Array.isArray(r)?r:[];mn.textContent=r.length||"";
+   if(!r.length){mc.innerHTML=`<p class="advuoto">Ancora nessun motivo.</p>`;return;}
+   const c={};r.forEach(x=>{c[x.motivo]=(c[x.motivo]||0)+1;});
+   const top=Object.entries(c).sort((a,b)=>b[1]-a[1]),max=top[0][1];
+   mc.innerHTML=`<div class="admconta">${top.map(([k,n])=>`<div><span>${MOT[k]||k}</span><i style="--w:${Math.round(n/max*100)}%"></i><b>${n}</b></div>`).join("")}</div>
+    ${r.slice(0,50).map(x=>`<div class="admriga"><small>${data(x.creato)} · ${esc(x.ev||"—")} · ${x.tipo=="abbonamento"?"Disdetta":"Offerte"}</small>
+     <b>${MOT[x.motivo]||esc(x.motivo)}</b>${x.nota?`<p>${esc(x.nota)}</p>`:""}</div>`).join("")}`;})
+   .catch(e=>{console.warn("[EdgeValor] admin: motivi non letti",e);mc.innerHTML=`<p class="advuoto">Motivi non disponibili.</p>`;});
 
   ebAccount.rpc("admin_utenti",{}).then(r=>{elenco=Array.isArray(r)?r:[];disegna();})
    .catch(e=>{console.warn("[EdgeValor] admin: elenco non letto",e);lista.innerHTML=`<p class="advuoto">Elenco non disponibile. Riprova tra poco.</p>`;});}

@@ -75,6 +75,7 @@ Object.assign(EB_EN,{
 "SDK PayPal non caricato":"PayPal SDK not loaded",
 // --- account, voto, invito, lista
 "Lascia una recensione":"Leave a review",
+"Ci dici perché?":"Mind telling us why?","Facoltativo":"Optional","Motivo":"Reason","Costa troppo":"Too expensive","Manca qualcosa che mi serve":"Something I need is missing","È troppo complesso":"It's too complex","Lo uso poco":"I don't use it enough","Ho scelto un altro servizio":"I chose another service","Troppe email":"Too many emails","Le offerte non mi interessano":"I'm not interested in offers","Vuoi aggiungere qualcosa? Lo leggo personalmente.":"Anything to add? I read every message personally.","Nota facoltativa":"Optional note","Invio…":"Sending…","Grazie, ricevuto.":"Thanks, received.","Invio non riuscito. Riprova tra poco.":"Sending failed. Try again shortly.",
 "Email con le offerte":"Offer emails","Sì":"Yes","Riceverai le email con le offerte":"You will receive offer emails","Non riceverai più email con le offerte":"You will no longer receive offer emails","Non riuscito: riprova tra poco":"Something went wrong: try again shortly",
 "ti resta # giorno":"# day left",
 "ti restano":"you have",
