@@ -75,6 +75,7 @@ Object.assign(EB_EN,{
 "SDK PayPal non caricato":"PayPal SDK not loaded",
 // --- account, voto, invito, lista
 "Lascia una recensione":"Leave a review",
+"Email con le offerte":"Offer emails","Sì":"Yes","Riceverai le email con le offerte":"You will receive offer emails","Non riceverai più email con le offerte":"You will no longer receive offer emails","Non riuscito: riprova tra poco":"Something went wrong: try again shortly",
 "ti resta # giorno":"# day left",
 "ti restano":"you have",
 "Ti sta piacendo EdgeValor?":"Are you enjoying EdgeValor?",

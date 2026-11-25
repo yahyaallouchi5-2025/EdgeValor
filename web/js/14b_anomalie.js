@@ -44,6 +44,8 @@
    (tutte.length?`<h4>${T("Aperte")}</h4><ul class="anl">${lo.map(a=>voce(a,T("adesso, da questa pagina"))).join("")}${ap.map(a=>voce(a,`${T("dal")} ${gm(a.dal)} · ${durata(ore(a.dal))}`)).join("")}</ul>`:"")+
    (gi.length?`<h4>${T("Ultime 72 ore")}</h4><div class="anore" role="img" aria-label="${T("Esito dei controlli orari")}">${gi.map(g=>`<i class="${g.n?"ko":"ok"}" title="${gm(g.t)} · ${g.n?g.n+" "+T("anomalie"):"OK"}"></i>`).join("")}</div>
     <div class="anleg"><span>${gm(gi[0].t)}</span><span>${gm(gi[gi.length-1].t)}</span></div>`:"")+
+   // v9.31 riparazioni automatiche (riavvio dei prezzi live, giro fallito rilanciato): il problema si e' sistemato da solo
+   (((R&&R.azioni)||[]).length?`<h4>${T("Riparate da sole")}</h4><ul class="anl chiuse">${R.azioni.slice(0,8).map(x=>voce({area:/^Prezzi live/.test(x.testo)?"Prezzi live":"Workflow",testo:x.testo},gm(x.t))).join("")}</ul>`:"")+
    (ch.length?`<h4>${T("Risolte")}</h4><ul class="anl chiuse">${ch.slice(0,12).map(a=>voce(a,`${gm(a.dal)} → ${gm(a.al)} · ${durata(ore(a.dal,a.al))}`)).join("")}</ul>`:"")+
    (!R&&!errore?`<p class="anvuoto">${T("carico…")}</p>`:"");
   box.querySelector(".ansott").textContent=R?T("Ultimo controllo")+" "+gm(R.agg)+" · "+T("ogni ora"):T("Controllo ogni ora");}
@@ -53,7 +55,7 @@
    <div class="cmodal-testa"><span class="cmodal-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span>
     <div><h3 id="ant">${T("Registro anomalie")} <button type="button" class="info" data-apri="aninfo" aria-expanded="false" aria-label="${T("Come funziona")}">i</button></h3><p class="ansott"></p></div>
     <button type="button" class="fbx" aria-label="${T("Chiudi")}">&#x2715;</button></div>
-   <p id="aninfo" class="sub infotesto">${T("Ogni ora la sorveglianza controlla: sito pubblicato e senza errori, fonti COT, FRED e BCE, report COT arrivato dopo l'uscita CFTC, riepilogo COT su Telegram, Azionario, prezzi live a borsa aperta, giri automatici, archivio storico e stagionalità oraria. Due volte al giorno controlla anche l'aspetto del sito su PC e telefono: testi sovrapposti, pagine troppo larghe, animazioni che possono sfarfallare. Se qualcosa non va ti arriva un'email privata. Gli iscritti non ricevono nulla. Visibile solo all'account fondatore.")}</p>
+   <p id="aninfo" class="sub infotesto">${T("Ogni ora la sorveglianza controlla: sito pubblicato e senza errori, fonti COT, FRED e BCE, report COT arrivato dopo l'uscita CFTC, riepilogo COT su Telegram, Azionario, prezzi live a borsa aperta, giri automatici, archivio storico e stagionalità oraria. Due volte al giorno controlla anche l'aspetto del sito su PC e telefono: testi sovrapposti, pagine troppo larghe, animazioni che possono sfarfallare. I guasti passeggeri (prezzi live fermi, giro fallito) si riparano da soli: l'email privata arriva solo se il problema resta anche al controllo dopo. Gli iscritti non ricevono nulla. Visibile solo all'account fondatore.")}</p>
    <div class="ancorpo" aria-live="polite"></div></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
   const chiudi=()=>{box.classList.remove("on");setTimeout(()=>box.remove(),220);document.removeEventListener("keydown",tasto);};

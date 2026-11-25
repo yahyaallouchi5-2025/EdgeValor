@@ -127,6 +127,8 @@ section{padding:110px 0}
 /* scheda "per chi e'" */
 .per{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 @media (max-width:900px){.per{grid-template-columns:1fr}}
+/* v9.28 Perche' EdgeValor: 4 card 2x2 (titoli su una riga, testi allineati), una sotto l'altra su telefono */
+.per4{grid-template-columns:repeat(2,1fr)}@media (max-width:640px){.per4{grid-template-columns:1fr}}
 .dato{padding:30px;border-radius:22px;background:linear-gradient(180deg,rgba(11,29,66,.7),rgba(7,20,49,.5));border:1px solid var(--line)}
 .dato b{display:block;font:800 30px "Inter Display","Inter",system-ui;letter-spacing:-1px;margin-bottom:6px}
 .dato p{margin:0;color:var(--ink2);font-size:15.5px}
@@ -398,12 +400,16 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
  .mtr{grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr)) 22px 66px;font-size:12.5px;gap:4px}.mtr .tw{font-size:0}.mtr .tw::first-letter{font-size:12px}.mtr.mth .tw{visibility:hidden}
  .mbig span{font-size:11.5px}.msec div{padding:9px 9px}.msec span{font-size:18px}.msec small{font-size:10px}
  .mrig{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) 46px;font-size:12.5px}.vfine{padding:20px}.vfine .btn{width:100%}}
+/* v9.30 sottotitolo delle card di Perche' EdgeValor */
+.dato .dsub{display:block;font-style:normal;font-weight:700;color:var(--ink);font-size:16.5px;margin:2px 0 8px}
+/* v9.30 Premium raggruppato per area */
+.pgr{display:grid;gap:14px}.pgr span{display:block;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#a9c8ff;margin-bottom:8px}
 </style></head>
 <body><div class="cielo"></div><div class="aurora a1"></div><div class="aurora a2"></div>
 
 <header id="testata" data-pos="testata"><div class="box">
  <a class="blogo" href="#" aria-label="EdgeValor"><i></i><b>EDGE<br><span class="g">VALOR</span></b></a>
- <nav class="voci"><a href="#pilastri">Il terminale</a><a href="metodo/">Il metodo</a><a href="cot/">Report COT</a><a href="prezzi/">Prezzi</a><a href="faq/">Domande</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Telegram</a></nav>
+ <nav class="voci"><a href="#pilastri">Il terminale</a><a href="#metodo">Perché EdgeValor</a><a href="cot/">Report COT</a><a href="prezzi/">Prezzi</a><a href="faq/">Domande</a><a href="{{TELEGRAM}}" target="_blank" rel="noopener">Telegram</a></nav>
  <button class="btn pri pic" data-entra><span data-etichetta>Accedi</span></button>
 </div></header>
 <!-- v9.18 striscia della campagna stagionale in corso (cot_radar/campagne.py): vuota fuori dalle campagne -->
@@ -415,16 +421,16 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <span class="eyebrow">Analisi quantitativa</span>
    <!-- titolo scritto a macchina: il testo completo resta nell'aria-label per lettori di schermo e motori di ricerca -->
    <h1 id="titolo" aria-label="Investire con metodo, anche partendo da zero."><span id="tt"></span><span class="cursore"></span></h1>
-   <p class="sub">EdgeValor è il terminale italiano di <b>analisi quantitativa dei mercati</b>: direzione dei grandi speculatori dal report COT, stagionalità, correlazioni, macro, azionario globale e portafogli modello. Niente opinioni: <b>solo dati provati</b>, spiegati in parole semplici.</p>
+   <p class="sub">EdgeValor riunisce in un solo terminale <b>mercati, indicatori, modelli statistici e rischio</b>: report COT, stagionalità, macro, azionario globale e portafogli modello. <b>Dati provati sullo storico</b>, spiegati in parole semplici.</p>
    <div class="cta" data-pos="hero">
-    <button class="btn pri" data-entra><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Accedi</span></button>
+    <button class="btn pri" data-entra="reg"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>Inizia la prova</span></button>
     <a class="btn sec" href="{{TELEGRAM}}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.6.1 1.9l4.6 1.5 1.8 5.6c.3.8 1.3 1 1.9.4l2.6-2.5 4.7 3.5c.7.5 1.7.1 1.9-.7l3.1-15c.2-1.1-.9-1.9-2-1.4z"/></svg>Canale Telegram</a>
    </div>
    <div class="numeri">
     <div><b data-conta="3">0</b><span>portafogli modello</span></div>
     <div><b data-conta="{{N_MERCATI}}">0</b><span>mercati seguiti</span></div>
     <div><b data-conta="60">0</b><span>paesi nel mondo</span></div>
-    <div><b data-conta="{{ANNI_BT}}" data-suffisso=" anni">0</b><span>di storico</span></div>
+    <div><b data-conta="{{ANNI_BT}}" data-suffisso=" anni">0</b><span>di dati COT</span></div>
    </div>
   </div>
   <div class="scena" id="scena"><div class="schermo" id="schermo"><div><div class="scan"></div>
@@ -439,20 +445,6 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
  <div class="nastro" aria-hidden="true" data-ev-vista="nastro"><div>{{NASTRO}}{{NASTRO}}</div></div>
 
  <!-- 1. PARTI DA ZERO: i quattro passi di chi non ha mai investito -->
- <!-- 1. LA LOGICA DEI PORTAFOGLI (v8.89, Ya 23/11/2026: un utente ha chiesto "in base a cosa investe la rotazione mensile?").
-      Prende il posto di "Parti da zero in 4 passi", che ripeteva la card Portafogli qui sotto e il "10 minuti" del metodo.
-      Le regole sono quelle di cot_radar/portafogli.py (versione 3) e satellite.py: se cambiano, si aggiorna anche qui. -->
- <section id="logica" data-ev-vista="logica"><div class="box">
-  <div class="titsez appare"><small>Portafogli a rotazione mensile</small><h2>La logica, in quattro regole.</h2>
-   <p>Nessuna previsione e nessuna opinione: poche regole fisse, uguali ogni mese, provate sui dati dal 2006.</p></div>
-  <div class="tempo" id="tempo"><div class="asse"><i></i></div>
-   <div class="tappa appare"><span class="q">Regola 1</span><h3>Una base per ogni profilo</h3><p>Conservativo, Moderato o Aggressivo: mercati e pesi fissi tra azioni, Treasury, oro, materie prime e liquidità. L'Aggressivo aggiunge Bitcoin e azioni scelte ogni mese.</p></div>
-   <div class="tappa appare"><span class="q">Regola 2</span><h3>Il trend decide chi resta</h3><p>Il primo giorno di borsa del mese: se un mercato azionario è sotto la media degli ultimi 200 giorni, la sua quota va in liquidità. Rientra quando torna sopra.</p></div>
-   <div class="tappa appare"><span class="q">Regola 3</span><h3>La difesa resta sempre</h3><p>Treasury e oro non escono mai dal portafoglio: fanno da cuscinetto quando le azioni scendono.</p></div>
-   <div class="tappa appare"><span class="q">Regola 4</span><h3>Pochi scambi</h3><p>Si compra e si vende solo quando un mercato entra o esce, o a inizio trimestre per riportare i pesi. Meno commissioni, e un conto alla rovescia ti dice quando.</p></div>
-  </div>
- </div></section>
-
  <!-- 2. DENTRO IL TERMINALE: una scena per pilastro. Le finestre sono riempite dal JavaScript in fondo con i numeri
       veri (segnaposto DENTRO_JSON, creato da cot_radar/vetrina.py -> dentro()). Una scena senza dati resta nascosta. -->
  <section id="pilastri" data-ev-vista="pilastri"><div class="box">
@@ -461,25 +453,25 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
   <div class="viste">
    <article class="quadro appare" id="v-dash">
     <div class="vtesto"><span class="tag">Dashboard</span><h3>Che aria tira sui mercati oggi?</h3>
-     <ul class="pote"><li><b>Posizionamento</b>: quanti mercati i grandi operatori stanno comprando e quanti vendendo.</li><li><b>Settori</b>: dove si concentra la forza, dai metalli alle valute.</li><li><b>Clima ed economie</b>: paura o fiducia, crescita o frenata, in un colpo d'occhio.</li></ul>
+     <ul class="pote"><li><b>Posizionamento</b>: quanti mercati i grandi speculatori comprano e quanti vendono.</li><li><b>Settori</b>: dove si concentra la forza, dai metalli alle valute.</li><li><b>Clima ed economie</b>: paura o fiducia, crescita o frenata.</li></ul>
      <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 1 minuto</span></div>
     <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Dashboard</b><span data-al></span></div><div class="fcorpo" id="f-dash"></div></div></div>
    </article>
    <article class="quadro appare" id="v-port">
     <div class="vtesto"><span class="tag">Portafogli</span><h3>Come divido i miei soldi questo mese?</h3>
-     <ul class="pote"><li><b>Tre profili</b>: scegli quanto drawdown sei disposto ad accettare.</li><li><b>Il mese in corso</b> accanto a come è andato lo stesso mese negli anni passati.</li><li><b>Composizione e pesi</b> cambiano solo alla rotazione mensile.</li></ul>
+     <ul class="pote"><li><b>Tre profili</b>: scegli quanto drawdown sei disposto ad accettare.</li><li><b>Il mese in corso</b> accanto allo stesso mese negli anni passati.</li><li><b>Composizione e pesi</b> cambiano solo alla rotazione mensile.</li></ul>
      <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>3 minuti, una volta al mese</span></div>
     <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Portafogli · <em id="b-port" style="font-style:normal">Moderato</em></b><span data-al></span></div><div class="fcorpo" id="f-port"></div></div></div>
    </article>
    <article class="quadro appare" id="v-az">
     <div class="vtesto"><span class="tag">Azionario</span><h3>Quali aziende hanno i numeri migliori?</h3>
-     <ul class="pote"><li><b id="p-az">Centinaia di aziende</b> ordinate per settore e per forza.</li><li><b>La selezione di oggi</b>: al massimo una per settore, solo se tendenza, forza e stagionalità sono tutte a favore.</li><li><b>La scheda di ogni azienda</b>: bilanci, dividendi e notizie.</li></ul>
+     <ul class="pote"><li><b id="p-az">Centinaia di aziende</b> di 12 listini, ordinate per settore e per forza.</li><li><b>La selezione di oggi</b>: al massimo una per settore, quando tendenza, forza e stagionalità sono tutte a favore.</li><li><b>La scheda di ogni azienda</b>: bilanci, dividendi e notizie.</li></ul>
      <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 2 minuti</span></div>
     <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Azionario</b><span data-al></span></div><div class="fcorpo" id="f-az"></div></div></div>
    </article>
    <article class="quadro appare" id="v-stag">
     <div class="vtesto"><span class="tag">Stagionalità</span><h3>Come è andato questo periodo, negli anni?</h3>
-     <ul class="pote"><li><b>Ogni casella è un'ora</b>: verde se in passato è salita più spesso, rossa se è scesa.</li><li><b>Bordo oro</b>: il dato è statisticamente affidabile, non un caso.</li><li><b id="p-stag">Decine di mercati</b> in ora italiana: ore, giorni, settimane e mesi.</li></ul>
+     <ul class="pote"><li><b>Ogni casella è un'ora</b>: verde se in passato è salita più spesso, rossa se è scesa.</li><li><b>Bordo oro</b>: l'effetto ha superato i filtri statistici.</li><li><b id="p-stag">Decine di mercati</b> in ora italiana: ore, giorni, settimane e mesi.</li></ul>
      <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 2 minuti</span></div>
     <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Stagionalità · <em id="b-stag" style="font-style:normal"></em></b><span data-al></span></div><div class="fcorpo" id="f-stag"></div></div></div>
    </article>
@@ -491,31 +483,52 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    </article>
   </div>
   <div class="vfine appare"><p><b>In tutto: meno di 10 minuti.</b> I portafogli cambiano una volta al mese.</p>
-   <button class="btn pri" data-entra data-pos="dentro"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Accedi</span></button></div>
+   <button class="btn pri" data-entra="reg" data-pos="dentro"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>Inizia la prova</span></button></div>
+ </div></section>
+
+ <!-- 3. PERCHE' EDGEVALOR (v9.28, domanda di un collega di Ya: "se mi abbono, che valore mi dai in cambio?").
+      Prende il posto di "Dati, non opinioni" e ne tiene i fatti (storico dal 2006, andamento live, 10 minuti):
+      nessuna promessa di rendimento, solo quello che l'abbonato ottiene davvero. La risposta sul "ritorno"
+      sta nelle domande frequenti (domande.py), con il peso dell'abbonamento sul capitale. -->
+ <section id="metodo" data-ev-vista="metodo"><div class="box">
+  <div class="titsez appare"><small>Perché EdgeValor</small><h2>Analisi, metodo e rischio in chiaro.</h2>
+   <p>Meno tempo a cercare informazioni, più strumenti per capire i mercati. Nessuno può prometterti un rendimento, e noi non lo facciamo.</p></div>
+  <div class="per per4">
+   <div class="dato appare"><b>10 minuti</b><i class="dsub">Un portafoglio, senza complicazioni.</i><p>La composizione del mese con il codice ISIN di ogni strumento, da copiare nel tuo broker. Senza leva.</p></div>
+   <div class="dato appare" style="--d:.06s"><b>Dal 2006</b><i class="dsub">Regole provate sullo storico.</i><p>Gli anni fino al 2015 servono a costruire le regole, quelli dal 2016 solo a verificarle. Costi e tasse italiane inclusi.</p></div>
+   <div class="dato appare" style="--d:.12s"><b>Prima il rischio</b><i class="dsub">Risultati e drawdown insieme.</i><p>Per ogni profilo vedi il drawdown storico e come è andato nelle crisi del 2008 e del 2020.</p></div>
+   <div class="dato appare" style="--d:.18s"><b>Tutto registrato</b><i class="dsub">Risultati che non si ritoccano.</i><p>Il mese in corso si segue dal vivo e resta scritto, anche quando è negativo. Ogni segnale ha data e ora, in un registro protetto da modifiche.</p></div>
+  </div>
+ </div></section>
+
+ <!-- 1. LA LOGICA DEI PORTAFOGLI (v8.89, Ya 23/11/2026: un utente ha chiesto "in base a cosa investe la rotazione mensile?").
+      Prende il posto di "Parti da zero in 4 passi", che ripeteva la card Portafogli qui sotto e il "10 minuti" del metodo.
+      Le regole sono quelle di cot_radar/portafogli.py (versione 3) e satellite.py: se cambiano, si aggiorna anche qui. -->
+ <section id="logica" data-ev-vista="logica"><div class="box">
+  <div class="titsez appare"><small>Portafogli a rotazione mensile</small><h2>La logica, in quattro regole.</h2>
+   <p>Nessuna previsione: poche regole fisse, uguali ogni mese, provate sui dati dal 2006.</p></div>
+  <div class="tempo" id="tempo"><div class="asse"><i></i></div>
+   <div class="tappa appare"><span class="q">Regola 1</span><h3>Una base per ogni profilo</h3><p>Conservativo, Moderato o Aggressivo: mercati e pesi fissi tra azioni, Treasury, oro, materie prime e liquidità. L'Aggressivo aggiunge Bitcoin e azioni scelte ogni mese.</p></div>
+   <div class="tappa appare"><span class="q">Regola 2</span><h3>Il trend decide chi resta</h3><p>Il primo giorno di borsa del mese si controlla ogni mercato azionario: se è sotto la sua media degli ultimi 200 giorni, la sua quota passa in liquidità. Rientra quando torna sopra.</p></div>
+   <div class="tappa appare"><span class="q">Regola 3</span><h3>La difesa resta sempre</h3><p>Treasury e oro non escono mai dal portafoglio: fanno da cuscinetto quando le azioni scendono.</p></div>
+   <div class="tappa appare"><span class="q">Regola 4</span><h3>Pochi scambi</h3><p>Si compra e si vende quando un mercato entra o esce. A inizio trimestre si correggono solo i pesi spostati di almeno 2 punti. Un conto alla rovescia ti dice quando.</p></div>
+  </div>
  </div></section>
 
  <!-- 2b. TELEGRAM: le notifiche del canale. Le due frasi con i numeri sono quelle che il canale manderebbe oggi. -->
  <section id="telegram" data-ev-vista="telegram"><div class="box">
   <div class="quadro">
    <div class="vtesto appare"><span class="tag">Canale Telegram</span><h3>I dati ti arrivano da soli.</h3>
-    <ul class="pote"><li><b>Lunedì mattina</b>: il briefing con cosa guardare nella settimana.</li>
-     <li><b>Prima e dopo i dati importanti</b>: l'avviso con giorno e ora, poi com'è andata.</li>
-     <li><b>Dopo ogni report COT</b>: il riepilogo dei mercati.</li></ul>
+    <ul class="pote"><li><b>Venerdì sera</b>: il riepilogo del report COT e le notizie della settimana dopo.</li>
+     <li><b>Lunedì mattina</b>: il briefing con cosa guardare nella settimana.</li>
+     <li><b>Prima e dopo i dati importanti</b>: giorno e ora, poi com'è andata.</li></ul>
     <a class="btn sec" href="{{TELEGRAM}}" target="_blank" rel="noopener" data-pos="telegram">Iscriviti al canale</a></div>
    <div class="tgbox" id="f-tg"></div>
   </div>
  </div></section>
 
- <!-- 3. IL METODO: fatti precisi, in prima persona (storico dal 2006, registro live da novembre 2026, idee tolte) -->
- <section id="metodo" data-ev-vista="metodo"><div class="box">
-  <div class="titsez appare"><small>Il metodo</small><h2>Dati, non opinioni.</h2>
-   <p>Gli algoritmi di EdgeValor filtrano i dati e lasciano passare solo ciò che ha una probabilità statistica a favore: l'edge. Il resto resta fuori dal terminale.</p></div>
-  <div class="per">
-   <div class="dato appare"><b>Dal 2006</b><p>I portafogli sono provati su vent'anni di storico e messi sotto stress nelle crisi del 2008 e del 2020. Gli anni dal 2016 servono solo da verifica, con altri test di robustezza.</p></div>
-   <div class="dato appare" style="--d:.08s"><b>Andamento live</b><p>Il mese in corso si segue mentre accade. Alla chiusura il suo risultato resta scritto, anche quando è negativo.</p></div>
-   <div class="dato appare" style="--d:.16s"><b>10 minuti</b><p>Non servono ore davanti al monitor. Un portafoglio si completa in 10 minuti: ogni strumento ha il codice ISIN da copiare nel tuo broker, per esempio Scalable. Senza leva, anche senza esperienza.</p></div>
-  </div>
- </div></section>
+
+
 
  <!-- 4. ACCESSO (v7.91): Basic e Premium a confronto, SENZA prezzi; un solo pulsante che apre la registrazione.
       La riga dell'offerta (.off) resta nel riquadro Premium ma e' spenta (ACCESA=false piu' sotto). -->
@@ -524,10 +537,10 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <p>Ti registri con l'email, senza carta. Poi scegli tu.</p></div>
   <div class="piani">
    <div class="piano appare"><span class="ptag">Basic</span><h3>Capire i mercati</h3>
-    <ul><li>Quadro economico</li><li>Clima di mercato</li><li>Posizionamento COT</li><li>Notizie macro</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul></div>
-   <div class="piano pro appare" style="--d:.08s"><span class="ptag">Premium</span><h3>Sblocca tutte le potenzialità del terminale</h3>
+    <ul><li>Quadro economico e clima di mercato</li><li>Posizionamento COT</li><li>Notizie macro</li><li>Andamento dei portafogli</li><li>Settori e ricerca dei titoli</li><li>Newsletter su Telegram</li></ul></div>
+   <div class="piano pro appare" style="--d:.08s"><span class="ptag">Premium</span><h3>Tutto il terminale</h3>
     <p class="piu">Tutto Basic, più:</p>
-    <ul><li><b>Azionario globale e portafogli</b> completi</li><li><b>Composizione e pesi</b> di ogni portafoglio</li><li><b>Acquisto guidato</b> con il rischio del mese</li><li><b>Selezione di oggi</b>: le aziende con l'edge</li><li><b>Scheda completa</b> di ogni azienda</li><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li><li><b>Paesi</b> (sviluppati, emergenti e di frontiera), tabella completa</li></ul>
+    <div class="pgr"><div><span>Portafogli</span><ul><li><b>Composizione e pesi</b> di ogni profilo</li><li><b>Acquisto guidato</b> con il rischio del mese</li></ul></div><div><span>Azionario</span><ul><li><b>Azionario globale</b> completo</li><li><b>Selezione di oggi</b></li><li><b>Scheda completa</b> di ogni azienda</li></ul></div><div><span>Mercati</span><ul><li><b>COT completo, Forex e Crypto</b></li><li><b>Macro e Live</b></li><li><b>Stagionalità, volatilità e correlazioni</b></li></ul></div><div><span>Paesi</span><ul><li>Sviluppati, emergenti e di frontiera, <b>tabella completa</b></li></ul></div></div>
     </div>
   </div>
   <div class="pcta appare"><button class="btn pri" data-entra="reg" data-pos="accesso"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Inizia la prova</span></button>
@@ -540,15 +553,13 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
    <div class="foto"><img src="data:image/webp;base64,UklGRlgPAABXRUJQVlA4IEwPAABwWQCdASrwAPAAPqlQok0mJKqlo/JrOVAVCWNu3V4DPFC8gZTIX73HzN6W9CR+7gWKt/7Al+4BFBbhFIecFqJN/MJZvhzzjEsp0XbqLj6EBHmtCs4FHOwEHwdK8jwvCdy5QjimTNRelUheg1uQX7mH45PO13XqCz42GeoDNEOqddi3O3bvkcLyfYIsCNZz2m+pJw/dMRfJN3Gvm3t9ARKGZyvA/kYb5Cbc4y6VsbZv1NqciRiKMFmuNCs6712O3VLlXt395ckPyTKj2T6TVfimZGIyz/N6ymKHvipatPmh+6SMdagK4uyjnjolV+2Oak4zslkeJXGHnkE1qqO/mD368wEUJjezsMCCLieIXGPJCes2XOUVD73S/S9990qhZC8arYhmNRW6HP+AGgK+ggK2n9R091jiUPOs/Duf6j3h0MBVmz6eJlGD/KIqW704+LlkzbkT1HrYNyPfkxyr3vc4WfBakMWUasuEk86KYHs5EOv4qszaggYQNYoyWzF1fxA9OrLFkcUw0gq/X4sR+LkN/F6/9AVlVVE07foprkT+hdNddSD7CL9TRWzrHb/OvV+0lGINS7Ijd2fXzadhnk84tIEAnpNZb2RjBFAqGc26etI1Ck8Z/vUenWM8LQ0A6LRutMNAit6zk5rlb1oAshNDdqhG+grqwGFyJi7mqjz+NHcjyMDXg2Qv65EaqjEsw21f4nE591S+PWGKdem8ttLVt1LT06hS3MMl4K/BpE/xxxPNGewitffoI9i0oZevIbNiWEmnSym7YT+BYxxEmJqIf2Z5IkFmJvc/f6gE1WDBYK2KXa/fjosgkRQXCxi6nOl1EYKotqI/LKPqaV0SSMNZPzIiNcHH9p5aELbqGy6/vbgHPQ/6Qine/zx8uYfFzCC/HFIsLa/nxlaRWp2c2U5Y1w6m7c8jsM6i+1lUoqP9Pkh5a+bTUofXcyZ2CH5PvLIkfzAAAP73Wd92JzuAObPVRoYaIibDageNAtbKjmdt1dEuZhLe78fstcbNEcbL1KLSCLRY7lkJ3atgiZQ4SrUVXRzL6aNXUq7sYUMbdvFmb+h+ogLsfg5qqe041CEQv9tl38XlQKgAoPCyKLz0AXwyo5PQih0PqqW6f7tWWxCBT0Fogw5Y+VmdFuPni10zYJH7B+UDKxCXKzICJtIu2cbXRoCIaxQ1sxtGdDU8xcExE/mORZ2oDn5Gu/RuIqHnAfX5U0D5OnHQboDkirQTej0NEAWo0T0TiW7gWwCAAVHYLhGKum47vVbS4qb5dZh55HKIYEUlvnzETVMwcCr0MKfoR8rYkydHEik1vQnWaEof7nyf9tfr3jfBb/MBmitynygKFqNIyxWZs0gJNCejYnvBRb5WoACP3JADjrT4Up1Uvf2fe+lnDhd7vfHoQQJG7eX/EQvx6hPg17HSUzhvjMstqQzig5zHAAQ8n2HdilENklrcXb66neO64ksdsUDG2nZX/9q2wp7Q6HjsZa0cmwjz/WVICi0LQY98igLbmV48ka6soDbOr+ZVemPDIiU9xD5yHVJZ5FfW2X8y+hQMkqwc27JO6vvRvQ5JFK/4AMuff0AjvO84mS2nix+ZyZe6vPdIHIqKhTrYgFx+peL73KXuQa8ja1OE6D+2Gjm7Y16nfLQTGV1ab0kLX2d7vFPva4eV9oIK4J5IHPZnIfalgC8PTFCtETtwZ+hvbOiwKCSLKvfjgyaxSxhtHlMAHfzfzkpZucgsiUwt5evbV2vzuBhKRO5hISyu6erL16rPPX81hyYZm1v0DT/mgj3YJxuyU0khyJfP8hDCPLqa2DDZHuAaVOusG3UKQu4PmLa69yKP3zPsld/U1gWKeN9ikJT9+Okws39bxb4GmgBoG9IZUYPUUYndjrB+6kBt16T/XzMZ32nqZg7JadAnJlLEIym4GIdt5xE/0e2IZvWrVYG46jnWIqHUvmePH2PzLdMw8gwMWDmxZsNY0SIWlxHo4yrSvHrc1IctZt/5fFr2sHS1EecM9WkJGRf2rJsO1OSGBEXR+dq4KiBuUgKRVPTfthtZf+Kb16VKYy3HDUkDAv4Mde77UPEUNs7vtqQ378H3YtMjp2XtqYD5B+lLrdiud4dMldLumWIMQjXINCZY/EmQ0uK20fPrcqIc5UL/knQwPA9GeMdJDUplHYHMkPudKGeVR7aL0J4BWL07K6tmMIeNEhkn59zPoFTzWW1w+0sFpbgAdkl66aTNO6A3ct7I7m8/bHYxv1QVirZoCHlAgTeV5VNNkABKn/4BtG9ZXEqHkyZSzFh+0aECqQsZyF4IB/nZ5tWo/nqon6VCQ7q4ZSZLfr9V2MGLHR+kcJ1ZqbW+9XyA9i7w5dDk91vER+Hjuavln2KKhDWyCOk/AJrl8ro4VF78Os3FfPnxCrvcUO3HK0GxdEzXFLeWWQiQqXYgeXNCAmYkxDwN2zw1UU5DaZKa3z8B3SHlM+Zv+HDFzUqScs5r4teiQejA9LJz5ZW2+AKO1nQ7A7KmRAYGlqCldv9p/eRX2tWGlmVI5q5ED8ghv3bMX16UQcGMOsaPWt+a/De6bNYMWfwhOW6Ep4t4jKr0pgYPBvv/y3PgVb8pSoPkdTAHKLZiVhc0fTimHjB0kj1Md3cx5UvoVJlpETCtMS+dRlAYGN1ydOLheNLdabgxotyuvcEa4948JyKuf3HMFBCEdynV/uhaU0JQsRWBACs2gYQYJrPeiF/pwYUZ7ABw11RlJeQlFuZfp3cpxq4qzP9/vwjWcB844taM70FfirGer4luUeanegcZS1n3diEEQok7YMFOwBmzB8654lkQa49YzXpFSZUI15jeDKDUXdmQuz8SpDyWpkF6Xs6NVy3btZqyR2r9zgCtDirj9nhxfJPuPFh/BxB274UTjzwI1qRLo03fSdqsc/vm8SRhID99pFMPz/idd3ab+bWh8DoiNnhgTF6D4M4E4m8GS9sTSjl88PRr2zLDY5qKrIflrtK6jUlLSCppmJL/7iahWun0L9c6bxaMcyoSfiCMfawAIBwg26FR7HVOh9kOyjvyG6jpWTdqletwq7ArF/BedPuUDGeX9xq2Gp3UplvSfWxKS8D4cggV0Syw1p80jTOxrGpsJEZFKekf3nHV1u4isB7HSO3mBw633RU2Zs+ud5UBtW0DHMdYBF6Ba5/MnA5x2QrVbc3XitkCjSf4hOKPswnzJM1e9PEdslYx1ZNDZWvoBrarNYf1VHQ0rpPimT+fcftwUg0Xs/cUX0u3nKyZ1gAAOD5croeXM97d+3+XDNj79SPgdERsoq/h1cCLJlgnSNvzOVBr0uvUFLfK/eCF2ShS+dCz+VrTSiDJCK1hBZziACtZDrDK0AhYeqxYUO1ODYi2BDnhCa/ECh2Fhy6pdgVAURASRo8lITCzUg9uljXZQtsDcTOX4OCm9J3y5h00KhhY/IJewFA4vvktoG+4l07W2AemkTbRnRG6hvl0TvcPwhRQS1V7RRpCy10tq9pgQdeCQvA8pyQLKUlwD07HZaETrWsCZFcaHraUmASF/KRkzJ4WHxNb08RisXQpX/0qUb/15FPbA5KueCb6x0Us988TTbUqWZxi1nH9jFbS183rjYAqpavY2SJcGLqVrkUTTDqbS+QquPaOG+xSfjjnSUQX+zHhq8QT5vEHK/CHQl0XgNd2Ol0YI40TrImNibz3WUzGxlcbyZQUEaD9JNCQRKWoa4aVMNVTukdQTwT+XsDgSmw0uXbtGUKE+WqQWwlgrE4nmR16E/o8S8uSihRMzBbCA8l9Ycyo1LvC71QT9ideZldZfr+fTmAL5R7NwjpxG1RBtNresscsSaDf+YsHw5AuSt2LmUoQDMh7TiuorhzqF7iyxYXj5rPkDtaPXHVoiANfVTXmnwrcYbYfQIfTOsj2q9GnZSccj6imL83Ys3hzzH9podUujQmIYqOPRhSU5dMOVrfVCC9Xdzr6X5MD14PN54Qj8U98FgNmpk3li6A/QtHJUq1eR7y1XLF24BV7DTndjEuAzR+29kA/vekJVvLe8BQtfuFPfyUAYBng1LiVoNSOHXjQcCKQa+sFUxurLd7EZhW8yIHx6e4ASgs4AyYSM3tXhweiNX/qtY4YywGp7RHKovy/W2IAjIAYWWTqmdkZhxA+rB0irP0MW6ZHwb5yncJcZoLUkmmhbp047eXwywrT7PpQ5BC4IyhyQ7yKQepcLq2qtvfqa2h4AfPrLzqXZ8AZDUJuSfzvOKlb0rc7okt9a3P0bc1xexKGIS2oSsJbfyyiaFm1n2sTxDSjcIi0yo4WO0NARAvAXSodNjb2BEFoj9ly8zib1EUWu96fxgA6w4s5dxsWfGO60AV2iuOii2awCm+K7rwvqYjW/maERhi1GFNN9B6fRYIYilQ/R0YP3+cZc8tJP4SRORqDNCqInPzpndc5SGWzR+hk6U6GxAaNYoSKa6U8PT07T+3hT3i1ZiUWfuDJxof0LkTLboV3ror1pMNtVnH+lZbRr9c5/Pacxsem9qeiaHk+mmNtiJTTEMrkrA2sVG1QbXzT66s/HJ/2171po54xKNy1KOfgFsfBcNXGj19OqPsrwfflGfCUjGVWE5tflLzLbklbb+8oxF9wXGhHj7HBBN6ht1avsGnYyNPswiEsJObye1UYjpYXDB5muGnEldu20qzxS31CtPwf83X0ZFUmqmXHrhnqws/yMEg50XEDeTvvL9zgj3VmBvbSx4OK/icZO0wSIjPx2QrvSzm7FRJgyHLGf6UeBCMwKg8HuCDuFlg4byKA7tQpehSomzazhj/uAMxmHfHPIrbbogedO8z0NqfBTD2RRvyys8r1Fjeo8UoBhZeST7qDFi1QcDlWYrb93iz/ZRyEDm6GvtDekdv5EfhKY5lS1P5I0B/eCLrurmloloF0oRIWqEbLbCKEFmmCtBNI3H0wwYSCh8oej8DPJcvzTbMHQZ0mTOMTrLq80xSO5q295m3dpLPif8FqXQliVrlLg1G5/4tIlLOXJ99iZLZnbmU7SaBM6JTM9TIIoPKJIwjrvtHSRO9pxwxIuVdKLON/7MpHv4EazWulsvd+YLRGFYevnoQmsJEH7AutmgpH8dFGqtPPVdYVoUtdkIC/fiLfBacUVf9e7w1YokVSpmQB2vgJqcQnuHmMkg8dLEVfbnXHnFFgh4wPuHz2e4Wzrhun+2zIzkBtsrBy3VsUlTBUWiOJuFAqpHUTLVKxIurv4pUwuAAA" alt="Yahya Allouchi" width="150" height="150"></div>
    <!-- presentazione: i primi tre paragrafi si vedono subito, il resto si apre con "Continua a leggere" -->
    <div><span class="tag">Il fondatore di EdgeValor</span><h3>Yahya Allouchi</h3>
-    <p>Studio i mercati finanziari dal 2019. Il mio percorso è nato dall'esperienza diretta: trading, investimenti e, soprattutto, dagli errori che mi hanno spinto a comprendere meglio il funzionamento dei mercati e l'importanza della gestione del rischio.</p>
-    <p>Negli anni ho progressivamente ampliato il mio approccio, passando dall'operatività di breve periodo a una visione più ampia, basata sull'analisi quantitativa, sui dati macroeconomici, sui cicli economici e sulla diversificazione del capitale.</p>
-    <p>Ho approfondito principi di investimento e gestione patrimoniale attraverso lo studio di investitori come Ray Dalio e Warren Buffett, sviluppando un interesse particolare per la comprensione delle dinamiche economiche globali e dei comportamenti dei mercati nelle diverse fasi del ciclo.</p>
+    <p>Studio i mercati finanziari dal 2019. Ho iniziato con il trading e gli investimenti, e soprattutto con gli errori: mi hanno insegnato quanto conta la gestione del rischio.</p>
+    <p>Conciliare lavoro e investimenti mi chiedeva sempre più tempo: ore a raccogliere dati, leggere indicatori e valutare scenari economici.</p>
+    <p>Così ho trasformato anni di studio in un terminale che raccoglie e organizza dati finanziari e macroeconomici in un solo posto. È nato EdgeValor.</p>
     <details class="chialtro"><summary data-ev="chi_continua">Continua a leggere</summary>
-     <p><b>Da un'esigenza personale è nato EdgeValor.</b></p>
-     <p>Conciliare il lavoro e gli investimenti richiedeva sempre più tempo: ore dedicate alla raccolta dei dati, all'analisi degli indicatori e alla valutazione degli scenari economici.</p>
-     <p>Ho quindi deciso di trasformare anni di studio ed esperienza in un progetto tecnologico: un terminale quantitativo progettato per raccogliere, elaborare e organizzare dati finanziari e macroeconomici, offrendo una visione d'insieme dei mercati e strumenti di analisi strutturati.</p>
-     <p>L'obiettivo è semplice: ridurre la dipendenza dalle opinioni e favorire decisioni più consapevoli attraverso i dati, il metodo e la gestione del rischio.</p>
-     <p>EdgeValor non nasce per prevedere il futuro dei mercati, ma per comprenderne meglio le dinamiche.</p>
+     <p>Negli anni sono passato dall'operatività di breve periodo a una visione più ampia: analisi quantitativa, dati macroeconomici, cicli economici e diversificazione del capitale.</p>
+     <p>Ho studiato i principi di investitori come Ray Dalio e Warren Buffett, con un interesse particolare per le dinamiche economiche globali e per come si comportano i mercati nelle diverse fasi del ciclo.</p>
+     <p>L'obiettivo è ridurre la dipendenza dalle opinioni e aiutare decisioni più consapevoli, con dati, metodo e gestione del rischio. EdgeValor non nasce per prevedere il futuro dei mercati, ma per capirne meglio le dinamiche.</p>
      <p>Non sono un consulente finanziario.</p></details></div>
   </div>
  </div></section>
@@ -565,9 +576,9 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
  <section data-ev-vista="finale" data-pos="finale"><div class="box">
   <div class="finale appare">
    <h2>Parti dal tuo profilo.<br><span class="g">Il resto lo dicono i numeri.</span></h2>
-   <p>Entra nel terminale e guarda il portafoglio del mese. Sul canale Telegram arrivano il riepilogo settimanale e le notizie.</p>
+   <p>Entra nel terminale e guarda il portafoglio del mese. Su Telegram arrivano il riepilogo e le notizie.</p>
    <div class="cta">
-    <button class="btn pri" data-entra><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-etichetta>Accedi</span></button>
+    <button class="btn pri" data-entra="reg"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>Inizia la prova</span></button>
     <a class="btn sec" href="{{TELEGRAM}}" target="_blank" rel="noopener">Iscriviti al canale</a>
    </div>
   </div>

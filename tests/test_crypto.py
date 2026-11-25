@@ -14,11 +14,11 @@ def serie(giorni, p0, passo, vol, fine=date(2026, 11, 17)):
 
 
 class Crypto(unittest.TestCase):
-    def dati(self, vol_btc=30000.0):
+    def dati(self, vol_btc=30000.0, fine=date(2026, 11, 17)):
         d = {}
         for k, (sig, *_rest) in enumerate(C.MONETE[:6]):
-            d[sig] = {"sym": sig + "-USD.CC", "serie": serie(800, 100.0 + k, 1.0 + k, 1000.0 * (6 - k)), "fond": {}}
-        d["BTC"]["serie"] = serie(800, 20000.0, 50.0, vol_btc)
+            d[sig] = {"sym": sig + "-USD.CC", "serie": serie(800, 100.0 + k, 1.0 + k, 1000.0 * (6 - k), fine), "fond": {}}
+        d["BTC"]["serie"] = serie(800, 20000.0, 50.0, vol_btc, fine)
         return d
 
     def test_calcolo_base(self):
@@ -76,7 +76,7 @@ class Crypto(unittest.TestCase):
 
     def test_ripiego_copia(self):
         with tempfile.TemporaryDirectory() as t:
-            nuovo = C.per_pagina(lambda: self.dati(), cartella=t)
+            nuovo = C.per_pagina(lambda: self.dati(fine=date.today()), cartella=t)   # serie che finisce oggi: il test non scade
             self.assertTrue(os.path.isfile(os.path.join(t, C.FILE)))
             vecchio = C.per_pagina(lambda: {}, cartella=t)
             self.assertTrue(vecchio["vecchio"])

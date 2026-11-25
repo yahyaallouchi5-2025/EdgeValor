@@ -184,9 +184,10 @@ def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, ev
         except (TypeError, KeyError, ValueError):
             out.append("live.json non leggibile a borsa aperta.")
     # 4) workflow
-    for nome, (concl, url) in sorted((giri or {}).items()):
+    for nome, g in sorted((giri or {}).items()):
+        concl, url, passo = (tuple(g) + (None, None, None))[:3]          # v9.31 terzo valore: passo fallito
         if concl in ("failure", "timed_out", "startup_failure"):
-            out.append("Ultimo giro \"%s\" fallito: %s" % (nome, url))
+            out.append("Ultimo giro \"%s\" fallito%s: %s" % (nome, " al passo \"%s\"" % passo if passo else "", url))
     # 6) v7.66 archivio storico: serie che nessun giro aggiorna piu'
     fermi = archivio_fermo(adesso, archivio)
     if fermi:
@@ -298,15 +299,80 @@ def _prova(fn):
 
 
 def giri_workflow(token):
-    """{nome: (conclusione, url)} dell'ultimo giro CONCLUSO di ogni workflow sorvegliato."""
+    """{nome: (conclusione, url, passo)} dell'ultimo giro CONCLUSO di ogni workflow sorvegliato.
+    v9.31 passo = nome del primo passo fallito (None se il giro e' andato bene): la diagnosi arriva gia' nell'email."""
     out = {}
     for f, nome in WORKFLOW.items():
         js = _prova(lambda: _json("https://api.github.com/repos/%s/actions/workflows/%s/runs?status=completed&per_page=1"
                                   % (REPO, f), token))
         runs = (js or {}).get("workflow_runs") or []
         if runs:
-            out[nome] = (runs[0].get("conclusion"), runs[0].get("html_url"))
+            r, passo = runs[0], None
+            if r.get("conclusion") in ("failure", "timed_out") and r.get("jobs_url"):
+                jobs = (_prova(lambda: _json(r["jobs_url"], token)) or {}).get("jobs") or []
+                passo = next((st.get("name") for j in jobs for st in j.get("steps") or []
+                              if st.get("conclusion") in ("failure", "timed_out")), None)
+            out[nome] = (r.get("conclusion"), r.get("html_url"), passo)
     return out
+
+
+# --------------------------------------------------------------------------- v9.31 RIPARAZIONE AUTOMATICA
+# Idea di Ya (25/11/2026): "anomalie praticamente ogni giorno". Le due piu' frequenti sono guasti passeggeri di GitHub:
+#   - il ciclo dei prezzi live si ferma (GitHub non avvia la partenza programmata) -> si riavvia da solo;
+#   - un giro fallisce per un errore di rete o di un fornitore -> si rilancia UNA volta solo la parte fallita.
+# L'email parte solo se il problema e' ancora li' al controllo dopo (un'ora): niente email per i guasti che si
+# riparano da soli. Le riparazioni restano scritte nel registro (campo "azioni"), visibile solo al fondatore.
+ORE_TRA_RIAVVII = 2      # il ciclo live si riavvia al massimo una volta ogni 2 ore (mai a raffica)
+GIORNI_MEMORIA = 3       # dopo 3 giorni si dimenticano le riparazioni fatte
+
+
+def riparabile(testo):
+    """True se la sorveglianza prova a riparare da sola questo problema."""
+    return testo.startswith("Prezzi live fermi") or testo.startswith("Ultimo giro \"")
+
+
+def _api(url, token, corpo):
+    """POST all'API di GitHub che risponde senza contenuto (204/201). True se accettata."""
+    h = dict(UA, Authorization="Bearer " + token, Accept="application/vnd.github+json")
+    h["Content-Type"] = "application/json"
+    req = urllib.request.Request(url, data=json.dumps(corpo or {}).encode(), headers=h, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return 200 <= r.status < 300
+    except Exception as e:
+        print("riparazione non accettata (%s)" % type(e).__name__)
+        return False
+
+
+def ripara(prob, prec, adesso, token, chiama=None):
+    """Prova a riparare i problemi riparabili. -> (memoria aggiornata, elenco delle azioni fatte in questo giro).
+    memoria = {"live": iso dell'ultimo riavvio, "run_<id>": iso del rilancio}; chiama = funzione per i test."""
+    import re
+    chiama = chiama or _api
+    mem = {k: v for k, v in ((prec or {}).get("riparazioni") or {}).items()
+           if isinstance(v, str) and _eta_ore(adesso, v) < GIORNI_MEMORIA * 24}
+    azioni, ora = [], adesso.strftime("%Y-%m-%dT%H:%M:%SZ")
+    base = "https://api.github.com/repos/%s/actions/" % REPO
+    for p in prob:
+        if p.startswith("Prezzi live fermi"):
+            if "live" in mem and _eta_ore(adesso, mem["live"]) < ORE_TRA_RIAVVII:
+                continue
+            if token and chiama(base + "workflows/prezzi-live-continuo.yml/dispatches", token, {"ref": "main"}):
+                mem["live"] = ora
+                azioni.append("Prezzi live: ciclo riavviato in automatico.")
+        m = re.match(r'Ultimo giro "(.+?)" fallito.*?/runs/(\d+)', p)
+        if m and "run_" + m.group(2) not in mem:
+            if token and chiama(base + "runs/%s/rerun-failed-jobs" % m.group(2), token, {}):
+                mem["run_" + m.group(2)] = ora
+                azioni.append("%s: giro fallito rilanciato in automatico." % m.group(1))
+    return mem, azioni
+
+
+def _eta_ore(adesso, iso):
+    try:
+        return (adesso - datetime.strptime(iso, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)).total_seconds() / 3600
+    except ValueError:
+        return 1e9
 
 
 def telegram(testo, env):
@@ -333,20 +399,29 @@ def email_admin(oggetto, testo, env):
         return False
 
 
-def avvisa_email(prec, prob, adesso, env, invia=None):
-    """v9.20 decide l'email: problemi nuovi rispetto al registro precedente, oppure ritorno alla normalita'.
-    Restituisce (inviata o None se non serviva/non configurata). invia = funzione per i test."""
+def avvisa_email(prec, prob, adesso, env, invia=None, azioni=()):
+    """Decide l'email al fondatore. -> (esito, avvisate): esito True/False/None come email_admin (None = nessuna
+    email); avvisate = chiavi dei problemi gia' segnalati (si salvano nel registro: mai due email per lo stesso).
+    v9.31: un problema riparabile (prezzi live, giro fallito) si segnala solo se c'era gia' al controllo prima,
+    cioe' se la riparazione automatica non e' bastata. L'email "tutto regolare" parte solo dopo un avviso.
+    invia = funzione per i test; azioni = riparazioni fatte in questo giro (scritte nell'email)."""
     invia = invia or email_admin
-    prima = {a.get("k") for a in (prec or {}).get("aperte") or [] if isinstance(a, dict)}
+    prec = prec or {}
+    prima = {a.get("k") for a in prec.get("aperte") or [] if isinstance(a, dict)}
+    gia = {k for k in prec.get("avvisate") or [] if isinstance(k, str)}
+    ora_k = {chiave(p) for p in prob}
     from zoneinfo import ZoneInfo
     ora = adesso.astimezone(ZoneInfo("Europe/Rome")).strftime("%d/%m %H:%M")
-    nuovi = [p for p in prob if chiave(p) not in prima]
+    nuovi = [p for p in prob if chiave(p) not in gia and (not riparabile(p) or chiave(p) in prima)]
     if nuovi:
-        return invia("EdgeValor: anomalia (%s)" % ora, "Controllo automatico delle %s (ora italiana).\n\n- " % ora
-                     + "\n- ".join(prob), env)
-    if not prob and (prec or {}).get("esito") == "anomalie":
-        return invia("EdgeValor: tutto di nuovo regolare (%s)" % ora, "Tutto di nuovo regolare dalle %s." % ora, env)
-    return None
+        corpo = "Controllo automatico delle %s (ora italiana).\n\n- " % ora + "\n- ".join(prob)
+        if azioni:
+            corpo += "\n\nRiparazioni automatiche tentate:\n- " + "\n- ".join(azioni)
+        esito = invia("EdgeValor: anomalia (%s)" % ora, corpo, env)
+        return esito, sorted((gia | {chiave(p) for p in nuovi}) & ora_k)
+    if not prob and gia:
+        return invia("EdgeValor: tutto di nuovo regolare (%s)" % ora, "Tutto di nuovo regolare dalle %s." % ora, env), []
+    return None, sorted(gia & ora_k)
 
 
 def avvisa(prob, adesso, token, env):
@@ -388,16 +463,25 @@ def main(argv):
     cursore = _prova(lambda: _json(CURSORE_TG))
     prob = problemi(adesso, stato, indice, live, giri, orari_borse.leggi_remoto(), eventi, archivio, orari, cursore)
     print("\n".join(prob) if prob else "Tutto regolare.")
-    # v9.13 registro anomalie: il workflow mette il file precedente in ANOMALIE_PREC e pubblica ANOMALIE_OUT
-    uscita = env.get("ANOMALIE_OUT")
-    if uscita:
-        scrivi_registro(aggiorna_registro(leggi_json(env.get("ANOMALIE_PREC") or ""), prob, adesso), uscita)
+    prec = leggi_json(env.get("ANOMALIE_PREC") or "") or {}
+    reg = aggiorna_registro(prec, prob, adesso)
+    mem, azioni, avvisate = prec.get("riparazioni") or {}, [], prec.get("avvisate") or []
     if "--prova" not in argv:
-        # v9.20 prima l'email privata; la issue GitHub solo se l'email non e' configurata o non parte
-        esito = avvisa_email(leggi_json(env.get("ANOMALIE_PREC") or ""), prob, adesso, env)
+        # v9.31 prima si prova a riparare da soli, poi si decide se scrivere al fondatore
+        mem, azioni = ripara(prob, prec, adesso, token)
+        # v9.20 email privata; la issue GitHub solo se l'email non e' configurata o non parte
+        esito, avvisate = avvisa_email(prec, prob, adesso, env, azioni=azioni)
         configurata = env.get("SMTP_USER") and env.get("SMTP_PASSWORD") and env.get("ADMIN_EMAIL")
         if token and (not configurata or esito is False):
             avvisa(prob, adesso, token, env)
+    # v9.13 registro anomalie: il workflow mette il file precedente in ANOMALIE_PREC e pubblica ANOMALIE_OUT
+    from zoneinfo import ZoneInfo
+    quando = adesso.astimezone(ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d %H:%M")
+    reg.update(riparazioni=mem, avvisate=avvisate,
+               azioni=([{"t": quando, "testo": a} for a in azioni] + [x for x in prec.get("azioni") or [] if isinstance(x, dict)])[:30])
+    uscita = env.get("ANOMALIE_OUT")
+    if uscita:
+        scrivi_registro(reg, uscita)
     return 0
 
 

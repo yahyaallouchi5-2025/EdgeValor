@@ -87,17 +87,70 @@ if __name__ == "__main__":
 
 
 class TestEmailAdmin(unittest.TestCase):
-    """v9.20 avvisi solo per email privata: problema nuovo -> email; stesso problema -> niente; risolto -> email."""
+    """v9.20 avvisi solo per email privata. v9.31: i problemi riparabili si segnalano solo se restano al controllo
+    dopo (la riparazione automatica non e' bastata), mai due volte; "tutto regolare" solo dopo un avviso."""
     def test_email(self):
         from cot_radar import sorveglianza as s
         from datetime import datetime, timezone
         ora = datetime(2026, 11, 24, 17, 0, tzinfo=timezone.utc)
         inv = []
         f = lambda o, t, e: (inv.append(o), True)[1]
-        self.assertTrue(s.avvisa_email({}, ["Prezzi live fermi da 3 ore."], ora, {}, f))
-        reg = s.aggiorna_registro({}, ["Prezzi live fermi da 3 ore."], ora)
-        self.assertIsNone(s.avvisa_email(reg, ["Prezzi live fermi da 4 ore."], ora, {}, f))
-        self.assertTrue(s.avvisa_email(reg, [], ora, {}, f))
+        # problema NON riparabile: email subito, una volta sola
+        esito, avv = s.avvisa_email({}, ["Sito non aggiornato da 31 ore (x)."], ora, {}, f)
+        self.assertTrue(esito)
+        reg = dict(s.aggiorna_registro({}, ["Sito non aggiornato da 31 ore (x)."], ora), avvisate=avv)
+        self.assertEqual(s.avvisa_email(reg, ["Sito non aggiornato da 32 ore (x)."], ora, {}, f)[0], None)
+        self.assertTrue(s.avvisa_email(reg, [], ora, {}, f)[0])
         self.assertEqual(len(inv), 2)
         self.assertIn("regolare", inv[1])
         self.assertIsNone(s.telegram("x", {"TELEGRAM_BOT_TOKEN": "a", "TELEGRAM_ADMIN_CHAT": "b"}))
+
+    def test_riparabile_aspetta_un_giro(self):
+        from cot_radar import sorveglianza as s
+        from datetime import datetime, timezone
+        ora = datetime(2026, 11, 24, 17, 0, tzinfo=timezone.utc)
+        inv = []
+        f = lambda o, t, e: (inv.append(t), True)[1]
+        live = ["Prezzi live fermi da 80 minuti a borsa aperta."]
+        self.assertEqual(s.avvisa_email({}, live, ora, {}, f), (None, []))          # primo giro: si ripara, niente email
+        reg = s.aggiorna_registro({}, live, ora)
+        self.assertEqual(s.avvisa_email(reg, [], ora, {}, f), (None, []))           # riparato: nessuna email
+        esito, avv = s.avvisa_email(reg, ["Prezzi live fermi da 140 minuti a borsa aperta."], ora, {}, f,
+                                    azioni=["Prezzi live: ciclo riavviato in automatico."])
+        self.assertTrue(esito)                                                      # ancora fermo dopo un'ora: email
+        self.assertIn("Riparazioni automatiche", inv[0])
+        self.assertEqual(len(avv), 1)
+
+
+class TestRiparazione(unittest.TestCase):
+    """v9.31 riavvio del ciclo live (al massimo ogni 2 ore) e rilancio UNA volta di un giro fallito."""
+    def test_ripara(self):
+        from cot_radar import sorveglianza as s
+        from datetime import datetime, timedelta, timezone
+        ora = datetime(2026, 11, 25, 12, 0, tzinfo=timezone.utc)
+        chiamate = []
+        ch = lambda url, tok, corpo: (chiamate.append(url), True)[1]
+        prob = ["Prezzi live fermi da 90 minuti a borsa aperta.",
+                'Ultimo giro "Sito" fallito al passo "Pubblica": https://github.com/a/b/actions/runs/123']
+        mem, az = s.ripara(prob, {}, ora, "t", ch)
+        self.assertEqual(len(chiamate), 2)
+        self.assertTrue(chiamate[0].endswith("prezzi-live-continuo.yml/dispatches"))
+        self.assertTrue(chiamate[1].endswith("runs/123/rerun-failed-jobs"))
+        self.assertIn("run_123", mem)
+        self.assertEqual(len(az), 2)
+        # un'ora dopo: il live non si riavvia di nuovo, il giro 123 non si rilancia una seconda volta
+        mem2, az2 = s.ripara(prob, {"riparazioni": mem}, ora + timedelta(hours=1), "t", ch)
+        self.assertEqual(len(chiamate), 2)
+        self.assertEqual(az2, [])
+        # tre ore dopo il live si puo' riavviare di nuovo
+        s.ripara(prob, {"riparazioni": mem2}, ora + timedelta(hours=3), "t", ch)
+        self.assertEqual(len(chiamate), 3)
+        self.assertTrue(s.riparabile(prob[1]) and not s.riparabile("Sito non aggiornato da 31 ore."))
+
+    def test_passo_fallito_nel_testo(self):
+        from cot_radar import sorveglianza as s
+        from datetime import datetime, timezone
+        mar = datetime(2026, 11, 10, 15, 0, tzinfo=timezone.utc)
+        p = s.problemi(mar, {"creato": "2026-11-10 05:40:00", "esito": "ok"}, {"generato": "2026-11-10 12:00"},
+                       {"quando": mar.timestamp() - 600}, {"Sito": ("failure", "https://x/runs/9", "Pubblica")})
+        self.assertTrue(any('al passo "Pubblica"' in x for x in p))

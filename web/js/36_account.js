@@ -148,6 +148,21 @@
           admin:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
           esci:'<svg viewBox="0 0 24 24"><path d="M10 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19H10"/><path d="M15 8l4 4-4 4M19 12H10"/></svg>'};
  let ultimoInvio=0,inviato="";                                  // inviato = email a cui e' appena partito il link
+ /* v9.28 EMAIL CON LE OFFERTE (Black Friday, saldi...): Si'/No nel Profilo, salvato nel database (public.profili.offerte).
+    Le email di servizio sull'account arrivano sempre; questo spegne solo le offerte. Mai bloccante: se il database
+    non risponde i due pulsanti restano spenti. */
+ //  La riga sta subito sotto "Lingua" (stesse impostazioni, stesso allineamento) e c'e' solo con l'accesso fatto.
+ function offerte(){const ln=box.querySelector(".pflingua:not(.pfoff)");if(!ln||!window.ebAccount)return;
+  let r=box.querySelector(".pfoff");
+  if(!r){r=document.createElement("div");r.className="pflingua pfoff";
+   r.innerHTML=`<span>Email con le offerte</span><div class="vfseg" role="group" aria-label="Email con le offerte"><button type="button" data-off="1">S&igrave;</button><button type="button" data-off="0">No</button></div>`;
+   ln.after(r);}
+  const bs=[...r.querySelectorAll("button")];
+  const segna=v=>bs.forEach(b=>{b.classList.toggle("on",(b.dataset.off=="1")==!!v);b.disabled=false;});bs.forEach(b=>b.disabled=true);
+  ebAccount.rpc("mie_offerte").then(v=>segna(v!==false)).catch(()=>{});
+  bs.forEach(b=>b.onclick=()=>{const si=b.dataset.off=="1";bs.forEach(x=>x.disabled=true);
+   ebAccount.rpc("imposta_offerte",{si}).then(v=>{segna(v!==false&&si);avviso(si?"Riceverai le email con le offerte":"Non riceverai più email con le offerte");})
+   .catch(()=>{ebAccount.rpc("mie_offerte").then(v=>segna(v!==false)).catch(()=>{});avviso("Non riuscito: riprova tra poco");});});}
  function avviso(t){const a=document.createElement("div");a.className="lavv";a.setAttribute("role","status");a.textContent=t;document.body.appendChild(a);setTimeout(()=>a.remove(),3800);}
  function disegna(msg){const u=S&&chi();if(coda&&!u)coda.innerHTML="";
   if(u){const pn=piano();
@@ -157,6 +172,7 @@
      :`<button type="button" class="sitem pfvoce" disabled title="I pagamenti arrivano con l'apertura degli abbonamenti">${I.carta}<span>Gestisci abbonamento <small>presto</small></span></button>`}
     <a class="sitem pfvoce pfrec" href="${EB_TRUSTPILOT}" target="_blank" rel="noopener">${I.stella}<span>Lascia una recensione</span></a>
 `;
+   offerte();   // v9.28 interruttore delle email con le offerte stagionali
    const ab=box.querySelector(".pfabb");if(ab)ab.onclick=()=>{mostra(false);ebAbbonamento.apri();};   // v8.11 area abbonamento PayPal
    const ad=box.querySelector(".pfadmin");if(ad)ad.onclick=()=>{mostra(false);window.ebAdmin&&ebAdmin.apri();};
    // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati

@@ -171,6 +171,24 @@ JS_ACCEDI = """<script>(function(){var f=document.getElementById("facc");if(!f)r
   .catch(function(s){b.disabled=false;b.innerHTML=t;es.textContent=s==429?"Troppe richieste: riprova tra qualche minuto.":"Invio non riuscito. Riprova tra poco.";});});});})();</script>"""
 
 
+# v9.28 PAGINA /offerte/: il link "Non ricevere piu' offerte" in fondo alle email delle campagne porta qui con il codice
+#       personale (?no=...). La pagina chiama la funzione email-campagne, che spegne le offerte per quel profilo.
+#       Non e' nella sitemap e non va su Google (noindex). Le email di servizio sull'account continuano ad arrivare.
+OFFERTE = f"""
+<div class="titsez" style="margin-left:auto;margin-right:auto;text-align:center"><small>Email</small><h1 id="otit">Un momento…</h1>
+ <p id="otxt">Sto aggiornando la tua scelta.</p></div>
+<div class="fine" style="justify-content:center;text-align:center"><a class="btn sec" href="/terminale/">Torna al terminale</a></div>
+"""
+JS_OFFERTE = """<script>(function(){var t=document.getElementById("otit"),p=document.getElementById("otxt");
+ var no=(location.search.match(/[?&]no=([0-9a-fA-F-]{36})/)||[])[1];
+ function fine(a,b){t.textContent=a;p.textContent=b;}
+ if(!no){fine("Link non valido","Apri il link dall'email, oppure spegni le offerte dal tuo Profilo nel terminale.");return;}
+ fetch("__API__/functions/v1/email-campagne",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({no:no})})
+ .then(function(r){return r.json();}).then(function(j){if(j&&j.ok)fine("Fatto.","Non riceverai più email con le offerte. Le email sul tuo account continuano ad arrivare. Puoi riattivarle quando vuoi dal Profilo.");
+  else fine("Link non valido","Il link non è più attivo. Puoi spegnere le offerte dal tuo Profilo nel terminale.");})
+ .catch(function(){fine("Non riuscito","Riprova tra poco, oppure spegni le offerte dal tuo Profilo nel terminale.");});})();</script>"""
+
+
 def cornice(home):
     """(testa, piede) della home gia' costruita: le pagine pubbliche riusano stile, sfondo e pie' di pagina.
     None se la home non ha la forma attesa."""
@@ -225,4 +243,7 @@ def crea(cartella, home):
             if c and c["da"] <= datetime.now(ZoneInfo("Europe/Rome")):
                 desc = f"{c['nome']}: " + campagne._testi(c)[0]
         fatte.append(scrivi(cartella, nome, titolo, desc, corpo, testa, piede, qui=nome, extra=extra.get(nome, ""), head=head))
+    # v9.28 disiscrizione dalle offerte: pagina scritta ma NON restituita (fuori dalla sitemap) e fuori da Google
+    scrivi(cartella, "offerte", "Email con le offerte · EdgeValor", "Scegli se ricevere le email con le offerte di EdgeValor.",
+           OFFERTE, testa, piede, extra=JS_OFFERTE.replace("__API__", SUPABASE_URL), head='<meta name="robots" content="noindex">')
     return fatte
