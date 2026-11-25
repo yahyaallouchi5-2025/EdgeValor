@@ -319,7 +319,7 @@ def giri_workflow(token):
 # --------------------------------------------------------------------------- v9.31 RIPARAZIONE AUTOMATICA
 # Idea di Ya (25/11/2026): "anomalie praticamente ogni giorno". Le due piu' frequenti sono guasti passeggeri di GitHub:
 #   - il ciclo dei prezzi live si ferma (GitHub non avvia la partenza programmata) -> si riavvia da solo;
-#   - un giro fallisce per un errore di rete o di un fornitore -> si rilancia UNA volta solo la parte fallita.
+#   - un giro fallisce per un errore di rete o di un fornitore -> si avvia UNA volta un giro nuovo sul codice attuale.
 # L'email parte solo se il problema e' ancora li' al controllo dopo (un'ora): niente email per i guasti che si
 # riparano da soli. Le riparazioni restano scritte nel registro (campo "azioni"), visibile solo al fondatore.
 ORE_TRA_RIAVVII = 2      # il ciclo live si riavvia al massimo una volta ogni 2 ore (mai a raffica)
@@ -360,11 +360,14 @@ def ripara(prob, prec, adesso, token, chiama=None):
             if token and chiama(base + "workflows/prezzi-live-continuo.yml/dispatches", token, {"ref": "main"}):
                 mem["live"] = ora
                 azioni.append("Prezzi live: ciclo riavviato in automatico.")
+        # v9.31b si avvia un giro NUOVO sul codice piu' recente (non si rifa' il giro vecchio: il 25/11 il rilancio
+        # del "Test" fallito ripeteva il codice di prima della correzione e falliva di nuovo)
         m = re.match(r'Ultimo giro "(.+?)" fallito.*?/runs/(\d+)', p)
-        if m and "run_" + m.group(2) not in mem:
-            if token and chiama(base + "runs/%s/rerun-failed-jobs" % m.group(2), token, {}):
+        file = next((f for f, n in WORKFLOW.items() if m and n == m.group(1)), None)
+        if m and file and "run_" + m.group(2) not in mem:
+            if token and chiama(base + "workflows/%s/dispatches" % file, token, {"ref": "main"}):
                 mem["run_" + m.group(2)] = ora
-                azioni.append("%s: giro fallito rilanciato in automatico." % m.group(1))
+                azioni.append("%s: nuovo giro avviato in automatico." % m.group(1))
     return mem, azioni
 
 

@@ -135,7 +135,7 @@ class TestRiparazione(unittest.TestCase):
         mem, az = s.ripara(prob, {}, ora, "t", ch)
         self.assertEqual(len(chiamate), 2)
         self.assertTrue(chiamate[0].endswith("prezzi-live-continuo.yml/dispatches"))
-        self.assertTrue(chiamate[1].endswith("runs/123/rerun-failed-jobs"))
+        self.assertTrue(chiamate[1].endswith("workflows/sito.yml/dispatches"))
         self.assertIn("run_123", mem)
         self.assertEqual(len(az), 2)
         # un'ora dopo: il live non si riavvia di nuovo, il giro 123 non si rilancia una seconda volta
