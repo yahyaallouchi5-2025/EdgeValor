@@ -135,6 +135,27 @@ section{padding:110px 0}
 .dato{padding:30px;border-radius:22px;background:linear-gradient(180deg,rgba(11,29,66,.7),rgba(7,20,49,.5));border:1px solid var(--line)}
 .dato b{display:block;font:800 30px "Inter Display","Inter",system-ui;letter-spacing:-1px;margin-bottom:6px}
 .dato p{margin:0;color:var(--ink2);font-size:15.5px}
+/* v9.41 TRACCIA REALE (Ya, 26/11/2026): i portafogli mese per mese, solo mesi chiusi, dati da portafogli.traccia_reale */
+#reale[hidden]{display:none}
+.rl{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}@media (max-width:900px){.rl{grid-template-columns:1fr}}
+.rlc{position:relative;padding:26px 26px 22px;border-radius:22px;background:linear-gradient(180deg,rgba(11,29,66,.72),rgba(7,20,49,.5));border:1px solid var(--line);
+ display:flex;flex-direction:column;gap:14px;transition:border-color .25s,transform .25s,box-shadow .25s}
+.rlc:hover{border-color:rgba(46,196,182,.55);transform:translateY(-3px);box-shadow:0 18px 40px rgba(0,0,0,.35),0 0 30px rgba(46,196,182,.12)}
+.rlt{display:flex;align-items:center;gap:10px}.rlt svg{flex:none;width:22px;height:22px;fill:none;stroke:var(--acc);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rlt h3{margin:0;flex:1;font:800 20px "Inter Display","Inter",system-ui;letter-spacing:-.4px}
+.rlp{font-size:11.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:5px 10px;border-radius:99px;border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.rln{font:800 46px/1 "Inter Display","Inter",system-ui;letter-spacing:-1.5px}.rln.su{color:var(--buy)}.rln.giu{color:var(--sell)}
+.rld{margin-top:-8px;color:var(--mute);font-size:14px}
+.rlb{display:flex;gap:6px}.rlb span{position:relative;flex:1;max-width:34px;display:grid;grid-template-rows:52px 22px 18px}
+.rlb span::before{content:"";grid-row:1;grid-column:1;align-self:end;height:1px;background:var(--line);margin:0 -3px}
+.rlb i{grid-column:1;transition:filter .2s}.rlb i.su{grid-row:1;align-self:end;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#3ee0cf,#1fc48c);box-shadow:0 0 14px rgba(46,196,182,.25)}
+.rlb i.giu{grid-row:2;align-self:start;border-radius:2px 2px 6px 6px;background:linear-gradient(180deg,#f2716b,#ff8f8a);box-shadow:0 0 14px rgba(242,113,107,.25)}
+.rlb em{grid-row:3;grid-column:1;font-style:normal;text-align:center;font-size:11px;color:var(--mute);align-self:end}
+.rlb span:hover i{filter:brightness(1.2)}
+.rlr{display:flex;justify-content:space-between;gap:10px;font-size:14.5px;color:var(--ink2)}.rlr b{color:var(--ink);font-weight:700;white-space:nowrap}
+.rlnota{margin:22px 0 0;display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:16px;border:1px solid var(--line);background:rgba(10,22,48,.55);color:var(--mute);font-size:14px;line-height:1.5}
+.rlnota .i{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--acc);color:var(--acc);display:grid;place-items:center;font:700 12px Georgia,serif;font-style:italic}
+.rlnota b{color:var(--ink2);font-weight:600}
 /* chiamata finale */
 .finale{position:relative;text-align:center;padding:84px clamp(22px,6vw,80px);border-radius:32px;overflow:hidden;
  background:radial-gradient(700px 300px at 50% 0,rgba(46,196,182,.28),transparent 70%),linear-gradient(180deg,#0b1d42,#061331);border:1px solid rgba(46,196,182,.45)}
@@ -518,6 +539,15 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
   </div>
  </div></section>
 
+<!-- v9.41 TRACCIA REALE: i portafogli mese per mese dal 1/11/2026, solo mesi chiusi. Nascosta finche' non c'e' un mese
+      chiuso (V.reale, da portafogli.traccia_reale via vetrina.dentro). Nessun nome di strumento: solo i risultati. -->
+ <section id="reale" data-ev-vista="reale" hidden><div class="box">
+  <div class="titsez appare"><small>Traccia reale</small><h2>I portafogli, mese per mese.</h2>
+   <p>Dal 1° novembre 2026 ogni mese chiuso resta scritto qui, anche quando è negativo. Prezzi veri, costi inclusi, nessun ritocco.</p></div>
+  <div class="rl" id="rl"></div>
+  <p class="rlnota appare"><span class="i" aria-hidden="true">i</span><span>Aggiornato all'ultimo mese chiuso: <b id="rl-agg"></b>. Rendimenti in euro, acquisto al prezzo di chiusura del giorno di rotazione, costi inclusi, prima delle tasse. I risultati passati non garantiscono quelli futuri.</span></p>
+ </div></section>
+
  <!-- 2b. TELEGRAM: le notifiche del canale. Le due frasi con i numeri sono quelle che il canale manderebbe oggi. -->
  <section id="telegram" data-ev-vista="telegram"><div class="box">
   <div class="quadro">
@@ -740,6 +770,29 @@ var V={{DENTRO_JSON}};
 function conta(el){var fine=+el.dataset.conta||0,suf=el.dataset.suffisso||"",t0=null;if(fermo){el.textContent=fine+suf;return;}
  function f(t){t0=t0||t;var x=Math.min(1,(t-t0)/1400),e=1-Math.pow(1-x,3);el.textContent=Math.round(fine*e)+suf;if(x<1)requestAnimationFrame(f);}
  requestAnimationFrame(f);}
+
+/* ===== v9.41 TRACCIA REALE: card dei tre profili con i mesi chiusi (V.reale). Senza dati la sezione resta nascosta. ===== */
+(function(){try{var R=V&&V.reale,box=document.getElementById("reale");if(!R||!box||!R.mesi||!R.mesi.length)return;
+ var NOMI={conservativo:["Conservativo","basso",'<path d="M12 3l8 3v6c0 4.5-3.4 7.9-8 9-4.6-1.1-8-4.5-8-9V6z"/>'],
+  moderato:["Moderato","medio",'<path d="M12 4v16M5 20h14M6 7h12M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/>'],
+  aggressivo:["Aggressivo","alto",'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>']};
+ var MB=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"],
+  ML=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+ function f(v){return (v>0?"+":v<0?"\u2212":"")+Math.abs(v).toLocaleString("it-IT",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";}
+ function lm(m){return ML[+m.slice(5,7)-1]+" "+m.slice(0,4);}
+ var n=R.mesi.length,da=Math.max(0,n-12),mm=R.mesi.slice(da);          // al massimo gli ultimi 12 mesi nelle barre
+ var html=["conservativo","moderato","aggressivo"].filter(function(k){return R.profili[k];}).map(function(k,ix){
+  var p=R.profili[k],r=p.r.slice(da),mx=Math.max.apply(null,r.map(Math.abs).concat([0.1])),N=NOMI[k];
+  var bar=r.map(function(v,i){return '<span title="'+lm(mm[i])+': '+f(v)+'"><i class="'+(v<0?"giu":"su")+'" style="height:'+Math.max(5,Math.abs(v)/mx*(v<0?22:52))+'px"></i><em>'+MB[+mm[i].slice(5,7)-1]+'</em></span>';}).join("");
+  var riga=n>1?'<div class="rlr"><span>Mese migliore \u00b7 peggiore</span><b>'+f(Math.max.apply(null,p.r))+" \u00b7 "+f(Math.min.apply(null,p.r))+'</b></div>'
+   :'<div class="rlr"><span>Mesi chiusi</span><b>'+n+'</b></div>';
+  return '<div class="rlc appare" style="--d:'+(ix*.06)+'s"><div class="rlt"><svg viewBox="0 0 24 24" aria-hidden="true">'+N[2]+'</svg><h3>'+N[0]+'</h3><span class="rlp">Rischio '+N[1]+'</span></div>'+
+   '<div class="rln '+(p.tot<0?"giu":"su")+'">'+f(p.tot)+'</div><div class="rld">da '+lm(R.dal.slice(0,7))+'</div>'+
+   '<div class="rlb" role="img" aria-label="Rendimento mese per mese">'+bar+'</div>'+
+   '<div class="rlr"><span>S&amp;P 500 nello stesso periodo</span><b>'+f(R.sp.tot)+'</b></div>'+riga+'</div>';}).join("");
+ if(!html)return;
+ document.getElementById("rl").innerHTML=html;document.getElementById("rl-agg").textContent=lm(R.agg);box.hidden=false;
+}catch(e){console.error("[EdgeValor] traccia reale:",e);}})();
 
 /* ===== COMPARSA durante lo scroll + numeri ===== */
 var io="IntersectionObserver" in window?new IntersectionObserver(function(v){v.forEach(function(x){if(!x.isIntersecting)return;

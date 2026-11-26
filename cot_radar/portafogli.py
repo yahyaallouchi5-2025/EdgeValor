@@ -1690,6 +1690,54 @@ def confronto_sp(g, curva, off, i0, i1):
     return {"r": round((ult / b_s - 1) * 100, 1), "dd": round(dd * 100, 1)}, serie
 
 
+def traccia_reale(lives, sp, dal=None):
+    """v9.41 TRACCIA REALE per la home pubblica (box "I portafogli, mese per mese"; Ya, 26/11/2026).
+    lives = {id profilo: curva live [(data, valore)]} (rotazioni registrate, titoli veri, euro, acquisto prudente);
+    sp = curva dell'S&P 500 misurata allo stesso modo. Solo MESI CHIUSI (il mese in corso non si mostra: ancora aperto).
+    Ogni mese: rendimento dall'ultima chiusura del mese prima (o dal giorno della prima rotazione) all'ultima chiusura
+    del mese. -> {"dal", "agg" (ultimo mese chiuso), "mesi": ["AAAA-MM"...], "profili": {id: {"tot", "r": [...]}},
+    "sp": {"tot", "r": [...]}} oppure None se non c'e' ancora un mese chiuso."""
+    lives = {k: v for k, v in (lives or {}).items() if v}
+    if not lives or not sp:
+        return None
+    inizio = min(c[0][0] for c in lives.values())
+    if dal:
+        inizio = max(inizio, dal)
+    ultimo = max(c[-1][0] for c in lives.values())
+    corrente = ultimo[:7]
+
+    def mensili(curva):
+        """{mese: valore all'ultima chiusura del mese} + valore di partenza (giorno della prima rotazione)."""
+        fine, base = {}, None
+        for d, v in curva:
+            if d < inizio:
+                continue
+            if base is None:
+                base = v
+            fine[d[:7]] = v
+        return base, fine
+
+    mesi = sorted(m for m in mensili(next(iter(lives.values())))[1] if m < corrente)
+    if not mesi:
+        return None
+
+    def serie(curva):
+        base, fine = mensili(curva)
+        if base is None or any(m not in fine for m in mesi):
+            return None
+        r, prec = [], base
+        for m in mesi:
+            r.append(round((fine[m] / prec - 1) * 100, 1))
+            prec = fine[m]
+        return {"tot": round((fine[mesi[-1]] / base - 1) * 100, 1), "r": r}
+
+    profili = {k: s for k, s in ((k, serie(c)) for k, c in lives.items()) if s}
+    s_sp = serie(sp)
+    if not profili or not s_sp:
+        return None
+    return {"dal": inizio, "agg": mesi[-1], "mesi": mesi, "profili": profili, "sp": s_sp}
+
+
 def riepilogo_sp(mesi):
     """v8.54 RIEPILOGO in cima alle Rotazioni: i mesi mostrati (chiusi + in corso) messi in fila, portafoglio contro
     S&P 500. Rendimento composto, drawdown peggiore sull'intero tratto (calcolato sulla serie giornaliera concatenata,
@@ -1955,6 +2003,7 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
     rotazioni = leggi_rotazioni(cartella)
     out_prof, composizioni, comp_reg = [], {}, {}
     corrente, chiusi = [], {}
+    lives = {}                                          # v9.41 curve live dei profili (box "Traccia reale")
     # i 5 titoli del mese della rotazione (registrati dal vivo da satellite.py; prima del live: ultima scelta simulata)
     mese_rot = (attesa or g.date[ultimo_rib])[:7]
     satellite_n = 5                                     # regola fino a novembre 2026 (v7.61: poi quota divisa tra i tenuti)
@@ -2022,6 +2071,7 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
             pl = {g.pos[r["data"]]: dict(r["profili"].get(prof["id"], [])) for r in rotazioni if r["data"] in g.pos}
             if pl:
                 live = simula_prudente(g, pl, min(pl), fx=fxp, tassi=tep)      # live: titoli veri, in euro
+        lives[prof["id"]] = live                                               # v9.41 traccia reale (home)
         # MESE IN CORSO: dal giorno di rotazione (ingresso alla chiusura) a oggi, con i prezzi a fine giornata (EOD).
         # In attesa il mese nuovo non e' ancora iniziato: zero giorni, nessun risultato.
         r_m, dd_m = (0.0, 0.0) if attesa else mese_tratto(curva, giorni[0], ultimo_rib, len(g.date) - 1)
@@ -2149,6 +2199,7 @@ def calcola(righe_cot, px, cartella=CARTELLA, scrivi=True, oggi=None, sat=None, 
         **({"attesa": True, "decisa_al": g.date[-1]} if attesa else {}),
         "dal": g.date[giorni[0]], "oos_dal": OOS_DAL, "fonte": "Yahoo Finance (prezzi rettificati)",
         "profili": out_prof, "chiusure": chiusure,
+        "reale": traccia_reale(lives, sp_p, LIVE_V3_DAL),   # v9.41 mesi chiusi dal vivo, per la home pubblica
         # v6.87: benchmark misurato come i portafogli (euro, acquisto prudente)
         # v8.52 (decisione di Ya): il riferimento del grafico e della tabella e' l'S&P 500, non piu' il 60/40.
         #   E' lo stesso riferimento di beta e alfa in "Rischio e costi": un solo metro di paragone in tutta la pagina.

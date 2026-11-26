@@ -1,0 +1,29 @@
+NUOVI MERCATI COT - analisi del 26/11/2026 (report CFTC del 17/11/2026). Solo proposta: il sito non cambia.
+Oggi il terminale segue 55 mercati (cot_radar/config.py, ASSETS). Criteri per aggiungerne uno:
+  1) interesse aperto alto (posizioni vere, non un mercato di nicchia);
+  2) storico COT di almeno 8-10 anni (per poter provare il segnale sullo storico, come per gli altri);
+  3) strumento che un utente italiano puo' comprare (ETF/ETC) oppure utile come contesto;
+  4) non doppione di un mercato gia' seguito.
+
+PROPOSTI (in ordine)
+  Nikkei 225 (yen)            240743  interesse aperto  28.271   dal 2004  - azioni Giappone, unico grande indice
+                                                                             mancante; ETF Nikkei disponibili.
+  Euro / Sterlina             299741  interesse aperto  44.009   dal 2014  - cambio diretto dell'euro, utile per chi
+                                                                             investe dall'Italia.
+  Ultra Treasury 10 anni      043607  interesse aperto 2.612.312 dal 2016  - enorme e molto istituzionale; affianca il
+                                                                             Treasury 10 anni (lettura dei tassi).
+  Alluminio                   191693  interesse aperto  30.743   dal 2015  - metallo industriale, ETC disponibili.
+
+DA VALUTARE PIU' AVANTI
+  Euro / Yen                  399741  interesse aperto  20.825   dal 2017  - storico con molte settimane mancanti (252
+                                                                             report in 9 anni).
+  XRP (CME) 176740 e Solana (Coinbase) 177LM3 - storico di pochi mesi (dal 2025): segnale non verificabile.
+
+SCARTATI
+  Basi del gas ICE, energia elettrica PJM/ERCOT, swap ERIS: mercati per operatori professionali, non per i nostri utenti.
+  Canola, legname, etanolo, litio, cobalto: di nicchia o con storico troppo breve.
+  Micro e "Consolidated" S&P 500 / Nasdaq: stessa esposizione dei mercati gia' seguiti.
+
+PROSSIMO PASSO (se Ya approva): per ogni mercato proposto, la stessa prova dei mercati attuali (posizionamento
+estremo dei grandi speculatori e rendimento delle settimane dopo, studio fino al 2015 e verifica dal 2016) prima di
+metterlo nel terminale.

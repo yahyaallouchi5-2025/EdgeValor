@@ -200,7 +200,8 @@ def dentro(ultimi, cartella=None):
     dati, extra = ultimi.get("data") or {}, ultimi.get("extra") or {}
     pezzi = (("dash", lambda: _dashboard(dati, extra)), ("port", lambda: _portafoglio(extra)),
              ("az", lambda: _azioni(cartella)), ("stag", _stagionalita), ("paesi", lambda: _paesi(extra)),
-             ("tg", lambda: _telegram(dati, extra)))
+             ("tg", lambda: _telegram(dati, extra)),
+             ("reale", lambda: (extra.get("port") or {}).get("reale")))         # v9.41 traccia reale (mesi chiusi)
     out = {}
     for nome, fn in pezzi:
         try:
