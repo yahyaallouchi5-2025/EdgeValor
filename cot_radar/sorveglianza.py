@@ -50,6 +50,13 @@ from datetime import datetime, timedelta, timezone
 REPO = os.environ.get("GITHUB_REPOSITORY") or "yahyaallouchi5-2025/cot-radar"
 SITO = "https://" + REPO.split("/")[0] + ".github.io/" + REPO.split("/")[1] + "/"
 LIVE = "https://raw.githubusercontent.com/" + REPO + "/live/live.json"
+# v9.35 ACCESSO CON GOOGLE (26/11/2026: per alcune ore nessuno poteva entrare con Google perche' nel client OAuth
+#   "EdgeValor sito" di Google Cloud mancava l'indirizzo di ritorno di Supabase). Ad ogni giro si prova la partenza
+#   dell'accesso: Supabase -> Google. Se Google rifiuta la richiesta (errore 400, es. redirect_uri_mismatch) e' un'anomalia.
+#   URI di reindirizzamento OBBLIGATORIO nel client Google: CALLBACK_GOOGLE (non toglierlo mai).
+SUPABASE = "https://cwwmqujccwzmqougtedh.supabase.co"
+CALLBACK_GOOGLE = SUPABASE + "/auth/v1/callback"
+ACCEDI_GOOGLE = SUPABASE + "/auth/v1/authorize?provider=google&redirect_to=https%3A%2F%2Fedgevalor.com%2Fterminale%2F"
 ORE_SITO = 30            # il sito si ricostruisce almeno 2 volte al giorno nei feriali
 ORE_AZIONI = 30          # tre giri al giorno (Asia, Europa, USA)
 ORE_FINE_SETTIMANA = 64  # venerdi' sera -> lunedi' mattina
@@ -128,12 +135,54 @@ def _gm(iso):
     return iso[8:10] + "/" + iso[5:7]
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *a, **k):
+        return None
+
+
+def _senza_redirect(url):
+    """(stato HTTP, Location, inizio del corpo) senza seguire i reindirizzamenti."""
+    import urllib.error
+    apri = urllib.request.build_opener(_NoRedirect)
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (EdgeValor sorveglianza)"})
+    try:
+        r = apri.open(req, timeout=30)
+        return r.status, r.headers.get("Location") or "", r.read(20000).decode("utf-8", "replace")
+    except urllib.error.HTTPError as e:
+        return e.code, e.headers.get("Location") or "", (e.read(20000) or b"").decode("utf-8", "replace")
+
+
+def accesso_google(prova=None):
+    """None se l'accesso con Google parte bene, altrimenti la frase del problema (per problemi()).
+    prova(url) -> (stato, location, corpo): sostituibile nei test."""
+    prova = prova or _senza_redirect
+    try:
+        st, loc, _ = prova(ACCEDI_GOOGLE)
+        if st not in (301, 302, 303, 307) or "accounts.google.com" not in loc:
+            return "Accesso con Google non parte: Supabase risponde %s invece di mandare a Google." % st
+        st2, loc2, corpo = prova(loc)
+    except Exception as e:                                          # rete giu': non e' un guasto dell'accesso
+        print("controllo accesso Google non eseguito (%s)" % type(e).__name__)
+        return None
+    codici = ("redirect_uri_mismatch", "invalid_client", "deleted_client", "unauthorized_client", "disabled_client",
+              "access_denied", "invalid_request")
+    errore = next((c for c in codici if c in corpo or c in loc2), "")
+    if st2 >= 400 or "/signin/oauth/error" in loc2 or errore:
+        return ("Accesso con Google bloccato (Google: %s): nessuno puo' entrare con Google. Controlla in Google Cloud, "
+                "client OAuth \"EdgeValor sito\", che tra gli URI di reindirizzamento ci sia %s."
+                % (errore or "errore %s" % st2, CALLBACK_GOOGLE))
+    return None
+
+
 def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, eventi=None, archivio=None, orari=None,
-             cursore=None):
+             cursore=None, accesso=None):
     """Lista di frasi (in italiano) con cio' che non va. Vuota = tutto regolare.
     stato = stato.json del sito; indice = azioni/indice.json; live = live.json; giri = {nome: (conclusione, url)};
     cursore = notificati.json (v9.13, riepilogo COT su Telegram)."""
     out = []
+    # 0) v9.35 accesso con Google (frase gia' pronta da accesso_google(); None = funziona)
+    if accesso:
+        out.append(accesso)
     # 1) sito
     try:
         creato = _roma(stato["creato"], "%Y-%m-%d %H:%M:%S")
@@ -219,7 +268,7 @@ AREE = (("Sito", ("Sito ", "stato.json", "Ultimo aggiornamento del sito")), ("Fo
         ("COT", ("Report COT", "Data dell'ultimo COT")), ("Telegram", ("Riepilogo COT",)),
         ("Azionario", ("Azionario", "azioni/indice", "Titoli tolti", "Prezzi fermi da")),
         ("Prezzi live", ("Prezzi live", "live.json")), ("Workflow", ("Ultimo giro",)), ("Archivio", ("Archivio",)),
-        ("Stagionalità", ("Stagionalita'", "Indice della stagionalita'")))
+        ("Stagionalità", ("Stagionalita'", "Indice della stagionalita'")), ("Accesso", ("Accesso con Google",)))
 
 
 def area(testo):
@@ -464,7 +513,8 @@ def main(argv):
     archivio = _prova(lambda: _json(SITO + "archivio.json?t=%d" % adesso.timestamp()))
     orari = _prova(lambda: _json(ORARI)) or {}
     cursore = _prova(lambda: _json(CURSORE_TG))
-    prob = problemi(adesso, stato, indice, live, giri, orari_borse.leggi_remoto(), eventi, archivio, orari, cursore)
+    prob = problemi(adesso, stato, indice, live, giri, orari_borse.leggi_remoto(), eventi, archivio, orari, cursore,
+                    accesso=accesso_google())
     print("\n".join(prob) if prob else "Tutto regolare.")
     prec = leggi_json(env.get("ANOMALIE_PREC") or "") or {}
     reg = aggiorna_registro(prec, prob, adesso)
