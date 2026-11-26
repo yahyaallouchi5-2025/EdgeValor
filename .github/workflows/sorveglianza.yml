@@ -11,7 +11,7 @@
 name: Sorveglianza
 on:
   schedule:
-    - cron: "23 */3 * * *"
+    - cron: "23 * * * *"     # v9.35 ogni ora (prima ogni 3 ore): accesso con Google controllato di continuo
   workflow_dispatch:
 permissions:
   contents: write
