@@ -115,8 +115,11 @@ class Sorveglianza(unittest.TestCase):
         ev = {"delistati": {"BEZ.L": {"nome": "Beazley", "ultimo": "2026-10-15"}},
               "fermi": {"BEZ.L": "2026-10-15", "XYZ": "2026-10-30"}}
         p = S.problemi(adesso, eventi=ev)
-        self.assertTrue(any("BEZ.L (Beazley)" in x for x in p))
-        self.assertTrue(any("XYZ dal 2026-10-30" in x and "BEZ" not in x for x in p))
+        # v9.39 il titolo tolto dalla borsa non e' un'anomalia: va tra le riparate da sole
+        self.assertFalse(any("BEZ.L" in x for x in p))
+        self.assertTrue(any("XYZ dal 2026-10-30" in x for x in p))
+        self.assertEqual(S.eventi_automatici(ev), ["BEZ.L (Beazley) tolto dalla borsa: escluso in automatico da vetrina, "
+                                                   "titoli in sconto e portafogli."])
 
 
 if __name__ == "__main__":

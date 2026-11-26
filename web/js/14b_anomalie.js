@@ -45,7 +45,7 @@
    (gi.length?`<h4>${T("Ultime 72 ore")}</h4><div class="anore" role="img" aria-label="${T("Esito dei controlli orari")}">${gi.map(g=>`<i class="${g.n?"ko":"ok"}" title="${gm(g.t)} · ${g.n?g.n+" "+T("anomalie"):"OK"}"></i>`).join("")}</div>
     <div class="anleg"><span>${gm(gi[0].t)}</span><span>${gm(gi[gi.length-1].t)}</span></div>`:"")+
    // v9.31 riparazioni automatiche (riavvio dei prezzi live, giro fallito rilanciato): il problema si e' sistemato da solo
-   (((R&&R.azioni)||[]).length?`<h4>${T("Riparate da sole")}</h4><ul class="anl chiuse">${R.azioni.slice(0,8).map(x=>voce({area:/^Prezzi live/.test(x.testo)?"Prezzi live":"Workflow",testo:x.testo},gm(x.t))).join("")}</ul>`:"")+
+   (((R&&R.azioni)||[]).length?`<h4>${T("Riparate da sole")}</h4><ul class="anl chiuse">${R.azioni.slice(0,8).map(x=>voce({area:/^Prezzi live/.test(x.testo)?"Prezzi live":/tolto dalla borsa/.test(x.testo)?"Azionario":"Workflow",testo:x.testo},gm(x.t))).join("")}</ul>`:"")+
    (ch.length?`<h4>${T("Risolte")}</h4><ul class="anl chiuse">${ch.slice(0,12).map(a=>voce(a,`${gm(a.dal)} → ${gm(a.al)} · ${durata(ore(a.dal,a.al))}`)).join("")}</ul>`:"")+
    (!R&&!errore?`<p class="anvuoto">${T("carico…")}</p>`:"");
   box.querySelector(".ansott").textContent=R?T("Ultimo controllo")+" "+gm(R.agg)+" · "+T("ogni ora"):T("Controllo ogni ora");}

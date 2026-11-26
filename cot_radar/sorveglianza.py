@@ -250,17 +250,24 @@ def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, ev
                 out.append("Stagionalita' oraria non ricalcolata da %d ore (ultimo calcolo %s ora italiana)." % (h, orari["agg"]))
         except (TypeError, KeyError, ValueError):
             out.append("Indice della stagionalita' oraria non leggibile.")
-    # 5) titoli da togliere dall'elenco (azioni_elenco.csv)
+    # 5) v9.39 i titoli TOLTI DALLA BORSA non sono piu' un'anomalia: il terminale li gestisce gia' da solo (etichetta
+    #    "tolto dalla borsa", fuori da vetrina, titoli in sconto e portafogli). Finiscono tra le "Riparate da sole"
+    #    (eventi_automatici) e Claude li toglie dall'elenco nel suo controllo del registro. Restano anomalia i PREZZI
+    #    FERMI, che possono essere un guasto dei dati.
     ev = eventi or {}
     dl = sorted(ev.get("delistati") or {})
-    if dl:
-        out.append("Titoli tolti dalla borsa, da togliere da azioni_elenco.csv: %s."
-                   % ", ".join("%s (%s)" % (t, (ev["delistati"][t] or {}).get("nome") or "?") for t in dl))
     fe = sorted(set(ev.get("fermi") or {}) - set(dl))
     if fe:
         out.append("Prezzi fermi da oltre una settimana (sospesi o delistati?): %s."
                    % ", ".join("%s dal %s" % (t, ev["fermi"][t]) for t in fe))
     return out
+
+
+def eventi_automatici(eventi):
+    """v9.39 eventi del mercato gestiti in automatico (non anomalie): frasi per le "Riparate da sole" del registro."""
+    ev = eventi or {}
+    return ["%s (%s) tolto dalla borsa: escluso in automatico da vetrina, titoli in sconto e portafogli."
+            % (t, (ev["delistati"][t] or {}).get("nome") or "?") for t in sorted(ev.get("delistati") or {})]
 
 
 # --------------------------------------------------------------------------- registro anomalie (v9.13)
@@ -549,6 +556,9 @@ def main(argv):
     if "--prova" not in argv:
         # v9.31 prima si prova a riparare da soli, poi si decide se scrivere al fondatore
         mem, azioni = ripara(prob, prec, adesso, token)
+        # v9.39 titoli tolti dalla borsa: una riga sola per titolo tra le "Riparate da sole" (mai ripetuta)
+        gia = {x.get("testo") for x in prec.get("azioni") or [] if isinstance(x, dict)}
+        azioni = azioni + [a for a in eventi_automatici(eventi) if a not in gia]
         # v9.20 email privata; la issue GitHub solo se l'email non e' configurata o non parte
         esito, avvisate = avvisa_email(prec, prob, adesso, env, azioni=azioni)
         configurata = (env.get("SMTP_USER") and env.get("SMTP_PASSWORD") and env.get("ADMIN_EMAIL")) or \
