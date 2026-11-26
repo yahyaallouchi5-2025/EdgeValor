@@ -34,16 +34,60 @@
    <div class="nvcorpo">${N.slice(0,10).map((n,i)=>`<div class="nvmsg${n.d>vista?" nvnew":""}" style="--i:${i}">
     <div class="nvmeta"><time>${gg(n.d)}</time>${n.d>vista?'<em>Nuovo</em>':""}${n.p?'<em class="p">Premium</em>':""}${n.cambio?'<em class="c">Mercati</em>':""}</div>
     <b>${esc(n.t)}</b><p>${esc(n.x)}</p>${n.s?`<button type="button" class="nvvai" data-i="${i}">Mostrami <span aria-hidden="true">→</span></button>`:""}</div>`).join("")}</div>`;
-  document.body.appendChild(chat);requestAnimationFrame(()=>chat.classList.add("on"));fab.classList.add("aperto");
+  document.body.appendChild(chat);vicino();requestAnimationFrame(()=>chat.classList.add("on"));fab.classList.add("aperto");
   chat.querySelector(".nvx").onclick=chiudi;
   chat.querySelectorAll(".nvvai").forEach(b=>b.onclick=()=>{const n=N[+b.dataset.i];chiudi();mostra(n);});
   vista=N[0].d;try{localStorage.setItem("ebNovita",vista);}catch(e){}segna();
   setTimeout(()=>document.addEventListener("mousedown",fuori),0);document.addEventListener("keydown",esc1);}
+ // v9.34 con la bolla spostata la chat si apre accanto a lei (sopra o sotto, dove c'e' piu' spazio), sempre dentro
+ //   lo schermo. Su telefono (fino a 600 px) resta il foglio a tutta larghezza in basso.
+ function vicino(){if(!pos||innerWidth<=600)return;const b=fab.getBoundingClientRect(),c=chat.getBoundingClientRect(),g=12;
+  const L=Math.min(Math.max(MARGINE,b.right-c.width),innerWidth-c.width-MARGINE);
+  const sopra=b.top-g-MARGINE,sotto=innerHeight-b.bottom-g-MARGINE,suSopra=sopra>=sotto;
+  chat.style.left=Math.round(L)+"px";chat.style.right="auto";chat.style.maxHeight=Math.round(Math.min(560,innerHeight*.7,Math.max(sopra,sotto)))+"px";
+  if(suSopra){chat.style.top="auto";chat.style.bottom=Math.round(innerHeight-b.top+g)+"px";chat.style.transformOrigin="bottom right";}
+  else{chat.style.bottom="auto";chat.style.top=Math.round(b.bottom+g)+"px";chat.style.transformOrigin="top right";}}
  function chiudi(){if(!chat)return;const c=chat;chat=null;c.classList.remove("on");setTimeout(()=>c.remove(),220);fab.classList.remove("aperto");
   document.removeEventListener("mousedown",fuori);document.removeEventListener("keydown",esc1);}
  const fuori=e=>{if(chat&&!chat.contains(e.target)&&!fab.contains(e.target))chiudi();};
  const esc1=e=>{if(e.key=="Escape")chiudi();};
- fab.onclick=apri;
+ fab.onclick=e=>{if(spostato){spostato=false;e.preventDefault();return;}apri();};
+ // --- v9.34 BOLLA SPOSTABILE (idea di Ya, 25/11/2026): si trascina ovunque nella pagina, col mouse su PC e col dito su
+ //   telefono (tieni premuto e sposta). Un tocco o un clic senza spostamento la apre come prima.
+ //   ANTI-SFARFALLIO: un solo sistema di eventi (pointer, uguale per mouse e dito), posizione con left/top aggiornata
+ //   al massimo una volta per fotogramma (requestAnimationFrame), nessuna transizione durante il trascinamento,
+ //   niente effetto hover sui telefoni (stile.css). La bolla resta sempre dentro lo schermo, anche quando lo schermo
+ //   cambia (rotazione del telefono, finestra ridimensionata).
+ //   POSIZIONE RICORDATA su questo dispositivo (localStorage "ebNovitaPos", in frazioni dello schermo: vale per ogni misura).
+ //   DEBUG: localStorage.removeItem("ebNovitaPos") riporta la bolla nell'angolo in basso a destra.
+ const MARGINE=8,SOGLIA=6;let spostato=false,pos=null;
+ try{const v=JSON.parse(localStorage.getItem("ebNovitaPos")||"null");if(v&&isFinite(v.x)&&isFinite(v.y))pos=v;}catch(e){}
+ // frazioni (0..1) -> pixel dentro lo schermo
+ function metti(){if(!pos)return;const w=fab.offsetWidth,h=fab.offsetHeight,
+   L=MARGINE+pos.x*Math.max(0,innerWidth-w-2*MARGINE),T=MARGINE+pos.y*Math.max(0,innerHeight-h-2*MARGINE);
+  fab.style.left=Math.round(L)+"px";fab.style.top=Math.round(T)+"px";fab.style.right="auto";fab.style.bottom="auto";}
+ let tr=null,rif=0;
+ fab.addEventListener("pointerdown",e=>{if(e.button!==0)return;const r=fab.getBoundingClientRect();
+  tr={id:e.pointerId,x0:e.clientX,y0:e.clientY,dx:e.clientX-r.left,dy:e.clientY-r.top,via:false};
+  try{fab.setPointerCapture(e.pointerId);}catch(x){}       // i movimenti arrivano alla bolla anche se il puntatore corre via
+  if(e.pointerType=="mouse")e.preventDefault();});          // niente selezione del testo trascinando col mouse
+ fab.addEventListener("pointermove",e=>{if(!tr||e.pointerId!==tr.id)return;
+  if(!tr.via){if(Math.hypot(e.clientX-tr.x0,e.clientY-tr.y0)<SOGLIA)return;
+   tr.via=true;fab.classList.add("nvdrag");if(chat)chiudi();}
+  tr.cx=e.clientX;tr.cy=e.clientY;
+  if(!rif)rif=requestAnimationFrame(()=>{rif=0;if(!tr)return;const w=fab.offsetWidth,h=fab.offsetHeight,
+    L=Math.min(Math.max(MARGINE,tr.cx-tr.dx),innerWidth-w-MARGINE),T=Math.min(Math.max(MARGINE,tr.cy-tr.dy),innerHeight-h-MARGINE);
+   pos={x:(L-MARGINE)/Math.max(1,innerWidth-w-2*MARGINE),y:(T-MARGINE)/Math.max(1,innerHeight-h-2*MARGINE)};metti();});});
+ function fine(e){if(!tr||e.pointerId!==tr.id)return;const via=tr.via;tr=null;
+  if(rif){cancelAnimationFrame(rif);rif=0;}
+  try{fab.releasePointerCapture(e.pointerId);}catch(x){}
+  if(!via)return;spostato=true;setTimeout(()=>{spostato=false;},350);   // il clic che segue il rilascio non apre la chat
+  fab.classList.remove("nvdrag");
+  try{localStorage.setItem("ebNovitaPos",JSON.stringify(pos));}catch(x){}}
+ fab.addEventListener("pointerup",fine);fab.addEventListener("pointercancel",fine);
+ fab.addEventListener("dragstart",e=>e.preventDefault());
+ addEventListener("resize",()=>{if(pos)requestAnimationFrame(metti);});
+ metti();
  // --- faro sull'elemento nuovo ---
  function mostra(n){if(typeof go=="function"&&n.s)go(n.s);
   // v8.79 n.fn = nome di una funzione della scheda che apre da sola il punto giusto e restituisce l'elemento da
