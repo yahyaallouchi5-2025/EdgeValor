@@ -303,6 +303,13 @@ def crea(cartella):
         email_campagne_img.crea_tutte(cartella)
     except Exception as e:
         log.warning("immagini delle email non create (%s: %s)", type(e).__name__, e)
+    # v9.40 card di anteprima del sito (og:image, edgevalor.com/anteprima.jpg): marchio riconoscibile quando il link
+    #       viene condiviso. Stessi requisiti delle immagini delle email (Pillow + Inter); se mancano il sito esce lo stesso.
+    try:
+        from . import social_img
+        social_img.crea(cartella)
+    except Exception as e:
+        log.warning("anteprima del sito non creata (%s: %s)", type(e).__name__, e)
     # v8.06 icona del sito come file (per Google: favicon nei risultati e logo dell'organizzazione)
     with open(os.path.join(cartella, "favicon.svg"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(FAVICON_SVG)
