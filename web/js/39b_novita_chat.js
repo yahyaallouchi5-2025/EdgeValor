@@ -88,6 +88,42 @@
  fab.addEventListener("dragstart",e=>e.preventDefault());
  addEventListener("resize",()=>{if(pos)requestAnimationFrame(metti);});
  metti();
+ // --- v9.42 GUIDA "SI PUO' SPOSTARE" (Ya, 26/11/2026): molti non sanno che la stellina si muove. UNA VOLTA per
+ //   dispositivo (localStorage "ebNovitaGuida"): la pagina si scurisce, resta accesa solo la stellina, una mano la
+ //   prende, la sposta e la rimette al suo posto (due volte), con una riga di spiegazione. Si chiude con "Ho capito",
+ //   con un tocco ovunque o da sola dopo 9 secondi. Parte solo quando non c'e' nessuna finestra aperta (consenso,
+ //   benvenuto...) e la stellina e' visibile. Con "riduci movimento" niente animazione: solo la spiegazione.
+ //   DEBUG: localStorage.removeItem("ebNovitaGuida") e ricarica la pagina; oppure ebNovitaGuida() la mostra subito.
+ const MANO='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-.5V4a1.5 1.5 0 0 1 3 0v6m0-1a1.5 1.5 0 0 1 3 0v4.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-4.6-2.2L4.4 14.7a1.6 1.6 0 0 1 2.4-2.1L9 14.5"/></svg>';
+ function guida(forza){
+  if(document.querySelector(".nvguida"))return;
+  const r=fab.getBoundingClientRect();if(!r.width)return;
+  try{localStorage.setItem("ebNovitaGuida","1");}catch(e){}
+  if(chat)chiudi();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  // verso dello spostamento: verso il centro dello schermo (la stellina non esce mai dallo schermo)
+  const dx=(cx>innerWidth/2?-1:1)*Math.min(130,innerWidth*.28),dy=(cy>innerHeight/2?-1:1)*Math.min(110,innerHeight*.16);
+  const g=document.createElement("div");g.className="nvguida";g.setAttribute("role","dialog");g.setAttribute("aria-label","Novità spostabili");
+  g.style.setProperty("--cx",cx+"px");g.style.setProperty("--cy",cy+"px");
+  const sopra=cy>innerHeight/2,dx0=Math.max(16,Math.min(innerWidth-296,cx-140));
+  g.innerHTML=`<div class="nvgmano" style="left:${cx}px;top:${cy}px">${MANO}</div>
+   <div class="nvgtxt" style="left:${dx0}px;${sopra?`bottom:${innerHeight-r.top+dy*-1+70}px`:`top:${r.bottom+Math.abs(dy)+60}px`}">
+    <b>Puoi spostarla dove vuoi</b><span>Tieni premuta la stellina delle Novità e trascinala: resta dove la lasci.</span>
+    <button type="button" class="nvgok">Ho capito</button></div>`;
+  document.body.appendChild(g);
+  fab.style.setProperty("--gx",dx+"px");fab.style.setProperty("--gy",dy+"px");
+  g.querySelector(".nvgmano").style.setProperty("--gx",dx+"px");g.querySelector(".nvgmano").style.setProperty("--gy",dy+"px");
+  requestAnimationFrame(()=>{g.classList.add("on");fab.classList.add("nvdemo");});
+  let fatto=false;const fine=()=>{if(fatto)return;fatto=true;g.classList.remove("on");fab.classList.remove("nvdemo");
+   setTimeout(()=>{g.remove();fab.style.removeProperty("--gx");fab.style.removeProperty("--gy");},300);};
+  g.addEventListener("click",fine);setTimeout(fine,9000);}
+ window.ebNovitaGuida=()=>guida(true);
+ // una volta sola: si aspetta che la pagina sia pronta e libera da finestre (al massimo 2 minuti)
+ let gv=null;try{gv=localStorage.getItem("ebNovitaGuida");}catch(e){gv="1";}   // senza memoria del browser: mai
+ if(!gv){let n=0;const prova=()=>{n++;
+   const libera=!document.querySelector(".cmodal,.tginv,.ebvoto,.nvchat,.nvguida")&&getComputedStyle(fab).opacity!=="0"&&document.visibilityState=="visible";
+   if(libera)guida();else if(n<60)setTimeout(prova,2000);};
+  setTimeout(prova,3500);}
  // --- faro sull'elemento nuovo ---
  function mostra(n){if(typeof go=="function"&&n.s)go(n.s);
   // v8.79 n.fn = nome di una funzione della scheda che apre da sola il punto giusto e restituisce l'elemento da

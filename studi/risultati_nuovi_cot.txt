@@ -27,3 +27,15 @@ SCARTATI
 PROSSIMO PASSO (se Ya approva): per ogni mercato proposto, la stessa prova dei mercati attuali (posizionamento
 estremo dei grandi speculatori e rendimento delle settimane dopo, studio fino al 2015 e verifica dal 2016) prima di
 metterlo nel terminale.
+
+ESITO DELLA PROVA (26/11/2026, studi/studio_nuovi_cot.py v2, dettaglio in risultati_nuovi_cot_prova.txt)
+  Regola v2 (correzione di Ya): conta il guadagno medio nel verso del segnale AL NETTO della salita del mercato, positivo
+  sia nello studio sia nella verifica. La percentuale di segnali giusti da sola NON decide (vincite piu' grandi delle
+  perdite = profittevole anche sotto il 50%). La prima versione usava "giusti >= 52%": errore, corretto.
+    Nikkei 225        studio +0,85%  verifica +0,74%  (profit factor 1,39 / 1,39)  -> ENTRA
+    Euro/Sterlina     studio -0,06%  verifica -0,08%  (profit factor 0,90 / 0,84)  -> no
+    Ultra Treasury    studio -0,16%  verifica +0,16%  (profit factor 0,73 / 1,28)  -> no: non stabile
+    Alluminio         studio +0,36%  verifica -1,57%  (profit factor 1,22 / 0,46)  -> no
+  Confronto con mercati gia' nel sito: Euro +0,43% / +0,27% e Treasury 10 anni +0,22% / +0,18% passano;
+  lo Yen NON passa (studio +0,13%, verifica -0,43%, profit factor 0,67): da riesaminare.
+  DECISIONE PROPOSTA: aggiungere il Nikkei 225 con i segnali; gli altri tre no.

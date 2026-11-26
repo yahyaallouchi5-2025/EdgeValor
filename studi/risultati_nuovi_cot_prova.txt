@@ -1,0 +1,29 @@
+Punteggio COT e soglia del sito (cot_strength, NORMAL = 25 ), rendimento a 4 settimane nel verso del segnale
+
+Nikkei 225 (240743) - settimane COT 1128 dal 2004-11-30, divisione al 2016-01-01  -> ENTRA
+  studio    segnali  210  giusti  52.9%  vincita/perdita media 1.24  profit factor 1.39  medio  +0.84%  al netto della salita  +0.85%
+  verifica  segnali  210  giusti  51.4%  vincita/perdita media 1.32  profit factor 1.39  medio  +0.72%  al netto della salita  +0.74%
+
+Euro/Sterlina (299741) - settimane COT 534 dal 2014-06-10, divisione al 2021-10-12  -> solo contesto
+  studio    segnali   83  giusti  56.6%  vincita/perdita media 0.69  profit factor 0.90  medio  -0.08%  al netto della salita  -0.06%
+  verifica  segnali   76  giusti  36.8%  vincita/perdita media 1.45  profit factor 0.84  medio  -0.08%  al netto della salita  -0.08%
+
+Ultra Treasury 10 anni (043607) - settimane COT 557 dal 2016-03-08, divisione al 2021-07-20  -> solo contesto
+  studio    segnali  103  giusti  47.6%  vincita/perdita media 0.80  profit factor 0.73  medio  -0.20%  al netto della salita  -0.16%
+  verifica  segnali   91  giusti  50.5%  vincita/perdita media 1.25  profit factor 1.28  medio  +0.23%  al netto della salita  +0.16%
+
+Alluminio (191693) - settimane COT 576 dal 2015-10-06, divisione al 2021-05-18  -> solo contesto
+  studio    segnali   68  giusti  52.9%  vincita/perdita media 1.08  profit factor 1.22  medio  +0.26%  al netto della salita  +0.36%
+  verifica  segnali  110  giusti  38.2%  vincita/perdita media 0.75  profit factor 0.46  medio  -1.59%  al netto della salita  -1.57%
+
+[gia' nel sito] Euro (099741) - settimane COT 1465 dal 1986-01-15, divisione al 2016-01-01
+  studio    segnali  347  giusti  55.6%  vincita/perdita media 1.19  profit factor 1.49  medio  +0.43%  al netto della salita  +0.43%
+  verifica  segnali  191  giusti  52.4%  vincita/perdita media 1.29  profit factor 1.42  medio  +0.27%  al netto della salita  +0.27%
+
+[gia' nel sito] Yen (097741) - settimane COT 1944 dal 1986-01-15, divisione al 2016-01-01
+  studio    segnali  569  giusti  49.0%  vincita/perdita media 1.17  profit factor 1.13  medio  +0.13%  al netto della salita  +0.13%
+  verifica  segnali  211  giusti  47.9%  vincita/perdita media 0.73  profit factor 0.67  medio  -0.40%  al netto della salita  -0.43%
+
+[gia' nel sito] Treasury 10 anni (043602) - settimane COT 1944 dal 1986-01-15, divisione al 2016-01-01
+  studio    segnali  523  giusti  54.5%  vincita/perdita media 1.10  profit factor 1.31  medio  +0.25%  al netto della salita  +0.22%
+  verifica  segnali  227  giusti  54.2%  vincita/perdita media 1.07  profit factor 1.27  medio  +0.18%  al netto della salita  +0.18%
