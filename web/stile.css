@@ -4422,3 +4422,90 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* v9.48 colonne strette (PC piccolo, finestra ridotta): nome e conteggi un po' piu' piccoli, mai tagliati */
 .secv .sec{container-type:inline-size}
 @container (max-width:84px){.secv .sec>b{font-size:11px;letter-spacing:-.1px}.secv .sec>small{font-size:10px}}
+
+/* ==========================================================================
+   v9.50 SIDEBAR NUOVA (03c_sidebar.js, modello approvato da Ya il 26/11/2026)
+   Tutto qui sotto vale solo con .side.v2 / html.sidev2: le regole vecchie restano per sicurezza ma vengono superate.
+   Struttura: .sbrand | .scerca | .smezzo (scorre: Terminale + Il mio spazio) | .spiede (fisso: Telegram, dati, profilo)
+   ========================================================================== */
+.side.v2{width:272px;gap:12px;padding:16px 14px 14px;overflow:hidden;background:linear-gradient(180deg,#0c1a31,#081223)}
+.side.v2 .sbrand{margin:0;justify-content:flex-start;padding:2px 4px}
+.side.v2 .blogo{display:flex}
+.side.v2 .stg{margin-top:0!important}                       /* l'allineamento con le schede in alto non serve piu' */
+/* CERCA */
+.side.v2 .scerca{display:flex;align-items:center;gap:9px;width:100%;height:40px;padding:0 10px 0 12px;border-radius:12px;cursor:pointer;
+ background:rgba(14,30,62,.55);border:1px solid rgba(38,66,107,.85);color:var(--mute);font:500 13.5px system-ui;text-align:left;white-space:nowrap;overflow:hidden;transition:border-color .15s,background .15s}
+.side.v2 .scerca:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:rgba(14,30,62,.8)}
+.side.v2 .scerca span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.side.v2 .scerca kbd{font:600 11px system-ui;padding:2px 7px;border-radius:6px;border:1px solid rgba(38,66,107,.9);color:var(--mute)}
+/* PARTE CENTRALE CHE SCORRE (sfumatura in fondo: c'e' altro sotto) */
+.side.v2 .smezzo{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:14px;margin:0 -6px;padding:0 6px 18px;
+ scrollbar-width:thin;scrollbar-color:rgba(38,66,107,.9) transparent;overscroll-behavior:contain;
+ -webkit-mask:linear-gradient(#000 calc(100% - 22px),transparent);mask:linear-gradient(#000 calc(100% - 22px),transparent)}
+.side.v2 .sgruppo{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0;min-width:0}
+.side.v2 .smezzo>*,.side.v2 .lbox,.side.v2 .lbox *{min-width:0;max-width:100%}
+.side.v2 .stit2{font:750 10.5px system-ui;letter-spacing:1.1px;text-transform:uppercase;color:#7f93b4;padding:4px 10px 6px}
+.side.v2 .sitem{position:relative;height:40px;padding:0 10px;gap:11px;border-radius:11px;font:550 14px system-ui;color:var(--ink2)}
+.side.v2 .sitem>span{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side.v2 .snav.on{color:#fff;background:linear-gradient(90deg,rgba(46,196,182,.18),rgba(46,196,182,.04));box-shadow:inset 0 0 0 1px rgba(46,196,182,.28)}
+.side.v2 .snav.on::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--acc)}
+.side.v2 .snav.on>svg:first-child{color:var(--acc)}
+.side.v2 .snuovo{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);flex:none}
+.side.v2 .sfr,.side.v2 .sfreccia{width:15px;height:15px;color:var(--mute);transition:transform .2s}
+.side.v2 [aria-expanded="true"]>.sfr,.side.v2 [aria-expanded="true"]>.sfreccia{transform:rotate(180deg)}
+/* sottomenu Mercati */
+.side.v2 .ssub2{display:grid;gap:1px;margin:2px 0 4px 21px;padding-left:10px;border-left:1px solid rgba(38,66,107,.8)}
+.side.v2 .ssub2[hidden]{display:none}
+.side.v2 .ssv{display:flex;align-items:center;justify-content:space-between;height:32px;padding:0 10px;border:0;border-radius:9px;background:none;
+ color:var(--mute);font:500 13px system-ui;text-align:left;cursor:pointer}
+.side.v2 .ssv:hover{background:rgba(255,255,255,.04);color:var(--ink)}.side.v2 .ssv.on{color:#fff;background:rgba(255,255,255,.06)}
+.side.v2 .ssv svg{width:14px;height:14px}.side.v2 .stutti{color:var(--acc);font-weight:600}
+/* watchlist e invito */
+.side.v2 #lapri .sdett{display:none}
+.side.v2 .snum{margin-left:auto;min-width:22px;height:20px;padding:0 6px;border-radius:99px;display:grid;place-items:center;font:750 11px system-ui;font-style:normal;
+ color:var(--ink2);background:rgba(255,255,255,.08);border:0}
+.side.v2 .schip{margin-left:auto;font:750 10.5px system-ui;font-style:normal;padding:3px 8px;border-radius:99px;color:#2a1d00;background:linear-gradient(135deg,#ffe7a3,#f3c75f);white-space:nowrap}
+.side.v2 .lbox{margin:4px 0 6px}
+/* PIEDE FISSO */
+.side.v2 .spiede{display:grid;gap:10px;position:relative}
+.side.v2 .spiede .stg{padding:10px 12px;border-radius:12px;gap:11px}
+.side.v2 .spiede .stg svg{width:19px;height:19px}.side.v2 .spiede .stg b{font-size:13px}.side.v2 .spiede .stg small{font-size:11px}
+.side.v2 .spiede .sdati{margin:0}
+.side.v2 .sfondo{margin:0;position:static}
+.side.v2 #pfapri{height:auto;min-height:52px;padding:8px 10px;border-radius:14px;background:rgba(14,30,62,.55);border:1px solid rgba(38,66,107,.85)}
+.side.v2 #pfapri:hover{border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+.side.v2 #pfapri .sav{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;font:800 12.5px system-ui;color:#04211e;background:linear-gradient(135deg,#3ee0cf,#5b9bff)}
+.side.v2 #pfapri.conav>svg:first-of-type{display:none}
+/* menu del profilo: finestrella SOPRA la card, non spinge niente; scorre se e' lungo */
+.side.v2 #pfbox{position:absolute;left:0;right:0;bottom:calc(100% + 8px);   /* rispetto al piede intero: sta sopra Telegram e dati */
+ z-index:6;max-height:min(70vh,560px);overflow-y:auto;overscroll-behavior:contain;
+ padding:8px;border-radius:14px;background:#0b1527;border:1px solid rgba(38,66,107,.95);box-shadow:0 18px 44px rgba(0,0,0,.5)}
+.side.v2 #pfbox[hidden]{display:none}
+#scomprimi .sx{display:none}
+/* PC: la navigazione e' nella barra, quindi niente schede in alto e niente titolo ripetuto */
+@media (min-width:901px){
+ html.sidev2 #nav,html.sidev2 .top{display:none}
+ html.sidev2 .wrap{padding-top:28px}
+}
+/* BARRA RIDOTTA (solo icone, PC) */
+@media (min-width:901px){
+ html.ridotta .side.v2{width:72px;padding:16px 12px}
+ html.ridotta .side.v2 .scerca{justify-content:center;padding:0}html.ridotta .side.v2 .scerca span,html.ridotta .side.v2 .scerca kbd{display:none}
+ html.ridotta .side.v2 .stit2,html.ridotta .side.v2 .ssub2,html.ridotta .side.v2 .sfr,html.ridotta .side.v2 .sfreccia,html.ridotta .side.v2 .schip,
+ html.ridotta .side.v2 .snum,html.ridotta .side.v2 .snuovo,html.ridotta .side.v2 .sdtx{display:none}
+ html.ridotta .side.v2 .sitem{justify-content:center;padding:0}
+ html.ridotta .side.v2 .snav.on::before{left:-12px}
+ html.ridotta .side.v2 #pfapri{justify-content:center;padding:8px 0;background:none;border-color:transparent}
+ html.ridotta .side.v2 #pfapri>span:not(.sav),html.ridotta .side.v2 #pfapri .sfreccia{display:none}
+ html.ridotta .side.v2 #pfbox{left:0;right:auto;width:260px;bottom:0;left:calc(100% + 10px)}
+}
+/* TELEFONO E TABLET: cassetto; la pagina sotto non scorre mentre e' aperto */
+@media (max-width:900px){
+ .side.v2{width:min(86vw,320px)}
+ .side.v2 .scerca kbd{display:none}
+ html.sideon,html.sideon body{overflow:hidden}
+ html.sideon .nvfab{visibility:hidden}                       /* la stellina non copre il cassetto aperto */
+ #scomprimi .sx{display:block}#scomprimi svg:not(.sx){display:none}
+}
+/* stato dei dati (solo admin) nel piede: l'elenco delle fonti scorre da solo, non spinge fuori il profilo */
+.side.v2 .spiede #status{max-height:32vh;overflow-y:auto;overscroll-behavior:contain}
