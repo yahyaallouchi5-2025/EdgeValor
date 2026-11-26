@@ -46,7 +46,8 @@
    <div class="adnum"></div>
    <input type="search" class="adcerca" placeholder="Cerca email o ID" aria-label="Cerca email o ID">
    <div class="adlista" aria-live="polite"><p class="advuoto">Carico gli iscritti…</p></div>
-   <details class="admotivi"><summary>Motivi di uscita <b class="admn"></b></summary><div class="admcorpo"><p class="advuoto">Carico…</p></div></details></div>`;
+   <details class="admotivi"><summary>Motivi di uscita <b class="admn"></b></summary><div class="admcorpo"><p class="advuoto">Carico…</p></div></details>
+   <details class="admotivi adarch"><summary>Archivio pagamenti <b class="adan"></b></summary><div class="adacorpo admcorpo"><p class="advuoto">Carico…</p></div></details></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
   const chiudi=()=>{box.classList.remove("on");setTimeout(()=>box.remove(),220);document.removeEventListener("keydown",tasto);};
   const tasto=e=>{if(e.key=="Escape")chiudi();};document.addEventListener("keydown",tasto);
@@ -108,6 +109,14 @@
     ${r.slice(0,50).map(x=>`<div class="admriga"><small>${data(x.creato)} · ${esc(x.ev||"—")} · ${x.tipo=="abbonamento"?"Disdetta":"Offerte"}</small>
      <b>${MOT[x.motivo]||esc(x.motivo)}</b>${x.nota?`<p>${esc(x.nota)}</p>`:""}</div>`).join("")}`;})
    .catch(e=>{console.warn("[EdgeValor] admin: motivi non letti",e);mc.innerHTML=`<p class="advuoto">Motivi non disponibili.</p>`;});
+
+  // v9.35 ARCHIVIO PAGAMENTI degli account eliminati (obbligo fiscale: si conservano 10 anni)
+  const ac=box.querySelector(".adacorpo"),an=box.querySelector(".adan");
+  ebAccount.rpc("admin_archivio_pagamenti",{}).then(r=>{r=Array.isArray(r)?r:[];an.textContent=r.length||"";
+   ac.innerHTML=r.length?r.map(x=>`<div class="admriga"><small>Eliminato il ${data(x.archiviato)} · ${esc(x.ev||"—")}</small>
+     <b>${esc(x.email||"—")}</b><p>Piano ${esc(x.piano||"—")} · ${x.importo!=null?esc(String(x.importo))+" €":"—"} · ${esc(x.stato||"—")}${x.attivato?" · attivato il "+data(x.attivato):""}</p></div>`).join("")
+     :`<p class="advuoto">Nessun pagamento archiviato.</p>`;})
+   .catch(e=>{console.warn("[EdgeValor] admin: archivio non letto",e);ac.innerHTML=`<p class="advuoto">Archivio non disponibile.</p>`;});
 
   ebAccount.rpc("admin_utenti",{}).then(r=>{elenco=Array.isArray(r)?r:[];disegna();})
    .catch(e=>{console.warn("[EdgeValor] admin: elenco non letto",e);lista.innerHTML=`<p class="advuoto">Elenco non disponibile. Riprova tra poco.</p>`;});}

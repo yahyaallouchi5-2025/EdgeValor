@@ -144,7 +144,7 @@
         v7.80: nello stesso riquadro (parte fissa in index.html) ci sono anche Feedback, Guida e lo stato dei dati. --- */
  const box=$("pfbox"),conto=$("pfconto")||box,coda=$("pfcoda"),mob=()=>matchMedia("(max-width:900px)").matches;
  // v8.26 stella per "Lascia una recensione" (Trustpilot, si apre in una nuova scheda)
- const I={stella:'<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',carta:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/></svg>',
+ const I={cestino:'<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 12.5h9l1-12.5M10 11v5M14 11v5"/></svg>',stella:'<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',carta:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18M7 15h4"/></svg>',
           admin:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
           esci:'<svg viewBox="0 0 24 24"><path d="M10 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19H10"/><path d="M15 8l4 4-4 4M19 12H10"/></svg>'};
  let ultimoInvio=0,inviato="";                                  // inviato = email a cui e' appena partito il link
@@ -179,7 +179,11 @@
    const ab=box.querySelector(".pfabb");if(ab)ab.onclick=()=>{mostra(false);ebAbbonamento.apri();};   // v8.11 area abbonamento PayPal
    const ad=box.querySelector(".pfadmin");if(ad)ad.onclick=()=>{mostra(false);window.ebAdmin&&ebAdmin.apri();};
    // "Esci" va in fondo al riquadro (#pfcoda), dopo Feedback, Guida e stato dei dati
-   if(coda)coda.innerHTML=`<button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>`;
+   if(coda)coda.innerHTML=`<button type="button" class="sitem pfvoce pfesci">${I.esci}<span>Esci</span></button>
+    <button type="button" class="sitem pfvoce pfelim" hidden>${I.cestino}<span>Elimina account</span></button>`;
+   // v9.35 "Elimina account": solo se il database lo consente (mai per fondatore e team), finestre in 49_elimina.js
+   const el=box.querySelector(".pfelim");
+   if(el&&window.ebElimina)ebAccount.rpc("posso_eliminare_account").then(v=>{if(v===true){el.hidden=false;el.onclick=()=>{mostra(false);ebElimina.apri();};}}).catch(()=>{});
    box.querySelector(".pfesci").onclick=()=>{const t=S&&S.a;S=null;P=null;ADM=false;pronto=false;inviato="";salva();try{localStorage.removeItem("ebPK");}catch(e){}   // v7.93 la chiave Premium resta solo a chi e' dentro
 aggiorna();mostra(false);avviso("Sei uscito dal profilo");
     // v7.86: dopo l'uscita la pagina si ricarica e mostra la porta d'ingresso
@@ -228,7 +232,9 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   if(!mob()&&h.classList.contains("ridotta")){h.classList.remove("ridotta");try{localStorage.setItem("ebSide","aperta");}catch(e){}return mostra(true);}
   mostra(box.hidden);};
 
- window.ebAccount={ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente(),
+ // v9.35 dopo l'eliminazione dell'account: si dimentica la sessione su questo dispositivo (l'account non esiste piu')
+ function dimentica(){S=null;P=null;ADM=false;pronto=false;inviato="";salva();try{localStorage.removeItem("ebPK");}catch(e){}}
+ window.ebAccount={dimentica,ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente(),
   // v7.95 chiamata a una funzione del database con l'accesso dell'utente (usata dal riquadro Admin)
   rpc:(nome,corpo)=>db("rpc/"+nome,{method:"POST",body:JSON.stringify(corpo||{})}),
   // v8.11 per l'area abbonamento (46_abbonamento.js): codice di accesso valido e rilettura del profilo

@@ -3475,6 +3475,19 @@ body:has(.tginv) .nvfab,body:has(.ebvoto) .nvfab,body:has(.cmodal) .nvfab{opacit
 .abperdi b{font-size:14px;color:var(--ink)}.abperdi ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--ink2)}
 .abnota{margin:-4px 0 0;color:var(--ink2);line-height:1.45}
 .abesito{font-size:14px;color:var(--ink2);min-height:0}.abesito:empty{display:none}.abesito.ok{color:var(--b)}.abesito.ko{color:var(--s)}
+/* v9.35 ELIMINA ACCOUNT (49_elimina.js): due conferme, l'ultima con il pulsante rosso; voce discreta in fondo al Profilo */
+.elbox{width:min(500px,100%)}.elbox .cmodal-testa{position:relative}
+.elbox .cmodal-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.elbox .cmodal-ico.ko{color:var(--s);background:color-mix(in srgb,var(--s) 12%,transparent);border-color:color-mix(in srgb,var(--s) 40%,var(--line))}
+.eltxt{margin:0;font-size:15px;line-height:1.55;color:var(--ink2)}
+.elbox .cmodal-btn{justify-content:flex-end;margin-left:0}
+.elbox .cmodal-btn .ckill{height:42px;padding:0 20px;border-radius:11px;font:700 14px system-ui;cursor:pointer;border:1px solid #e5484d;background:#e5484d;color:#fff;
+ transition:background .15s,box-shadow .15s,transform .15s}
+.elbox .cmodal-btn .ckill:hover:not(:disabled){background:#f05257;box-shadow:0 8px 22px rgba(229,72,77,.35);transform:translateY(-1px)}
+.elbox .cmodal-btn button:disabled{opacity:.6;cursor:wait}
+@media (max-width:600px){.elbox .cmodal-btn{flex-direction:column-reverse}.elbox .cmodal-btn>*{width:100%;flex:none;min-height:48px}}
+.pfvoce.pfelim{color:var(--mute);font-size:13px}.pfvoce.pfelim:hover{color:var(--s)}.pfvoce.pfelim[hidden]{display:none}
+.adarch{margin-top:10px}.adarch .admriga b{font-variant-numeric:tabular-nums}
 /* v9.33 MOTIVI DI USCITA nel pannello admin (40_admin.js) */
 .admotivi{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--card2) 70%,transparent)}
 .admotivi summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 16px;font-weight:700;font-size:14px;color:var(--ink)}
