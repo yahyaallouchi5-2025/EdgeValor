@@ -98,7 +98,8 @@
 
   // v9.33 MOTIVI DI USCITA: perche' disdicono Premium o spengono le offerte (facoltativo per l'utente). Conteggio per
   // motivo in alto, poi le ultime risposte con la nota. Ogni nuovo motivo arriva anche via email all'admin.
-  const MOT={costo:"Costa troppo",manca:"Manca qualcosa",complesso:"Troppo complesso",poco_uso:"Lo usa poco",altro_servizio:"Altro servizio",
+  // v9.45 qui compaiono anche gli ACCOUNT ELIMINATI (tipo "account"): per quelli nessuna email (scelta di Ya).
+  const MOT={eliminato:"Account eliminato",costo:"Costa troppo",manca:"Manca qualcosa",complesso:"Troppo complesso",poco_uso:"Lo usa poco",altro_servizio:"Altro servizio",
    troppe_email:"Troppe email",non_interessa:"Offerte non interessano",altro:"Altro"};
   const mc=box.querySelector(".admcorpo"),mn=box.querySelector(".admn");
   ebAccount.rpc("admin_motivi_uscita",{}).then(r=>{r=Array.isArray(r)?r:[];mn.textContent=r.length||"";
@@ -106,7 +107,7 @@
    const c={};r.forEach(x=>{c[x.motivo]=(c[x.motivo]||0)+1;});
    const top=Object.entries(c).sort((a,b)=>b[1]-a[1]),max=top[0][1];
    mc.innerHTML=`<div class="admconta">${top.map(([k,n])=>`<div><span>${MOT[k]||k}</span><i style="--w:${Math.round(n/max*100)}%"></i><b>${n}</b></div>`).join("")}</div>
-    ${r.slice(0,50).map(x=>`<div class="admriga"><small>${data(x.creato)} · ${esc(x.ev||"—")} · ${x.tipo=="abbonamento"?"Disdetta":"Offerte"}</small>
+    ${r.slice(0,50).map(x=>`<div class="admriga"><small>${data(x.creato)} · ${esc(x.ev||"—")} · ${x.tipo=="abbonamento"?"Disdetta":x.tipo=="account"?"Eliminazione":"Offerte"}</small>
      <b>${MOT[x.motivo]||esc(x.motivo)}</b>${x.nota?`<p>${esc(x.nota)}</p>`:""}</div>`).join("")}`;})
    .catch(e=>{console.warn("[EdgeValor] admin: motivi non letti",e);mc.innerHTML=`<p class="advuoto">Motivi non disponibili.</p>`;});
 

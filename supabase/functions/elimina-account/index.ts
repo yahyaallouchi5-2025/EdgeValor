@@ -7,12 +7,12 @@
 //   4) account_prepara_eliminazione: copia i PAGAMENTI in privato.archivio_pagamenti (obbligo fiscale, 10 anni,
 //      lo legge solo l'admin) e rende anonime le richieste Premium con la sua email
 //   5) cancellazione dell'utente in Supabase Auth: profilo, lista, inviti e abbonamenti si cancellano a catena
-//   6) email breve SOLO all'admin (codice EV, mai l'email dell'utente)
-// SEGRETI (mai nel codice): SUPABASE_SERVICE_ROLE_KEY e RESEND_API_KEY nei secret delle Edge Functions.
+//   6) v9.45 (Ya): NESSUNA email. L'eliminazione si registra (codice EV, data, disdetta PayPal) e compare solo nel
+//      pannello Admin, sezione "Motivi di uscita" (rpc account_eliminato_registra -> admin_motivi_uscita)
+// SEGRETI (mai nel codice): SUPABASE_SERVICE_ROLE_KEY nei secret delle Edge Functions.
 
 const URL_DB = Deno.env.get("SUPABASE_URL")!;
 const CHIAVE_DB = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const RESEND = Deno.env.get("RESEND_API_KEY") || "";
 const CORS = { "Access-Control-Allow-Origin": "https://edgevalor.com", "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info" };
 const json = (o: unknown, s = 200) => Response.json(o, { status: s, headers: CORS });
@@ -24,19 +24,10 @@ async function rpc(nome: string, corpo: Record<string, unknown> = {}) {
   return r.status == 204 ? null : r.json();
 }
 
-// email breve all'admin (indirizzo dal database)
-async function avvisaAdmin(ev: string, disdetto: boolean) {
-  if (!RESEND) return;
-  const a = await rpc("email_admin").catch(() => "") as string;
-  if (!a) return;
-  const ora = new Date().toLocaleString("it-IT", { timeZone: "Europe/Rome", dateStyle: "short", timeStyle: "short" });
-  const testo = `Account eliminato dall'utente: ${ev || "—"} (${ora}).` +
-    (disdetto ? "\nAveva un abbonamento attivo: disdetto su PayPal prima dell'eliminazione." : "") +
-    "\nI pagamenti, se c'erano, sono nell'archivio (Admin · Iscritti → Archivio pagamenti).";
-  await fetch("https://api.resend.com/emails", { method: "POST",
-    headers: { Authorization: `Bearer ${RESEND}`, "Content-Type": "application/json", "Idempotency-Key": `elimina-${ev}-${Date.now()}` },
-    body: JSON.stringify({ from: "EdgeValor <info@edgevalor.com>", to: [a], subject: `Account eliminato · ${ev || "utente"}`, text: testo }) })
-    .catch((e) => console.error("[elimina-account] email admin", e));
+// v9.45 registra l'eliminazione per il pannello Admin. Un errore qui NON annulla nulla: l'account e' gia' eliminato.
+async function registra(ev: string, disdetto: boolean) {
+  await rpc("account_eliminato_registra", { p_ev: ev, p_disdetto: disdetto })
+    .catch((e) => console.error("[elimina-account] registro eliminazioni", e));
 }
 
 Deno.serve(async (req) => {
@@ -71,8 +62,8 @@ Deno.serve(async (req) => {
     const del = await fetch(`${URL_DB}/auth/v1/admin/users/${id}`, { method: "DELETE",
       headers: { apikey: CHIAVE_DB, Authorization: `Bearer ${CHIAVE_DB}` } });
     if (!del.ok) throw new Error("cancellazione utente HTTP " + del.status);
-    // 6) avviso all'admin
-    await avvisaAdmin(prep?.ev || "", disdetto);
+    // 6) solo registro per il pannello Admin, nessuna email
+    await registra(prep?.ev || "", disdetto);
     return json({ ok: true });
   } catch (e) {
     console.error("[elimina-account] errore", e);
