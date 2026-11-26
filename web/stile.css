@@ -4486,10 +4486,17 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 @media (min-width:901px){
  html.sidev2 #nav,html.sidev2 .top{display:none}
  html.sidev2 .wrap{padding-top:28px}
+ /* v9.51 ALLINEAMENTO (Ya, 26/11/2026): la fascia del logo parte a 28px ed e' alta 48px, come la prima card della pagina,
+    cosi' logo e prima card stanno sulla stessa linea orizzontale */
+ html.sidev2 .side.v2{padding-top:28px}
+ .side.v2 .sbrand{min-height:var(--fascia,48px);align-items:center;padding-top:0;padding-bottom:0}   /* --fascia: altezza della prima card (03c_sidebar.js) */
 }
 /* BARRA RIDOTTA (solo icone, PC) */
 @media (min-width:901px){
- html.ridotta .side.v2{width:72px;padding:16px 12px}
+ html.ridotta .side.v2{width:72px;padding:28px 12px 16px;gap:12px}   /* v9.51: stesso passo di 12px tra logo, espandi, cerca e icone */
+ html.ridotta .side.v2 .sbrand{gap:12px}
+ html.ridotta .side.v2 .blogo{flex:none;height:var(--fascia,48px);align-items:center;justify-content:center}   /* logo centrato nella fascia della prima card */
+ html.ridotta .side.v2 .blogo i{align-self:center;height:22px}
  html.ridotta .side.v2 .scerca{justify-content:center;padding:0}html.ridotta .side.v2 .scerca span,html.ridotta .side.v2 .scerca kbd{display:none}
  html.ridotta .side.v2 .stit2,html.ridotta .side.v2 .ssub2,html.ridotta .side.v2 .sfr,html.ridotta .side.v2 .sfreccia,html.ridotta .side.v2 .schip,
  html.ridotta .side.v2 .snum,html.ridotta .side.v2 .snuovo,html.ridotta .side.v2 .sdtx{display:none}

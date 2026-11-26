@@ -88,5 +88,19 @@ try{(function(){const side=$("side"),nav=$("nav");if(!side||!nav)return;
   term.querySelectorAll(".snav[data-vai]").forEach(b=>{const n=nav.querySelector(`button[data-t="${b.dataset.vai}"]`),i=b.querySelector(".snuovo");
    if(n&&i)i.hidden=!(n.classList.contains("nuovo")||n.querySelector(".ndot,.nvpunto"));});}
  new MutationObserver(segna).observe(nav,{attributes:true,attributeFilter:["class"],subtree:true});segna();
- window.ebSidebar={segna,apriMercati};
+ // ---- 5) v9.51 ALLINEAMENTO CON LA PRIMA CARD (solo PC): la fascia del logo prende l'altezza della prima card della pagina
+ //   (striscia Black Friday, avviso dati, ecc.) cosi' inizio e fine coincidono. Card piu' alta di 64px = resta 48px (allinea l'inizio).
+ const wrap=document.querySelector(".wrap");
+ function primaCard(){if(!wrap)return null;const vis=e=>e&&e.offsetHeight>0&&getComputedStyle(e).position!="fixed";
+  let el=[...wrap.children].find(vis);if(el&&el.id=="sig")el=[...el.children].find(vis);return el||null;}
+ let roC=null,ultimaC=null,attesa=0;
+ function fascia(){attesa=0;const c=primaCard();
+  if(c!==ultimaC){if(roC)roC.disconnect();ultimaC=c;if(c&&window.ResizeObserver){roC=new ResizeObserver(()=>pianifica());roC.observe(c);}}
+  const hh=c?Math.round(c.getBoundingClientRect().height):0,v=hh>=36&&hh<=64?hh:48;
+  if(side.style.getPropertyValue("--fascia")!=v+"px")side.style.setProperty("--fascia",v+"px");}
+ const pianifica=()=>{if(!attesa)attesa=requestAnimationFrame(fascia);};
+ if(wrap){new MutationObserver(pianifica).observe(wrap,{childList:true,subtree:false,attributes:true,attributeFilter:["hidden","style","class"]});
+  const sg=$("sig");if(sg)new MutationObserver(pianifica).observe(sg,{childList:true});}
+ addEventListener("resize",pianifica);fascia();
+ window.ebSidebar={segna,apriMercati,fascia};
 })();}catch(e){fail("Barra laterale","side",e);}
