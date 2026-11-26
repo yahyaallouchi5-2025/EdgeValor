@@ -15,6 +15,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  id-token: write   # v9.38 token OIDC per la funzione avviso-admin (email all'admin e al team, nessuna password)
   issues: write
   actions: write
 concurrency:
