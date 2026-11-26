@@ -42,5 +42,10 @@ class AccessoGoogle(unittest.TestCase):
         self.assertEqual(p[0], "Accesso con Google bloccato (Google: x)")
 
 
+class EmailSenzaSmtp(unittest.TestCase):
+    def test_fuori_da_github_nessuna_email(self):
+        self.assertIsNone(S.email_admin("x", "y", {}))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -432,11 +432,35 @@ def telegram(testo, env):
     return None
 
 
+AVVISO_ADMIN = SUPABASE + "/functions/v1/avviso-admin"
+
+
+def email_via_supabase(oggetto, testo, env):
+    """v9.37 email all'admin (e in copia al team) tramite la funzione avviso-admin, autenticata con il token OIDC di
+    GitHub Actions (permesso id-token: write nel workflow): nessuna password da custodire.
+    True = inviata, None = token OIDC non disponibile (fuori da GitHub Actions), False = errore."""
+    url_t, tok = env.get("ACTIONS_ID_TOKEN_REQUEST_URL"), env.get("ACTIONS_ID_TOKEN_REQUEST_TOKEN")
+    if not (url_t and tok):
+        return None
+    try:
+        req = urllib.request.Request(url_t + "&audience=edgevalor-avvisi", headers={"Authorization": "Bearer " + tok})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            oidc = json.load(r)["value"]
+        corpo = json.dumps({"oggetto": oggetto, "testo": testo}).encode()
+        req = urllib.request.Request(AVVISO_ADMIN, data=corpo, method="POST",
+                                     headers={"Authorization": "Bearer " + oidc, "Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.load(r).get("ok") is True
+    except Exception as e:                                    # mai il token nei log: solo il tipo di errore
+        print("email via Supabase non inviata (%s)" % type(e).__name__)
+        return False
+
+
 def email_admin(oggetto, testo, env):
     """v9.20 email privata al fondatore (v9.37 in copia al team, se TEAM_EMAIL e' impostato). True = inviata, None = non configurata, False = errore (si ripiega sulla issue)."""
     utente, password, dest = env.get("SMTP_USER"), env.get("SMTP_PASSWORD"), env.get("ADMIN_EMAIL")
     if not (utente and password and dest):
-        return None
+        return email_via_supabase(oggetto, testo, env)      # v9.37 strada principale: niente SMTP da configurare
     msg = EmailMessage()
     msg["Subject"], msg["From"], msg["To"] = oggetto, utente, dest
     # v9.37 copia all'account del team (Secret TEAM_EMAIL): la casella che legge anche Claude, per intervenire subito
@@ -527,7 +551,8 @@ def main(argv):
         mem, azioni = ripara(prob, prec, adesso, token)
         # v9.20 email privata; la issue GitHub solo se l'email non e' configurata o non parte
         esito, avvisate = avvisa_email(prec, prob, adesso, env, azioni=azioni)
-        configurata = env.get("SMTP_USER") and env.get("SMTP_PASSWORD") and env.get("ADMIN_EMAIL")
+        configurata = (env.get("SMTP_USER") and env.get("SMTP_PASSWORD") and env.get("ADMIN_EMAIL")) or \
+            env.get("ACTIONS_ID_TOKEN_REQUEST_URL")
         if token and (not configurata or esito is False):
             avvisa(prob, adesso, token, env)
     # v9.13 registro anomalie: il workflow mette il file precedente in ANOMALIE_PREC e pubblica ANOMALIE_OUT
