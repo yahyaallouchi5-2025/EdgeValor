@@ -4282,6 +4282,15 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 @media (max-height:720px){.bfbox{padding:22px 24px 16px}.bfbox h2{font-size:clamp(28px,5vw,36px)}.bfalto{margin-bottom:10px}
  .bfconto2{margin:12px 0 14px}.bfnum{padding:8px 0 7px}.bfnum b{font-size:24px}.bfpiani{margin-bottom:12px}.bfpiano{padding:12px 14px 10px}.bfvai{height:46px}}
 @media (prefers-reduced-motion:reduce){.bfstrip::before,.bfstrip::after,.bfaura,.bfvai::after,.bfluci b{animation:none}}
+/* v9.47 (Ya, 26/11/2026) SFARFALLIO SUL PC: su Chrome/Windows le luci sfocate (filter:blur) che si muovono fanno
+   ridisegnare a scatti tutta la finestra dell'offerta (sul telefono no). Sul PC (mouse) le luci restano ferme nella
+   posizione piu' bella e la card non crea strati in movimento; resta solo il riflesso sul pulsante. */
+@media (hover:hover) and (pointer:fine){
+ .bfaura,.bfluci b,.bfstrip::before{animation:none;will-change:auto}
+ .bfluci b:nth-child(1){transform:translate(55%,-35%) scale(1.2)}
+ .bfluci b:nth-child(2){transform:translate(-60%,55%) scale(.85)}
+ .bfluci b:nth-child(3){transform:translate(-40%,-70%) scale(1.2)}
+ .bfaura{transform:rotate(35deg)}}
 /* v9.21 spiegazioni brevi al passaggio del mouse o al tocco (web/js/01e_spiega.js); solo transform e opacity */
 [data-spiega]{cursor:help}[data-spiega] h3{text-decoration:underline dotted rgba(255,255,255,.35);text-underline-offset:4px}
 .spiega{position:fixed;left:0;top:0;z-index:9000;padding:9px 12px;border-radius:10px;background:#0f1b2e;border:1px solid rgba(255,255,255,.14);color:#e8eef7;font:500 13px/1.45 "Inter",system-ui;box-shadow:0 10px 30px rgba(0,0,0,.45);pointer-events:none;opacity:0;transition:opacity .12s}

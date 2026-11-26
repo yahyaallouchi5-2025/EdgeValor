@@ -191,7 +191,9 @@ def finestra(c, link="/terminale/?premium=1"):
 .evf .evv{{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;padding:14px;border-radius:14px;color:#0a0a0a;font:800 15.5px "Inter",system-ui;text-decoration:none;background:linear-gradient(100deg,var(--c1),var(--c2))}}
 .evf .evd{{display:block;margin:8px auto 0;padding:8px 14px;border:0;background:none;color:#9a9a9a;font:600 13.5px "Inter",system-ui;cursor:pointer}}
 @media (max-width:420px){{.evf .evb{{padding:22px 16px 14px}}.evf h2{{font-size:22px}}.evf .evn b{{font-size:19px}}}}
-@media (prefers-reduced-motion:reduce){{.evf .evl b{{animation:none}}.evf,.evf .evb{{transition:none}}}}</style>
+@media (prefers-reduced-motion:reduce){{.evf .evl b{{animation:none}}.evf,.evf .evb{{transition:none}}}}
+/* v9.47 sul PC luci ferme: su Chrome/Windows quelle sfocate in movimento facevano sfarfallare la finestra */
+@media (hover:hover) and (pointer:fine){{.evf .evl b,.evpromo::before{{animation:none;will-change:auto}}}}</style>
 <div class="evb" role="dialog" aria-modal="true" aria-labelledby="evft"><i class="evl" aria-hidden="true"><b></b><b></b><b></b></i>
 <button type="button" class="evx" aria-label="Chiudi">&#x2715;</button>
 <div class="eva"><span class="evt">{c["nome"]}</span><span class="evu"></span></div>
