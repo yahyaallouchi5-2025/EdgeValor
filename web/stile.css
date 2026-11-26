@@ -2694,6 +2694,11 @@ html.ptmod-on{overflow:hidden}
  color:var(--ink);background:color-mix(in srgb,var(--warn) 10%,var(--card));border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line))}
 .avv-i{flex:none;width:20px;height:20px;fill:none;stroke:var(--warn);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .avv p{margin:0}.avv p+p{margin-top:4px}.avv b{color:var(--warn)}
+/* v9.49 X per chiudere l'avviso (resta chiuso per la sessione, vedi 04a_avvisi.js) */
+.avv{transition:opacity .2s,transform .2s}.avv.via{opacity:0;transform:translateY(-6px)}
+.avv>div{flex:1;min-width:0}
+.avv-x{flex:none;align-self:flex-start;width:30px;height:30px;margin:-4px -6px -4px 0;border:0;border-radius:9px;background:transparent;color:var(--mute);font-size:15px;cursor:pointer;display:grid;place-items:center}
+.avv-x:hover{background:rgba(255,255,255,.07);color:var(--ink)}.avv-x:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
 @media (max-width:600px){.avv{align-items:flex-start;padding:10px 12px;font-size:13px;gap:10px}}
 
 /* v7.66 Andamento portafoglio: tre riquadri (drawdown | mese | positivo). Sul telefono il mese va sopra a tutta larghezza. */

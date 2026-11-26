@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-26T23",t:"Aggiornamento scheda Dashboard",x:"Gli avvisi in giallo (festività, dati rinviati) ora si chiudono con la X e compaiono solo nella Dashboard. Al prossimo accesso te li ricordiamo.",s:"sig"},
   {d:"2026-11-26T22",t:"Aggiornamento scheda Dashboard",x:"Settori e Forex ridisegnati: una barra per settore che sale o scende, e tutte le coppie Forex in un solo riquadro.",s:"sig"},
   {d:"2026-11-26T18",t:"Aggiornamento scheda COT",x:"Nuovo mercato: Nikkei 225, l'indice della Borsa di Tokyo. Posizioni degli speculatori, grafico e segnali anche nella scheda Live.",s:"assets"},
   {d:"2026-11-26T08",t:"Novità spostabili",x:"Tieni premuta la stellina delle Novità e spostala dove ti è più comoda, da PC o da telefono. Resta dove la lasci.",s:""},

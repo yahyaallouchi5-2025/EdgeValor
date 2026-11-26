@@ -6,9 +6,17 @@
       Resta fino all'ultimo giorno di chiusura compreso.
    3) FESTA FEDERALE USA con Wall Street aperta (Columbus Day, Veterans Day): Treasury chiusi, dati in ritardo.
    4) ORA LEGALE SFASATA tra USA e Italia: orari USA un'ora prima, fino al riallineamento.
-   Una riga per avviso, testo breve. DEBUG: F12 -> Console -> ebMercati.feste(30) */
-try{(function(){const ev=$("eventi");if(!ev)return;
- const box=document.createElement("div");box.id="avvisi";ev.before(box);
+   Una riga per avviso, testo breve. DEBUG: F12 -> Console -> ebMercati.feste(30)
+   v9.49 (Ya, 26/11/2026): l'avviso sta SOLO nella Dashboard (prima era sopra tutte le schede) e si chiude con la X.
+     Chiuso resta chiuso finche' l'utente resta collegato in quella finestra (sessionStorage "ebAvvisiChiusi");
+     a un nuovo accesso (nuova finestra o accesso dal link/Google) ricompare. Ogni tipo di avviso ha la sua chiave
+     (es. "cot-2026-11-30"): un avviso NUOVO compare anche se il riquadro era stato chiuso prima.
+   DEBUG: sessionStorage.removeItem("ebAvvisiChiusi") e ricarica: gli avvisi chiusi ricompaiono. */
+try{(function(){const sig=$("sig");if(!sig)return;
+ const box=document.createElement("div");box.id="avvisi";sig.prepend(box);
+ const KC="ebAvvisiChiusi";let chiusi=[];
+ try{if(/(^#|&)access_token=/.test(location.hash))sessionStorage.removeItem(KC);   // accesso appena fatto (link email o Google): 04a gira prima che 36_account pulisca l'indirizzo
+  chiusi=JSON.parse(sessionStorage.getItem(KC)||"[]");}catch(e){}
  // nomi delle festivita' di borsa in italiano (il calendario EODHD li da' in inglese)
  const IT=[[/thanksgiving/i,"Giorno del Ringraziamento"],[/christmas eve/i,"Vigilia di Natale"],[/christmas/i,"Natale"],[/boxing/i,"Santo Stefano"],
   [/new year.?s eve/i,"San Silvestro"],[/new year/i,"Capodanno"],[/good friday/i,"Venerd&igrave; Santo"],[/easter monday/i,"Pasquetta"],
@@ -38,7 +46,7 @@ try{(function(){const ev=$("eventi");if(!ev)return;
  const scarto=d=>Math.round((oraIn("Europe/Rome",d)-oraIn("America/New_York",d))/36e5);   // normale: 6
  function sfasata(){const ora=new Date();if(scarto(ora)==6)return null;
   for(let k=1;k<=40;k++){const d=new Date(ora.getTime()+k*864e5);if(scarto(d)==6)return d;}return ora;}
- function disegna(){const righe=[],oggi=romaYmd(new Date());
+ function disegna(){const righe=[],chiavi=[],oggi=romaYmd(new Date());
   // 1) dati rinviati da una festivita' USA (COT, bilancio Fed). v8.60: l'avviso compare solo da 4 giorni prima
   //    dell'uscita NORMALE (prima l'ultimo report era appena uscito e la frase confondeva) e resta fino all'uscita
   //    rinviata. Dopo l'ora normale si dice che restano i segnali dell'ultimo report pubblicato.
@@ -46,19 +54,25 @@ try{(function(){const ev=$("eventi");if(!ev)return;
    if(f.nominale_ms&&Date.now()<f.nominale_ms-4*864e5)return;
    const cot=/^COT/.test(f.name||""),passata=f.nominale_ms&&Date.now()>=f.nominale_ms,nome=cot?"Report COT":esc(f.name);
    const quando=f.nominale?` invece di ${esc(f.nominale.replace(/ ore .*/,""))}`:"";
-   righe.push(passata?`<b>${nome} rinviato</b> a ${esc(f.next||"")} per festivit&agrave; USA (${esc(f.rinvio)})${cot?": fino ad allora restano i segnali dell'ultimo report":""}.`
+   chiavi.push((cot?"cot-":"fed-")+(f.next_ms||""));righe.push(passata?`<b>${nome} rinviato</b> a ${esc(f.next||"")} per festivit&agrave; USA (${esc(f.rinvio)})${cot?": fino ad allora restano i segnali dell'ultimo report":""}.`
     :`<b>${nome} di questa settimana</b>: esce ${esc(f.next||"")}${quando} per festivit&agrave; USA (${esc(f.rinvio)}).`);});
   // 2) borse chiuse per festivita' (oggi e i prossimi 3 giorni)
   const chiuse=window.ebMercati&&ebMercati.feste?ebMercati.feste(3):[];
-  chiuse.forEach(f=>righe.push(`<b>${giornoTxt(f.ymd)} ${f.mercati.length>1?"borse chiuse":"borsa chiusa"}</b>: ${f.mercati.join(", ")} (${nomeIt(f.nome)}).`));
+  chiuse.forEach(f=>{chiavi.push("chiuse-"+f.ymd);righe.push(`<b>${giornoTxt(f.ymd)} ${f.mercati.length>1?"borse chiuse":"borsa chiusa"}</b>: ${f.mercati.join(", ")} (${nomeIt(f.nome)}).`);});
   // 3) festa federale USA con Wall Street aperta (oggi e i prossimi 3 giorni)
   for(let k=0;k<=3;k++){const ymd=romaYmd(new Date(Date.now()+k*864e5)),y=+ymd.slice(0,4),nome=festeUsa(y)[ymd]||festeUsa(y+1)[ymd];   // y+1: Capodanno di sabato si osserva il 31/12
-   if(nome&&!chiuse.some(f=>f.ymd==ymd&&f.mercati.includes("USA")))
-    righe.push(`<b>${giornoTxt(ymd)} festa federale USA</b> (${nome}): Wall Street aperta, mercato dei Treasury e uffici federali chiusi. I dati USA possono uscire in ritardo.`);}
+   if(nome&&!chiuse.some(f=>f.ymd==ymd&&f.mercati.includes("USA"))){chiavi.push("festa-"+ymd);
+    righe.push(`<b>${giornoTxt(ymd)} festa federale USA</b> (${nome}): Wall Street aperta, mercato dei Treasury e uffici federali chiusi. I dati USA possono uscire in ritardo.`);}}
   // 4) ora legale sfasata tra USA e Italia
   const fine=sfasata();
-  if(fine){const t=romaYmd(fine).split("-");
+  if(fine){const t=romaYmd(fine).split("-");chiavi.push("ora-"+romaYmd(fine));
    righe.push(`<b>Ora legale sfasata</b> tra USA e Italia fino al ${+t[2]}/${+t[1]}: gli orari USA arrivano un'ora prima (Wall Street 14:30-21:00, COT alle 20:30).`);}
-  box.innerHTML=righe.length?`<div class="avv" role="status"><svg class="avv-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><div>${righe.map(r=>`<p>${r}</p>`).join("")}</div></div>`:"";}
+  // solo gli avvisi non ancora chiusi in questa sessione
+  const vis=righe.map((r,i)=>[r,chiavi[i]]).filter(x=>!chiusi.includes(x[1]));
+  box.innerHTML=vis.length?`<div class="avv" role="status"><svg class="avv-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><div>${vis.map(x=>`<p>${x[0]}</p>`).join("")}</div>
+   <button type="button" class="avv-x" aria-label="${T("Chiudi")}" title="${T("Chiudi")}">&#x2715;</button></div>`:"";
+  const x=box.querySelector(".avv-x");
+  if(x)x.onclick=()=>{chiusi=[...new Set(chiusi.concat(vis.map(v=>v[1])))];try{sessionStorage.setItem(KC,JSON.stringify(chiusi));}catch(e){}
+   const a=box.querySelector(".avv");a.classList.add("via");setTimeout(()=>{box.innerHTML="";},220);};}
  disegna();window.addEventListener("eb-mercati",disegna);setInterval(disegna,5*60*1000);   // il calendario arriva dopo; ogni 5 minuti si ricontrolla
 })();}catch(e){fail("Avviso festivita'","avvisi",e);}
