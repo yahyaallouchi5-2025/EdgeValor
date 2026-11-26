@@ -25,7 +25,7 @@ try{(function(){const S=D.stag||{},el=$("stag"),M12=["Gen","Feb","Mar","Apr","Ma
  //       Orari ufficiali delle borse (CME "Daily Settlement Time Details", ICE "Settlement Window", FRED per Coinbase),
  //       convertiti in ora di Roma per la data di oggi: ora legale USA e italiana gestite da sole (Intl).
  const CHIUSURA={SP500:["America/New_York","16:00","chiusura di Wall Street"],NASDAQ:["America/New_York","16:00","chiusura di Wall Street"],
-  DOW:["America/New_York","16:00","chiusura di Wall Street"],RUSSELL:["America/New_York","16:00","chiusura di Wall Street (ETF IWM)"],
+  DOW:["America/New_York","16:00","chiusura di Wall Street"],NIKKEI:["Asia/Tokyo","15:30","chiusura della Borsa di Tokyo"],RUSSELL:["America/New_York","16:00","chiusura di Wall Street (ETF IWM)"],
   EAFE:["America/New_York","16:00","chiusura di Wall Street (ETF EFA)"],EM:["America/New_York","16:00","chiusura di Wall Street (ETF EEM)"],
   GOLD:["America/New_York","16:00","chiusura di Wall Street (ETF GLD)"],SILVER:["America/New_York","16:00","chiusura di Wall Street (ETF SLV)"],
   PLATINUM:["America/New_York","16:00","chiusura di Wall Street (ETF PPLT)"],

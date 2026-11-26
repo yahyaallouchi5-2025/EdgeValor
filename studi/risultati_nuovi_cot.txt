@@ -39,3 +39,8 @@ ESITO DELLA PROVA (26/11/2026, studi/studio_nuovi_cot.py v2, dettaglio in risult
   Confronto con mercati gia' nel sito: Euro +0,43% / +0,27% e Treasury 10 anni +0,22% / +0,18% passano;
   lo Yen NON passa (studio +0,13%, verifica -0,43%, profit factor 0,67): da riesaminare.
   DECISIONE PROPOSTA: aggiungere il Nikkei 225 con i segnali; gli altri tre no.
+
+ESEGUITO (26/11/2026, v9.44, ok di Ya): Nikkei 225 aggiunto al terminale (cot_radar/config.py, chiave NIKKEI, prezzi
+  FRED NIKKEI225). Lo storico COT completo dal 2004 arriva da solo al primo giro (storico._recupera_nuovi).
+  Controllo con Comportamento COT del sito: studio +0,74% (99 segnali), verifica +0,38% (140 segnali).
+  Yen: riesame in studi/risultati_yen.txt.

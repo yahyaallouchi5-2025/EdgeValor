@@ -23,7 +23,7 @@ import math
 import os
 from datetime import date, timedelta
 
-from .config import ARCHIVI_COT, ARCHIVIO_EXTRA, PREZZI_YAHOO, PRICES, ROOT
+from .config import ARCHIVI_COT, ARCHIVIO_EXTRA, ASSETS, PREZZI_YAHOO, PRICES, ROOT
 from .log import log
 
 CARTELLA = os.path.join(ROOT, "storico")
@@ -243,6 +243,32 @@ COT_CAMPI = ["cftc_contract_market_code", "report_date_as_yyyy_mm_dd", "open_int
 COT_MIN = 20000                     # un download completo con meno righe e' sospetto
 
 
+def _recupera_nuovi(chiave, vecchie, recupera, riga, cartella):
+    """v9.44 MERCATI NUOVI IN ASSETS: l'archivio si scarica completo una volta sola, poi solo le settimane nuove.
+    Un mercato aggiunto dopo avrebbe quindi solo le ultime settimane (niente backtest). Qui, per ogni codice di ASSETS
+    che nell'archivio non c'e', si scarica UNA volta tutto il suo storico. I codici gia' provati si segnano in
+    _meta.json ("recuperati"), cosi' un mercato che in quel report non esiste (es. TFF per le materie prime) non
+    viene richiesto a ogni giro. Restituisce le righe da aggiungere (gia' nel formato del file)."""
+    if recupera is None:
+        return []
+    presenti = {r[0] for r in vecchie}
+    meta = _meta(cartella)
+    provati = set(meta.get("recuperati", {}).get(chiave, []))
+    mancanti = [a[1] for a in ASSETS if a[1] not in presenti and a[1] not in provati]
+    if not mancanti:
+        return []
+    try:
+        righe = [r for r in (riga(x) for x in recupera(mancanti)) if r and r[0] in mancanti]
+    except Exception as e:
+        log.warning("archivio %s: storico dei mercati nuovi %s non scaricato (%s), riprovo al prossimo giro",
+                    chiave, mancanti, e)
+        return []
+    meta.setdefault("recuperati", {})[chiave] = sorted(provati | set(mancanti))
+    _salva_meta(cartella, meta)
+    log.info("archivio %s: recuperato lo storico dei mercati nuovi %s (%d righe)", chiave, mancanti, len(righe))
+    return righe
+
+
 def _riga_cot(r):
     """Riga CFTC -> lista di testi nel formato del file, None se incompleta o impossibile."""
     try:
@@ -276,9 +302,10 @@ def _scrivi_cot(cartella, righe):
     os.replace(f + ".tmp", f)
 
 
-def aggiorna_cot(recenti, scarica=None, cartella=CARTELLA):
+def aggiorna_cot(recenti, scarica=None, cartella=CARTELLA, recupera=None):
     """Aggiorna l'archivio COT. recenti = righe CFTC del normale download (ultime ~3 anni);
-    scarica() = download completo (solo se l'archivio non esiste ancora).
+    scarica() = download completo (solo se l'archivio non esiste ancora);
+    recupera(codici) = v9.44 storico completo dei mercati aggiunti ad ASSETS dopo la creazione dell'archivio.
     Restituisce (righe per cot_series, riepilogo)."""
     meta = _meta(cartella)
     try:
@@ -304,6 +331,11 @@ def aggiorna_cot(recenti, scarica=None, cartella=CARTELLA):
         _salva_meta(cartella, meta)
         log.info("archivio COT creato: %d righe dal %s", len(nuove), min(r[1] for r in nuove))
         vecchie = nuove
+    # v9.44 prima delle settimane recenti: altrimenti il mercato nuovo risulterebbe gia' presente (solo 3 anni)
+    rec = _recupera_nuovi("COT", vecchie, recupera, _riga_cot, cartella)
+    if rec:
+        vecchie = sorted({(r[0], r[1]): r for r in vecchie + rec}.values(), key=lambda r: (r[0], r[1]))
+        _scrivi_cot(cartella, vecchie)
     ultima = {}
     for r in vecchie:
         ultima[r[0]] = max(ultima.get(r[0], ""), r[1])
@@ -372,7 +404,7 @@ def _ordina(righe):
     return sorted({(r[0], r[1]): r for r in righe}.values(), key=lambda r: (r[0], r[1]))
 
 
-def aggiorna_extra(nome, scarica, cartella=CARTELLA, oggi=None):
+def aggiorna_extra(nome, scarica, cartella=CARTELLA, oggi=None, recupera=None):
     """Crea o aggiorna l'archivio 'nome'. scarica(inizio) = righe CFTC dalla data 'inizio' (vedi fonti.scarica_archivio).
     Restituisce (righe come dizionari, riepilogo). Un problema qui non tocca il sito: al massimo manca il confronto."""
     a, oggi = ARCHIVI_COT[nome], oggi or date.today()
@@ -401,6 +433,11 @@ def aggiorna_extra(nome, scarica, cartella=CARTELLA, oggi=None):
         log.info("archivio %s creato: %d righe dal %s", nome, len(nuove), min(r[1] for r in nuove))
         return dizionari(nuove), {"stato": "creato", "righe": len(nuove), "nuove": len(nuove)}
 
+    # v9.44 mercati aggiunti ad ASSETS dopo la creazione dell'archivio: tutto il loro storico, una volta sola
+    rec = _recupera_nuovi(nome, vecchie, recupera and (lambda cc: recupera(cc)), lambda x: _riga_extra(x, campi), cartella)
+    if rec:
+        vecchie = _ordina(vecchie + rec)
+        _scrivi_csv(cartella, a["file"], campi, vecchie)
     # 2) volte successive: solo se puo' essere uscito un report nuovo
     ultima_tot = max(r[1] for r in vecchie)
     if (oggi - date.fromisoformat(ultima_tot)).days < ATTESA_NUOVO:

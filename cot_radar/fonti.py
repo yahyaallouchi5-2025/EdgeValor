@@ -58,10 +58,11 @@ def get_cftc():
     return rows
 
 
-def get_cftc_archivio(url, campi, inizio, pagina=50000):
+def get_cftc_archivio(url, campi, inizio, pagina=50000, codici=None):
     """Righe di un report CFTC (qualsiasi: Legacy, Combined, TFF, Disaggregated) per i NOSTRI mercati,
-    dalla data 'inizio' in poi, scaricate a pagine da 50.000 (limite dell'API). Solo le colonne 'campi'."""
-    codes = ",".join(f"'{a[1]}'" for a in ASSETS)
+    dalla data 'inizio' in poi, scaricate a pagine da 50.000 (limite dell'API). Solo le colonne 'campi'.
+    v9.44 codici = solo questi mercati (recupero dello storico di un mercato appena aggiunto ad ASSETS)."""
+    codes = ",".join(f"'{c}'" for c in (codici or [a[1] for a in ASSETS]))
     righe, offset = [], 0
     while True:
         q = {
@@ -76,19 +77,30 @@ def get_cftc_archivio(url, campi, inizio, pagina=50000):
         offset += pagina
 
 
-def get_cftc_tutto(inizio="1986-01-01", pagina=50000):
+def get_cftc_tutto(inizio="1986-01-01", pagina=50000, codici=None):
     """TUTTO lo storico COT Legacy (futures only) dei nostri mercati (dal 1986): serve UNA volta sola per creare
     l'archivio del backtest (vedi storico.aggiorna_cot). Circa 75.000 righe."""
     campi = ["report_date_as_yyyy_mm_dd", "cftc_contract_market_code", "open_interest_all",
              "noncomm_positions_long_all", "noncomm_positions_short_all", "comm_positions_long_all",
              "comm_positions_short_all"]
-    return get_cftc_archivio(CFTC_URL, campi, inizio, pagina)
+    return get_cftc_archivio(CFTC_URL, campi, inizio, pagina, codici)
+
+
+def recupera_cot(codici):
+    """v9.44 TUTTO lo storico COT Legacy solo dei mercati indicati (mercato nuovo in ASSETS): vedi storico.aggiorna_cot."""
+    return get_cftc_tutto(codici=codici)
 
 
 def scarica_archivio(nome):
     """Funzione di download per storico.aggiorna_extra: scarica(inizio) -> righe del report 'nome' di ARCHIVI_COT."""
     a = ARCHIVI_COT[nome]
     return lambda inizio: get_cftc_archivio(CFTC_RISORSA.format(id=a["id"]), a["campi"], inizio)
+
+
+def recupera_archivio(nome):
+    """v9.44 recupera(codici) -> tutto lo storico del report 'nome' solo per i mercati indicati (mercati nuovi)."""
+    a = ARCHIVI_COT[nome]
+    return lambda codici: get_cftc_archivio(CFTC_RISORSA.format(id=a["id"]), a["campi"], a["dal"], codici=codici)
 
 
 def get_fred(sid, since):

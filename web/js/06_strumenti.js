@@ -13,7 +13,7 @@ try{
 var SF="Tutti";
 // nomi semplici: chi non conosce le sigle capisce subito (gli altri restano con il nome italiano del terminale)
 const NOMI_S={EAFE:"Azioni Europa e Asia",EM:"Azioni emergenti",VIX:"Volatilità (VIX)",USBOND:"Treasury 30 anni",ULTRA:"Treasury ultra lungo",
- US10Y:"Treasury 10 anni",US5Y:"Treasury 5 anni",US2Y:"Treasury 2 anni",NASDAQ:"Nasdaq",SP500:"S&P 500",DOW:"Dow Jones",RUSSELL:"Russell 2000",
+ US10Y:"Treasury 10 anni",US5Y:"Treasury 5 anni",US2Y:"Treasury 2 anni",NASDAQ:"Nasdaq",SP500:"S&P 500",DOW:"Dow Jones",RUSSELL:"Russell 2000",NIKKEI:"Nikkei 225",
  FEDFUNDS:"Tassi Fed",SOFR:"Tasso SOFR",WTI:"Petrolio WTI",BRENT:"Petrolio Brent",NATGAS:"Gas naturale",HEATOIL:"Gasolio",GASOLINE:"Benzina",
  GOLD:"Oro",SILVER:"Argento",COPPER:"Rame",PLATINUM:"Platino",PALLADIUM:"Palladio",CORN:"Mais",SOY:"Soia",SOYOIL:"Olio di soia",SOYMEAL:"Farina di soia",
  WHEAT:"Grano",KCWHEAT:"Grano duro",RICE:"Riso",SUGAR:"Zucchero",COFFEE:"Caffè",COCOA:"Cacao",COTTON:"Cotone",OJ:"Succo d'arancia",
@@ -23,7 +23,7 @@ const NOMI_EN={EAFE:"Europe & Asia stocks",EM:"Emerging stocks",VIX:"Volatility 
  US5Y:"Treasury 5Y",US2Y:"Treasury 2Y",FEDFUNDS:"Fed rates",SOFR:"SOFR rate",WTI:"WTI oil",BRENT:"Brent oil",NATGAS:"Natural gas",HEATOIL:"Heating oil",
  SOY:"Soybeans",SOYOIL:"Soybean oil",SOYMEAL:"Soybean meal",KCWHEAT:"Hard wheat",OJ:"Orange juice",CATTLE:"Live cattle",FEEDER:"Feeder cattle",
  HOGS:"Lean hogs",MILK:"Milk",ETH:"Ether",DXY:"US dollar",RICE:"Rice",COTTON:"Cotton",WHEAT:"Wheat",CORN:"Corn",COCOA:"Cocoa",COFFEE:"Coffee",SUGAR:"Sugar",
- GASOLINE:"Gasoline",SP500:"S&P 500",NASDAQ:"Nasdaq",DOW:"Dow Jones",RUSSELL:"Russell 2000",GOLD:"Gold",SILVER:"Silver",COPPER:"Copper",PLATINUM:"Platinum",PALLADIUM:"Palladium",BTC:"Bitcoin"};
+ GASOLINE:"Gasoline",SP500:"S&P 500",NASDAQ:"Nasdaq",DOW:"Dow Jones",RUSSELL:"Russell 2000",NIKKEI:"Nikkei 225",GOLD:"Gold",SILVER:"Silver",COPPER:"Copper",PLATINUM:"Platinum",PALLADIUM:"Palladium",BTC:"Bitcoin"};
 const EN_S=typeof EB_LANG!="undefined"&&EB_LANG=="en";
 const nomeS=a=>EN_S?(NOMI_EN[a.key]||a.name):NOMI_S[a.key]||(typeof accenti=="function"?accenti(a.it||a.name):(a.it||a.name));
 // cinque livelli dal punteggio: classe colore, parola, freccia

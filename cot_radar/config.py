@@ -72,6 +72,8 @@ ASSETS = [
     ("SP500", "13874A", "S&P 500", "Indici azionari"), ("NASDAQ", "209742", "Nasdaq 100", "Indici azionari"),
     ("DOW", "124603", "Dow Jones", "Indici azionari"), ("RUSSELL", "239742", "Russell 2000", "Indici azionari"),
     ("EAFE", "244041", "MSCI EAFE (Europa+Asia)", "Indici azionari"), ("EM", "244042", "MSCI Emergenti", "Indici azionari"),
+    # v9.44 Nikkei 225 in yen (CME): unico grande indice mancante; superata la prova di studi/studio_nuovi_cot.py
+    ("NIKKEI", "240743", "Nikkei 225 (Giappone)", "Indici azionari"),
     ("VIX", "1170E1", "VIX (volatilita')", "Indici azionari"),
     ("US2Y", "042601", "Treasury 2 anni", "Tassi USA"), ("US5Y", "044601", "Treasury 5 anni", "Tassi USA"),
     ("US10Y", "043602", "Treasury 10 anni", "Tassi USA"), ("USBOND", "020601", "Treasury Bond 30 anni", "Tassi USA"),
@@ -101,7 +103,7 @@ NOMI_EN = {
     "CAD": "Canadian Dollar", "AUD": "Australian Dollar", "NZD": "New Zealand Dollar", "MXN": "Mexican Peso",
     "BRL": "Brazilian Real", "ZAR": "South African Rand", "DXY": "U.S. Dollar Index",
     "SP500": "E-mini S&P 500", "NASDAQ": "Nasdaq-100", "DOW": "Dow Jones Industrial Average",
-    "RUSSELL": "Russell 2000", "EAFE": "MSCI EAFE", "EM": "MSCI Emerging Markets", "VIX": "VIX Futures",
+    "RUSSELL": "Russell 2000", "EAFE": "MSCI EAFE", "NIKKEI": "Nikkei 225 (Yen)", "EM": "MSCI Emerging Markets", "VIX": "VIX Futures",
     "US2Y": "2-Year T-Note", "US5Y": "5-Year T-Note", "US10Y": "10-Year T-Note", "USBOND": "U.S. Treasury Bond",
     "ULTRA": "Ultra U.S. Treasury Bond", "FEDFUNDS": "30-Day Fed Funds", "SOFR": "3-Month SOFR",
     "WTI": "WTI Crude Oil", "BRENT": "Brent Crude Oil", "NATGAS": "Natural Gas (Henry Hub)",
@@ -128,6 +130,7 @@ PRICES = {
     "JPY": ("DEXJPUS", -1), "CHF": ("DEXSZUS", -1), "CAD": ("DEXCAUS", -1), "MXN": ("DEXMXUS", -1),
     "BRL": ("DEXBZUS", -1), "ZAR": ("DEXSFUS", -1), "DXY": ("DTWEXBGS", 1),
     "SP500": ("SP500", 1), "NASDAQ": ("NASDAQCOM", 1), "DOW": ("DJIA", 1),
+    "NIKKEI": ("NIKKEI225", 1),          # v9.44 indice Nikkei 225 in yen (FRED), stesso valore del future in yen
     "WTI": ("DCOILWTICO", 1), "BRENT": ("DCOILBRENTEU", 1), "NATGAS": ("DHHNGSP", 1),
     "BTC": ("CBBTCUSD", 1), "ETH": ("CBETHUSD", 1),
 }
@@ -251,7 +254,7 @@ TV_SYMBOLS = {
     # indici azionari (CFD) e volatilita'
     "SP500": ("OANDA:SPX500USD", False), "NASDAQ": ("OANDA:NAS100USD", False), "DOW": ("OANDA:US30USD", False),
     "RUSSELL": ("OANDA:US2000USD", False), "EAFE": ("AMEX:EFA", False), "EM": ("AMEX:EEM", False),
-    "VIX": ("TVC:VIX", False),
+    "VIX": ("TVC:VIX", False), "NIKKEI": ("TVC:NI225", False),
     # tassi: il grafico e' il RENDIMENTO, che si muove al contrario del prezzo del futures
     "US2Y": ("TVC:US02Y", True), "US5Y": ("TVC:US05Y", True), "US10Y": ("TVC:US10Y", True),
     "USBOND": ("TVC:US30Y", True), "ULTRA": ("TVC:US30Y", True), "FEDFUNDS": ("CBOT:ZQ1!", False),

@@ -29,7 +29,7 @@ from .cot import cot_series
 
 FINE_STUDIO = "2014-12-31"
 VALUTE = ("EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "MXN", "BRL", "ZAR", "USD")
-INDICI = {"SP500", "NASDAQ", "DOW", "RUSSELL", "EAFE", "EM"}
+INDICI = {"SP500", "NASDAQ", "DOW", "RUSSELL", "EAFE", "EM", "NIKKEI"}
 TASSI = {"US2Y", "US5Y", "US10Y", "USBOND", "ULTRA"}
 CRYPTO = {"BTC", "ETH"}
 ULTIMI = 6                                   # episodi recenti mandati alla pagina per strumento

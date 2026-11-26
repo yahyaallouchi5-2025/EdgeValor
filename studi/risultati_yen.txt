@@ -1,0 +1,46 @@
+Yen (097741): 1944 settimane COT dal 1986-01-15; divisione studio/verifica al 2016-01-01
+Regola v2: guadagno medio nel verso del segnale AL NETTO della salita del cambio, > 0 nello studio E nella verifica, almeno 30 segnali in verifica. Giusti % e PF solo informativi.
+
+Segnali del sito (soglia NORMAL)
+  A  1 settimana                   STUDIO n  569  giusti  48.2%  PF 1.03  netto  +0.01%  |  VERIFICA n  212  giusti  42.9%  PF 0.72  netto  -0.18%  -> no
+  B  1 settimana + carry           STUDIO n  318  giusti  49.1%  PF 1.03  netto  +0.02%  |  VERIFICA n  207  giusti  44.4%  PF 0.73  netto  -0.17%  -> no
+  C  1 settimana contrario         STUDIO n  569  giusti  51.8%  PF 0.97  netto  -0.01%  |  VERIFICA n  212  giusti  56.1%  PF 1.39  netto  +0.18%  -> no
+  A  2 settimane                   STUDIO n  569  giusti  48.3%  PF 1.00  netto  -0.00%  |  VERIFICA n  212  giusti  45.8%  PF 0.71  netto  -0.27%  -> no
+  B  2 settimane + carry           STUDIO n  318  giusti  49.4%  PF 1.00  netto  -0.00%  |  VERIFICA n  207  giusti  45.9%  PF 0.73  netto  -0.25%  -> no
+  C  2 settimane contrario         STUDIO n  569  giusti  51.1%  PF 1.00  netto  +0.00%  |  VERIFICA n  212  giusti  54.2%  PF 1.42  netto  +0.27%  -> PASSA
+  A  4 settimane (sito)            STUDIO n  569  giusti  49.0%  PF 1.13  netto  +0.13%  |  VERIFICA n  211  giusti  47.9%  PF 0.67  netto  -0.43%  -> no
+  B  4 settimane (sito) + carry    STUDIO n  318  giusti  50.3%  PF 1.03  netto  +0.03%  |  VERIFICA n  207  giusti  49.8%  PF 0.71  netto  -0.39%  -> no
+  C  4 settimane (sito) contrario  STUDIO n  569  giusti  50.8%  PF 0.89  netto  -0.13%  |  VERIFICA n  211  giusti  52.1%  PF 1.49  netto  +0.43%  -> no
+  A  8 settimane                   STUDIO n  569  giusti  50.1%  PF 1.14  netto  +0.24%  |  VERIFICA n  208  giusti  52.4%  PF 0.76  netto  -0.45%  -> no
+  B  8 settimane + carry           STUDIO n  318  giusti  52.8%  PF 1.34  netto  +0.45%  |  VERIFICA n  206  giusti  53.4%  PF 0.84  netto  -0.34%  -> no
+  C  8 settimane contrario         STUDIO n  569  giusti  49.7%  PF 0.88  netto  -0.24%  |  VERIFICA n  208  giusti  47.6%  PF 1.31  netto  +0.45%  -> no
+
+D  Solo segnali forti (STRONG)
+  A  1 settimana                   STUDIO n  135  giusti  44.4%  PF 0.93  netto  -0.04%  |  VERIFICA n   51  giusti  49.0%  PF 0.77  netto  -0.18%  -> no
+  B  1 settimana + carry           STUDIO n   75  giusti  42.7%  PF 0.65  netto  -0.22%  |  VERIFICA n   51  giusti  49.0%  PF 0.77  netto  -0.17%  -> no
+  C  1 settimana contrario         STUDIO n  135  giusti  55.6%  PF 1.08  netto  +0.04%  |  VERIFICA n   51  giusti  51.0%  PF 1.31  netto  +0.18%  -> PASSA
+  A  2 settimane                   STUDIO n  135  giusti  50.4%  PF 1.20  netto  +0.13%  |  VERIFICA n   51  giusti  39.2%  PF 0.60  netto  -0.43%  -> no
+  B  2 settimane + carry           STUDIO n   75  giusti  50.7%  PF 0.99  netto  -0.00%  |  VERIFICA n   51  giusti  41.2%  PF 0.61  netto  -0.43%  -> no
+  C  2 settimane contrario         STUDIO n  135  giusti  48.9%  PF 0.83  netto  -0.13%  |  VERIFICA n   51  giusti  60.8%  PF 1.67  netto  +0.43%  -> no
+  A  4 settimane (sito)            STUDIO n  135  giusti  54.1%  PF 1.56  netto  +0.46%  |  VERIFICA n   51  giusti  41.2%  PF 0.76  netto  -0.33%  -> no
+  B  4 settimane (sito) + carry    STUDIO n   75  giusti  53.3%  PF 0.97  netto  -0.03%  |  VERIFICA n   51  giusti  43.1%  PF 0.77  netto  -0.32%  -> no
+  C  4 settimane (sito) contrario  STUDIO n  135  giusti  45.9%  PF 0.64  netto  -0.46%  |  VERIFICA n   51  giusti  58.8%  PF 1.31  netto  +0.33%  -> no
+  A  8 settimane                   STUDIO n  135  giusti  54.8%  PF 1.83  netto  +1.07%  |  VERIFICA n   51  giusti  47.1%  PF 0.65  netto  -0.59%  -> no
+  B  8 settimane + carry           STUDIO n   75  giusti  58.7%  PF 1.93  netto  +0.93%  |  VERIFICA n   51  giusti  45.1%  PF 0.67  netto  -0.58%  -> no
+  C  8 settimane contrario         STUDIO n  135  giusti  45.2%  PF 0.55  netto  -1.07%  |  VERIFICA n   51  giusti  52.9%  PF 1.54  netto  +0.59%  -> no
+
+
+LETTURA (26/11/2026)
+  1) Nello STUDIO (1986-2015) il segnale sullo yen vale circa zero: +0,13% a 4 settimane, PF 1,13. Nella VERIFICA
+     (dal 2016) e' negativo a TUTTI gli orizzonti (da -0,18% a -0,45%): non e' un caso di una sola misura.
+  2) Il carry non lo salva: contando la differenza di tasso dollaro-yen il risultato in verifica resta negativo
+     (-0,39% a 4 settimane).
+  3) Il verso CONTRARIO "passa" solo in 2 prove su 24 e con lo studio a +0,00% / +0,04%: e' rumore, non un segnale.
+     Rovesciare il segnale dello yen sarebbe adattare la regola ai numeri (stesso errore da evitare del PDF).
+  4) Coerente con Comportamento COT del sito: tutte le 7 coppie con lo yen sono negative nella verifica.
+     Spiegazione probabile: dal 2016 lo yen e' guidato dalla politica della Banca del Giappone (controllo della curva
+     dei tassi 2016-2024) e dal differenziale di tasso, non dal posizionamento degli speculatori.
+DECISIONE PROPOSTA (serve l'ok di Ya, il sito oggi non cambia):
+  - lo Yen RESTA nella scheda COT: le posizioni servono come contesto e per le coppie;
+  - i segnali con lo yen (Yen e coppie con JPY) nel Live mostrano affidabilita' BASSA con il motivo nella (i)
+    ("sullo yen il segnale COT non ha funzionato dal 2016"), invece di toglierli.

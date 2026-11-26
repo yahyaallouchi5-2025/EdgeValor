@@ -84,7 +84,7 @@ try{
   let sel="";try{sel=localStorage.getItem("ebMacroSel")||"";}catch(e){}
   if(sel&&!rows.some(a=>a.key==sel))sel="";
   const FAMM=a=>["BTC","ETH"].includes(a.key)?"Crypto":["WTI","BRENT","NATGAS","GOLD","SILVER","PLATINUM","COPPER"].includes(a.key)?"Materie prime"
-   :["SP500","NASDAQ","DOW","RUSSELL","EM","EAFE"].includes(a.key)?"Indici":"Valute";
+   :["SP500","NASDAQ","DOW","RUSSELL","EM","EAFE","NIKKEI"].includes(a.key)?"Indici":"Valute";
   const fam=["Valute","Indici","Materie prime","Crypto"].map(f=>[f,rows.filter(a=>FAMM(a)==f).sort((x,y)=>x.key.localeCompare(y.key))]).filter(x=>x[1].length);
   const tab=$("mtable").closest(".tablewrap"),scr=document.createElement("div");tab.before(scr);
   const det=document.createElement("details");det.className="vfx";det.innerHTML=`<summary><b>Tutti gli strumenti</b><span>${rows.length} strumenti</span></summary><div class="vfx-c"></div>`;

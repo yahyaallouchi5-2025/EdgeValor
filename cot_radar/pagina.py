@@ -23,7 +23,7 @@ from .config import (ARCHIVI_COT, ASSETS, DIVERGENCE_MIN, MACRO_WEIGHT, NORMAL, 
                      FEEDBACK_CHIAVE, STATISTICHE_ID, TELEGRAM_CANALE, TV_PAIRS, TV_SYMBOLS, WEB_DIR, WEIGHTS)
 from .controlli import controlla
 from .cot import cot_series
-from .fonti import get_cftc_tutto, get_fred, load_all, scarica_archivio
+from .fonti import get_cftc_tutto, get_fred, load_all, recupera_archivio, recupera_cot, scarica_archivio
 from .log import log, raccoglitore
 from .mercato import fed_liquidity
 from . import agenda, backtest, carry, correlazioni, notizie, portafogli, registro, stagionalita, storico, tattica, volatilita
@@ -172,7 +172,7 @@ def build(data_source=load_all, demo=False, sito=False):
         log.error("registro segnali non calcolato:\n%s", traceback.format_exc())
     try:
         righe_cot, rie_cot = (cache["cot"]["data"], {"stato": "demo"}) if demo else \
-            storico.aggiorna_cot(cache["cot"]["data"], scarica=get_cftc_tutto)
+            storico.aggiorna_cot(cache["cot"]["data"], scarica=get_cftc_tutto, recupera=recupera_cot)
         bt = backtest.calcola(righe_cot, prezzi, con_eventi=demo) if prezzi else None
         if demo and bt:
             from datetime import date, timedelta
@@ -207,7 +207,7 @@ def build(data_source=load_all, demo=False, sito=False):
     if not demo:
         for nome in ARCHIVI_COT:
             try:
-                righe_extra[nome], rie_extra[nome] = storico.aggiorna_extra(nome, scarica_archivio(nome))
+                righe_extra[nome], rie_extra[nome] = storico.aggiorna_extra(nome, scarica_archivio(nome), recupera=recupera_archivio(nome))
             except Exception:
                 log.warning("archivio %s non aggiornato:\n%s", nome, traceback.format_exc())
                 rie_extra[nome] = {"stato": "errore"}

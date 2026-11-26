@@ -92,6 +92,63 @@ class ArchivioExtra(unittest.TestCase):
         righe, rie = storico.aggiorna_extra("TFF", guasto, self.dir)
         self.assertEqual((righe, rie["stato"]), ([], "assente"))
 
+    def test_mercato_nuovo_recupera_tutto_lo_storico_una_volta(self):
+        """v9.44: un mercato aggiunto ad ASSETS dopo la creazione dell'archivio riceve TUTTO il suo storico."""
+        tutte = righe_tff(["099741"], 120)
+        storico.aggiorna_extra("TFF", self.scarica(tutte), self.dir, oggi=date(2008, 9, 30))
+        nikkei = righe_tff(["240743"], 80)
+        chieste = []
+
+        def recupera(codici):
+            chieste.append(list(codici))
+            return [r for r in nikkei if r["cftc_contract_market_code"] in codici]
+        dopo, _ = storico.aggiorna_extra("TFF", self.scarica(tutte), self.dir, oggi=date(2008, 9, 30), recupera=recupera)
+        self.assertEqual(sum(1 for r in dopo if r["cftc_contract_market_code"] == "240743"), 80)
+        self.assertIn("240743", chieste[0])
+        self.assertNotIn("099741", chieste[0])                       # gia' presente: non si riscarica
+        # secondo giro: i codici gia' provati (anche quelli senza dati in questo report) non si chiedono piu'
+        storico.aggiorna_extra("TFF", self.scarica(tutte), self.dir, oggi=date(2008, 9, 30), recupera=recupera)
+        self.assertEqual(len(chieste), 1)
+
+    def test_recupero_con_errore_riprova_dopo(self):
+        tutte = righe_tff(["099741"], 120)
+        storico.aggiorna_extra("TFF", self.scarica(tutte), self.dir, oggi=date(2008, 9, 30))
+
+        def guasto(codici):
+            raise OSError("rete giu'")
+        righe, _ = storico.aggiorna_extra("TFF", self.scarica(tutte), self.dir, oggi=date(2008, 9, 30), recupera=guasto)
+        self.assertEqual(len(righe), 120)                            # l'archivio resta com'era
+        chieste = []
+        storico.aggiorna_extra("TFF", self.scarica(tutte), self.dir, oggi=date(2008, 9, 30),
+                               recupera=lambda cc: chieste.append(cc) or [])
+        self.assertEqual(len(chieste), 1)                            # dopo l'errore si riprova
+
+
+class ArchivioLegacy(unittest.TestCase):
+    """v9.44 recupero dello storico completo di un mercato nuovo anche nell'archivio COT principale (backtest)."""
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.dir)
+
+    @staticmethod
+    def righe(codice, settimane, dal=date(2004, 1, 6)):
+        return [{"cftc_contract_market_code": codice, "report_date_as_yyyy_mm_dd": (dal + timedelta(weeks=i)).isoformat(),
+                 "open_interest_all": "1000", "noncomm_positions_long_all": "300", "noncomm_positions_short_all": "100",
+                 "comm_positions_long_all": "200", "comm_positions_short_all": "400"} for i in range(settimane)]
+
+    def test_mercato_nuovo_prima_delle_settimane_recenti(self):
+        storico._scrivi_cot(self.dir, [storico._riga_cot(r) for r in self.righe("099741", 200)])
+        storico._salva_meta(self.dir, {"COT": "2026-01-01"})
+        tutto_nikkei = self.righe("240743", 200)
+        recenti = tutto_nikkei[-30:]                                   # il normale download: solo gli ultimi anni
+        righe, _ = storico.aggiorna_cot(recenti, cartella=self.dir,
+                                        recupera=lambda cc: [r for r in tutto_nikkei if r["cftc_contract_market_code"] in cc])
+        self.assertEqual(sum(1 for r in righe if r["cftc_contract_market_code"] == "240743"), 200)
+        self.assertEqual(min(r["report_date_as_yyyy_mm_dd"] for r in righe if r["cftc_contract_market_code"] == "240743"),
+                         "2004-01-06")
+
 
 class Varianti(unittest.TestCase):
     def test_leveraged_funds_al_posto_degli_speculatori(self):

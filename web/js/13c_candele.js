@@ -28,7 +28,7 @@
  const BASE_H=EB_RAW+"orari/pubblico/h1/",BASE_D=EB_RAW+"orari/pubblico/d1/";
  // strumento del registro -> simbolo delle candele (+ nota se e' un ETF che lo segue, non lo stesso prezzo)
  const SIM={GOLD:["GLD.US"],SILVER:["SLV.US"],SP500:["GSPC.INDX"],NASDAQ:["NDX.INDX","Nasdaq 100"],DOW:["DJI.INDX"],
-  RUSSELL:["IWM.US"],EM:["EEM.US"],EAFE:["EFA.US"],BTC:["BTC-USD.CC"],ETH:["ETH-USD.CC"],
+  RUSSELL:["IWM.US"],NIKKEI:["N225.INDX"],EM:["EEM.US"],EAFE:["EFA.US"],BTC:["BTC-USD.CC"],ETH:["ETH-USD.CC"],
   WTI:["USO.US","ETF USO sul petrolio WTI"],NATGAS:["UNG.US","ETF UNG sul gas naturale"],COPPER:["CPER.US","ETF CPER sul rame"],
   // v8.79 cambi emergenti e Brent: file scritti dalla fase 5 di cot_radar/orari.py
   USDBRL:["USDBRL.FOREX"],USDMXN:["USDMXN.FOREX"],USDZAR:["USDZAR.FOREX"],BRENT:["BNO.US","ETF BNO sul petrolio Brent"]};
