@@ -80,11 +80,50 @@ h3{margin:0;font-size:13px;font-weight:750;color:var(--ink2);text-transform:uppe
 @supports (grid-template-rows:subgrid){
  .agrid>.card.clic{container-type:normal;display:grid;grid-row:span 4;grid-template-rows:subgrid;row-gap:0;align-content:start}
  .agrid>.card.clic>.small,.agrid>.card.clic>.segni{align-self:start}}
-.sectors{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-.sec{border-radius:14px;padding:14px 16px;color:var(--ink);cursor:pointer;transition:transform .12s;background:color-mix(in srgb,var(--bc) 15%,var(--card));border:1px solid color-mix(in srgb,var(--bc) 45%,transparent)}.sec span{color:var(--bc)}.sec:hover{transform:translateY(-2px)}
-.sec b{display:block;font-size:13px;font-weight:650;opacity:.95}.sec span{display:block;font-size:24px;font-weight:800;margin:4px 0 2px}.sec small{font-size:12px;opacity:.92}
-.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
-.sum{border-radius:14px;padding:14px 16px;color:var(--ink);background:color-mix(in srgb,var(--bc) 15%,var(--card));border:1px solid color-mix(in srgb,var(--bc) 45%,transparent)}.sum b{color:var(--bc)}.sum b{font-size:26px;display:block;line-height:1.1}.sum small{font-weight:650;opacity:.92;font-size:12.5px}
+/* v9.48 SETTORI: delta in verticale (04_dashboard.js). Una colonna per settore dentro un solo riquadro. */
+.secv{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:6px;padding:18px 14px 14px;border-radius:18px;
+ background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line)}
+.secv .sec{display:grid;justify-items:center;gap:6px;padding:8px 4px 10px;border-radius:14px;cursor:pointer;color:var(--ink);transition:background .18s}
+@media (hover:hover){.secv .sec:hover{background:color-mix(in srgb,var(--bc) 9%,transparent)}.secv .sec:hover .secv-meta i{filter:brightness(1.15)}}
+.secv .sec:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.secv-area{position:relative;width:100%;height:200px;display:grid;grid-template-rows:1fr 1fr}
+.secv-area::after{content:"";position:absolute;left:-3px;right:-3px;top:50%;height:1px;background:color-mix(in srgb,var(--mute) 45%,transparent)}
+/* meta' colonna = 100px: 22px riservati al numero + 4px di stacco + al massimo 72px di barra (scala fissa, --hn da 0 a 1) */
+.secv-meta{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:0}
+.secv-meta.su{justify-content:flex-end}.secv-meta.giu{justify-content:flex-start}
+.secv-meta i{display:block;flex:none;width:min(44px,66%);height:max(3px,calc(var(--hn) * 72px));background:linear-gradient(180deg,color-mix(in srgb,var(--bc) 95%,#fff),color-mix(in srgb,var(--bc) 55%,transparent));
+ box-shadow:0 0 18px color-mix(in srgb,var(--bc) 35%,transparent)}
+.secv-meta.su i{border-radius:8px 8px 2px 2px}
+.secv-meta.giu i{border-radius:2px 2px 8px 8px;background:linear-gradient(0deg,color-mix(in srgb,var(--bc) 95%,#fff),color-mix(in srgb,var(--bc) 55%,transparent))}
+.secv .sec-n{flex:none;height:18px;font-size:15px;font-weight:800;color:var(--bc);font-variant-numeric:tabular-nums;line-height:18px;white-space:nowrap}
+.secv .sec-ic{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;color:var(--bc);background:color-mix(in srgb,var(--bc) 14%,transparent);border:1px solid color-mix(in srgb,var(--bc) 28%,transparent)}
+.secv .sec-ic svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.secv .sec>b{font-size:12.5px;font-weight:650;text-align:center;line-height:1.15;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.secv .sec>small{font-size:11px;color:var(--mute);white-space:nowrap}.secv .sec>small b{font-weight:750}
+/* v9.48 FOREX: distribuzione delle coppie in un solo riquadro */
+.summary{margin-bottom:20px}
+.fxd{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"t bar" "t leg";gap:12px 22px;align-items:center;padding:16px 18px;border-radius:16px;
+ background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line)}
+.fxd-t{grid-area:t;display:grid;justify-items:center;padding-right:22px;border-right:1px solid var(--line)}
+.fxd-t b{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}.fxd-t span{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+.fxd-bar{grid-area:bar;display:flex;gap:3px;height:12px;border-radius:99px;overflow:hidden;background:color-mix(in srgb,var(--line) 70%,transparent)}
+.fxd-bar i{display:block;min-width:8px;background:var(--bc);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.fxd-leg{grid-area:leg;display:flex;flex-wrap:wrap;gap:6px 20px}
+.fxd-leg span{display:inline-flex;align-items:center;gap:7px;font-size:12.5px}.fxd-leg span.zero{opacity:.45}
+.fxd-leg i{width:9px;height:9px;border-radius:3px;background:var(--bc)}.fxd-leg b{font-weight:800;color:var(--bc);font-variant-numeric:tabular-nums}
+.fxd-leg small{color:var(--ink2);font-size:11.5px;font-weight:650;letter-spacing:.3px}
+@media (max-width:600px){.secv{grid-template-columns:1fr;gap:2px;padding:8px 10px}
+ .secv .sec{grid-template-columns:28px minmax(0,82px) minmax(0,1fr) 42px;grid-template-areas:"ic nome area n" "ic cont area n";justify-items:stretch;align-items:center;column-gap:10px;row-gap:1px;padding:8px 4px}
+ .secv .sec-ic{grid-area:ic;width:28px;height:28px}.secv .sec>b{grid-area:nome;text-align:left;font-size:13px}.secv .sec>small{grid-area:cont;text-align:left}
+ .secv-area{grid-area:area;height:26px;grid-template-rows:none;grid-template-columns:1fr 1fr}
+ .secv-area::after{left:50%;right:auto;top:-2px;bottom:-2px;width:1px;height:auto}
+ .secv-meta{align-items:center!important}.secv-meta.su{justify-content:flex-start}.secv-meta.giu{justify-content:flex-end;order:-1}
+ .secv-meta{flex-direction:row;gap:0}.secv-meta i{height:10px;width:max(3px,calc(var(--hn) * 100%))}
+ .secv-meta.su i{border-radius:2px 6px 6px 2px;background:linear-gradient(270deg,color-mix(in srgb,var(--bc) 95%,#fff),color-mix(in srgb,var(--bc) 55%,transparent))}
+ .secv-meta.giu i{border-radius:6px 2px 2px 6px;background:linear-gradient(90deg,color-mix(in srgb,var(--bc) 95%,#fff),color-mix(in srgb,var(--bc) 55%,transparent))}
+ .secv-area .sec-n{display:none}.secv-meta.giu{flex-direction:row}.secv .sec::after{content:attr(data-v);grid-area:n;text-align:right;font-size:15px;font-weight:800;color:var(--bc);font-variant-numeric:tabular-nums}
+ .fxd{grid-template-columns:1fr;grid-template-areas:"t" "bar" "leg";gap:12px;padding:14px}
+ .fxd-t{grid-auto-flow:column;justify-content:start;align-items:baseline;gap:8px;padding:0;border:0}.fxd-leg{gap:8px 14px}}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .filters button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:7px 14px;font:600 13px system-ui;cursor:pointer}
 .filters button.on{background:var(--acc);color:#04211e;border-color:var(--acc)}
@@ -4375,3 +4414,6 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* v9.26 (Ya) avviso festivita' sotto il menu a card di Mercati: era attaccato all'ultima card. Stessa distanza
    delle card dal resto (22px), solo quando la sezione Mercati e' aperta (negli altri casi segue il menu, gia' distanziato) */
 #mercati.on+#avvisi>.avv{margin-top:22px}
+/* v9.48 colonne strette (PC piccolo, finestra ridotta): nome e conteggi un po' piu' piccoli, mai tagliati */
+.secv .sec{container-type:inline-size}
+@container (max-width:84px){.secv .sec>b{font-size:11px;letter-spacing:-.1px}.secv .sec>small{font-size:10px}}

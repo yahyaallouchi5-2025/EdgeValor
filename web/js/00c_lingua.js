@@ -55,7 +55,7 @@ Object.assign(EB_EN,{
 "Nuovi dati COT":"New COT data",
 "Quando arrivano i dati nuovi?":"When does new data arrive?",
 "· dati del #":"· data of #",
-"Media del punteggio finale degli strumenti di ogni settore. Clicca un settore per vederne il dettaglio.":"Average final score of the instruments in each sector. Click a sector to see the details.",
+"Ogni barra è un settore: sale se in media i mercati del settore sono in acquisto, scende se sono in vendita. Il numero è la media del punteggio finale. Sotto: quanti mercati sono in acquisto ▲ e in vendita ▼. Clicca un settore per vederne il dettaglio.":"Each bar is a sector: it rises when the sector's markets are buying on average and falls when they are selling. The number is the average final score. Below: how many markets are buying ▲ and selling ▼. Click a sector to see the detail.",
 "# in acquisto · # in vendita":"# buy · # sell",
 "Posizionamento sulle coppie di valute: punteggio della valuta base meno quello della quotata. \"Forte\" solo con divergenza vera (uno comprato, l'altro venduto).":"Positioning on currency pairs: score of the base currency minus that of the quote currency. \"Strong\" only with a real divergence (one bought, the other sold).",
 "Come leggere le schede.":"How to read the cards.",

@@ -171,12 +171,45 @@ try{const VEL=38,SC=(D.agenda&&D.agenda.scenari)||{};
   // il fumetto segue la pillola mentre il nastro rallenta e si ferma
   (function segui(){if(aperto&&!pop.hidden&&aperto.isConnected)mostra(aperto);requestAnimationFrame(segui);})();}
 }catch(e){fail("Prossimi eventi","eventi",e);}
-$("sectors").innerHTML=SEC.filter(g=>byS[g]).map(g=>{const l=byS[g],avg=l.reduce((x,a)=>x+a.score,0)/l.length;
- const up=l.filter(a=>a.score>=M.normal).length,dn=l.filter(a=>a.score<=-M.normal).length;
- return `<div class="sec" data-g="${g}" style="--bc:${COL[lab(avg*1.6)]}"><b>${g}</b><span>${fmt(avg)}</span><small>${up} in acquisto &middot; ${dn} in vendita</small></div>`}).join("");
-document.querySelectorAll(".sec").forEach(x=>x.onclick=()=>{go("assets");selS(x.dataset.g);});
+/* v9.48 (Ya) SETTORI E FOREX RIDISEGNATI: prima erano riquadri pieni di testo ("3 in acquisto · 0 in vendita").
+   SETTORE: icona + nome + punteggio medio, barra che parte dal centro (sinistra = vendono, destra = comprano) e
+   composizione dei mercati del settore in una barra a tre colori (in acquisto / neutri / in vendita).
+   FOREX: un solo riquadro con la distribuzione delle coppie sulle 5 etichette (barra a segmenti + legenda).
+   Stessi numeri di prima (media dei punteggi, soglie M.normal / M.strong), solo un altro disegno. */
+const SEC_IC={"Valute":'<path d="M17 7.5A6 6 0 1 0 17 16.5M4.5 10.5h9M4.5 13.5h9"/>',"Indici azionari":'<path d="M3 17l5-5 4 3 8-8M15 7h5v5"/>',
+ "Tassi USA":'<path d="M19 5L5 19M7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM16.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>',
+ "Energia":'<path d="M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 1.6 1.2 2.6 2.5 3-.5-3 .2-5.5 0-8z"/>',
+ "Metalli":'<path d="M4 17l3-8h10l3 8zM9 9l1.5-4h3L15 9"/>',"Cereali":'<path d="M12 21V9M12 13c-3 0-4.5-2-4.5-4.5C10 8.5 12 10 12 13zm0 0c3 0 4.5-2 4.5-4.5C14 8.5 12 10 12 13zM12 9c-2 0-3-1.5-3-3.5C11 5.5 12 7 12 9zm0 0c2 0 3-1.5 3-3.5C13 5.5 12 7 12 9z"/>',
+ "Soft":'<path d="M6 18c-2-5 1-11 7-12 3-.5 5 1 5 1s.5 2-.5 5c-1.5 5-6.5 8-11.5 6zM6 18c3-4 6-7 10-9"/>',
+ "Bestiame":'<path d="M5 8l-2-3M19 8l2-3M5 8h14v6a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5zM10 15h.01M14 15h.01"/>',
+ "Crypto":'<path d="M9 5v14M13 5v2M13 17v2M7 7h7a3 3 0 0 1 0 6H7m0 0h8a3 3 0 0 1 0 6H7"/>'};
+// v9.48 (Ya) DELTA IN VERTICALE: una colonna per settore, la barra sale (comprano) o scende (vendono) dalla linea
+//   dello zero; sopra/sotto il punteggio medio, in basso icona, nome e quanti mercati sono in acquisto e in vendita.
+//   Sul telefono (9 colonne non ci stanno) lo stesso grafico diventa una riga per settore, con la barra dal centro.
+const SEC_BREVE={"Indici azionari":"Indici","Tassi USA":"Tassi USA"};
+// SCALA FISSA (v9.48, Ya): 60 punti di media = barra piena (oltre si ferma al massimo). Cosi' la lunghezza ha lo stesso
+//   significato ogni settimana: -28 sta a meta' corsa, non riempie la colonna solo perche' e' il valore piu' grande.
+// SPAZI: il numero sta DENTRO la meta' della colonna, sopra (o sotto) la barra, in uno spazio riservato: non puo'
+//   toccare la linea dello zero, l'icona o il nome, qualunque sia il valore (provato da -100 a +100).
+// DEBUG (F12): ebSettori([{g:"Metalli",avg:-100,n:5,up:0,dn:5}, ...]) ridisegna con valori di prova.
+const SEC_SCALA=60,meno=t=>String(t).replace("-","−");
+function settori(righe){$("sectors").innerHTML=`<div class="secv" style="--cols:${righe.length}">`+righe.map(r=>{
+  const hn=Math.min(1,Math.abs(r.avg)/SEC_SCALA).toFixed(3),pos=Math.round(r.avg)>=0,v=meno(fmt(r.avg));
+  return `<div class="sec" data-g="${r.g}" data-v="${v}" role="button" tabindex="0" style="--bc:${COL[lab(r.avg*1.6)]}" title="${r.g}: ${v}">
+   <div class="secv-area" style="--hn:${hn}"><div class="secv-meta su">${pos?`<span class="sec-n">${v}</span><i></i>`:""}</div><div class="secv-meta giu">${pos?"":`<i></i><span class="sec-n">${v}</span>`}</div></div>
+   <span class="sec-ic"><svg viewBox="0 0 24 24" aria-hidden="true">${SEC_IC[r.g]||""}</svg></span>
+   <b>${SEC_BREVE[r.g]||r.g}</b><small><b class="su">${r.up}&#9650;</b> <b class="giu">${r.dn}&#9660;</b></small></div>`;}).join("")+`</div>`;
+ document.querySelectorAll(".sec").forEach(x=>{x.onclick=()=>{go("assets");selS(x.dataset.g);};
+  x.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();x.click();}};});}
+settori(SEC.filter(g=>byS[g]).map(g=>{const l=byS[g];
+ return {g,avg:l.reduce((x,a)=>x+a.score,0)/l.length,n:l.length,up:l.filter(a=>a.score>=M.normal).length,dn:l.filter(a=>a.score<=-M.normal).length};}));
+window.ebSettori=settori;
 var L5=["STRONG BUY","BUY","NEUTRO","SELL","STRONG SELL"];
-$("summary").innerHTML=L5.map(l=>`<div class="sum" style="--bc:${COL[l]}"><b>${D.pairs.filter(p=>p.label==l).length}</b><small>${eti(l)}</small></div>`).join("");
+(function(){const n=L5.map(l=>D.pairs.filter(p=>p.label==l).length),tot=n.reduce((a,b)=>a+b,0)||1;
+ $("summary").innerHTML=`<div class="fxd">
+  <div class="fxd-t"><b>${tot}</b><span>${T("coppie")}</span></div>
+  <div class="fxd-bar" aria-hidden="true">${L5.map((l,i)=>n[i]?`<i style="--bc:${COL[l]};flex:${n[i]}"></i>`:"").join("")}</div>
+  <div class="fxd-leg">${L5.map((l,i)=>`<span class="${n[i]?"":"zero"}" style="--bc:${COL[l]}"><i></i><b>${n[i]}</b><small>${eti(l)}</small></span>`).join("")}</div></div>`;})();
 /* v7.73 SCHEDA A SEGNALI: ogni scheda (coppia o strumento) e' una pila di righe, una per domanda:
      Grandi speculatori -> cosa stanno facendo (freccia su = comprano, giu' = vendono)
      Mercato            -> solo dove il modello macro esiste (niente piu' "n/d")
