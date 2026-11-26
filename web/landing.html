@@ -370,6 +370,25 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
 .mok i{flex:none;width:17px;height:17px;margin-top:1px;border-radius:50%;background:rgba(79,214,163,.2);position:relative}
 .mok i::after{content:"";position:absolute;left:6px;top:3px;width:4px;height:8px;border:solid var(--su);border-width:0 2px 2px 0;transform:rotate(45deg)}
 .mok b{color:var(--ink)}.mok b.su{color:var(--su)}
+/* v9.46 anteprima MACRO */
+.msp3{display:grid;gap:11px}
+.mdr{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1.3fr) 40px;align-items:center;gap:10px;font-size:13.5px}
+.mdr>span b{display:block;font-weight:650;color:var(--ink)}.mdr>span em{display:block;font-style:normal;font-size:11.5px;color:var(--mute)}
+.mdiv{position:relative;height:8px;border-radius:99px;background:rgba(27,50,96,.6)}
+.mdiv::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(195,209,230,.35)}
+.mdiv i{position:absolute;top:0;bottom:0;border-radius:99px}.mdiv i.pos{left:50%;background:var(--su)}.mdiv i.neg{right:50%;background:var(--giu)}
+.mdr>b{text-align:right;font-variant-numeric:tabular-nums}
+.msc{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-top:1px solid rgba(27,50,96,.6)}
+.mt+.msc{border-top:0;padding-top:2px}
+.msc .mring{width:56px;height:56px}.msc .mring b{font-size:14px;letter-spacing:-.3px;padding:0}.msc .mring .f,.msc .mring .a{stroke-width:6}
+.msc-t{display:grid;gap:3px;min-width:0}
+.msc-n{display:flex;align-items:center;gap:8px;min-width:0;font-size:13px}.msc-n .sfoca{font-weight:650}
+.msc-n em{font-style:normal;font-size:10.5px;font-weight:750;letter-spacing:.4px;text-transform:uppercase;color:var(--mute);padding:2px 8px;border-radius:99px;border:1px solid rgba(27,50,96,.9);white-space:nowrap}
+.msc-v{font-size:12.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--fz)}
+.msc-d{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--ink2)}.msc-d b{font-variant-numeric:tabular-nums}
+.mtac{display:inline-flex;gap:3px;align-items:flex-end}.mtac i{width:4px;border-radius:2px;background:rgba(27,50,96,.9)}
+.mtac i:nth-child(1){height:6px}.mtac i:nth-child(2){height:9px}.mtac i:nth-child(3){height:12px}.mtac i.on{background:var(--acc)}
+@media (max-width:520px){.mdr{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 34px;font-size:12.5px;gap:8px}.msc{grid-template-columns:52px minmax(0,1fr);gap:10px}.msc .mring{width:52px;height:52px}.msc .mring b{font-size:13px}}
 .mring{position:relative;width:76px;height:76px;margin:0 auto;--fz:var(--su)}.mring svg{width:100%;height:100%}
 .mring .f{fill:none;stroke:rgba(27,50,96,.7);stroke-width:7}.mring .a{fill:none;stroke:var(--fz);stroke-width:7;stroke-linecap:round}
 .mring b{position:absolute;inset:0;display:grid;place-items:center;font-size:22px;padding-bottom:10px}
@@ -480,6 +499,13 @@ html[data-off="cm"]{--o1:#3ee0cf;--o2:#5b9bff;--o3:#b07cff}
      <ul class="pote"><li><b>Posizionamento</b>: quanti mercati i grandi speculatori comprano e quanti vendono.</li><li><b>Settori</b>: dove si concentra la forza, dai metalli alle valute.</li><li><b>Clima ed economie</b>: paura o fiducia, crescita o frenata.</li></ul>
      <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 1 minuto</span></div>
     <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Dashboard</b><span data-al></span></div><div class="fcorpo" id="f-dash"></div></div></div>
+   </article>
+   <!-- v9.46 (Ya) MACRO: chi spinge il clima e quanto e' gia' scontato (vetrina._macro). Nomi coperti. -->
+   <article class="quadro appare" id="v-macro">
+    <div class="vtesto"><span class="tag">Macro</span><h3>Il mercato ha già scontato le notizie?</h3>
+     <ul class="pote"><li><b>Quanto è già scontato</b>: la mossa che chiedeva il macro accanto a quella fatta davvero.</li><li><b>Chi muove il clima</b>: VIX, credito e tassi reali, con il peso di ciascuno.</li><li><b>Affidabilità a tacche</b>: quanto quel prezzo segue davvero il macro.</li></ul>
+     <span class="tmp"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Si legge in 2 minuti</span></div>
+    <div class="fin"><div><div class="barra"><i></i><i></i><i></i><b>Macro</b><span data-al></span></div><div class="fcorpo" id="f-macro"></div></div></div>
    </article>
    <article class="quadro appare" id="v-port">
     <div class="vtesto"><span class="tag">Portafogli</span><h3>Come divido i miei soldi questo mese?</h3>
@@ -714,6 +740,21 @@ var V={{DENTRO_JSON}};
  scena("dash",function(){var p=D.pos,s=D.settori,h="";
   if(p){var t=p.su+p.giu;h+='<div class="mc"><div class="mt">Posizionamento</div><div class="mbig"><b>'+t+'</b>'+(p.forti?'<em title="'+p.forti+' tra i più forti">&#9733;'+p.forti+'</em>':'')+'<span>mercati con una posizione netta</span></div><div class="msplit"><i class="a" style="width:'+(p.su/t*100)+'%"></i><i class="b" style="width:'+(p.giu/t*100)+'%"></i></div><div class="mleg"><span><b class="su">&#9650; '+p.su+'</b> al rialzo</span><span>al ribasso <b class="giu">&#9660; '+p.giu+'</b></span></div></div>';}
   if(s)h+='<div class="msec">'+s.map(function(x){return '<div style="--bc:'+COLS[x.l]+'"><b>'+x.n+'</b><span>'+(x.v>0?"+":"")+x.v+'</span><small><b class="su">'+x.su+' &#9650;</b> &middot; <b class="giu">'+x.giu+' &#9660;</b></small></div>';}).join("")+'</div>';
+  return h;});
+
+ /* --- v9.46 MACRO: chi spinge il clima (barre dal centro) e quanto e' gia' scontato (anello + doveva/ha fatto).
+        Nomi coperti: dalla pagina escono solo la famiglia dello strumento e i numeri. --- */
+ scena("macro",function(){var m=V.macro;if(!m)return "";var h="",C=2*Math.PI*22;
+  var segno=function(n){return (n>0?"+":n<0?"&minus;":"")+Math.abs(n);};
+  var VER=function(s){return s>=40?["Spazio al rialzo","var(--su)"]:s>=15?["Un po’ di spazio al rialzo","var(--su)"]:s>-15?["Già nel prezzo","var(--oro)"]:s>-40?["Un po’ di spazio al ribasso","var(--giu)"]:["Spazio al ribasso","var(--giu)"];};
+  var NOMI=["Strumento uno","Strumento due","Strumento tre"];
+  if(m.spinte&&m.spinte.length)h+='<div class="mc"><div class="mt">Chi spinge il clima</div><div class="msp3">'+m.spinte.map(function(p){
+   return '<div class="mdr"><span><b>'+p.n+'</b><em>'+p.t+'</em></span><div class="mdiv"><i class="'+(p.c<0?"neg":"pos")+'" style="width:'+(Math.min(100,Math.abs(p.c))/2).toFixed(1)+'%"></i></div><b class="'+cl(p.c)+'">'+segno(p.c)+'</b></div>';}).join("")+'</div></div>';
+  if(m.sc&&m.sc.length)h+='<div class="mc"><div class="mt">Quanto è già scontato</div>'+m.sc.map(function(x,i){var v=VER(x.s),f=Math.min(1,Math.abs(x.s)/100);
+   return '<div class="msc"><div class="mring" style="--fz:'+v[1]+'"><svg viewBox="0 0 54 54" aria-hidden="true"><circle cx="27" cy="27" r="22" class="f"/><circle cx="27" cy="27" r="22" class="a" stroke-dasharray="'+(C*f).toFixed(1)+' '+C.toFixed(1)+'" transform="'+(x.s<0?"translate(54 0) scale(-1 1) ":"")+'rotate(-90 27 27)"/></svg><b style="color:'+v[1]+'">'+segno(x.s)+'</b></div>'
+    +'<div class="msc-t" style="--fz:'+v[1]+'"><div class="msc-n"><span class="sfoca" aria-hidden="true">'+NOMI[i]+'</span><em>'+x.f+'</em></div><span class="msc-v">'+v[0]+'</span>'
+    +'<div class="msc-d"><span>Doveva <b>'+pc(x.impl)+'</b> &middot; ha fatto <b class="'+cl(x.act)+'">'+pc(x.act)+'</b></span><span class="mtac" title="Affidabilità"><i class="on"></i><i class="on"></i><i'+(x.liv>2?' class="on"':'')+'></i></span></div></div></div>';}).join("")+'</div>';
+  if(m.tot)h+='<div class="mnota">'+LUC+'<span>I nomi e tutti i '+m.tot+' mercati sono nel terminale.</span></div>';
   return h;});
 
  /* --- PORTAFOGLI: andamento del mese + composizione coperta (solo i pesi sono veri) --- */

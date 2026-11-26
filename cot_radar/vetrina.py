@@ -97,6 +97,36 @@ def _dashboard(dati, extra):
     return out
 
 
+# v9.46 (Ya) anteprima MACRO: chi spinge il clima e "quanto e' gia' scontato" (stessi numeri della scheda Macro,
+#   07_macro.js / mercato.py). I nomi degli strumenti NON escono: solo la famiglia (Valuta, Indice azionario...).
+FAM_MACRO = {"Valute": "Valuta", "Indici azionari": "Indice azionario", "Metalli": "Metallo", "Energia": "Energia",
+             "Crypto": "Crypto", "Tassi USA": "Titolo di Stato USA"}
+SPINTE = (("vix", "VIX", ("più paura", "meno paura")), ("hy", "Spread high yield", ("si allarga", "si restringe")),
+          ("real", "Rendimenti reali", ("salgono", "scendono")))
+
+
+def _macro(dati, extra):
+    m = extra.get("market") or {}
+    z = {d.get("key"): d.get("z4") for d in m.get("drivers") or []}
+    spinte = []
+    for k, nome, testi in SPINTE:
+        if z.get(k) is None:
+            continue
+        c = round(-z[k] / 4 * 100)                       # stessa formula del terminale (punti portati al clima)
+        spinte.append({"n": nome, "c": max(-100, min(100, c)),
+                       "t": "stabile" if abs(c) < 5 else (testi[0] if c < 0 else testi[1])})
+    righe = [a for a in (dati.get("assets") or {}).values()
+             if a.get("mkt") and a.get("key") != "USD" and a.get("group") in FAM_MACRO]
+    tot = len(righe)
+    # i tre piu' netti tra quelli che seguono almeno in parte il macro (affidabilita' media o alta, R2 >= 0,10)
+    scelti = sorted((a for a in righe if (a["mkt"].get("r2") or 0) >= 0.10), key=lambda a: -abs(a["mkt"].get("score") or 0))[:3]
+    sc = [{"f": FAM_MACRO[a["group"]], "s": round(a["mkt"]["score"]), "impl": round(a["mkt"]["impl"], 1) + 0.0,
+           "act": round(a["mkt"]["act"], 1) + 0.0, "liv": 3 if a["mkt"]["r2"] >= 0.3 else 2} for a in scelti]
+    if not spinte and not sc:
+        return None
+    return {"spinte": spinte, "sc": sc, "tot": tot}
+
+
 def _portafoglio(extra):
     port = extra.get("port") or {}
     p = next((x for x in port.get("profili") or [] if x.get("id") == PROFILO), None)
@@ -198,7 +228,8 @@ def dentro(ultimi, cartella=None):
     """Tutti i dati delle anteprime: {dash, port, az, stag, paesi, tg}. Ogni pezzo e' isolato: se manca o si rompe,
     la sua scena nella pagina resta nascosta e le altre si vedono lo stesso."""
     dati, extra = ultimi.get("data") or {}, ultimi.get("extra") or {}
-    pezzi = (("dash", lambda: _dashboard(dati, extra)), ("port", lambda: _portafoglio(extra)),
+    pezzi = (("dash", lambda: _dashboard(dati, extra)), ("macro", lambda: _macro(dati, extra)),
+             ("port", lambda: _portafoglio(extra)),
              ("az", lambda: _azioni(cartella)), ("stag", _stagionalita), ("paesi", lambda: _paesi(extra)),
              ("tg", lambda: _telegram(dati, extra)),
              ("reale", lambda: (extra.get("port") or {}).get("reale")))         # v9.41 traccia reale (mesi chiusi)
