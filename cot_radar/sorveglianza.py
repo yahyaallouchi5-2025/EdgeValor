@@ -433,12 +433,15 @@ def telegram(testo, env):
 
 
 def email_admin(oggetto, testo, env):
-    """v9.20 email privata al fondatore. True = inviata, None = non configurata, False = errore (si ripiega sulla issue)."""
+    """v9.20 email privata al fondatore (v9.37 in copia al team, se TEAM_EMAIL e' impostato). True = inviata, None = non configurata, False = errore (si ripiega sulla issue)."""
     utente, password, dest = env.get("SMTP_USER"), env.get("SMTP_PASSWORD"), env.get("ADMIN_EMAIL")
     if not (utente and password and dest):
         return None
     msg = EmailMessage()
     msg["Subject"], msg["From"], msg["To"] = oggetto, utente, dest
+    # v9.37 copia all'account del team (Secret TEAM_EMAIL): la casella che legge anche Claude, per intervenire subito
+    if env.get("TEAM_EMAIL"):
+        msg["Cc"] = env["TEAM_EMAIL"]
     msg.set_content(testo + "\n\nRegistro completo: terminale, account fondatore, riga \"Registro anomalie\".")
     try:
         with smtplib.SMTP_SSL(env.get("SMTP_HOST", "smtp.gmail.com"), int(env.get("SMTP_PORT", "465")),
