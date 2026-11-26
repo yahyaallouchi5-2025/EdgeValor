@@ -118,11 +118,14 @@
    setTimeout(()=>{g.remove();fab.style.removeProperty("--gx");fab.style.removeProperty("--gy");},300);};
   g.addEventListener("click",fine);setTimeout(fine,9000);}
  window.ebNovitaGuida=()=>guida(true);
- // una volta sola: si aspetta che la pagina sia pronta e libera da finestre (al massimo 2 minuti)
+ // una volta sola: si aspetta che la pagina sia pronta e libera da finestre (al massimo 10 minuti)
  let gv=null;try{gv=localStorage.getItem("ebNovitaGuida");}catch(e){gv="1";}   // senza memoria del browser: mai
  if(!gv){let n=0;const prova=()=>{n++;
-   const libera=!document.querySelector(".cmodal,.tginv,.ebvoto,.nvchat,.nvguida")&&getComputedStyle(fab).opacity!=="0"&&document.visibilityState=="visible";
-   if(libera)guida();else if(n<60)setTimeout(prova,2000);};
+   // v9.43: la stellina deve essere DAVVERO in primo piano (non coperta dalla schermata di accesso o da altro),
+   //   altrimenti la guida partirebbe invisibile e consumerebbe l'unica volta
+   const fr=fab.getBoundingClientRect(),sopraTutto=fr.width>0&&fab.contains(document.elementFromPoint(fr.left+fr.width/2,fr.top+fr.height/2));
+   const libera=sopraTutto&&!document.querySelector(".cmodal,.tginv,.ebvoto,.nvchat,.nvguida")&&getComputedStyle(fab).opacity!=="0"&&document.visibilityState=="visible";
+   if(libera)guida();else if(n<300)setTimeout(prova,2000);};   // fino a 10 minuti (il tempo di accedere)
   setTimeout(prova,3500);}
  // --- faro sull'elemento nuovo ---
  function mostra(n){if(typeof go=="function"&&n.s)go(n.s);
