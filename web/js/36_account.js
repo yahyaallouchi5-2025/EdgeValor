@@ -234,7 +234,8 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
 
  // v9.35 dopo l'eliminazione dell'account: si dimentica la sessione su questo dispositivo (l'account non esiste piu')
  function dimentica(){S=null;P=null;ADM=false;pronto=false;inviato="";salva();try{localStorage.removeItem("ebPK");}catch(e){}}
- window.ebAccount={dimentica,ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente(),
+ window.ebAccount={mostra:(si)=>mostra(!!si),aperto:()=>!box.hidden,   // v9.61 usato dalla barra in alto (03d_topbar.js)
+  dimentica,ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente(),
   // v7.95 chiamata a una funzione del database con l'accesso dell'utente (usata dal riquadro Admin)
   rpc:(nome,corpo)=>db("rpc/"+nome,{method:"POST",body:JSON.stringify(corpo||{})}),
   // v8.11 per l'area abbonamento (46_abbonamento.js): codice di accesso valido e rilettura del profilo

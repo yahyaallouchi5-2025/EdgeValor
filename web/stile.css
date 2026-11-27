@@ -4703,3 +4703,69 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
 .ivvuoto{margin:0;padding:16px;border-radius:12px;border:1px dashed var(--line);text-align:center;font-size:13.5px;color:var(--mute)}
 @media (max-width:600px){.ivlink{flex-wrap:wrap}.ivlink input{flex-basis:100%}.ivlink button{flex:1;justify-content:center}
  .ivn{padding:12px 10px 10px}.ivn b{font-size:21px}.ivn span{font-size:11.5px}}
+
+/* ---------- v9.61 BARRA IN ALTO A DESTRA + PROFILO A TENDINA (03d_topbar.js), solo PC ---------- */
+.tbar{display:none}
+@media (min-width:901px){
+ html.sidev2 .tbar{display:flex;justify-content:flex-end;align-items:center;height:48px;margin:0 0 24px;position:relative;z-index:60}
+ .tbdx{display:flex;align-items:center;gap:6px}
+ .tbtn{position:relative;height:40px;padding:0 12px;border-radius:11px;border:1px solid transparent;background:none;color:var(--ink2);
+  display:inline-flex;align-items:center;gap:8px;font:600 13.5px system-ui;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+ .tbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ .tbtn:hover{background:var(--soft);border-color:var(--line);color:var(--ink)}
+ .tbpunto{position:absolute;left:24px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 2px var(--bg)}
+ .tbpunto[hidden]{display:none}
+ .tblang{margin:0 6px}.tblang button{padding:5px 11px}
+ .tbprof{position:relative}
+ .tbav{position:relative;height:42px;display:inline-flex;align-items:center;gap:9px;padding:0 12px 0 5px;border-radius:99px;border:1px solid var(--line);
+  background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--ink);font:600 13.5px system-ui;cursor:pointer;transition:border-color .15s,background .15s}
+ .tbav:not(.conav){padding-left:14px}
+ .tbav:hover,.tbav[aria-expanded="true"]{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
+ .tbini{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 12.5px system-ui;letter-spacing:.3px;color:#04211e;
+  background:linear-gradient(135deg,var(--acc),#5b9bff)}
+ .tbav:not(.conav) .tbini{display:none}
+ .tbnome[hidden]{display:none}
+ .tbeti{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:800;border:1px solid var(--line);color:var(--ink2)}
+ .tbeti[hidden]{display:none}
+ .tbeti.ok{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,var(--oro2),var(--oro) 45%,var(--oro3))}
+ .tbeti.prova{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+ .tbav>svg{width:16px;height:16px;fill:none;stroke:var(--mute);stroke-width:2;transition:transform .2s}
+ .tbav[aria-expanded="true"]>svg{transform:rotate(180deg)}
+ .tbav.tbrit::after{content:"";position:absolute;left:30px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--s);box-shadow:0 0 0 2px var(--bg)}
+ /* tendina */
+ .tbmenu{position:absolute;right:0;top:calc(100% + 8px);width:330px}
+ .tbmenu .pfbox2{margin:0;padding:10px;border-radius:16px;background:var(--card);box-shadow:0 18px 48px rgba(0,0,0,.45);animation:tbgiu .18s ease;
+  max-height:calc(100vh - 120px);overflow-y:auto;overscroll-behavior:contain}
+ @keyframes tbgiu{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+ html.ridotta .tbmenu .pfbox2:not([hidden]){display:grid}
+ /* sul PC il Profilo della barra laterale non serve piu': c'e' l'avatar in alto */
+ html.sidev2 #pfapri{display:none}
+ /* PROFILO COMPATTO: una sola griglia a due colonne, ogni voce al suo posto (order) */
+ .pfbox2.v3{grid-template-columns:1fr 1fr;gap:4px}
+ .pfbox2.v3>#pfconto,.pfbox2.v3>.pfaltro,.pfbox2.v3>#pfcoda{display:contents}
+ .pfbox2.v3 #pfconto>*,.pfbox2.v3 .pfaltro>*,.pfbox2.v3 #pfcoda>*{grid-column:1/-1}
+ .pfbox2.v3 .pfchi{order:1;padding:6px 8px 10px;border-bottom:1px solid var(--line);margin-bottom:4px}
+ .pfbox2.v3 .pfform{order:1}
+ .pfbox2.v3 .pfprova{order:2}
+ /* Admin e Anomalie: due riquadri affiancati, stessa altezza (id nel selettore: vince su "#pfconto>*" a tutta riga) */
+ .pfbox2.v3 #pfconto>.pfadmin,.pfbox2.v3 .pfaltro>#sanom{order:3;grid-column:auto;margin:0 0 4px;height:auto;min-height:58px;display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:none;font-size:13px}
+ html .tbmenu .pfadmin>span{white-space:normal;line-height:1.3}
+ .pfbox2.v3 #sanom .sfreccia{display:none}
+ .pfbox2.v3 #sanom .sdtx b{font-size:13px}
+ .pfbox2.v3 #pfconto>.pfadmin:hover,.pfbox2.v3 .pfaltro>#sanom:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
+ .pfbox2.v3 .pfabb,.pfbox2.v3 #pfconto>button[disabled]{order:5}
+ .pfbox2.v3 .pfrec{order:6}
+ .pfbox2.v3 .pfoff{order:8;margin-top:4px;padding:10px 8px 6px;border-top:1px solid var(--line)}
+ .pfbox2.v3 .pfmotivo{order:9}
+ .pfbox2.v3 .pfelim{order:98}
+ .pfbox2.v3 .pfesci{order:99;margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 10px 10px;padding-top:11px}
+ /* nella tendina le icone e le scritte valgono come nella barra larga, anche con la barra laterale ridotta */
+ .tbmenu svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ html .tbmenu .sitem{justify-content:flex-start;height:auto;padding:9px 8px;gap:11px;font:600 13.5px system-ui}
+ html .tbmenu .sitem span{display:revert}html .tbmenu .sdtx{display:grid}
+ html .tbmenu .sitem>span{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ html .tbmenu .sdati{justify-content:flex-start}
+ /* gia' nella barra in alto: non si ripetono nella tendina */
+ .pfbox2.v3 .pflingua:not(.pfoff),.pfbox2.v3 #novapri,.pfbox2.v3 #fbapri,.pfbox2.v3 #gapri,.pfbox2.v3 #sdati,.pfbox2.v3 #status{display:none}
+}

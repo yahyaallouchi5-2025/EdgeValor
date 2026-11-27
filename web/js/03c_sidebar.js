@@ -65,8 +65,10 @@ try{(function(){const side=$("side"),nav=$("nav");if(!side||!nav)return;
   if(!a){a=document.createElement("span");a.className="sav";a.setAttribute("aria-hidden","true");pf.prepend(a);}a.textContent=ini;pf.classList.add("conav");return true;}
  let na=0;const ta=setInterval(()=>{if(avatar()||++na>40)clearInterval(ta);},1500);
  // il menu del profilo si chiude toccando fuori
+ // v9.61 si chiude con ebAccount.mostra(false): pf.click() riapriva la barra ridotta; fuori anche l'avatar della barra in alto
  document.addEventListener("pointerdown",e=>{const b=$("pfbox");if(!b||b.hidden||!pf)return;
-  if(e.target.closest("#pfbox,#pfapri"))return;if(pf.getAttribute("aria-expanded")=="true")pf.click();});
+  if(e.target.closest("#pfbox,#pfapri,#tbav"))return;
+  if(window.ebAccount&&ebAccount.mostra)ebAccount.mostra(false);else if(pf.getAttribute("aria-expanded")=="true")pf.click();});
 
  // ---- 4) NAVIGAZIONE: le voci usano go() delle schede di sempre (link diretti e statistiche invariati)
  const sub=term.querySelector(".ssub2"),merc=term.querySelector(".smerc");
