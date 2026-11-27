@@ -415,7 +415,7 @@ Object.assign(EB_EN,{
 "ultime 3 settimane":"last 3 weeks",
 "Notizie della settimana":"News of the week",
 "Aggiornamento scheda grafico":"Chart panel update",
-"Nuovi indicatori sul grafico: profilo del prezzo, posizione degli speculatori nel tempo, volatilità (ATR) con calma o agitazione, correlazione con dollaro e S&P 500. Si accendono dai pulsanti sopra il grafico.":"New chart indicators: price profile, speculator positioning over time, volatility (ATR) with calm or stressed regimes, correlation with the dollar and the S&P 500. Turn them on with the buttons above the chart.",
+"Nuovi indicatori sul grafico: profilo del prezzo, posizione degli speculatori nel tempo, volatilità (ATR) con calma o agitazione, correlazione con dollaro e S&P 500. Si accendono dai pulsanti sopra il grafico. In alto sul grafico ora è scritto il timeframe (giornaliero o orario).":"New chart indicators: price profile, speculator positioning over time, volatility (ATR) with calm or stressed regimes, correlation with the dollar and the S&P 500. Turn them on with the buttons above the chart. The timeframe (daily or hourly) is now written at the top of the chart.",
 "Profilo":"Profile",
 "Correlazione":"Correlation",
 "Il grafico di ogni strumento ora è nostro: fasce degli speculatori, uscite del COT, notizie, medie mobili e RSI. Da telefono si legge tutto in verticale.":"Every instrument now has our own chart: speculator bands, COT releases, news, moving averages and RSI. On phones everything reads vertically."

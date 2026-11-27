@@ -306,6 +306,8 @@
    if(yu>=pt&&yu<=pt+PH){const c=U.c>=U.o?"su":"giu";
     svg+=`<line class="vfc-ul ${c}" x1="${pl}" x2="${W-pr}" y1="${yu}" y2="${yu}"/><rect class="vfc-ut ${c}" x="${W-pr+1}" y="${yu-9}" width="${pr-2}" height="18" rx="3"/><text class="vfc-utt" x="${W-pr+6}" y="${yu+4}">${fmt(U.c)}</text>`;}
    svg+=destra;                                                 // v9.57 etichette dei riquadri sulla scala di destra
+   // v9.58 timeframe scritto sul grafico (si legge anche quando la barra dei pulsanti e' fuori schermo)
+   if(SK)svg+=`<text class="vfc-tfl" x="${pl+6}" y="${pt-8}">${d?"Giornaliero · 1 candela = 1 giorno":"Orario · 1 candela = 1 ora"}</text>`;
    // etichetta del mirino (prezzo dove sta il dito o il mouse): sopra a tutto
    svg+=`<g class="vfc-yt" visibility="hidden"><rect x="${W-pr+1}" y="-9" width="${pr-2}" height="18" rx="3"/><text x="${W-pr+6}" y="4"></text></g>`;
    svg+=`<rect class="vfc-asse" x="${W-pr}" y="${pt}" width="${pr}" height="${PH}"><title>Trascina in su o in giù per allungare il grafico · doppio clic: scala automatica</title></rect></svg>`;

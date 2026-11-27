@@ -4667,3 +4667,6 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
  .tvpannello.v2 .tvchart:has(.vfc-w[data-np="2"]){height:clamp(540px,84dvh,780px)}
 }
 .vfc-rl{paint-order:stroke;stroke:var(--card2);stroke-width:3px}
+
+/* v9.58 etichetta del timeframe sul grafico della scheda */
+.vfc-tfl{font-size:11px;fill:var(--mute);font-weight:600;letter-spacing:.2px;pointer-events:none}
