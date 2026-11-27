@@ -329,7 +329,7 @@
   W0.addEventListener("click",e=>e.stopPropagation());
   const ro=new ResizeObserver(()=>ridisegna());ro.observe(g);if(SK)ro.observe(box);
   mostra(SK?"d":"h");
- }catch(e){console.warn("[EdgeValor] grafico",e);box.innerHTML="";}};
+ }catch(e){console.warn("[EdgeValor] grafico",e);box.innerHTML="";try{window.ebErrore&&ebErrore("Grafico candele",e);}catch(_){}}};
  window.ebCandele.cache=cache;
  window.ebCandele.simbolo=simbolo;          // v9.55 la scheda chiede se abbiamo le candele di uno strumento
 }catch(e){console.warn("[EdgeValor] grafico",e);}})();

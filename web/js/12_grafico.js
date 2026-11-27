@@ -240,7 +240,7 @@ function disegnaCOT(spec){const box=$("tvcot");try{
    <div class="sk-rc">${senzaTitolo(x.h)}</div></details>`).join("")}</div>
   <p class="sk-piede">Dati di studio, non un consiglio di investimento.</p>`;
  /* i link [data-vai] (es. "Approfondisci" della stagionalita') sono gestiti da un unico ascoltatore globale (vedi navigazione) */
- }catch(e){box.innerHTML="";console.error("[EdgeValor] pannello COT:",e);}}   // se si rompe sparisce il pannello, non il grafico
+ }catch(e){box.innerHTML="";console.error("[EdgeValor] pannello COT:",e);try{window.ebErrore&&ebErrore("Scheda: lettura",e);}catch(_){}}}   // se si rompe sparisce il pannello, non il grafico
 /* AVVISO NOTIZIA nel pannello del grafico: compare SOLO quando una notizia (es. CPI, Fed) va contro il
    segnale, perche' cambia il "quando" entrare. Nessun voto di affidabilita' (tolto in v6.16). */
 function avvisoNotizia(spec){const[t,id]=spec.split(":");if(t!="p")return "";const p=D.pairs.find(x=>x.pair==id);

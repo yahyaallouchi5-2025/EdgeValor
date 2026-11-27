@@ -212,3 +212,20 @@ class TestRegistroPrivato(unittest.TestCase):
         s.scrivi_registro({"v": 1, "privato": True, "agg": "2026-11-27 14:00"}, d)
         dati = json.load(open(os.path.join(d, "anomalie.json"), encoding="utf-8"))
         self.assertEqual(set(dati), {"v", "privato", "agg"})       # niente aperte, chiuse, link o azioni
+
+
+class TestErroriTerminale(unittest.TestCase):
+    """v9.56 errori del terminale: anomalia solo se si ripetono (almeno 3 volte in 2 ore per sezione)."""
+    def test_soglia_e_raggruppamento(self):
+        from cot_radar import sorveglianza as s
+        err = [{"sezione": "Grafico", "messaggio": "x is undefined", "n": 2},
+               {"sezione": "Grafico", "messaggio": "y is null", "n": 1},
+               {"sezione": "Settori", "messaggio": "z", "n": 1}]
+        p = s.problemi_terminale(err)
+        self.assertEqual(len(p), 1)                                   # Settori (1 volta) non e' un'anomalia
+        self.assertIn('sezione "Grafico"', p[0])
+        self.assertIn("3 volte", p[0])
+        self.assertIn("x is undefined", p[0])                         # il messaggio piu' frequente
+        self.assertEqual(s.area(p[0]), "Terminale")
+        self.assertEqual(s.problemi_terminale(None), [])
+        self.assertEqual(s.problemi_terminale([{"n": 9}, "rotto"]), [])

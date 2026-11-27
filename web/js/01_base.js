@@ -80,8 +80,22 @@ function fd(s){if(!s)return"";const m=["gen","feb","mar","apr","mag","giu","lug"
    Gli errori imprevisti (anche dentro i clic) mostrano un avviso rosso in alto invece di una pagina bianca.
    DEBUG: F12 -> Console: ogni errore e' stampato con il nome della sezione. window.__errori li elenca tutti. */
 window.__errori=[];
+/* v9.56 ERRORI DEL TERMINALE NEL REGISTRO ANOMALIE (Ya: "collega sempre al log di anomalie"): quando una sezione si
+   rompe per un visitatore, la pagina lo segnala al database (public.segnala_errore: solo nome della sezione e testo
+   dell'errore, niente dati personali). La sorveglianza oraria lo legge e, se si ripete, apre l'anomalia (email a Ya).
+   Al massimo 5 segnalazioni per pagina e mai due uguali; mai dalla pagina aperta in locale. */
+window.ebErrore=(function(){let n=0;const visti=new Set();
+ return function(sezione,e){try{
+  if(location.protocol=="file:"||!/(^|\.)edgevalor\.com$|github\.io$/.test(location.hostname))return;
+  const msg=String(e&&e.message||e||"").replace(/\s+/g," ").slice(0,300),k=sezione+"|"+msg;
+  if(visti.has(k)||++n>5)return;visti.add(k);
+  fetch("https://cwwmqujccwzmqougtedh.supabase.co/rest/v1/rpc/segnala_errore",{method:"POST",keepalive:true,
+   headers:{apikey:"sb_publishable_dACPf8QgDBCygllXsPKOHw_phFdDH-X","Content-Type":"application/json"},
+   body:JSON.stringify({p_sezione:String(sezione||"").slice(0,60),p_messaggio:msg})}).catch(()=>{});
+ }catch(_){}};})();
 function fail(sezione,contenitore,e){
  window.__errori.push({sezione,errore:String(e&&e.stack||e)});
+ try{window.ebErrore(sezione,e);}catch(_){}
  try{window.ebStat&&ebStat.ev("errore",{sezione:sezione});}catch(_){}   // statistiche: quali sezioni si rompono ai visitatori
  console.error("[EdgeValor] sezione '"+sezione+"' non disponibile:",e);
  const box=`<div class="alert red"><b>Sezione "${sezione}" non disponibile.</b> Errore: ${esc(e&&e.message||e)}. Le altre sezioni funzionano normalmente.</div>`;

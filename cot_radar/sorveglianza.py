@@ -279,7 +279,29 @@ AREE = (("Sito", ("Sito ", "stato.json", "Ultimo aggiornamento del sito")), ("Fo
         ("COT", ("Report COT", "Data dell'ultimo COT")), ("Telegram", ("Riepilogo COT",)),
         ("Azionario", ("Azionario", "azioni/indice", "Titoli tolti", "Prezzi fermi da")),
         ("Prezzi live", ("Prezzi live", "live.json")), ("Workflow", ("Ultimo giro",)), ("Archivio", ("Archivio",)),
-        ("Stagionalità", ("Stagionalita'", "Indice della stagionalita'")), ("Accesso", ("Accesso con Google",)))
+        ("Stagionalità", ("Stagionalita'", "Indice della stagionalita'")), ("Accesso", ("Accesso con Google",)),
+        ("Terminale", ("Terminale: ",)))
+
+
+# v9.56 ERRORI DEL TERMINALE (Ya: "collega sempre al log di anomalie"): ogni volta che una sezione si rompe per un
+# visitatore la pagina lo segnala (public.segnala_errore). Diventa un'anomalia solo se si ripete: un errore isolato
+# (rete del visitatore, estensione del browser) non fa partire email.
+SOGLIA_ERRORI = 3          # volte nelle ultime 2 ore, per sezione
+
+
+def problemi_terminale(errori, soglia=SOGLIA_ERRORI):
+    """[{sezione, messaggio, n}] -> frasi per il registro (una per sezione, con l'errore piu' frequente)."""
+    per = {}
+    for e in errori or []:
+        if not isinstance(e, dict) or not e.get("sezione"):
+            continue
+        x = per.setdefault(e["sezione"], {"n": 0, "msg": "", "max": 0})
+        n = int(e.get("n") or 0)
+        x["n"] += n
+        if n > x["max"]:
+            x["max"], x["msg"] = n, str(e.get("messaggio") or "")
+    return ["Terminale: sezione \"%s\" non disponibile per i visitatori (%d volte nelle ultime 2 ore): %s"
+            % (sez, x["n"], x["msg"][:140] or "errore senza testo") for sez, x in sorted(per.items()) if x["n"] >= soglia]
 
 
 def area(testo):
@@ -471,7 +493,7 @@ def _oidc(env):
         return json.load(r)["value"]
 
 
-def registro_remoto(env, dati=None):
+def registro_remoto(env, dati=None, completo=False):
     """v9.54 REGISTRO PRIVATO (Ya: "dobbiamo vederlo solo io e te"): il registro sta in Supabase (funzione
     registro-anomalie), non piu' su un ramo pubblico di GitHub. dati=None -> legge il registro del giro prima (dict o
     None); dati=dict -> lo salva (True/False). Nessun token: None (prova in locale)."""
@@ -488,6 +510,8 @@ def registro_remoto(env, dati=None):
         with urllib.request.urlopen(req, timeout=30) as r:
             js = json.load(r)
         if dati is None:
+            if completo:                                      # v9.56 anche gli errori del terminale
+                return js if js.get("ok") else None
             return js.get("dati") if js.get("ok") and isinstance(js.get("dati"), dict) else None
         return js.get("ok") is True
     except Exception as e:                                    # mai il token nei log: solo il tipo di errore
@@ -602,9 +626,12 @@ def main(argv):
     cursore = _prova(lambda: _json(CURSORE_TG))
     prob = problemi(adesso, stato, indice, live, giri, orari_borse.leggi_remoto(), eventi, archivio, orari, cursore,
                     accesso=accesso_google())
+    # v9.54/v9.56 registro privato: registro del giro prima ed errori del terminale delle ultime 2 ore
+    remoto = registro_remoto(env, completo=True) or {}
+    prob += problemi_terminale(remoto.get("errori"))
     print("\n".join(prob) if prob else "Tutto regolare.")
     # v9.54 registro del giro prima: dal posto privato (Supabase); il file del ramo resta solo come riserva del passaggio
-    prec = registro_remoto(env) or leggi_json(env.get("ANOMALIE_PREC") or "") or {}
+    prec = (remoto.get("dati") if isinstance(remoto.get("dati"), dict) else None) or leggi_json(env.get("ANOMALIE_PREC") or "") or {}
     if prec.get("privato"):                                   # il ramo pubblico ora contiene solo il segnaposto
         prec = {}
     reg = aggiorna_registro(prec, prob, adesso)
