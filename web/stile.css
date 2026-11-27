@@ -4673,3 +4673,33 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
 
 /* v9.59 prima card di ogni scheda senza margine in alto: parte alla stessa altezza del logo (03c_sidebar.js fascia()) */
 @media (min-width:901px){html.sidev2 .eb-primo,html.sidev2 .eb-primo>:first-child{margin-top:0!important}}
+
+/* v9.60 PANNELLO INVITA AMICI (32_invita.js): link personale, tre numeri, elenco amici senza nomi */
+.ivbox{width:min(560px,100%);overflow-y:auto;overscroll-behavior:contain}   /* tutto il pannello scorre: niente righe tagliate */.ivbox .cmodal-testa{position:relative;padding-right:34px}
+.ivbox .cmodal-testa h3{display:flex;align-items:center;gap:8px}
+.ivlink{display:flex;gap:8px;align-items:stretch}
+.ivlink input{flex:1;min-width:0;height:44px;padding:0 14px;border-radius:11px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:500 13.5px ui-monospace,SFMono-Regular,Menlo,monospace;text-overflow:ellipsis}
+.ivlink input:focus{outline:none;border-color:var(--acc)}
+.ivlink button{flex:none;height:44px;padding:0 16px;border-radius:11px;display:inline-flex;align-items:center;gap:8px;font:700 14px system-ui;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s,border-color .15s}
+.ivlink button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ivcopia{background:var(--acc);border:1px solid var(--acc);color:#04211e}
+.ivcopia:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(46,196,182,.3)}
+.ivcopia.fatto{background:var(--b);border-color:var(--b)}
+.ivcond{background:none;border:1px solid var(--line);color:var(--ink)}.ivcond:hover{border-color:var(--acc)}
+.ivnum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ivn{display:flex;flex-direction:column;gap:4px;padding:14px 14px 12px;border-radius:14px;border:1px solid var(--line);background:var(--soft)}
+.ivn b{font-size:24px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.ivn span{font-size:12.5px;line-height:1.3;color:var(--mute)}
+.ivn.oro{border-color:color-mix(in srgb,#f3c75f 45%,transparent);background:color-mix(in srgb,#f3c75f 8%,var(--soft))}.ivn.oro b{color:#f3c75f}
+.ivel h4{margin:2px 0 8px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--mute)}
+.ivlista ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ivlista li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}
+.ivlista li>div{flex:1;min-width:0;display:flex;flex-direction:column}
+.ivlista li b{font-size:14px;color:var(--ink)}.ivlista li small{font-size:12px;color:var(--mute)}
+.ivav{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 12.5px system-ui;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.ivst{flex:none;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid var(--line);color:var(--ink2)}
+.ivst.ok{color:var(--b);border-color:color-mix(in srgb,var(--b) 45%,transparent);background:color-mix(in srgb,var(--b) 12%,transparent)}
+.ivst.pr{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.ivvuoto{margin:0;padding:16px;border-radius:12px;border:1px dashed var(--line);text-align:center;font-size:13.5px;color:var(--mute)}
+@media (max-width:600px){.ivlink{flex-wrap:wrap}.ivlink input{flex-basis:100%}.ivlink button{flex:1;justify-content:center}
+ .ivn{padding:12px 10px 10px}.ivn b{font-size:21px}.ivn span{font-size:11.5px}}

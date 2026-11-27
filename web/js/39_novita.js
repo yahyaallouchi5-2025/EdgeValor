@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-27T20",t:"Nuovo pannello Invita amici",x:"Il tuo link personale, quanti amici si sono iscritti e quanti si sono abbonati, e i mesi di Premium che hai guadagnato. Chi si iscrive con il tuo link prova Premium per 14 giorni.",s:""},
   {d:"2026-11-27T18",t:"Aggiornamento scheda grafico",x:"Nuovi indicatori sul grafico: profilo del prezzo, posizione degli speculatori nel tempo, volatilità (ATR) con calma o agitazione, correlazione con dollaro e S&P 500. Si accendono dai pulsanti sopra il grafico. In alto sul grafico ora è scritto il timeframe (giornaliero o orario).",s:""},
   {d:"2026-11-27T16",t:"Aggiornamento scheda grafico",x:"Il grafico di ogni strumento ora è nostro: fasce degli speculatori, uscite del COT, notizie, medie mobili e RSI. Da telefono si legge tutto in verticale.",s:""},
   {d:"2026-11-27T00",t:"Nuova barra laterale",x:"Schede, ricerca e watchlist ora sono tutte nella barra a sinistra. Su telefono si apre dal menu in alto.",s:""},

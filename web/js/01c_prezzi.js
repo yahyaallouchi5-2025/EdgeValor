@@ -22,5 +22,6 @@ const EB_PREZZI=(()=>{
  return {CAMBIO,VECCHI,NUOVI,PROMO,nuovi:()=>nuovi(),listino:()=>nuovi()?NUOVI:VECCHI,
   di:d=>{const t=Date.parse(d||"");return isNaN(t)?(nuovi()?NUOVI:VECCHI):(nuovi(t)?NUOVI:VECCHI);},
   // durata della prova per chi si registra adesso (la crea il database: privato.nuovo_utente, stessa data)
-  prova:()=>Date.now()>=PROVA7?7:14};
+  // v9.60 chi arriva con il link di un amico (?invito=, ricordato in localStorage "ebInvito") prova 14 giorni
+  prova:()=>{try{if(localStorage.getItem("ebInvito"))return 14;}catch(e){}return Date.now()>=PROVA7?7:14;}};
 })();
