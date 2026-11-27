@@ -44,6 +44,8 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           while [ "$(date +%s)" -lt "$FINE" ]; do
+            # v9.54 ogni giro usa il codice piu' recente di cot_radar (prima restava quello della partenza fino a 5h45)
+            git fetch -q --depth 1 origin main 2>/dev/null && git checkout -q FETCH_HEAD -- cot_radar 2>/dev/null || echo "codice nuovo non scaricato: resta quello della partenza"
             if python3 -m cot_radar.live --aperta; then
               rm -rf out prima.json
               # live.json del giro prima (solo per riusare i simboli gia' trovati: meno richieste)
