@@ -4,7 +4,9 @@
         l'eliminazione definitiva del tuo account e dei tuoi dati." Se c'e' un abbonamento attivo: riquadro con la
         disdetta e i vantaggi che si perdono (stesso riquadro della disdetta, 46_abbonamento.js). [Annulla] [Sì, confermo]
      2) "Ultima conferma": [Torna indietro] [Elimina definitivamente il mio account] (rosso).
-     3) funzione elimina-account: disdice PayPal se serve, archivia i pagamenti (obbligo fiscale), cancella tutto il resto.
+     v9.63 (Ya, 27/11/2026): con l'abbonamento ATTIVO l'account NON si elimina: compare solo il messaggio "Potrai eliminare
+        il tuo account solo dopo aver terminato l'abbonamento" con il pulsante per gestirlo. Il punto 1 vale senza abbonamento.
+     3) funzione elimina-account: rifiuta se l'abbonamento e' attivo, archivia i pagamenti (obbligo fiscale), cancella tutto il resto.
         Poi si esce dall'account e si torna alla pagina iniziale.
    La voce non compare per fondatore e team (rpc posso_eliminare_account) e la funzione li rifiuta comunque.
    DEBUG: ebElimina.apri({prova:true}) mostra le finestre senza eliminare niente. */
@@ -54,8 +56,18 @@
     catch(x){occupato=false;via.disabled=ind.disabled=false;via.textContent=T("Elimina definitivamente il mio account");es.className="abesito ko";
      const e=x&&x.e;console.warn("[EdgeValor] elimina account:",x);
      es.textContent=T(e=="disdetta"?"Non siamo riusciti a disdire l'abbonamento su PayPal, quindi l'account non è stato eliminato. Riprova tra poco."
-      :e=="protetto"?"Questo account non si può eliminare.":e=="accesso"?"Accesso scaduto: entra di nuovo e riprova."
+      :e=="abbonamento"?"Potrai eliminare il tuo account solo dopo aver terminato l'abbonamento.":e=="protetto"?"Questo account non si può eliminare.":e=="accesso"?"Accesso scaduto: entra di nuovo e riprova."
       :"Eliminazione non riuscita. Riprova tra poco.");}};}
+
+  // --- v9.63 (Ya, 27/11/2026) ABBONAMENTO ATTIVO: l'account non si elimina. Solo il messaggio e la strada per la disdetta
+  //     (prima l'eliminazione disdiceva PayPal da sola). Anche la funzione elimina-account rifiuta (errore "abbonamento").
+  function bloccato(){
+   corpo.innerHTML=testa(ICO.avviso,"",T("Prima disdici l'abbonamento"))+
+    `<p class="eltxt">${T("Potrai eliminare il tuo account solo dopo aver terminato l'abbonamento.")}</p>
+     <p class="small abnota">${T("Puoi disdirlo da «Gestisci abbonamento»: non ci saranno altri addebiti.")}</p>
+    <div class="cmodal-btn"><button type="button" class="cno elno">${T("Ho capito")}</button>${window.ebAbbonamento?`<button type="button" class="csi elabb">${T("Gestisci abbonamento")}</button>`:""}</div>`;
+   corpo.querySelector(".elno").onclick=chiudi;corpo.querySelector(".elno").focus();
+   const g=corpo.querySelector(".elabb");if(g)g.onclick=()=>{chiudi();setTimeout(()=>ebAbbonamento.apri(),240);};}
 
   // --- fine: account eliminato, si esce e si torna alla pagina iniziale
   function fatto(){
@@ -66,7 +78,7 @@
   // abbonamento attivo? (lo dice il database)
   corpo.innerHTML=testa(ICO.cestino,"ko",T("Elimina account"))+`<p class="eltxt">${T("Un momento…")}</p>`;
   (window.ebAccount&&ebAccount.rpc?ebAccount.rpc("mio_abbonamento").catch(()=>[]):Promise.resolve([]))
-   .then(r=>{const a=(r||[])[0];passo1(!!(a&&a.stato=="ACTIVE")||!!o.attivo);});}
+   .then(r=>{const a=(r||[])[0];(!!(a&&a.stato=="ACTIVE")||!!o.attivo)?bloccato():passo1(false);});}
 
  window.ebElimina={apri};
 }catch(e){console.error("[EdgeValor] elimina account:",e);}})();

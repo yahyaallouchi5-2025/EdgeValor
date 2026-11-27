@@ -2,8 +2,8 @@
 // Richiesta di Ya (26/11/2026). Ordine delle operazioni, pensato perche' non resti mai un addebito senza account:
 //   1) chi e'? (accesso del terminale verificato da Supabase Auth)
 //   2) fondatore e team NON si eliminano (privato.account_protetto): risposta 403
-//   3) abbonamento PayPal attivo -> prima si DISDICE (funzione paypal, azione=disdici). Se la disdetta non riesce
-//      ci si ferma: nessuna cancellazione con un abbonamento che continuerebbe ad addebitare.
+//   3) v9.63 abbonamento PayPal attivo -> RIFIUTO (409 "abbonamento"): prima si disdice da "Gestisci abbonamento".
+//      Mai una cancellazione con un abbonamento che continuerebbe ad addebitare.
 //   4) account_prepara_eliminazione: copia i PAGAMENTI in privato.archivio_pagamenti (obbligo fiscale, 10 anni,
 //      lo legge solo l'admin) e rende anonime le richieste Premium con la sua email
 //   5) cancellazione dell'utente in Supabase Auth: profilo, lista, inviti e abbonamenti si cancellano a catena
@@ -44,18 +44,10 @@ Deno.serve(async (req) => {
     const protetto = await fetch(`${URL_DB}/rest/v1/rpc/posso_eliminare_account`, { method: "POST",
       headers: { apikey: CHIAVE_DB, Authorization: auth, "Content-Type": "application/json" }, body: "{}" });
     if (!protetto.ok || (await protetto.json()) !== true) return json({ ok: false, errore: "protetto" }, 403);
-    // 3) abbonamento attivo: prima la disdetta su PayPal
-    let disdetto = false;
-    if (await rpc("account_abbonamento_attivo", { p_utente: id })) {
-      const d = await fetch(`${URL_DB}/functions/v1/paypal?azione=disdici`, { method: "POST",
-        headers: { Authorization: auth, apikey: CHIAVE_DB, "Content-Type": "application/json" }, body: "{}" });
-      const j = await d.json().catch(() => ({})) as { ok?: boolean };
-      if (!d.ok || !j.ok) {
-        console.error("[elimina-account] disdetta PayPal non riuscita", d.status);
-        return json({ ok: false, errore: "disdetta" }, 502);
-      }
-      disdetto = true;
-    }
+    // 3) v9.63 (Ya, 27/11/2026) abbonamento attivo: l'account NON si elimina. Prima si disdice da "Gestisci abbonamento"
+    //    (prima la disdetta su PayPal partiva da qui in automatico).
+    const disdetto = false;
+    if (await rpc("account_abbonamento_attivo", { p_utente: id })) return json({ ok: false, errore: "abbonamento" }, 409);
     // 4) archivio dei pagamenti
     const prep = await rpc("account_prepara_eliminazione", { p_utente: id }) as { ev?: string };
     // 5) cancellazione (a catena: profilo, lista, inviti, abbonamenti)
