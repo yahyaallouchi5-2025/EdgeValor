@@ -91,16 +91,22 @@ try{(function(){const side=$("side"),nav=$("nav");if(!side||!nav)return;
  // ---- 5) v9.51 ALLINEAMENTO CON LA PRIMA CARD (solo PC): la fascia del logo prende l'altezza della prima card della pagina
  //   (striscia Black Friday, avviso dati, ecc.) cosi' inizio e fine coincidono. Card piu' alta di 64px = resta 48px (allinea l'inizio).
  const wrap=document.querySelector(".wrap");
- function primaCard(){if(!wrap)return null;const vis=e=>e&&e.offsetHeight>0&&getComputedStyle(e).position!="fixed";
+ function primaCard(){if(!wrap)return null;const vis=e=>e&&e.id!="foot"&&e.offsetHeight>0&&getComputedStyle(e).position!="fixed";   // v9.59 il pie' pagina non e' mai la prima card
   let el=[...wrap.children].find(vis);if(el&&el.id=="sig")el=[...el.children].find(vis);return el||null;}
  let roC=null,ultimaC=null,attesa=0;
+ // v9.59 (Ya, 27/11/2026) "una volta per tutte": la prima card visibile di ogni scheda prende la classe .eb-primo, che le toglie
+ //   il margine in alto (stile.css). Cosi' parte sempre a 28px come il logo, qualunque cosa ci sia sopra o venga chiusa
+ //   (striscia Black Friday, avviso festivita', dati demo): prima, chiuso l'avviso, "Prossimi eventi" restava 28px piu' in basso.
  function fascia(){attesa=0;const c=primaCard();
-  if(c!==ultimaC){if(roC)roC.disconnect();ultimaC=c;if(c&&window.ResizeObserver){roC=new ResizeObserver(()=>pianifica());roC.observe(c);}}
+  if(c!==ultimaC){if(ultimaC)ultimaC.classList.remove("eb-primo");if(c)c.classList.add("eb-primo");if(roC)roC.disconnect();ultimaC=c;if(c&&window.ResizeObserver){roC=new ResizeObserver(()=>pianifica());roC.observe(c);}}
   const hh=c?Math.round(c.getBoundingClientRect().height):0,v=hh>=36&&hh<=64?hh:48;
   if(side.style.getPropertyValue("--fascia")!=v+"px")side.style.setProperty("--fascia",v+"px");}
  const pianifica=()=>{if(!attesa)attesa=requestAnimationFrame(fascia);};
- if(wrap){new MutationObserver(pianifica).observe(wrap,{childList:true,subtree:false,attributes:true,attributeFilter:["hidden","style","class"]});
-  const sg=$("sig");if(sg)new MutationObserver(pianifica).observe(sg,{childList:true});}
+ if(wrap){const mo=new MutationObserver(pianifica),att={attributes:true,attributeFilter:["hidden","style","class"]};
+  // v9.59 si osservano anche le sezioni figlie (cambio scheda = classe "on" su una sezione): prima la fascia restava quella della scheda precedente
+  const osserva=()=>{mo.observe(wrap,{childList:true,...att});[...wrap.children].forEach(e=>mo.observe(e,att));};osserva();
+  new MutationObserver(osserva).observe(wrap,{childList:true});
+  const sg=$("sig");if(sg)new MutationObserver(pianifica).observe(sg,{childList:true,subtree:true});}   // v9.59 subtree: anche l'avviso che si svuota
  addEventListener("resize",pianifica);fascia();
  window.ebSidebar={segna,apriMercati,fascia};
 })();}catch(e){fail("Barra laterale","side",e);}

@@ -4670,3 +4670,6 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
 
 /* v9.58 etichetta del timeframe sul grafico della scheda */
 .vfc-tfl{font-size:11px;fill:var(--mute);font-weight:600;letter-spacing:.2px;pointer-events:none}
+
+/* v9.59 prima card di ogni scheda senza margine in alto: parte alla stessa altezza del logo (03c_sidebar.js fascia()) */
+@media (min-width:901px){html.sidev2 .eb-primo,html.sidev2 .eb-primo>:first-child{margin-top:0!important}}
