@@ -27,11 +27,15 @@
 (function(){try{
  const BASE_H=EB_RAW+"orari/pubblico/h1/",BASE_D=EB_RAW+"orari/pubblico/d1/";
  // strumento del registro -> simbolo delle candele (+ nota se e' un ETF che lo segue, non lo stesso prezzo)
- const SIM={GOLD:["GLD.US"],SILVER:["SLV.US"],SP500:["GSPC.INDX"],NASDAQ:["NDX.INDX","Nasdaq 100"],DOW:["DJI.INDX"],
-  RUSSELL:["IWM.US"],NIKKEI:["N225.INDX"],EM:["EEM.US"],EAFE:["EFA.US"],BTC:["BTC-USD.CC"],ETH:["ETH-USD.CC"],
+ // v9.55 nota per OGNI ETF: il prezzo e' quello dell'ETF, non del future (l'oro con GLD vale circa un decimo dell'oncia)
+ const SIM={GOLD:["GLD.US","ETF GLD sull'oro"],SILVER:["SLV.US","ETF SLV sull'argento"],SP500:["GSPC.INDX"],NASDAQ:["NDX.INDX","Nasdaq 100"],DOW:["DJI.INDX"],
+  RUSSELL:["IWM.US","ETF IWM sul Russell 2000"],NIKKEI:["N225.INDX"],EM:["EEM.US","ETF EEM sui mercati emergenti"],EAFE:["EFA.US","ETF EFA su Europa, Australia ed Estremo Oriente"],BTC:["BTC-USD.CC"],ETH:["ETH-USD.CC"],
   WTI:["USO.US","ETF USO sul petrolio WTI"],NATGAS:["UNG.US","ETF UNG sul gas naturale"],COPPER:["CPER.US","ETF CPER sul rame"],
   // v8.79 cambi emergenti e Brent: file scritti dalla fase 5 di cot_radar/orari.py
-  USDBRL:["USDBRL.FOREX"],USDMXN:["USDMXN.FOREX"],USDZAR:["USDZAR.FOREX"],BRENT:["BNO.US","ETF BNO sul petrolio Brent"]};
+  USDBRL:["USDBRL.FOREX"],USDMXN:["USDMXN.FOREX"],USDZAR:["USDZAR.FOREX"],BRENT:["BNO.US","ETF BNO sul petrolio Brent"],
+  // v9.55 agricoli e benzina (fase 5 di cot_radar/orari.py): finche' i file non ci sono, la scheda usa TradingView
+  CORN:["CORN.US","ETF CORN sul mais"],SOY:["SOYB.US","ETF SOYB sulla soia"],WHEAT:["WEAT.US","ETF WEAT sul grano"],
+  SUGAR:["CANE.US","ETF CANE sullo zucchero"],GASOLINE:["UGA.US","ETF UGA sulla benzina"]};
  const FX=["EUR","GBP","AUD","NZD","USD","CAD","CHF","JPY"],VAL=["EUR","GBP","JPY","CHF","CAD","AUD","NZD","MXN","BRL","ZAR","USD"];
  function simbolo(k){if(SIM[k])return SIM[k];
   if(k&&k.length==6&&FX.includes(k.slice(0,3))&&FX.includes(k.slice(3)))return [k+".FOREX"];
@@ -61,19 +65,25 @@
  window.ebCandele=function(box,z){try{
   // v8.86 z.opz = modalita' "notizie macro" (44b_notizie.js): {sym, nota, ann:[[ora UTC, driver, r1, r4, r24, x, dopo]], dal}
   // -> niente segnale, niente COT, niente fasce: solo candele e traccia di ogni notizia con la mossa della prima ora
-  const O=z.opz||{},NM=!!O.ann,s=O.sym?[O.sym,O.nota]:simbolo(z.strumento),t0=ts(z.generato);
+  // v9.55 z.opz.scheda = SCHEDA DELLO STRUMENTO (12_grafico.js, al posto di TradingView): niente segnale, parte dal
+  //   giornaliero, indicatori MA 50 / MA 200 / RSI 14 attivabili; O.manca() se le candele non ci sono (si torna a TradingView)
+  const O=z.opz||{},NM=!!O.ann,SK=!!O.scheda,s=O.sym?[O.sym,O.nota]:simbolo(z.strumento),t0=ts(z.generato);
   if(!s||isNaN(t0)){box.innerHTML=`<p class="small vfc-v">Grafico non disponibile per questo strumento.</p>`;return;}
   const m=z.m||{},ing=ts((m.ingresso||{}).utc),fine=(m.A||{}).fine||{},aperto=!z.chiuso||(m.fine||{}).in_corso;
   const usc=aperto?NaN:ts(fine.utc);
   // notizie e uscite COT (registro); se il registro e' di una versione vecchia, solo le notizie dentro il trade
-  const MON=(D.reg||{}).mon,VV=valute(z.strumento);
+  const MON=(D.reg||{}).mon,VV=O.valute||valute(z.strumento);
   const ANN=NM?O.ann.map(a=>({t:ts(a[0]),n:a[1],r:a})):MON?MON.ann.filter(a=>VV.includes(a[2])).map(a=>({t:ts(a[0]),n:a[1]+(a[3]?" ~":"")}))
               :((z.nt||{}).ev||[]).map(e=>({t:ts(e.t),n:e.n+(e.x?" ~":"")}));
-  const COT=NM?[]:MON?MON.cot.map(ts):[t0];
-  const EP=NM?[]:(((D.cmp||{}).ep||{})[z.strumento]||[]).map(e=>({a:e[0],b:e[1],v:e[2],forte:!!e[3]}));
-  const S={tf:"h",B:{},v:{},yz:1,yo:0,full:false};     // stato: timeframe, candele, vista per timeframe, scala verticale
-  box.innerHTML=`<div class="vfc-w"><div class="vfc-t"><b>Grafico</b>${s[1]?`<span class="vfc-n">${esc(s[1])}</span>`:""}
-    <div class="vfc-seg" role="group"><button type="button" data-tf="d">Giornaliero</button><button type="button" data-tf="h" class="on">Orario</button></div>
+  const COT=NM?[]:MON?MON.cot.map(ts):SK?[]:[t0];
+  // v9.55 O.inv: grafico quotato al contrario (valuta del COT mostrata come USDJPY): le fasce seguono il grafico
+  const EP=NM?[]:(((D.cmp||{}).ep||{})[z.strumento]||[]).map(e=>({a:e[0],b:e[1],v:e[2]*(O.inv?-1:1),forte:!!e[3]}));
+  const S={tf:SK?"d":"h",B:{},v:{},yz:1,yo:0,full:false,I:{},ind:{m50:true,m200:true,rsi:false}};   // stato: timeframe, candele, vista, scala, indicatori
+  // v9.55 indicatori scelti: restano in questo browser (comodita' di chi guarda, mai dati importanti)
+  if(SK)try{const v=JSON.parse(localStorage.getItem("ebInd")||"null");if(v&&typeof v=="object")for(const k in S.ind)if(typeof v[k]=="boolean")S.ind[k]=v[k];}catch(_){}
+  box.innerHTML=`<div class="vfc-w${SK?" vfc-sk":""}"><div class="vfc-t">${SK?"":"<b>Grafico</b>"}${s[1]?`<span class="vfc-n">${esc(s[1])}</span>`:""}
+    <div class="vfc-seg" role="group"><button type="button" data-tf="d"${SK?' class="on"':""}>Giornaliero</button><button type="button" data-tf="h"${SK?"":' class="on"'}>Orario</button></div>
+    ${SK?`<div class="vfc-ind" role="group" aria-label="Indicatori"><button type="button" data-i="m50" title="Media mobile delle ultime 50 candele">MA 50</button><button type="button" data-i="m200" title="Media mobile delle ultime 200 candele">MA 200</button><button type="button" data-i="rsi" title="RSI a 14 candele: sopra 70 ipercomprato, sotto 30 ipervenduto">RSI</button></div>`:""}
     <div class="vfc-btn"><button type="button" data-z="-1" title="Riduci" aria-label="Riduci">${ico("meno")}</button><button type="button" data-z="1" title="Ingrandisci" aria-label="Ingrandisci">${ico("piu")}</button><button type="button" data-r title="Ripristina la vista" aria-label="Ripristina la vista">${ico("reset")}</button><button type="button" data-f title="Schermo intero" aria-label="Schermo intero">${ico("full")}</button></div></div>
    <div class="vfc-leg"></div><div class="vfc-g"><p class="small vfc-v">Caricamento&hellip;</p></div>
    <div class="vfc-tip"><span>${matchMedia("(pointer:coarse)").matches?"Trascina per spostarti, due dita per lo zoom, dito fermo per il mirino":"Trascina per spostarti, rotella o due dita per lo zoom"}</span></div></div>`;
@@ -83,7 +93,7 @@
   // ---------- dati: orari dal segnale (una settimana prima) a oggi; giornalieri gli ultimi ~2 anni
   function carica(tf){
    if(S.B[tf])return Promise.resolve(S.B[tf]);
-   if(tf=="h")return Promise.all(mesi(new Date(O.dal?Date.parse(O.dal):t0-8*864e5),new Date()).map(me=>leggi(BASE_H+s[0]+"/"+me+".json"))).then(L=>{
+   if(tf=="h")return Promise.all(mesi(new Date(O.dal?Date.parse(O.dal):SK?Date.now()-45*864e5:t0-8*864e5),new Date()).map(me=>leggi(BASE_H+s[0]+"/"+me+".json"))).then(L=>{
      const B=[];for(const d of L){if(!d)continue;for(const r of d.b)B.push({t:(d.t0+r[0]*3600)*1000,o:r[1],h:r[2],l:r[3],c:r[4]});}
      B.sort((a,b)=>a.t-b.t);return S.B.h=B;});
    return leggi(BASE_D+s[0]+".json").then(d=>S.B.d=(d&&d.d||[]).map(r=>({t:Date.parse(r[0]+"T12:00Z"),g:r[0],o:r[1],h:r[2],l:r[3],c:r[4]})));}
@@ -94,20 +104,44 @@
    const n=Math.min(N,(S.full?innerWidth:g.clientWidth)<560?66:130);return {i0:N-n,i1:N+2};}
   function mostra(tf){S.tf=tf;S.yz=1;S.yo=0;S.ys=null;S.ci=null;
    W0.querySelectorAll("[data-tf]").forEach(b=>b.classList.toggle("on",b.dataset.tf==tf));
-   leg.innerHTML=NM?(tf=="d"?`<span><i class="lg-ev"></i>Notizie</span>`:`<span><i class="lg-lev"></i>Notizie</span><span><i class="lg-rz"></i>Mossa della prima ora</span>`)
+   leg.innerHTML=SK?legSK(tf):NM?(tf=="d"?`<span><i class="lg-ev"></i>Notizie</span>`:`<span><i class="lg-lev"></i>Notizie</span><span><i class="lg-rz"></i>Mossa della prima ora</span>`)
     :tf=="d"?`<span><i class="lg-su"></i>Speculatori comprano</span><span><i class="lg-giu"></i>vendono</span><span><i class="lg-cot"></i>Report COT</span><span><i class="lg-ev"></i>Notizie</span>`
     :`<span><i class="lg-lcot"></i>Report COT</span><span><i class="lg-lev"></i>Notizie</span><span><i class="lg-sgn"></i>Segnale</span><span><i class="lg-ling"></i>Ingresso</span>`;
    if(!S.B[tf])g.innerHTML=`<p class="small vfc-v">Caricamento&hellip;</p>`;
    carica(tf).then(B=>{if(S.tf!=tf)return;
+    if((!B||B.length<3)&&SK&&tf=="d"&&O.manca){O.manca();return;}      // v9.55 niente candele: la scheda torna a TradingView
     if(!B||B.length<3){g.innerHTML=`<p class="small vfc-v">${tf=="h"?"Candele orarie non ancora disponibili (si aggiornano ogni notte).":"Candele giornaliere non ancora disponibili (si aggiornano ogni notte)."}</p>`;return;}
     if(!S.v[tf])S.v[tf]=vistaIniziale(tf);disegna();});}
   W0.querySelectorAll("[data-tf]").forEach(b=>b.onclick=e=>{e.stopPropagation();if(b.dataset.tf!=S.tf)mostra(b.dataset.tf);});
+  // v9.55 legenda della scheda: fasce e tacche del COT, notizie e solo gli indicatori accesi (niente voci a vuoto)
+  function legSK(tf){return (tf=="d"?`<span><i class="lg-su"></i>Speculatori comprano</span><span><i class="lg-giu"></i>vendono</span><span><i class="lg-cot"></i>Report COT</span><span><i class="lg-ev"></i>Notizie</span>`
+    :`<span><i class="lg-lcot"></i>Report COT</span><span><i class="lg-lev"></i>Notizie</span>`)+
+   "";}   // MA 50 / MA 200: il colore e' gia' sui pulsanti degli indicatori (niente voce doppia in legenda)
+  // v9.55 INDICATORI calcolati una volta sola su tutte le candele del timeframe (non solo su quelle visibili:
+  //   la MA 200 della prima candela a schermo usa le 199 precedenti). RSI 14 con la media di Wilder, come TradingView.
+  function indicatori(tf){if(S.I[tf])return S.I[tf];const B=S.B[tf]||[],N=B.length,ma=n=>{const o=new Array(N).fill(null);let sm=0;
+    for(let i=0;i<N;i++){sm+=B[i].c;if(i>=n)sm-=B[i-n].c;if(i>=n-1)o[i]=sm/n;}return o;};
+   const rsi=new Array(N).fill(null);let ag=0,al=0;
+   for(let i=1;i<N;i++){const d=B[i].c-B[i-1].c,u=Math.max(d,0),w=Math.max(-d,0);
+    if(i<=14){ag+=u/14;al+=w/14;if(i<14)continue;}else{ag=(ag*13+u)/14;al=(al*13+w)/14;}
+    rsi[i]=al==0?100:100-100/(1+ag/al);}
+   return S.I[tf]={m50:ma(50),m200:ma(200),rsi};}
+  if(SK){const aggiorna=()=>W0.querySelectorAll("[data-i]").forEach(b=>{b.classList.toggle("on",!!S.ind[b.dataset.i]);b.setAttribute("aria-pressed",!!S.ind[b.dataset.i]);});
+   aggiorna();
+   W0.querySelectorAll("[data-i]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.ind[b.dataset.i]=!S.ind[b.dataset.i];aggiorna();
+    try{localStorage.setItem("ebInd",JSON.stringify(S.ind));}catch(_){}leg.innerHTML=legSK(S.tf);ridisegna();});}
 
   // ---------- geometria comune a disegno e gesti
   const G={};
   function misure(){const W=Math.max(280,g.clientWidth||600),full=S.full;
-   G.W=W;G.H=full?Math.max(260,innerHeight-W0.querySelector(".vfc-t").offsetHeight-leg.offsetHeight-tip.offsetHeight-70):W<500?240:300;
-   G.pl=6;G.pr=62;G.pt=24;G.pb=S.tf=="d"?34:22;G.PW=G.W-G.pl-G.pr;G.PH=G.H-G.pt-G.pb;}
+   // v9.55 nella scheda l'altezza la decide il contenitore (CSS: piu' alto su PC, ~metà schermo su telefono)
+   //   il riquadro .vfc-g occupa lo spazio rimasto (flex) e il disegno prende esattamente la sua altezza
+   const libero=SK&&!full?g.clientHeight:0;
+   G.W=W;G.H=full?Math.max(260,innerHeight-W0.querySelector(".vfc-t").offsetHeight-leg.offsetHeight-tip.offsetHeight-70):libero>=200?Math.floor(libero):W<500?240:300;
+   G.pl=6;G.pr=62;G.pt=24;G.pb=S.tf=="d"?34:22;
+   // riquadro RSI sotto le candele (stessa scala del tempo, separato da 10 px)
+   G.rh=SK&&S.ind.rsi?(G.H<300?54:Math.round(Math.min(96,G.H*.2))):0;
+   G.PW=G.W-G.pl-G.pr;G.PH=G.H-G.pt-G.pb-(G.rh?G.rh+10:0);}
   // limiti della vista: almeno 12 candele, al massimo tutte (+ un po' di spazio vuoto a destra, come TradingView)
   function limita(v,N){let n=v.i1-v.i0;n=Math.max(12,Math.min(N+12,n));
    if(v.i1-v.i0!=n){const c=(v.i0+v.i1)/2;v.i0=c-n/2;v.i1=c+n/2;}
@@ -162,6 +196,15 @@
     for(const [t,cl,nome] of (NM?[]:[[t0,"sgn","Segnale"],[ing,"ing","Ingresso"],[usc,"usc","Uscita"]]))if(!isNaN(t)&&t>=tMin&&t<=tMax)L.push([t,cl,nome]);
     let ux=-99,r=0;L.sort((p,q)=>p[0]-q[0]).forEach(([t,cl,nome,r1])=>{const k=idx(t),x=X(k+Math.max(0,Math.min(1,(t-B[k].t)/36e5))-.5);r=x-ux<48?(r+1)%3:0;ux=x;
      svg+=`<line class="vfc-l ${cl}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/>`+etichetta(x,pt-7+r*11,cl,nome,r1);});}
+   // v9.55 INDICATORI: MA 50 e MA 200 sulle candele, RSI 14 nel riquadro sotto (linee 30 e 70)
+   if(SK){const I=indicatori(S.tf),linea=(arr,yf)=>{let dd="",su=false;for(let i=a0;i<=a1;i++){const v=arr[i];if(v==null){su=false;continue;}
+      dd+=(su?"L":"M")+X(i).toFixed(1)+" "+yf(v).toFixed(1);su=true;}return dd;};
+    if(S.ind.m200)svg+=`<path class="vfc-ma m200" d="${linea(I.m200,Y)}"/>`;
+    if(S.ind.m50)svg+=`<path class="vfc-ma m50" d="${linea(I.m50,Y)}"/>`;
+    if(G.rh){const r0=pt+PH+10,YR=v=>r0+(100-v)/100*G.rh;G.r0=r0;
+     svg+=`<rect class="vfc-rb" x="${pl}" y="${r0}" width="${PW}" height="${G.rh}"/><rect class="vfc-rz7" x="${pl}" y="${YR(70)}" width="${PW}" height="${YR(30)-YR(70)}"/>`+
+      `<line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${YR(70)}" y2="${YR(70)}"/><line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${YR(30)}" y2="${YR(30)}"/>`+
+      `<path class="vfc-rsi" d="${linea(I.rsi,YR)}"/>`;}}
    svg+=`<line class="vfc-x" x1="0" x2="0" y1="${pt}" y2="${H-pb}" visibility="hidden"/><line class="vfc-y" x1="${pl}" x2="${W-pr}" y1="0" y2="0" visibility="hidden"/></g>`;
    // v8.88 SCALA DEI PREZZI COME TRADINGVIEW: livelli "tondi" (passo 1, 2 o 5 x 10^n, circa uno ogni 48 px) che restano
    // fermi mentre si sposta il grafico (prima 5 livelli calcolati sui bordi: i numeri cambiavano a ogni fotogramma)
@@ -172,12 +215,16 @@
    for(let k=0;k<4&&conta(passo)<4;k++){const m=passo/Math.pow(10,Math.floor(Math.log10(passo)+1e-9));passo=passo*(m>4.9?.4:.5);}
    const dec=Math.max(0,-Math.floor(Math.log10(passo)+1e-9)+(String(+(passo/Math.pow(10,Math.floor(Math.log10(passo)+1e-9))).toFixed(1)).includes(".5")?1:0));G.dec=dec;
    const fmtA=v=>v.toLocaleString(EB_LOC,{minimumFractionDigits:dec,maximumFractionDigits:dec});
-   for(let p=Math.ceil(lo/passo)*passo;p<=hi;p+=passo){const y=Y(p);if(y<pt+6||y>H-pb-4)continue;
-    svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmtA(p)}</text>`;}
    // ultimo prezzo: linea tratteggiata ed etichetta colorata sulla scala (verde se l'ultima candela sale, rossa se scende)
    const U=B[N-1],yu=Y(U.c);
-   if(yu>=pt&&yu<=H-pb){const c=U.c>=U.o?"su":"giu";
+   // v9.55 il numero della scala sotto l'etichetta dell'ultimo prezzo non si scrive (prima si vedeva mezzo, coperto)
+   for(let p=Math.ceil(lo/passo)*passo;p<=hi;p+=passo){const y=Y(p);if(y<pt+6||y>pt+PH-4)continue;
+    svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/>`+(Math.abs(y-yu)<15?"":`<text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmtA(p)}</text>`);}
+   if(yu>=pt&&yu<=pt+PH){const c=U.c>=U.o?"su":"giu";
     svg+=`<line class="vfc-ul ${c}" x1="${pl}" x2="${W-pr}" y1="${yu}" y2="${yu}"/><rect class="vfc-ut ${c}" x="${W-pr+1}" y="${yu-9}" width="${pr-2}" height="18" rx="3"/><text class="vfc-utt" x="${W-pr+6}" y="${yu+4}">${fmt(U.c)}</text>`;}
+   if(SK&&G.rh){const I=indicatori(S.tf),YR=v=>G.r0+(100-v)/100*G.rh,ur=I.rsi[N-1];
+    svg+=`<text class="vfc-ax" x="${W-pr+6}" y="${YR(70)+4}">70</text><text class="vfc-ax" x="${W-pr+6}" y="${YR(30)+4}">30</text><text class="vfc-rl" x="${pl+4}" y="${G.r0+12}">RSI 14</text>`;
+    if(ur!=null){const c=ur>=70?"alto":ur<=30?"basso":"";svg+=`<rect class="vfc-rt ${c}" x="${W-pr+1}" y="${YR(ur)-9}" width="${pr-2}" height="18" rx="3"/><text class="vfc-rtt" x="${W-pr+6}" y="${YR(ur)+4}">${fx(ur,0)}</text>`;}}
    // etichetta del mirino (prezzo dove sta il dito o il mouse): sopra a tutto
    svg+=`<g class="vfc-yt" visibility="hidden"><rect x="${W-pr+1}" y="-9" width="${pr-2}" height="18" rx="3"/><text x="${W-pr+6}" y="4"></text></g>`;
    svg+=`<rect class="vfc-asse" x="${W-pr}" y="${pt}" width="${pr}" height="${PH}"><title>Trascina in su o in giù per allungare il grafico · doppio clic: scala automatica</title></rect></svg>`;
@@ -192,7 +239,7 @@
    const cx=el.querySelector(".vfc-x"),cy=el.querySelector(".vfc-y"),ct=el.querySelector(".vfc-yt");
    if(cx){cx.setAttribute("x1",G.X(S.ci));cx.setAttribute("x2",G.X(S.ci));cx.setAttribute("visibility","visible");}
    if(S.cp==null||!cy||!ct)return;const y=G.pt+(G.hi-S.cp)/(G.hi-G.lo)*G.PH;
-   if(y<G.pt||y>G.H-G.pb){cy.setAttribute("visibility","hidden");ct.setAttribute("visibility","hidden");return;}
+   if(y<G.pt||y>G.pt+G.PH){cy.setAttribute("visibility","hidden");ct.setAttribute("visibility","hidden");return;}
    cy.setAttribute("y1",y);cy.setAttribute("y2",y);cy.setAttribute("visibility","visible");
    ct.setAttribute("transform",`translate(0,${y})`);ct.querySelector("text").textContent=fmt(S.cp);   // precisione piena dello strumento (la scala usa i numeri tondi)
    ct.setAttribute("visibility","visible");}
@@ -208,6 +255,8 @@
    tip.innerHTML=`<b>${d?DATA.format(x.t):ORA.format(x.t)}</b><span>A ${fmt(x.o)} · Max ${fmt(x.h)} · Min ${fmt(x.l)} · C <b class="${x.c>=x.o?"up":"down"}">${fmt(x.c)}</b></span>`+
     (ep?`<span class="${ep.v>0?"up":"down"}">${ep.v>0?"Speculatori: comprano":"Speculatori: vendono"}${ep.forte?" (spinta forte)":""}</span>`:"")+
     (nn.length?`<span class="vfc-tn">${nn.map(esc).join(", ")}</span>`:"")+
+    (SK?(()=>{const I=indicatori(S.tf),q=[];if(S.ind.m50&&I.m50[i]!=null)q.push(`MA 50 ${fmt(I.m50[i])}`);if(S.ind.m200&&I.m200[i]!=null)q.push(`MA 200 ${fmt(I.m200[i])}`);
+     if(S.ind.rsi&&I.rsi[i]!=null)q.push(`RSI <b class="${I.rsi[i]>=70||I.rsi[i]<=30?"vfc-rw":""}">${fx(I.rsi[i],0)}</b>`);return q.length?`<span>${q.join(" · ")}</span>`:"";})():"")+
     (rz?`<span>Prima ora <b class="${rz.r[2]>=0?"up":"down"}">${pcM(rz.r[2])}</b> (${fx(rz.r[5],1)}× la stessa ora) · 4 ore ${pcM(rz.r[3])} · 24 ore ${pcM(rz.r[4])}</span>`:"")+(cc?`<span class="vfc-tc">Report COT</span>`:"");}
   function nascondi(){S.ci=null;S.cp=null;g.querySelectorAll(".vfc-x,.vfc-y,.vfc-yt").forEach(x=>x.setAttribute("visibility","hidden"));tip.innerHTML=vuoto;}
 
@@ -278,8 +327,9 @@
    try{history.pushState({vfcFull:1},"");}catch(_){}addEventListener("keydown",tasto);addEventListener("popstate",indietro);stile(true);};
   // i clic dentro il grafico non devono chiudere la riga del segnale (13_verifica.js apre/chiude al clic sulla riga)
   W0.addEventListener("click",e=>e.stopPropagation());
-  new ResizeObserver(()=>ridisegna()).observe(g);
-  mostra("h");
+  const ro=new ResizeObserver(()=>ridisegna());ro.observe(g);if(SK)ro.observe(box);
+  mostra(SK?"d":"h");
  }catch(e){console.warn("[EdgeValor] grafico",e);box.innerHTML="";}};
  window.ebCandele.cache=cache;
+ window.ebCandele.simbolo=simbolo;          // v9.55 la scheda chiede se abbiamo le candele di uno strumento
 }catch(e){console.warn("[EdgeValor] grafico",e);}})();

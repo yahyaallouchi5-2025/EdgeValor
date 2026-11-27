@@ -463,15 +463,25 @@ ebVerifica("vol");                                       // v7.48 scheda Volatil
    un file a parte, terminale/verifica.json (D.verifica = indirizzo), e si scaricano solo la prima volta che si apre
    questa scheda. Cosi' la dashboard si apre molto piu' in fretta, soprattutto da telefono. Sul PC (pagina locale
    aperta da file) i dati restano dentro la pagina: il browser non permette di leggere file vicini. */
+/* v9.55 SCARICAMENTO CONDIVISO di verifica.json: Promise(true = dati pronti in D.reg/D.cmp, false = non disponibili).
+   Lo usano la scheda Live (qui sotto) e la scheda dello strumento (12_grafico.js). Una sola richiesta alla volta. */
+window.ebCaricaVerifica=(function(){let P=null;return function(){
+ if(D.reg||D.cmp)return Promise.resolve(true);
+ if(!D.verifica||typeof EB_PREMIUM=="undefined"||!EB_PREMIUM)return Promise.resolve(false);
+ if(!P)P=fetch(D.verifica,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(v=>window.ebPrem?ebPrem.apri(v):v)   // v8.08 file cifrato: si apre con la chiave Premium
+  .then(v=>{if(!v||(!v.reg&&!v.cmp))throw new Error("file non aperto");D.reg=v.reg;D.cmp=v.cmp;D.carry_st=v.carry_st;return true;})
+  .catch(e=>{P=null;throw e;});
+ return P;};})();
 (function(){const el=$("verifica");if(!el)return;
  if(D.reg||D.cmp||!D.verifica){ebVerifica();return;}
  if(!EB_PREMIUM)return;                                  // v8.08 Live chiusa al Basic: lucchetto di 45_chiuse.js, niente download
  let stato="";                                           // "" = da caricare, "in corso", "ok"
+ // v9.55 lo scaricamento e' condiviso con la scheda dello strumento (12_grafico.js: fasce degli speculatori,
+ //   uscite COT e notizie sul grafico): una sola richiesta anche se la chiedono tutte e due
  const sk=(w,h)=>`<i class="sk" style="width:${w};height:${h}px;display:block;margin-bottom:14px;border-radius:12px"></i>`;
  function carica(){if(stato)return;stato="in corso";
   el.innerHTML=`<h2>Live</h2>${sk("40%",16)}${sk("100%",120)}${sk("100%",320)}`;
-  fetch(D.verifica,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(v=>window.ebPrem?ebPrem.apri(v):v)   // v8.08 file cifrato: si apre con la chiave Premium
-   .then(v=>{if(!v||(!v.reg&&!v.cmp))throw new Error("file non aperto");D.reg=v.reg;D.cmp=v.cmp;D.carry_st=v.carry_st;stato="ok";el.innerHTML="";ebVerifica();})
+  window.ebCaricaVerifica().then(ok=>{if(!ok)throw new Error("file non aperto");stato="ok";el.innerHTML="";ebVerifica();})
    .catch(e=>{stato="";console.warn("[EdgeValor] verifica.json:",e);
     el.innerHTML=`<h2>Live</h2><div class="card" style="padding:18px 20px"><p class="small">I dati della verifica non si sono caricati (connessione). </p><button class="tvbtn vfriprova">Riprova</button></div>`;
     const b=el.querySelector(".vfriprova");if(b)b.onclick=carica;});}

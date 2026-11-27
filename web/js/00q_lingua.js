@@ -392,7 +392,30 @@ Object.assign(EB_EN,{
 // --- avviso educativo (PDF)
 "Solo a scopo educativo, non consulenza finanziaria. Si può perdere il capitale anche senza leva. I risultati passati non garantiscono quelli futuri.":"For educational purposes only, not financial advice. You can lose capital even without leverage. Past results do not guarantee future ones.",
 "Azionario EdgeValor":"EdgeValor Stocks",
-"Portafogli EdgeValor":"EdgeValor Portfolios"
+"Portafogli EdgeValor":"EdgeValor Portfolios",
+// --- v9.55 scheda dello strumento (12_grafico.js)
+"Lettura di oggi":"Today's reading",
+"Flussi 26 settimane":"26-week flows",
+"Speculatori in dettaglio":"Speculators in detail",
+"Contratti aperti 4 sett.":"Open interest, 4 weeks",
+"Stagionalità in dettaglio":"Seasonality in detail",
+"Distanza dalla media a 200 giorni":"Distance from the 200-day average",
+"Acquisti concentrati":"Concentrated buying",
+"Vendite concentrate":"Concentrated selling",
+"Acquisti prevalenti":"Mostly buying",
+"Vendite prevalenti":"Mostly selling",
+"Direzione mista":"Mixed direction",
+"Agli estremi":"At extremes",
+"Nella norma":"Normal",
+"settimana del COT":"COT week",
+"nessuna indicazione":"no signal",
+"Dati di studio, non un consiglio di investimento.":"Study data, not investment advice.",
+"agli estremi":"at extremes",
+"nella norma":"normal",
+"ultime 3 settimane":"last 3 weeks",
+"Notizie della settimana":"News of the week",
+"Aggiornamento scheda grafico":"Chart panel update",
+"Il grafico di ogni strumento ora è nostro: fasce degli speculatori, uscite del COT, notizie, medie mobili e RSI. Da telefono si legge tutto in verticale.":"Every instrument now has our own chart: speculator bands, COT releases, news, moving averages and RSI. On phones everything reads vertically."
 });
 EB_RX.unshift(
  // PDF dell'Azionario: "Forza 0-100 ... stagionalità di novembre ... Colonna Novembre: ..."

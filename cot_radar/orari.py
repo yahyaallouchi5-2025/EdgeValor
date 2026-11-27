@@ -47,7 +47,10 @@ ETF_USA = ["SPY", "QQQ", "DIA", "IWM", "EFA", "EEM", "FXI", "EWJ", "EWG",       
 # v8.79 SOLO CANDELE DELLA SCHEDA LIVE: strumenti del registro live che non avevano candele orarie (cambi emergenti e
 # Brent tramite l'ETF BNO). Solo barre orarie (dal 2020): sotto i 10 anni la Stagionalita' non li mostra (regola dei
 # 10 anni in stagionalita_orari.calcola), quindi servono solo ai file mensili pubblico/h1 per le candele dei segnali.
-SOLO_LIVE = ["USDBRL.FOREX", "USDMXN.FOREX", "USDZAR.FOREX", "BNO.US"]
+# v9.55 + ETF di agricoli e benzina per il grafico della SCHEDA DELLO STRUMENTO (12_grafico.js): il widget di TradingView
+# non mostra i future di CBOT e NYMEX, con questi ETF il grafico e' il nostro (fasce degli speculatori, COT, notizie)
+SOLO_LIVE = ["USDBRL.FOREX", "USDMXN.FOREX", "USDZAR.FOREX", "BNO.US",
+             "CORN.US", "SOYB.US", "WEAT.US", "CANE.US", "UGA.US"]
 INDICI = ["GSPC.INDX", "NDX.INDX", "DJI.INDX", "GDAXI.INDX", "FCHI.INDX", "STOXX50E.INDX", "FTSE.INDX",
           "N225.INDX", "HSI.INDX", "FTSEMIB.INDX", "VIX.INDX"]
 

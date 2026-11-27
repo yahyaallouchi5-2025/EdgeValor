@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-27T16",t:"Aggiornamento scheda grafico",x:"Il grafico di ogni strumento ora è nostro: fasce degli speculatori, uscite del COT, notizie, medie mobili e RSI. Da telefono si legge tutto in verticale.",s:""},
   {d:"2026-11-27T00",t:"Nuova barra laterale",x:"Schede, ricerca e watchlist ora sono tutte nella barra a sinistra. Su telefono si apre dal menu in alto.",s:""},
   {d:"2026-11-26T23",t:"Aggiornamento scheda Dashboard",x:"Gli avvisi in giallo (festività, dati rinviati) ora si chiudono con la X e compaiono solo nella Dashboard. Al prossimo accesso te li ricordiamo.",s:"sig"},
   {d:"2026-11-26T22",t:"Aggiornamento scheda Dashboard",x:"Settori e Forex ridisegnati: una barra per settore che sale o scende, e tutte le coppie Forex in un solo riquadro.",s:"sig"},

@@ -145,14 +145,15 @@
 <aside id="guida" class="guida" hidden><div class="gpannello"><div class="gtop"><div class="gtesta"><b>Come funziona</b><button id="gchiudi" class="tvbtn" title="Chiudi (Esc)">&#x2715;</button></div>
 <nav id="gindice" class="gindice"></nav></div><div id="guide" class="guide"></div></div></aside>
 <!-- pannello del grafico a candele (si apre al clic su una scheda: vedi web/js, sezione "grafico") -->
-<div id="tvmodal" class="tvmodal" hidden><div id="tvpannello" class="tvpannello">
+<div id="tvmodal" class="tvmodal" hidden><div id="tvpannello" class="tvpannello v2">
+ <!-- v9.55 SCHEDA DELLO STRUMENTO: testata, poi grafico (nostro o TradingView) e colonna di lettura.
+      PC: grafico a sinistra, lettura a destra (scorre da sola). Telefono e tablet: tutto in verticale, si scorre con il dito. -->
  <div class="tvtesta"><div><div id="tvtitolo"></div><div id="tvsotto" class="small"></div></div>
-  <div class="tvcomandi"><!-- H1/H4/D/W tolti: l'intervallo si sceglie dalla barra di TradingView dentro il grafico -->
-  <button id="tvfull" class="tvbtn" title="Schermo intero">&#x26F6;<span class="lungo"> Schermo intero</span></button><a id="tvlink" class="tvbtn" target="_blank" rel="noopener"><span class="lungo">TradingView</span><span class="corto">TV</span> &#x2197;</a><button id="tvchiudi" class="tvbtn" title="Chiudi (Esc)">&#x2715;</button></div></div>
- <div id="tvchart" class="tvchart"></div>
- <!-- pannello COT sotto il grafico: flussi settimanali dei Non Commercial (vedi web/js, disegnaCOT) -->
- <div id="tvmaniglia" class="tvmaniglia" title="Trascina per allargare o stringere il pannello COT (doppio clic: misura iniziale)"><i></i></div>
- <div id="tvcot" class="tvcot"></div></div></div>
+  <div class="tvcomandi">
+  <button id="tvfull" class="tvbtn" title="Schermo intero">&#x26F6;<span class="lungo"> Schermo intero</span></button><a id="tvlink" class="tvbtn" target="_blank" rel="noopener"><span class="lungo">TradingView</span><span class="corto">TV</span> &#x2197;</a><button id="tvchiudi" class="tvbtn" title="Chiudi (Esc)" aria-label="Chiudi">&#x2715;</button></div></div>
+ <div class="tvcorpo">
+  <div class="tvsx"><div id="tvchart" class="tvchart"></div></div>
+  <div id="tvcot" class="tvcot"></div></div></div></div>
 <!-- v7.93 DATI PREMIUM: blocco cifrato (cot_radar/premium.py), null sul PC o se il giro non ha avuto la chiave -->
 <script id="ebprem" type="application/json">{{PREMIUM}}</script>
 <!-- v7.93 il TERMINALE non parte subito: e' testo che il caricatore qui sotto esegue dopo aver (forse) aperto i dati Premium -->

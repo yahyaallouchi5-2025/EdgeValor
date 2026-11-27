@@ -4516,3 +4516,117 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 }
 /* stato dei dati (solo admin) nel piede: l'elenco delle fonti scorre da solo, non spinge fuori il profilo */
 .side.v2 .spiede #status{max-height:32vh;overflow-y:auto;overscroll-behavior:contain}
+
+/* ==========================================================================
+   v9.55 SCHEDA DELLO STRUMENTO (12_grafico.js + 13c_candele.js in modalita' "scheda"), modello approvato da Ya il 27/11/2026
+   PC (oltre 900px): finestra centrata, grafico a sinistra e colonna di lettura a destra che scorre da sola.
+   Telefono e tablet: tutto in verticale; il foglio scorre con il dito, il grafico si sposta in orizzontale.
+   ========================================================================== */
+.tvpannello.v2 .tvcorpo{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px}
+.tvpannello.v2 .tvsx{display:flex;flex-direction:column;min-width:0;min-height:0;padding:14px 16px 16px}
+.tvpannello.v2 .tvchart{flex:1;min-height:0;position:relative}
+.tvpannello.v2.contv .tvsx{padding:0}
+.tvpannello.v2 .tvcot{max-height:none;padding:0 0 10px;border-left:1px solid var(--line);overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;
+ background:linear-gradient(180deg,color-mix(in srgb,var(--soft) 40%,transparent),transparent 360px);scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.tvpannello.v2.nostro #tvfull{display:none}                 /* il grafico nostro ha il suo schermo intero */
+.tvpannello.v2 .tvtesta{align-items:center;padding:14px 18px}
+.tvpannello.v2 #tvchiudi{width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:11px}
+@media (min-width:901px){
+ .tvmodal:has(.tvpannello.v2){padding:2.2vh 2vw}
+ .tvpannello.v2{width:min(1320px,100%);height:min(880px,100%);border:1px solid var(--line);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55);padding:0}
+}
+/* telefono e tablet: un solo foglio che scorre */
+@media (max-width:900px){
+ .tvpannello.v2 .tvcorpo{display:block;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+ .tvpannello.v2 .tvsx{padding:10px 12px 4px}
+ .tvpannello.v2 .tvchart{flex:none;height:clamp(390px,64dvh,600px)}
+ .tvpannello.v2.contv .tvchart{height:58dvh}
+ .tvpannello.v2 .tvcot{border-left:0;overflow:visible;background:none}
+}
+/* --- grafico nostro dentro la scheda: riempie il riquadro (l'altezza la legge 13c_candele.js) */
+.vfc-w.vfc-sk{height:100%;display:flex;flex-direction:column}
+.vfc-w.vfc-sk .vfc-g{flex:1;min-height:0}
+.vfc-w.vfc-sk .vfc-seg{margin-left:0}
+.vfc-w.vfc-sk .vfc-btn{margin-left:auto}
+.vfc-ind{display:inline-flex;gap:4px;flex-wrap:wrap}
+.vfc-ind button{height:30px;padding:0 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--mute);font:600 12px system-ui;cursor:pointer;
+ transition:border-color .15s,color .15s,background .15s}
+.vfc-ind button:hover{border-color:color-mix(in srgb,var(--acc) 60%,var(--line));color:var(--ink)}
+.vfc-ind button.on{color:var(--ink);background:var(--soft)}
+.vfc-ind button[data-i="m50"].on{border-color:#5b9bff;box-shadow:inset 0 -2px 0 #5b9bff}
+.vfc-ind button[data-i="m200"].on{border-color:#f3c75f;box-shadow:inset 0 -2px 0 #f3c75f}
+.vfc-ind button[data-i="rsi"].on{border-color:#b48cff;box-shadow:inset 0 -2px 0 #b48cff}
+.vfc-ma{fill:none;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}.vfc-ma.m50{stroke:#5b9bff}.vfc-ma.m200{stroke:#f3c75f}
+.vfc-leg .lg-m50,.vfc-leg .lg-m200{width:14px;height:0;border-radius:0;border-top:2px solid #5b9bff;vertical-align:3px}.vfc-leg .lg-m200{border-top-color:#f3c75f}
+.vfc-rb{fill:color-mix(in srgb,var(--soft) 55%,transparent);stroke:var(--line);stroke-width:1}
+.vfc-rz7{fill:rgba(180,140,255,.06)}
+.vfc-r37{stroke:var(--line);stroke-width:1;stroke-dasharray:3 3}
+.vfc-rsi{fill:none;stroke:#b48cff;stroke-width:1.5;stroke-linejoin:round}
+.vfc-rl{fill:var(--mute);font:600 10px system-ui;letter-spacing:.04em}
+.vfc-rt{fill:#b48cff}.vfc-rt.alto,.vfc-rt.basso{fill:var(--warn)}.vfc-rtt{fill:#120a24;font:600 11px system-ui}
+.vfc-tip .vfc-rw{color:var(--warn)}
+@media (max-width:640px){.vfc-w.vfc-sk .vfc-ind{order:4}.vfc-w.vfc-sk .vfc-btn{margin-left:auto}}
+/* --- colonna di lettura */
+.sk-sez{padding:14px 16px 0}
+.sk-sez h3{display:flex;align-items:center;gap:7px;margin:0 0 9px;font:800 11px system-ui;letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
+.sk-sez h3 details.info{position:static}
+.sk-carte{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sk-c{min-width:0;padding:9px 11px;border-radius:11px;background:var(--soft);border:1px solid var(--line)}
+.sk-c small{display:block;font-size:11px;color:var(--mute);margin-bottom:3px}
+.sk-c b{display:block;font-size:13.5px;line-height:1.25;color:var(--ink)}
+.sk-c.su b{color:var(--sb)}.sk-c.giu b{color:var(--ss)}.sk-c.neutro b{color:var(--warn)}
+.sk-c em{display:block;margin-top:2px;font-style:normal;font-size:11px;color:var(--mute);line-height:1.35}
+.sk-fl{padding:10px 11px;border-radius:11px;background:var(--soft);border:1px solid var(--line)}
+.sk-fl p{margin:0 0 8px;font-size:12.5px;line-height:1.45;color:var(--ink2)}
+.sk-fl svg{display:block;width:100%;height:64px}
+.sk-as{display:flex;justify-content:space-between;margin-top:4px;font-size:10.5px;color:var(--mute)}
+.sk-acc{margin-top:14px;border-top:1px solid var(--line)}
+.sk-r{border-bottom:1px solid var(--line)}
+.sk-r>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;font:600 13.5px system-ui;color:var(--ink2);transition:background .15s}
+.sk-r>summary::-webkit-details-marker{display:none}
+.sk-r>summary:hover{background:color-mix(in srgb,var(--soft) 60%,transparent)}
+.sk-r>summary span{flex:1;min-width:0}
+.sk-r>summary em{font-style:normal;font-size:12px;font-weight:500;color:var(--mute);text-align:right;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sk-fr{color:#7d8aa0;font-size:10px;transition:transform .2s}
+.sk-r[open]>summary .sk-fr{transform:rotate(90deg)}
+.sk-r[open]>summary{color:var(--ink)}
+.sk-rc{padding:0 16px 12px;font-size:12.5px;line-height:1.55;color:var(--ink2);display:block}
+.sk-rc b{color:var(--ink)}.sk-rc a{color:var(--acc)}
+.sk-rc .tatt{display:flex;gap:10px;align-items:flex-start}.sk-rc .tatt>p{flex:1;margin:0}
+.sk-rc .rnv{margin:0;padding:0;border:0}
+.sk-piede{margin:12px 16px 4px;font-size:11px;color:var(--mute)}
+.sk-vuoto{padding:16px;color:var(--mute);font-size:13px}
+@media (max-width:900px){.sk-sez{padding:14px 12px 0}.sk-r>summary{padding:13px 12px}.sk-rc{padding:0 12px 12px}.sk-piede{margin:12px 12px 6px}}
+/* righe della scheda: stagionalita' sempre su due righe (la colonna e' stretta anche su PC), (i) che si apre verso sinistra */
+.sk-rc .stgm{display:grid;gap:10px}
+.sk-rc .stgr{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k e" "b n";gap:5px 10px;font-size:12px}
+.sk-rc .stgk{grid-area:k}.sk-rc .stgr em{grid-area:e;justify-self:end}.sk-rc .stgb{grid-area:b}.sk-rc .stgn{grid-area:n}
+.sk-rc .tatti,.sk-sez h3 details.info{flex:none}
+.sk-rc .tatti>div{left:auto;right:0;width:min(320px,calc(100vw - 48px));font:400 13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;text-transform:none;letter-spacing:0}
+.sk-sez h3 details.info>div{font:400 13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;text-transform:none;letter-spacing:0;color:var(--ink2)}
+.sk-rc .spsc-t{font-size:12px}
+/* v9.55 rifiniture: grafico che riempie esattamente il riquadro, card dispari a tutta larghezza, testata compatta da telefono */
+.vfc-w.vfc-sk .vfc-g{overflow:hidden}
+.vfc-sk .vfc-b.su,.vfc-sk .vfc-b.giu{opacity:.07}.vfc-sk .vfc-b.forte{opacity:.13}
+.sk-carte .sk-c:last-child:nth-child(odd){grid-column:1/-1}
+@media (max-width:640px){
+ .vfc-w.vfc-sk .vfc-t{gap:8px}
+ .vfc-w.vfc-sk .vfc-seg{order:0;width:auto;margin-left:0}.vfc-w.vfc-sk .vfc-seg button{flex:none;padding:6px 12px}
+ .vfc-w.vfc-sk [data-z]{display:none}                     /* da telefono lo zoom si fa con due dita */
+ .vfc-w.vfc-sk .vfc-btn{order:1;margin-left:auto}
+ .vfc-w.vfc-sk .vfc-ind{order:2;width:100%}
+ .vfc-w.vfc-sk .vfc-tip{min-height:40px;font-size:12px}
+}
+@media (max-width:900px){
+ .tvpannello.v2 .tvtesta{flex-wrap:nowrap;align-items:flex-start;padding:12px 12px 10px}
+ .tvpannello.v2 .tvtesta>div:first-child{flex:1;min-width:0}
+ .tvpannello.v2 .tvcomandi{width:auto;flex:none;gap:6px}
+ .tvpannello.v2 .tvcomandi #tvchiudi{margin-left:0}
+}
+/* v9.55 nella scheda il dito scorre in verticale (il foglio e il grafico, che passa i gesti verticali al foglio) */
+.tvpannello.v2{touch-action:pan-y}
+/* mercato senza grafico incorporabile (riso, latte): messaggio al centro, niente "Schermo intero" */
+.tvpannello.v2 .tvmsg{height:100%;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;padding:32px;text-align:center;color:var(--ink2)}
+.tvpannello.v2 .tvmsg a{color:var(--acc);font-weight:600}
+.tvpannello.v2:has(.tvmsg) #tvfull{display:none}
+@media (max-width:900px){.tvpannello.v2 .tvchart:has(.tvmsg){height:auto;min-height:140px}}
