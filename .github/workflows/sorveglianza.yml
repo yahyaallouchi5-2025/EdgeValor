@@ -45,6 +45,8 @@ jobs:
           while :; do
             INIZIO=$(date +%s)
             # registro del giro prima (dal ramo "anomalie"), controllo, pubblicazione del registro nuovo
+            # v9.54 ogni giro usa il codice piu' recente di cot_radar (prima restava quello della partenza fino a 5h45)
+            git fetch -q --depth 1 origin main 2>/dev/null && git checkout -q FETCH_HEAD -- cot_radar 2>/dev/null || echo "codice nuovo non scaricato: resta quello della partenza"
             rm -rf out_anomalie /tmp/anomalie_prec.json
             git fetch -q --depth 1 origin anomalie 2>/dev/null && git show origin/anomalie:anomalie.json > /tmp/anomalie_prec.json || echo "primo giro del registro"
             python -m cot_radar.sorveglianza || echo "controllo non riuscito, si riprova al giro dopo"
