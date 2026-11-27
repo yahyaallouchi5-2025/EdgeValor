@@ -4715,11 +4715,6 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
  .hdsx{display:flex;align-items:center;gap:14px;flex:none;width:244px}      /* larga come la barra laterale: la ricerca parte dove partono le card */
  .hdsx .blogo{display:flex;flex:none;height:30px}
  .hdsx .blogo b,html.ridotta .hdsx .blogo b{font-size:17px}
- .hdsx #scomprimi{margin-left:auto;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;transition:color .15s,border-color .15s,background .15s}
- .hdsx #scomprimi:hover{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
- .hdsx #scomprimi svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
- html.ridotta .hdsx #scomprimi svg{transform:rotate(180deg)}
- .hdsx #scomprimi .sx{display:none}
  .hdcerca{flex:1;min-width:0;max-width:620px}
  .hdcerca .scerca{display:flex;align-items:center;gap:10px;width:100%;height:42px;padding:0 12px 0 14px;border-radius:12px;cursor:pointer;border:1px solid var(--line);
   background:color-mix(in srgb,var(--card) 75%,transparent);color:var(--mute);font:500 14px system-ui;text-align:left;transition:border-color .15s,background .15s,color .15s}
@@ -4751,7 +4746,17 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
  /* pagina e barra laterale sotto la testata */
  html.tst .side.v2{top:var(--hdh);height:calc(100vh - var(--hdh));padding-top:28px}
  html.tst.ridotta .side.v2{padding-top:28px}
- html.tst .side.v2 .sbrand{display:none}
+ /* v9.65 (Ya) pulsante espandi/riduci in cima alla barra laterale: a barra larga sulla riga di "PRINCIPALE" (a destra),
+    a barra ridotta e' la prima icona, centrata sopra Dashboard */
+ html.tst .side.v2 .sbrand{display:block;position:absolute;right:14px;top:14px;min-height:0;padding:0;margin:0;z-index:2}
+ html.tst .side.v2 .sbrand .snome{display:none}
+ html.tst .side.v2 #scomprimi{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+ html.tst .side.v2 #scomprimi:hover{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
+ html.tst .side.v2 #scomprimi svg{width:15px;height:15px;transition:transform .2s}
+ html.tst .side.v2 #scomprimi .sx{display:none}
+ html.tst.ridotta .side.v2 .sbrand{position:static;display:flex;justify-content:center}
+ html.tst.ridotta .side.v2 #scomprimi{width:40px;height:40px;border-radius:11px}
+ html.tst.ridotta .side.v2 #scomprimi svg{transform:rotate(180deg)}
  html.tst .wrap{padding-top:calc(var(--hdh) + 28px)}
  html.tst #pfapri{display:none}                               /* l'account e' in testata */
  html.tst .tvmodal{z-index:60}                                /* il grafico copre anche la testata */

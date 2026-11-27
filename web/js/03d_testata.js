@@ -1,6 +1,6 @@
 /* ---------- v9.64 TESTATA GLOBALE (Ya, 27/11/2026: riferimento "terminale finanziario professionale") ----------
    Solo PC (larghezza > 900px). Una barra fissa in alto, indipendente dalla barra laterale:
-     sinistra  logo EdgeValor + pulsante che stringe/allarga la barra laterale
+     sinistra  logo EdgeValor (il pulsante che stringe/allarga la barra sta in cima alla barra laterale, v9.65)
      centro    ricerca globale (titoli, paesi, valute: la stessa ricerca della watchlist, tasto "/")
      destra    Novita' (con il numero delle non lette) · Guida · Assistenza · lingua IT/EN · account (iniziali + piano)
    La barra laterale resta SOLO per la navigazione: PRINCIPALE, IL MIO SPAZIO, Telegram, stato dei dati.
@@ -29,7 +29,8 @@ try{(function(){
  document.body.prepend(bar);
  const sx=bar.querySelector(".hdsx"),ce=bar.querySelector(".hdcerca"),av=$("hdav"),ini=av.querySelector(".hdini"),nome=av.querySelector(".hdnome"),eti=av.querySelector(".hdeti"),num=bar.querySelector(".hdnum");
  // --- logo, pulsante della barra e ricerca: spostati qui sul PC, di nuovo nella barra laterale sul telefono
- const mossi=[[side.querySelector(".blogo"),sx],[$("scomprimi"),sx],[side.querySelector(".scerca"),ce]].filter(x=>x[0])
+ // v9.65 (Ya): il pulsante che stringe/allarga la barra NON sta in testata: resta in cima alla barra laterale
+ const mossi=[[side.querySelector(".blogo"),sx],[side.querySelector(".scerca"),ce]].filter(x=>x[0])
   .map(([el,dove])=>{const casa=document.createComment("testata");el.before(casa);return {el,dove,casa};});
  function sposta(){const su=pc.matches;h.classList.toggle("tst",su);
   mossi.forEach(m=>{if(su){if(!m.dove.contains(m.el))m.dove.append(m.el);}else if(m.dove.contains(m.el))m.casa.after(m.el);});
