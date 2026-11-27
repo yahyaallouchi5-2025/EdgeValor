@@ -229,12 +229,12 @@ aggiorna();mostra(false);avviso("Sei uscito dal profilo");
   setTimeout(()=>{try{box.scrollIntoView({block:"nearest"});}catch(e){}},30);                   // barra corta: il riquadro resta in vista
   if(S&&!P)carica().then(()=>{if(!box.hidden)disegna();});}
  btn.onclick=()=>{const h=document.documentElement;
-  if(!mob()&&h.classList.contains("ridotta")){h.classList.remove("ridotta");try{localStorage.setItem("ebSide","aperta");}catch(e){}return mostra(true);}
+  // v9.63 sul PC il riquadro compare accanto alla barra (.pfpop): a barra ridotta non serve piu' riallargarla
   mostra(box.hidden);};
 
  // v9.35 dopo l'eliminazione dell'account: si dimentica la sessione su questo dispositivo (l'account non esiste piu')
  function dimentica(){S=null;P=null;ADM=false;pronto=false;inviato="";salva();try{localStorage.removeItem("ebPK");}catch(e){}}
- window.ebAccount={mostra:(si)=>mostra(!!si),aperto:()=>!box.hidden,   // v9.61 usato dalla barra in alto (03d_topbar.js)
+ window.ebAccount={mostra:(si)=>mostra(!!si),aperto:()=>!box.hidden,   // v9.61 apertura/chiusura da fuori (03c_sidebar.js)
   dimentica,ritorno:{esito,tipo},stato:()=>({sessione:!!S,utente:S?chi():null,profilo:P,listaSincronizzata:pronto}),premium:()=>{const p=piano();return p[2]=="ok"||p[2]=="prova";},id:()=>idUtente(),
   // v7.95 chiamata a una funzione del database con l'accesso dell'utente (usata dal riquadro Admin)
   rpc:(nome,corpo)=>db("rpc/"+nome,{method:"POST",body:JSON.stringify(corpo||{})}),

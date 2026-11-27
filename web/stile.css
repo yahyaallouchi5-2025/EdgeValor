@@ -4704,68 +4704,100 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
 @media (max-width:600px){.ivlink{flex-wrap:wrap}.ivlink input{flex-basis:100%}.ivlink button{flex:1;justify-content:center}
  .ivn{padding:12px 10px 10px}.ivn b{font-size:21px}.ivn span{font-size:11.5px}}
 
-/* ---------- v9.61 BARRA IN ALTO A DESTRA + PROFILO A TENDINA (03d_topbar.js), solo PC ---------- */
-.tbar{display:none}
+/* ---------- v9.64 TESTATA GLOBALE + BARRA LATERALE DI SOLA NAVIGAZIONE (03d_testata.js), solo PC ----------
+   .hdr = barra fissa in alto (logo, ricerca, Novita', Guida, Assistenza, lingua, account) | --hdh = altezza della testata
+   .pfpop = menu dell'account, sotto l'avatar | la barra laterale parte sotto la testata */
+.hdr{display:none}
 @media (min-width:901px){
- html.sidev2 .tbar{display:flex;justify-content:flex-end;align-items:center;height:48px;margin:0 0 24px;position:relative;z-index:45}   /* sotto le finestre (grafico 50, modali 1000), sopra le card */
- .tbdx{display:flex;align-items:center;gap:6px}
- .tbtn{position:relative;height:40px;padding:0 12px;border-radius:11px;border:1px solid transparent;background:none;color:var(--ink2);
+ html.tst{--hdh:72px}
+ html.tst .hdr{display:flex;align-items:center;gap:20px;position:fixed;left:0;right:0;top:0;height:var(--hdh);z-index:45;padding:0 clamp(16px,2vw,28px) 0 20px;
+  background:color-mix(in srgb,#081223 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+ .hdsx{display:flex;align-items:center;gap:14px;flex:none;width:244px}      /* larga come la barra laterale: la ricerca parte dove partono le card */
+ .hdsx .blogo{display:flex;flex:none;height:30px}
+ .hdsx .blogo b,html.ridotta .hdsx .blogo b{font-size:17px}
+ .hdsx #scomprimi{margin-left:auto;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+ .hdsx #scomprimi:hover{color:var(--ink);border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
+ .hdsx #scomprimi svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+ html.ridotta .hdsx #scomprimi svg{transform:rotate(180deg)}
+ .hdsx #scomprimi .sx{display:none}
+ .hdcerca{flex:1;min-width:0;max-width:620px}
+ .hdcerca .scerca{display:flex;align-items:center;gap:10px;width:100%;height:42px;padding:0 12px 0 14px;border-radius:12px;cursor:pointer;border:1px solid var(--line);
+  background:color-mix(in srgb,var(--card) 75%,transparent);color:var(--mute);font:500 14px system-ui;text-align:left;transition:border-color .15s,background .15s,color .15s}
+ .hdcerca .scerca:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));color:var(--ink2);background:var(--soft)}
+ .hdcerca .scerca svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round}
+ .hdcerca .scerca span{flex:1;display:revert!important}
+ .hdcerca .scerca kbd{display:inline-grid!important;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:6px;border:1px solid var(--line);font:600 12px system-ui;color:var(--mute)}
+ .hddx{display:flex;align-items:center;gap:4px;margin-left:auto;flex:none}
+ .hdbtn{position:relative;height:40px;padding:0 12px;border-radius:11px;border:1px solid transparent;background:none;color:var(--ink2);
   display:inline-flex;align-items:center;gap:8px;font:600 13.5px system-ui;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
- .tbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
- .tbtn:hover{background:var(--soft);border-color:var(--line);color:var(--ink)}
- .tbpunto{position:absolute;left:24px;top:8px;width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 2px var(--bg)}
- .tbpunto[hidden]{display:none}
- .tblang{margin:0 6px}.tblang button{padding:5px 11px}
- .tbprof{position:relative}
- .tbav{position:relative;height:42px;display:inline-flex;align-items:center;gap:9px;padding:0 12px 0 5px;border-radius:99px;border:1px solid var(--line);
+ .hdbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ .hdbtn:hover{background:var(--soft);border-color:var(--line);color:var(--ink)}
+ .hdnum{font-style:normal;min-width:18px;height:18px;padding:0 5px;border-radius:99px;display:inline-grid;place-items:center;font:800 11px system-ui;color:#04211e;background:var(--acc)}
+ .hdnum[hidden]{display:none}
+ .hdlang{margin:0 8px}.hdlang button{padding:5px 11px}
+ .hdav{position:relative;height:42px;display:inline-flex;align-items:center;gap:9px;padding:0 12px 0 5px;border-radius:99px;border:1px solid var(--line);
   background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--ink);font:600 13.5px system-ui;cursor:pointer;transition:border-color .15s,background .15s}
- .tbav:not(.conav){padding-left:14px}
- .tbav:hover,.tbav[aria-expanded="true"]{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
- .tbini{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 12.5px system-ui;letter-spacing:.3px;color:#04211e;
-  background:linear-gradient(135deg,var(--acc),#5b9bff)}
- .tbav:not(.conav) .tbini{display:none}
- .tbnome[hidden]{display:none}
- .tbeti{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:800;border:1px solid var(--line);color:var(--ink2)}
- .tbeti[hidden]{display:none}
- .tbeti.ok{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,var(--oro2),var(--oro) 45%,var(--oro3))}
- .tbeti.prova{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
- .tbav>svg{width:16px;height:16px;fill:none;stroke:var(--mute);stroke-width:2;transition:transform .2s}
- .tbav[aria-expanded="true"]>svg{transform:rotate(180deg)}
- .tbav.tbrit::after{content:"";position:absolute;left:30px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--s);box-shadow:0 0 0 2px var(--bg)}
- /* tendina */
- .tbmenu{position:absolute;right:0;top:calc(100% + 8px);width:330px}
- .tbmenu .pfbox2{margin:0;padding:10px;border-radius:16px;background:var(--card);box-shadow:0 18px 48px rgba(0,0,0,.45);animation:tbgiu .18s ease;
-  max-height:calc(100vh - 120px);overflow-y:auto;overscroll-behavior:contain}
- @keyframes tbgiu{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
- html.ridotta .tbmenu .pfbox2:not([hidden]){display:grid}
- /* sul PC il Profilo della barra laterale non serve piu': c'e' l'avatar in alto */
- html.sidev2 #pfapri{display:none}
- /* PROFILO COMPATTO: una sola griglia a due colonne, ogni voce al suo posto (order) */
+ .hdav:not(.conav){padding-left:14px}
+ .hdav:hover,.hdav[aria-expanded="true"]{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
+ .hdini{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 12.5px system-ui;letter-spacing:.3px;color:#04211e;background:linear-gradient(135deg,var(--acc),#5b9bff)}
+ .hdav:not(.conav) .hdini{display:none}.hdnome[hidden]{display:none}
+ .hdeti{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:800;border:1px solid var(--line);color:var(--ink2)}.hdeti[hidden]{display:none}
+ .hdeti.ok{color:#2a1d00;border-color:transparent;background:linear-gradient(135deg,var(--oro2),var(--oro) 45%,var(--oro3))}
+ .hdeti.prova{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+ .hdav>svg{width:16px;height:16px;fill:none;stroke:var(--mute);stroke-width:2;transition:transform .2s}
+ .hdav[aria-expanded="true"]>svg{transform:rotate(180deg)}
+ .hdav.hdrit::after{content:"";position:absolute;left:30px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--s);box-shadow:0 0 0 2px var(--bg)}
+ @media (max-width:1180px){.hdbtn span{display:none}.hdsx{width:auto}}      /* schermo stretto: solo le icone */
+ /* pagina e barra laterale sotto la testata */
+ html.tst .side.v2{top:var(--hdh);height:calc(100vh - var(--hdh));padding-top:28px}
+ html.tst.ridotta .side.v2{padding-top:28px}
+ html.tst .side.v2 .sbrand{display:none}
+ html.tst .wrap{padding-top:calc(var(--hdh) + 28px)}
+ html.tst #pfapri{display:none}                               /* l'account e' in testata */
+ html.tst .tvmodal{z-index:60}                                /* il grafico copre anche la testata */
+ /* Novita': una sola voce (in testata). La stellina resta, invisibile, sotto la voce: il pannello si apre da li' */
+ html.tst .nvchat{top:calc(var(--hdh) + 6px)!important;bottom:auto!important;left:auto!important;right:clamp(16px,2vw,28px)!important;max-height:min(70vh,560px)!important;transform-origin:top right!important}
+ html.tst .nvfab{left:var(--hdx,auto)!important;top:var(--hdy,8px)!important;right:auto!important;bottom:auto!important;opacity:0!important;pointer-events:none!important}
+}
+/* ---------- v9.63 PROFILO A COMPARSA ACCANTO ALLA BARRA LATERALE (Ya, 27/11/2026) ----------
+   La barra in alto a destra (v9.61) e' stata tolta: il Profilo sta nella barra laterale, in fondo. Sul PC il suo
+   menu NON si apre piu' dentro la barra (la intasava): compare accanto, ancorato in basso (.pfpop, 03c_sidebar.js),
+   compatto: intestazione, Admin e Anomalie affiancati, abbonamento, recensione, lingua, email, Assistenza e Guida
+   affiancate, Esci. Sul telefono resta dentro il cassetto, come prima. */
+.pfpop{display:none}
+@media (min-width:901px){
+ .pfpop{display:block;position:fixed;z-index:70;width:316px}
+ .pfpop .pfbox2{margin:0;padding:10px;border-radius:16px;background:var(--card);box-shadow:0 18px 48px rgba(0,0,0,.5);animation:pfdx .18s ease;
+  max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain}
+ @keyframes pfdx{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+ html.ridotta .pfpop .pfbox2:not([hidden]){display:grid}
+ /* fuori dalla barra: icone e scritte come nella barra larga */
+ .pfpop svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ html .pfpop .sitem{justify-content:flex-start;height:auto;padding:9px 8px;gap:11px;font:600 13.5px system-ui}
+ html .pfpop .sitem span{display:revert}html .pfpop .sdtx{display:grid}
+ html .pfpop .sitem>span{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ /* una sola griglia a due colonne, ogni voce al suo posto (order) */
  .pfbox2.v3{grid-template-columns:1fr 1fr;gap:4px}
  .pfbox2.v3>#pfconto,.pfbox2.v3>.pfaltro,.pfbox2.v3>#pfcoda{display:contents}
  .pfbox2.v3 #pfconto>*,.pfbox2.v3 .pfaltro>*,.pfbox2.v3 #pfcoda>*{grid-column:1/-1}
  .pfbox2.v3 .pfchi{order:1;padding:6px 8px 10px;border-bottom:1px solid var(--line);margin-bottom:4px}
- .pfbox2.v3 .pfform{order:1}
- .pfbox2.v3 .pfprova{order:2}
- /* Admin e Anomalie: due riquadri affiancati, stessa altezza (id nel selettore: vince su "#pfconto>*" a tutta riga) */
- .pfbox2.v3 #pfconto>.pfadmin,.pfbox2.v3 .pfaltro>#sanom{order:3;grid-column:auto;margin:0 0 4px;height:auto;min-height:58px;display:flex;align-items:center;gap:9px;
+ .pfbox2.v3 .pfform{order:1}.pfbox2.v3 .pfprova{order:2}
+ /* riquadri affiancati: Admin + Anomalie, Assistenza + Guida */
+ .pfbox2.v3 #pfconto>.pfadmin,.pfbox2.v3 .pfaltro>#sanom,.pfbox2.v3 .pfaltro>#fbapri,.pfbox2.v3 .pfaltro>#gapri{grid-column:auto;margin:0;height:auto;display:flex;align-items:center;gap:9px;
   padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:none;font-size:13px}
- html .tbmenu .pfadmin>span{white-space:normal;line-height:1.3}
- .pfbox2.v3 #sanom .sfreccia{display:none}
- .pfbox2.v3 #sanom .sdtx b{font-size:13px}
- .pfbox2.v3 #pfconto>.pfadmin:hover,.pfbox2.v3 .pfaltro>#sanom:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
+ .pfbox2.v3 #pfconto>.pfadmin,.pfbox2.v3 .pfaltro>#sanom{order:3;min-height:58px;margin-bottom:4px}
+ html .pfpop .pfadmin>span{white-space:normal;line-height:1.3}
+ .pfbox2.v3 #sanom .sfreccia{display:none}.pfbox2.v3 #sanom .sdtx b{font-size:13px}
+ .pfbox2.v3 #pfconto>.pfadmin:hover,.pfbox2.v3 .pfaltro>#sanom:hover,.pfbox2.v3 .pfaltro>#fbapri:hover,.pfbox2.v3 .pfaltro>#gapri:hover{border-color:color-mix(in srgb,var(--acc) 55%,var(--line));background:var(--soft)}
  .pfbox2.v3 .pfabb,.pfbox2.v3 #pfconto>button[disabled]{order:5}
  .pfbox2.v3 .pfrec{order:6}
- .pfbox2.v3 .pfoff{order:8;margin-top:4px;padding:10px 8px 6px;border-top:1px solid var(--line)}
+ .pfbox2.v3 .pflingua:not(.pfoff){order:7;margin-top:4px;padding:10px 8px 4px;border-top:1px solid var(--line)}
+ .pfbox2.v3 .pfoff{order:8;padding:4px 8px 10px}
  .pfbox2.v3 .pfmotivo{order:9}
- .pfbox2.v3 .pfelim{order:98}
- .pfbox2.v3 .pfesci{order:99;margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 10px 10px;padding-top:11px}
- /* nella tendina le icone e le scritte valgono come nella barra larga, anche con la barra laterale ridotta */
- .tbmenu svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
- html .tbmenu .sitem{justify-content:flex-start;height:auto;padding:9px 8px;gap:11px;font:600 13.5px system-ui}
- html .tbmenu .sitem span{display:revert}html .tbmenu .sdtx{display:grid}
- html .tbmenu .sitem>span{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- html .tbmenu .sdati{justify-content:flex-start}
- /* gia' nella barra in alto: non si ripetono nella tendina */
- .pfbox2.v3 .pflingua:not(.pfoff),.pfbox2.v3 #novapri,.pfbox2.v3 #fbapri,.pfbox2.v3 #gapri,.pfbox2.v3 #sdati,.pfbox2.v3 #status{display:none}
+ .pfbox2.v3 .pfaltro>#fbapri,.pfbox2.v3 .pfaltro>#gapri{order:10}
+ .pfbox2.v3 .pfesci{order:98;margin-top:6px;border-top:1px solid var(--line);border-radius:0 0 10px 10px;padding-top:11px}
+ .pfbox2.v3 .pfelim{order:99}
+ .pfbox2.v3 #novapri,.pfbox2.v3 #sdati,.pfbox2.v3 #status{display:none}
+ html.tst .pfbox2.v3 .pflingua:not(.pfoff),html.tst .pfbox2.v3 #fbapri,html.tst .pfbox2.v3 #gapri{display:none}
+ html.tst .pfbox2.v3 .pfoff{margin-top:4px;padding-top:10px;border-top:1px solid var(--line)}
 }

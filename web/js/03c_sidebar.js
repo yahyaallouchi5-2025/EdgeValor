@@ -41,11 +41,12 @@ try{(function(){const side=$("side"),nav=$("nav");if(!side||!nav)return;
  const mercatiT=[...nav.querySelectorAll(".ngm button[data-t]")].map(b=>b.dataset.t).concat("mercati");
  const SUB=["pairs","assets","mkt","verifica","stag","notizie"].filter(t=>nav.querySelector(`.ngm button[data-t="${t}"]`));
  const term=document.createElement("div");term.className="sgruppo snavg";
- term.innerHTML=`<small class="stit2">${T("Terminale")}</small>`+
+ term.innerHTML=`<small class="stit2">${T("Principale")}</small>`+
   ["sig","port","azioni"].map(t=>`<button type="button" class="sitem snav" data-vai="${t}">${svg(t)}<span>${voce(t,t)}</span><i class="snuovo" hidden></i></button>`).join("")+
   `<button type="button" class="sitem snav smerc" data-vai="mercati" aria-expanded="false">${svg("mercati")}<span>${T("Mercati")}</span><svg class="sfr" viewBox="0 0 24 24" aria-hidden="true">${ICO.giu}</svg></button>
    <div class="ssub2" hidden>${SUB.map(t=>`<button type="button" class="ssv" data-vai="${t}">${voce(t,t)}</button>`).join("")}
     <button type="button" class="ssv stutti" data-vai="mercati">${T("Tutti i mercati")}<svg viewBox="0 0 24 24" aria-hidden="true">${ICO.dx}</svg></button></div>`;
+ // v9.64 (Ya, 27/11/2026) due gruppi distinti: PRINCIPALE (le schede) e IL MIO SPAZIO (watchlist, invita amici)
  const spazio=document.createElement("div");spazio.className="sgruppo spaziog";spazio.innerHTML=`<small class="stit2">${T("Il mio spazio")}</small>`;
  mezzo.append(term,spazio);
  if(gLista)spazio.append(gLista);if(gInvita)spazio.append(gInvita);
@@ -67,8 +68,25 @@ try{(function(){const side=$("side"),nav=$("nav");if(!side||!nav)return;
  // il menu del profilo si chiude toccando fuori
  // v9.61 si chiude con ebAccount.mostra(false): pf.click() riapriva la barra ridotta; fuori anche l'avatar della barra in alto
  document.addEventListener("pointerdown",e=>{const b=$("pfbox");if(!b||b.hidden||!pf)return;
-  if(e.target.closest("#pfbox,#pfapri,#tbav"))return;
+  if(e.target.closest("#pfbox,#pfapri,#hdav"))return;
   if(window.ebAccount&&ebAccount.mostra)ebAccount.mostra(false);else if(pf.getAttribute("aria-expanded")=="true")pf.click();});
+
+ // v9.63 PROFILO A COMPARSA: sul PC il riquadro #pfbox esce dalla barra e compare accanto, ancorato in basso
+ //   (prima si apriva dentro la barra e la intasava). Sul telefono torna al suo posto nel cassetto.
+ (function(){const box=$("pfbox");if(!box||!pf)return;const pc=matchMedia("(min-width:901px)");
+  const pop=document.createElement("div");pop.className="pfpop";document.body.appendChild(pop);
+  const casa=document.createComment("pfbox");box.before(casa);
+  // v9.64 con la testata globale (03d_testata.js) il menu si apre sotto l'avatar, in alto a destra
+  const posto=()=>{const av=$("hdav");if(av&&av.offsetParent){const r=av.getBoundingClientRect();pop.style.left="auto";pop.style.bottom="auto";
+    pop.style.right=Math.max(12,Math.round(innerWidth-r.right))+"px";pop.style.top=Math.round(r.bottom+8)+"px";return;}
+   const r=side.getBoundingClientRect();pop.style.right="auto";pop.style.top="auto";pop.style.left=Math.round(r.right+8)+"px";pop.style.bottom="16px";};
+  const sposta=()=>{if(pc.matches){if(!pop.contains(box)){pop.append(box);box.classList.add("v3");}posto();}
+   else if(pop.contains(box)){casa.after(box);box.classList.remove("v3");}};
+  sposta();(pc.addEventListener?pc.addEventListener("change",sposta):pc.addListener(sposta));
+  new MutationObserver(()=>{if(!box.hidden&&pc.matches)requestAnimationFrame(posto);}).observe(box,{attributes:true,attributeFilter:["hidden"]});
+  new MutationObserver(()=>{if(pc.matches)setTimeout(posto,260);}).observe(h,{attributes:true,attributeFilter:["class"]});   // barra larga/ridotta
+  addEventListener("resize",()=>{if(pc.matches)posto();});
+  document.addEventListener("keydown",e=>{if(e.key=="Escape"&&!box.hidden&&pc.matches&&window.ebAccount&&ebAccount.mostra)ebAccount.mostra(false);});})();
 
  // ---- 4) NAVIGAZIONE: le voci usano go() delle schede di sempre (link diretti e statistiche invariati)
  const sub=term.querySelector(".ssub2"),merc=term.querySelector(".smerc");
