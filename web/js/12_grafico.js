@@ -260,7 +260,15 @@ function chiaveCandele(spec){if(!window.ebCandele||!ebCandele.simbolo)return nul
 /* v9.57 POSIZIONE COT nel tempo per il riquadro "COT" del grafico: la posizione netta di oggi (% open interest, base
    meno quotata per le coppie) e, andando indietro, si tolgono le variazioni settimanali gia' usate dai flussi.
    E' una ricostruzione (la % dell'open interest cambia anche con il totale dei contratti): per la forma, non al decimale. */
-function livelliCOT(spec){try{const k=spec.slice(2),f=flussiDi(spec);if(!f.length)return null;
+// v9.62 posizione VERA settimana per settimana (D.pos, 3 anni, dal file a richiesta; sul PC anche D.assets[k].pos).
+//   Coppia = base meno quotata (stessa regola del punteggio), strumenti invertiti col segno cambiato. Data = venerdi' d'uscita.
+function storicoPos(spec){const k=spec.slice(2),P=g=>(D.pos&&D.pos[g])||(D.assets[g]||{}).pos||null;
+ const ven=d=>new Date(Date.parse(d+"T12:00Z")+3*864e5).toISOString().slice(0,10);
+ if(spec[0]=="p"){const p=D.pairs.find(x=>x.pair==k)||{},b=P(p.base),q=P(p.quote);if(!b||!q)return null;
+  const mq=new Map(q);const o=b.filter(x=>mq.has(x[0])).map(x=>[ven(x[0]),+(x[1]-mq.get(x[0])).toFixed(2)]);return o.length?o:null;}
+ const s=P(k);if(!s||!s.length)return null;const inv=invDi(k);return s.map(x=>[ven(x[0]),inv?-x[1]:x[1]]);}
+function livelliCOT(spec){try{const st=storicoPos(spec);if(st&&st.length>26)return st;
+ const k=spec.slice(2),f=flussiDi(spec);if(!f.length)return null;
  const pc=g=>(D.assets[g]||{}).pct_oi;let ora;
  if(spec[0]=="p"){const p=D.pairs.find(x=>x.pair==k)||{};if(pc(p.base)==null||pc(p.quote)==null)return null;ora=pc(p.base)-pc(p.quote);}
  else{if(pc(k)==null)return null;ora=invDi(k)?-pc(k):pc(k);}

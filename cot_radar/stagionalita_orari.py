@@ -291,12 +291,12 @@ def candele_mensili(sym, ore, uscita, dal=H1_DAL):
 
 
 # v8.84 CANDELE GIORNALIERE PER IL GRAFICO DELLA SCHEDA LIVE (switch Giornaliero / Orario, 13c_candele.js):
-# un file per simbolo <uscita>/d1/<SIMBOLO>.json con gli ultimi ~2 anni, costruite dalle candele orarie dell'archivio.
+# un file per simbolo <uscita>/d1/<SIMBOLO>.json con gli ultimi ~3 anni (v9.62, prima ~2), costruite dalle candele orarie dell'archivio.
 # GIORNO DI MERCATO = chiusura delle 17 di New York (come il forex): ora di New York + 7 ore. Per azioni, ETF e indici
 # USA la chiusura delle 16 cade nello stesso giorno; per le crypto (24 ore) il giorno finisce alle 17 di New York.
 # Sabato e domenica non sono giorni di mercato (le poche barre del fine settimana delle crypto vanno nel lunedi').
 # Formato: {"s": simbolo, "d": [["AAAA-MM-GG", o, h, l, c], ...]}.
-D1_GIORNI = 760
+D1_GIORNI = 1130   # v9.62 ~3 anni (prima 760): la MA 200 copre tutto il grafico, anche allargato a 2 anni
 NY = ZoneInfo("America/New_York")
 
 

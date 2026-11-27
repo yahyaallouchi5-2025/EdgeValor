@@ -25,6 +25,14 @@ def flussi(ser, settimane=26):
     return [[n[i][0], round(n[i][1] - n[i - 1][1], 2)] for i in range(max(1, len(n) - settimane), len(n))]
 
 
+def posizioni(ser, settimane=160):
+    """v9.62 (Ya, 27/11/2026) riquadro "Speculatori · % open interest" del grafico: la posizione VERA di ogni settimana
+    (netto Non Commercial in % dell'open interest) degli ultimi ~3 anni, cosi' copre tutto il grafico giornaliero
+    (prima si ricostruiva a ritroso dai flussi delle ultime 26 settimane: meta' grafico restava vuoto).
+    Formato compatto: [[martedi' di riferimento, %], ...]. Va nel file Premium caricato a richiesta (verifica.json)."""
+    return [[x["date"], round(x["net"] / x["oi"] * 100, 1)] for x in ser[-settimane:] if x.get("oi")]
+
+
 def analyse(cot_rows, fred, ecb):
     """Restituisce (assets, pairs, corr, market)."""
     series = cot_series(cot_rows)
@@ -40,7 +48,7 @@ def analyse(cot_rows, fred, ecb):
         if not now:
             continue
         now.update(key=k, name=NOMI_EN.get(k, name), it=name, group=group, cot_prev=prev["cot"] if prev else None, mkt=None,
-                   flussi=flussi(ser))
+                   flussi=flussi(ser), pos=posizioni(ser))
         assets[k] = now
         hist[k] = ser
     missing = [a[0] for a in ASSETS if a[0] not in assets]

@@ -4707,7 +4707,7 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
 /* ---------- v9.61 BARRA IN ALTO A DESTRA + PROFILO A TENDINA (03d_topbar.js), solo PC ---------- */
 .tbar{display:none}
 @media (min-width:901px){
- html.sidev2 .tbar{display:flex;justify-content:flex-end;align-items:center;height:48px;margin:0 0 24px;position:relative;z-index:60}
+ html.sidev2 .tbar{display:flex;justify-content:flex-end;align-items:center;height:48px;margin:0 0 24px;position:relative;z-index:45}   /* sotto le finestre (grafico 50, modali 1000), sopra le card */
  .tbdx{display:flex;align-items:center;gap:6px}
  .tbtn{position:relative;height:40px;padding:0 12px;border-radius:11px;border:1px solid transparent;background:none;color:var(--ink2);
   display:inline-flex;align-items:center;gap:8px;font:600 13.5px system-ui;cursor:pointer;transition:background .15s,border-color .15s,color .15s}

@@ -400,7 +400,9 @@ def build(data_source=load_all, demo=False, sito=False):
     if sito:
         # v8.71 il backtest simulato non si mostra piu' (sostituito da "Comportamento COT"): fuori dal file, piu' leggero
         data.pop("bt")
-        verifica = clean({"reg": data.pop("reg"), "cmp": data.pop("cmp"), "carry_st": data.pop("carry_st")})
+        # v9.62 posizione degli speculatori settimana per settimana (3 anni): serve solo al grafico, va nel file a richiesta
+        pos = {k: a.pop("pos") for k, a in assets.items() if isinstance(a, dict) and "pos" in a}
+        verifica = clean({"reg": data.pop("reg"), "cmp": data.pop("cmp"), "carry_st": data.pop("carry_st"), "pos": pos})
         data["verifica"] = "verifica.json?v=" + datetime.now().strftime("%Y%m%d%H%M")
     # v7.93 DATI PREMIUM (premium.py): sul sito escono cifrati; senza chiave del database resta solo la parte Basic
     blocco = None

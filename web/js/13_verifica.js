@@ -469,7 +469,7 @@ window.ebCaricaVerifica=(function(){let P=null;return function(){
  if(D.reg||D.cmp)return Promise.resolve(true);
  if(!D.verifica||typeof EB_PREMIUM=="undefined"||!EB_PREMIUM)return Promise.resolve(false);
  if(!P)P=fetch(D.verifica,{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(v=>window.ebPrem?ebPrem.apri(v):v)   // v8.08 file cifrato: si apre con la chiave Premium
-  .then(v=>{if(!v||(!v.reg&&!v.cmp))throw new Error("file non aperto");D.reg=v.reg;D.cmp=v.cmp;D.carry_st=v.carry_st;return true;})
+  .then(v=>{if(!v||(!v.reg&&!v.cmp))throw new Error("file non aperto");D.reg=v.reg;D.cmp=v.cmp;D.carry_st=v.carry_st;if(v.pos)D.pos=v.pos;return true;})
   .catch(e=>{P=null;throw e;});
  return P;};})();
 (function(){const el=$("verifica");if(!el)return;
