@@ -196,3 +196,19 @@ class TestStaffettaLive(unittest.TestCase):
         # festa: con il calendario che segna chiuse tutte le borse nel giorno, niente giro inutile
         fest = {"borse": {b: {"festivi": {"2026-11-27": "x", "2026-11-26": "x"}} for b in ("US", "XETRA", "TO", "AU")}}
         self.assertFalse(live.borsa_entro(1, datetime(2026, 11, 27, 9, 0, tzinfo=timezone.utc), fest))
+
+
+class TestRegistroPrivato(unittest.TestCase):
+    """v9.54 il registro va in Supabase; sul ramo pubblico resta solo un segnaposto senza contenuto."""
+    def test_senza_token_niente_rete(self):
+        from cot_radar import sorveglianza as s
+        self.assertIsNone(s.registro_remoto({}))                   # fuori da GitHub Actions: nessuna lettura
+        self.assertIsNone(s.registro_remoto({}, {"aperte": []}))   # ... e nessun salvataggio
+
+    def test_segnaposto_pubblico(self):
+        import json, os, tempfile
+        from cot_radar import sorveglianza as s
+        d = tempfile.mkdtemp()
+        s.scrivi_registro({"v": 1, "privato": True, "agg": "2026-11-27 14:00"}, d)
+        dati = json.load(open(os.path.join(d, "anomalie.json"), encoding="utf-8"))
+        self.assertEqual(set(dati), {"v", "privato", "agg"})       # niente aperte, chiuse, link o azioni

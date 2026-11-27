@@ -2,13 +2,13 @@
    Riga nel Profilo, sotto "Dati aggiornati": pallino verde "Nessuna anomalia" oppure rosso con il numero di anomalie aperte.
    Un tocco apre la finestra del registro: anomalie aperte (da quando), controlli del terminale aperto adesso,
    le ultime 72 ore (un quadratino per ogni controllo orario) e le anomalie risolte con la loro durata.
-   DATI: anomalie.json nel ramo "anomalie", scritto ogni ora da cot_radar/sorveglianza.py (workflow sorveglianza.yml).
+   DATI (v9.54, privati): tabella privato.registro_anomalie in Supabase, scritta ogni ora da cot_radar/sorveglianza.py
+   (funzione registro-anomalie) e letta qui con ebAccount.rpc("registro_anomalie"): il database la da' SOLO all'admin.
    IN TEMPO REALE: oltre al file, la pagina controlla da sola le fonti in ritardo (D.sources) e se la sorveglianza
    stessa si e' fermata (ultimo controllo piu' vecchio di ORE_FERMA). Si ricarica ogni 10 minuti.
    Visibile solo con la classe "eb-admin" (account fondatore, 36_account.js): la riga e' nascosta anche dal CSS. */
 (function(){try{
  const ORE_FERMA=2.5,OGNI=10*60*1000;
- const URL=()=>EB_RAW+"anomalie/anomalie.json?t="+Math.floor(Date.now()/60000);
  const admin=()=>document.documentElement.classList.contains("eb-admin");
  const btn=$("sanom"),tit=$("santit"),sot=$("ansub");if(!btn)return;
  let R=null,errore=false;
@@ -33,8 +33,9 @@
   const pf=$("pfapri");if(pf)pf.classList.toggle("pfanom",n>0);
   const box=document.querySelector(".anmodal");if(box)corpo(box);}
  function carica(){if(!admin())return;
-  fetch(URL(),{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
-   .then(j=>{R=j;errore=false;riga();}).catch(()=>{errore=true;riga();});}
+  if(!window.ebAccount||!ebAccount.rpc){errore=true;riga();return;}
+  ebAccount.rpc("registro_anomalie").then(j=>{if(!j||typeof j!="object")throw new Error("vuoto");R=j;errore=false;riga();})
+   .catch(()=>{errore=true;riga();});}
  // contenuto della finestra (ridisegnato a ogni ricarica, anche se e' aperta)
  function corpo(box){const ap=(R&&R.aperte)||[],lo=locali(),tutte=lo.concat(ap),ch=(R&&R.chiuse)||[],gi=((R&&R.giri)||[]).slice().reverse();
   const voce=(a,dove)=>`<li class="anv"><span class="antag">${esc(T(a.area||"Altro"))}</span><div><p>${esc(a.testo).replace(/https:\/\/\S+?(?=\.?$|\s)/g,u=>`<a href="${u}" target="_blank" rel="noopener">${T("apri il giro")} ↗</a>`)}</p>${dove?`<small>${dove}</small>`:""}</div></li>`;

@@ -458,6 +458,43 @@ def telegram(testo, env):
 AVVISO_ADMIN = SUPABASE + "/functions/v1/avviso-admin"
 
 
+REGISTRO_REMOTO = SUPABASE + "/functions/v1/registro-anomalie"
+
+
+def _oidc(env):
+    """Token OIDC di GitHub Actions (audience edgevalor-avvisi), None fuori da GitHub Actions. Mai stampato nei log."""
+    url_t, tok = env.get("ACTIONS_ID_TOKEN_REQUEST_URL"), env.get("ACTIONS_ID_TOKEN_REQUEST_TOKEN")
+    if not (url_t and tok):
+        return None
+    req = urllib.request.Request(url_t + "&audience=edgevalor-avvisi", headers={"Authorization": "Bearer " + tok})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.load(r)["value"]
+
+
+def registro_remoto(env, dati=None):
+    """v9.54 REGISTRO PRIVATO (Ya: "dobbiamo vederlo solo io e te"): il registro sta in Supabase (funzione
+    registro-anomalie), non piu' su un ramo pubblico di GitHub. dati=None -> legge il registro del giro prima (dict o
+    None); dati=dict -> lo salva (True/False). Nessun token: None (prova in locale)."""
+    try:
+        oidc = _oidc(env)
+        if not oidc:
+            return None
+        h = {"Authorization": "Bearer " + oidc, "Content-Type": "application/json"}
+        if dati is None:
+            req = urllib.request.Request(REGISTRO_REMOTO, headers=h)
+        else:
+            req = urllib.request.Request(REGISTRO_REMOTO, data=json.dumps({"dati": dati}, ensure_ascii=False).encode(),
+                                         method="POST", headers=h)
+        with urllib.request.urlopen(req, timeout=30) as r:
+            js = json.load(r)
+        if dati is None:
+            return js.get("dati") if js.get("ok") and isinstance(js.get("dati"), dict) else None
+        return js.get("ok") is True
+    except Exception as e:                                    # mai il token nei log: solo il tipo di errore
+        print("registro privato non raggiunto (%s)" % type(e).__name__)
+        return None if dati is None else False
+
+
 def email_via_supabase(oggetto, testo, env):
     """v9.37 email all'admin (e in copia al team) tramite la funzione avviso-admin, autenticata con il token OIDC di
     GitHub Actions (permesso id-token: write nel workflow): nessuna password da custodire.
@@ -566,7 +603,10 @@ def main(argv):
     prob = problemi(adesso, stato, indice, live, giri, orari_borse.leggi_remoto(), eventi, archivio, orari, cursore,
                     accesso=accesso_google())
     print("\n".join(prob) if prob else "Tutto regolare.")
-    prec = leggi_json(env.get("ANOMALIE_PREC") or "") or {}
+    # v9.54 registro del giro prima: dal posto privato (Supabase); il file del ramo resta solo come riserva del passaggio
+    prec = registro_remoto(env) or leggi_json(env.get("ANOMALIE_PREC") or "") or {}
+    if prec.get("privato"):                                   # il ramo pubblico ora contiene solo il segnaposto
+        prec = {}
     reg = aggiorna_registro(prec, prob, adesso)
     mem, azioni, avvisate = prec.get("riparazioni") or {}, [], prec.get("avvisate") or []
     if "--prova" not in argv:
@@ -586,9 +626,13 @@ def main(argv):
     quando = adesso.astimezone(ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d %H:%M")
     reg.update(riparazioni=mem, avvisate=avvisate,
                azioni=([{"t": quando, "testo": a} for a in azioni] + [x for x in prec.get("azioni") or [] if isinstance(x, dict)])[:30])
+    # v9.54 il registro va SOLO nel posto privato; sul ramo pubblico "anomalie" resta un segnaposto senza contenuto
+    if "--prova" not in argv:
+        salvato = registro_remoto(env, reg)
+        print("registro privato salvato" if salvato else "registro privato NON salvato (riprova al giro dopo)")
     uscita = env.get("ANOMALIE_OUT")
     if uscita:
-        scrivi_registro(reg, uscita)
+        scrivi_registro({"v": 1, "privato": True, "agg": quando}, uscita)
     return 0
 
 
