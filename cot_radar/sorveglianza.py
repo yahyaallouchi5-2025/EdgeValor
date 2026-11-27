@@ -195,7 +195,11 @@ def problemi(adesso, stato=None, indice=None, live=None, giri=None, cal=None, ev
         out.append("stato.json del sito non leggibile: il sito potrebbe essere giu'.")
     # 8) v9.13 fonti non raggiunte nell'ultimo aggiornamento ("fred_riserva" = serie prese da fonti di riserva: va bene)
     for k, v in sorted(((stato or {}).get("fonti") or {}).items()):
-        if k != "fred_riserva" and v != "online":
+        # v9.52 (Ya, 26/11/2026: "anomalie infinite"): "parziale" = qualche serie non arrivata in UN giro (FRED ha spesso
+        #   singhiozzi di pochi minuti) e gia' al giro dopo torna "online". Non e' un guasto: niente mail. Se una serie
+        #   resta davvero ferma lo segnala il controllo 6 (archivio: serie ferme), con il nome della serie.
+        #   Restano anomalia "cache" / "assente" / "manutenzione" (fonte giu' del tutto).
+        if k != "fred_riserva" and v not in ("online", "parziale"):
             out.append("Fonte %s non raggiunta nell'ultimo aggiornamento: in uso i dati salvati (%s)." % (k.upper(), v))
     # 9-10) v9.13 COT: report uscito ma non nel sito; riepilogo settimanale su Telegram non partito
     ultimo = (stato or {}).get("cot_ultimo")

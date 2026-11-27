@@ -154,3 +154,17 @@ class TestRiparazione(unittest.TestCase):
         p = s.problemi(mar, {"creato": "2026-11-10 05:40:00", "esito": "ok"}, {"generato": "2026-11-10 12:00"},
                        {"quando": mar.timestamp() - 600}, {"Sito": ("failure", "https://x/runs/9", "Pubblica")})
         self.assertTrue(any('al passo "Pubblica"' in x for x in p))
+
+
+class TestFontiParziali(unittest.TestCase):
+    """v9.52: una fonte "parziale" (qualche serie mancata in un solo giro) non e' un'anomalia; "cache" si'."""
+    def test_parziale_non_segnalata(self):
+        from datetime import datetime, timezone
+        from cot_radar import sorveglianza as S
+        ora = datetime.now(timezone.utc)
+        st = {"creato": ora.astimezone(__import__("zoneinfo").ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d %H:%M:%S"), "esito": "ok",
+              "fonti": {"cot": "online", "fred": "parziale", "ecb": "parziale", "fred_riserva": 0}}
+        self.assertFalse([x for x in S.problemi(ora, stato=st) if x.startswith("Fonte ")])
+        st["fonti"]["fred"] = "cache"
+        self.assertEqual([x for x in S.problemi(ora, stato=st) if x.startswith("Fonte ")],
+                         ["Fonte FRED non raggiunta nell'ultimo aggiornamento: in uso i dati salvati (cache)."])
