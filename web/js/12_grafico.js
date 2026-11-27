@@ -257,6 +257,15 @@ function chiaveCandele(spec){if(!window.ebCandele||!ebCandele.simbolo)return nul
  // valute del COT (EUR, JPY...): il grafico e' la coppia contro il dollaro gia' usata da TradingView (es. USDJPY, al contrario)
  const tv=(D.tv||{})[k]||{},c=String(tv.s||"").split(":").pop(),sc=c&&c.length==6?ebCandele.simbolo(c):null;
  return sc?{k,sym:sc[0],inv:!!tv.inv,valute:[c.slice(0,3),c.slice(3)]}:null;}
+/* v9.57 POSIZIONE COT nel tempo per il riquadro "COT" del grafico: la posizione netta di oggi (% open interest, base
+   meno quotata per le coppie) e, andando indietro, si tolgono le variazioni settimanali gia' usate dai flussi.
+   E' una ricostruzione (la % dell'open interest cambia anche con il totale dei contratti): per la forma, non al decimale. */
+function livelliCOT(spec){try{const k=spec.slice(2),f=flussiDi(spec);if(!f.length)return null;
+ const pc=g=>(D.assets[g]||{}).pct_oi;let ora;
+ if(spec[0]=="p"){const p=D.pairs.find(x=>x.pair==k)||{};if(pc(p.base)==null||pc(p.quote)==null)return null;ora=pc(p.base)-pc(p.quote);}
+ else{if(pc(k)==null)return null;ora=invDi(k)?-pc(k):pc(k);}
+ const out=new Array(f.length);let v=ora;for(let i=f.length-1;i>=0;i--){out[i]=[f[i][0],+v.toFixed(2)];v-=f[i][1];}
+ return out;}catch(e){return null;}}
 function usaTV(){const pan=$("tvpannello");pan.classList.add("contv");pan.classList.remove("nostro");
  // v9.55 se il grafico incorporato non e' il future, lo si dice in testata (una volta sola)
  const k=TV.spec.slice(2),w=TV.spec[0]=="a"?WIDGET[k]:null,so=$("tvsotto");
@@ -270,7 +279,7 @@ function disegnaNostro(spec,ck){const box=$("tvchart"),pan=$("tvpannello");pan.c
  let fatto=false;
  const parti=()=>{if(fatto)return;fatto=true;if(TV.spec!==spec||$("tvmodal").hidden)return;box.innerHTML="";
   ebCandele(box,{id:"sk",strumento:ck.k,generato:new Date().toISOString(),
-   opz:{scheda:true,sym:ck.sym,inv:ck.inv,valute:ck.valute,manca:()=>{if(TV.spec===spec&&!$("tvmodal").hidden)usaTV();}}});};
+   opz:{scheda:true,sym:ck.sym,inv:ck.inv,valute:ck.valute,cot:livelliCOT(spec),manca:()=>{if(TV.spec===spec&&!$("tvmodal").hidden)usaTV();}}});};
  // fasce e notizie arrivano con verifica.json: si aspetta al massimo 2,5 secondi, poi il grafico parte comunque
  //   (un solo disegno: niente grafico che si ridisegna sotto il dito)
  if(D.cmp||!window.ebCaricaVerifica)parti();else{ebCaricaVerifica().then(parti,parti);setTimeout(parti,2500);}}

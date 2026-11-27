@@ -78,12 +78,21 @@
   const COT=NM?[]:MON?MON.cot.map(ts):SK?[]:[t0];
   // v9.55 O.inv: grafico quotato al contrario (valuta del COT mostrata come USDJPY): le fasce seguono il grafico
   const EP=NM?[]:(((D.cmp||{}).ep||{})[z.strumento]||[]).map(e=>({a:e[0],b:e[1],v:e[2]*(O.inv?-1:1),forte:!!e[3]}));
-  const S={tf:SK?"d":"h",B:{},v:{},yz:1,yo:0,full:false,I:{},ind:{m50:true,m200:true,rsi:false}};   // stato: timeframe, candele, vista, scala, indicatori
+  const S={tf:SK?"d":"h",B:{},v:{},yz:1,yo:0,full:false,I:{},ind:{m50:true,m200:true,prof:false,rsi:false,atr:false,cot:true,cor:false}};   // stato: timeframe, candele, vista, scala, indicatori
   // v9.55 indicatori scelti: restano in questo browser (comodita' di chi guarda, mai dati importanti)
   if(SK)try{const v=JSON.parse(localStorage.getItem("ebInd")||"null");if(v&&typeof v=="object")for(const k in S.ind)if(typeof v[k]=="boolean")S.ind[k]=v[k];}catch(_){}
   box.innerHTML=`<div class="vfc-w${SK?" vfc-sk":""}"><div class="vfc-t">${SK?"":"<b>Grafico</b>"}${s[1]?`<span class="vfc-n">${esc(s[1])}</span>`:""}
     <div class="vfc-seg" role="group"><button type="button" data-tf="d"${SK?' class="on"':""}>Giornaliero</button><button type="button" data-tf="h"${SK?"":' class="on"'}>Orario</button></div>
-    ${SK?`<div class="vfc-ind" role="group" aria-label="Indicatori"><button type="button" data-i="m50" title="Media mobile delle ultime 50 candele">MA 50</button><button type="button" data-i="m200" title="Media mobile delle ultime 200 candele">MA 200</button><button type="button" data-i="rsi" title="RSI a 14 candele: sopra 70 ipercomprato, sotto 30 ipervenduto">RSI</button></div>`:""}
+    ${SK?`<div class="vfc-ind" role="group" aria-label="Indicatori">${[["m50","MA 50","Media mobile delle ultime 50 candele"],["m200","MA 200","Media mobile delle ultime 200 candele"],
+     ["prof","Profilo","Profilo del prezzo: dove il prezzo e' rimasto piu' a lungo nella parte visibile"],["cot","COT","Posizione netta degli speculatori in % dei contratti aperti"],
+     ["atr","ATR","Volatilita': movimento medio per candela in %, con il regime calma / normale / agitata"],["rsi","RSI","RSI a 14 candele: sopra 70 ipercomprato, sotto 30 ipervenduto"],
+     ["cor","Correlazione","Correlazione a 60 sedute con il dollaro e con l'S&P 500 (solo giornaliero)"]].map(([k,t,ti])=>`<button type="button" data-i="${k}" title="${ti}">${t}</button>`).join("")}
+     <details class="info vfc-ii"><summary title="Come leggere gli indicatori" aria-label="Informazioni">i</summary><div><b>MA 50 / MA 200</b>: medie mobili delle chiusure; sopra la MA 200 = tendenza di fondo al rialzo.
+      <b>Profilo</b>: barre a sinistra = quanto tempo il prezzo e' rimasto a ogni livello nella parte visibile; zona piu' chiara = 70% del tempo; <b>POC</b> = il livello piu' frequentato. Il forex non ha un volume centrale, per questo si misura il tempo.
+      <b>COT</b>: posizione netta degli speculatori in % dei contratti aperti, ricostruita dalle variazioni settimanali (data del marted&igrave;).
+      <b>ATR</b>: movimento medio di una candela in % del prezzo (14 candele). Colore sotto la linea: <span class="vfc-c0">calma</span>, normale, <span class="vfc-c2">agitata</span> rispetto all'ultimo anno. Serve a dimensionare le posizioni, non &egrave; un segnale.
+      <b>RSI</b>: forza delle ultime 14 candele; sopra 70 ipercomprato, sotto 30 ipervenduto.
+      <b>Correlazione</b>: quanto si muove insieme al dollaro (ETF UUP) e all'S&P 500 nelle ultime 60 sedute: +1 insieme, &minus;1 al contrario, 0 indipendente.</div></details></div>`:""}
     <div class="vfc-btn"><button type="button" data-z="-1" title="Riduci" aria-label="Riduci">${ico("meno")}</button><button type="button" data-z="1" title="Ingrandisci" aria-label="Ingrandisci">${ico("piu")}</button><button type="button" data-r title="Ripristina la vista" aria-label="Ripristina la vista">${ico("reset")}</button><button type="button" data-f title="Schermo intero" aria-label="Schermo intero">${ico("full")}</button></div></div>
    <div class="vfc-leg"></div><div class="vfc-g"><p class="small vfc-v">Caricamento&hellip;</p></div>
    <div class="vfc-tip"><span>${matchMedia("(pointer:coarse)").matches?"Trascina per spostarti, due dita per lo zoom, dito fermo per il mirino":"Trascina per spostarti, rotella o due dita per lo zoom"}</span></div></div>`;
@@ -118,18 +127,51 @@
     :`<span><i class="lg-lcot"></i>Report COT</span><span><i class="lg-lev"></i>Notizie</span>`)+
    "";}   // MA 50 / MA 200: il colore e' gia' sui pulsanti degli indicatori (niente voce doppia in legenda)
   // v9.55 INDICATORI calcolati una volta sola su tutte le candele del timeframe (non solo su quelle visibili:
-  //   la MA 200 della prima candela a schermo usa le 199 precedenti). RSI 14 con la media di Wilder, come TradingView.
+  //   la MA 200 della prima candela a schermo usa le 199 precedenti). RSI 14 e ATR 14 con la media di Wilder, come TradingView.
+  // v9.57 + ATR in % con regime (percentile dell'ATR sulle 250 candele prima: sotto 25% calma, sopra 75% agitata),
+  //   posizione COT per candela (O.cot: [[martedi', % open interest]], l'ultimo dato uscito prima della candela)
   function indicatori(tf){if(S.I[tf])return S.I[tf];const B=S.B[tf]||[],N=B.length,ma=n=>{const o=new Array(N).fill(null);let sm=0;
     for(let i=0;i<N;i++){sm+=B[i].c;if(i>=n)sm-=B[i-n].c;if(i>=n-1)o[i]=sm/n;}return o;};
    const rsi=new Array(N).fill(null);let ag=0,al=0;
    for(let i=1;i<N;i++){const d=B[i].c-B[i-1].c,u=Math.max(d,0),w=Math.max(-d,0);
     if(i<=14){ag+=u/14;al+=w/14;if(i<14)continue;}else{ag=(ag*13+u)/14;al=(al*13+w)/14;}
     rsi[i]=al==0?100:100-100/(1+ag/al);}
-   return S.I[tf]={m50:ma(50),m200:ma(200),rsi};}
+   const atr=new Array(N).fill(null),reg=new Array(N).fill(null);let tr=0;
+   for(let i=1;i<N;i++){const x=B[i],pc=B[i-1].c,v=Math.max(x.h-x.l,Math.abs(x.h-pc),Math.abs(x.l-pc));
+    if(i<=14){tr+=v/14;if(i<14)continue;}else tr=(tr*13+v)/14;atr[i]=x.c?tr/x.c*100:null;}
+   for(let i=40;i<N;i++){if(atr[i]==null)continue;const w=atr.slice(Math.max(0,i-250),i).filter(v=>v!=null);if(w.length<30)continue;
+    const sotto=w.filter(v=>v<atr[i]).length/w.length;reg[i]=sotto<.25?0:sotto>.75?2:1;}
+   const cot=new Array(N).fill(null),C=(O.cot||[]).slice().sort((p,q)=>p[0]<q[0]?-1:1);
+   if(C.length){let k=-1;for(let i=0;i<N;i++){const g0=tf=="d"?B[i].g:new Date(B[i].t).toISOString().slice(0,10);
+     while(k+1<C.length&&C[k+1][0]<=g0)k++;if(k>=0&&g0<=addGiorni(C[C.length-1][0],10))cot[i]=C[k][1];}}
+   return S.I[tf]={m50:ma(50),m200:ma(200),rsi,atr,reg,cot};}
+  const addGiorni=(g0,n)=>new Date(Date.parse(g0+"T12:00Z")+n*864e5).toISOString().slice(0,10);
+  // v9.57 CORRELAZIONE a 60 sedute (solo giornaliero) con il dollaro (ETF UUP) e l'S&P 500, sui rendimenti giornalieri
+  //   dei giorni presenti in tutte e due le serie. Le due serie si scaricano solo quando l'indicatore e' acceso.
+  const RIF=[["usd","UUP.US","Dollaro"],["spx","GSPC.INDX","S&P 500"]];
+  function correlazioni(){if(S.COR!==undefined||S.CORc)return;const B=S.B.d;if(!B||!B.length)return;S.CORc=true;
+   Promise.all(RIF.map(r=>r[1]==s[0]?Promise.resolve(null):leggi(BASE_D+r[1]+".json"))).then(L=>{const B=S.B.d,N=B.length,out={};
+    RIF.forEach(([k],j)=>{const d=L[j];if(!d||!d.d){out[k]=null;return;}const M=new Map(d.d.map(r=>[r[0],r[4]])),c=new Array(N).fill(null),xs=[],ys=[];
+     for(let i=1;i<N;i++){const a=M.get(B[i].g),b=M.get(B[i-1].g);
+      if(a&&b&&B[i-1].c){xs.push(B[i].c/B[i-1].c-1);ys.push(a/b-1);}else{c[i]=c[i-1];continue;}   // giorno senza dato: resta l'ultimo valore
+      if(xs.length>60){xs.shift();ys.shift();}
+      if(xs.length>=40){const n=xs.length,mx=xs.reduce((p,q)=>p+q,0)/n,my=ys.reduce((p,q)=>p+q,0)/n;let sxy=0,sxx=0,syy=0;
+       for(let t=0;t<n;t++){const u=xs[t]-mx,v=ys[t]-my;sxy+=u*v;sxx+=u*u;syy+=v*v;}c[i]=sxx&&syy?sxy/Math.sqrt(sxx*syy):null;}}
+     out[k]=c;});
+    S.COR=out;S.CORc=false;ridisegna();}).catch(()=>{S.COR=null;S.CORc=false;});}
   if(SK){const aggiorna=()=>W0.querySelectorAll("[data-i]").forEach(b=>{b.classList.toggle("on",!!S.ind[b.dataset.i]);b.setAttribute("aria-pressed",!!S.ind[b.dataset.i]);});
    aggiorna();
-   W0.querySelectorAll("[data-i]").forEach(b=>b.onclick=e=>{e.stopPropagation();S.ind[b.dataset.i]=!S.ind[b.dataset.i];aggiorna();
-    try{localStorage.setItem("ebInd",JSON.stringify(S.ind));}catch(_){}leg.innerHTML=legSK(S.tf);ridisegna();});}
+   // v9.57 TELEFONO: al massimo 2 riquadri sotto le candele; accendendone un terzo si spegne quello acceso da piu' tempo
+   S.ord=["cot","atr","rsi","cor"].filter(k=>S.ind[k]);
+   if((box.clientWidth||innerWidth)<600)while(S.ord.length>2){S.ind[S.ord.shift()]=false;}   // anche all'apertura da telefono
+   aggiorna();
+   W0.querySelectorAll("[data-i]").forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.i;S.ind[k]=!S.ind[k];
+    if(["cot","atr","rsi","cor"].includes(k)){S.ord=S.ord.filter(x=>x!=k);if(S.ind[k])S.ord.push(k);
+     while(g.clientWidth<600&&S.ord.length>2){S.ind[S.ord.shift()]=false;}}
+    aggiorna();
+    try{localStorage.setItem("ebInd",JSON.stringify(S.ind));}catch(_){}leg.innerHTML=legSK(S.tf);ridisegna();});
+   // il pulsante COT si nasconde se per lo strumento non c'e' la serie del COT
+   if(!(O.cot&&O.cot.length)){const b=W0.querySelector('[data-i="cot"]');if(b)b.hidden=true;S.ind.cot=false;}}
 
   // ---------- geometria comune a disegno e gesti
   const G={};
@@ -139,9 +181,15 @@
    const libero=SK&&!full?g.clientHeight:0;
    G.W=W;G.H=full?Math.max(260,innerHeight-W0.querySelector(".vfc-t").offsetHeight-leg.offsetHeight-tip.offsetHeight-70):libero>=200?Math.floor(libero):W<500?240:300;
    G.pl=6;G.pr=62;G.pt=24;G.pb=S.tf=="d"?34:22;
-   // riquadro RSI sotto le candele (stessa scala del tempo, separato da 10 px)
-   G.rh=SK&&S.ind.rsi?(G.H<300?54:Math.round(Math.min(96,G.H*.2))):0;
-   G.PW=G.W-G.pl-G.pr;G.PH=G.H-G.pt-G.pb-(G.rh?G.rh+10:0);}
+   // v9.57 RIQUADRI sotto le candele (stessa scala del tempo, 10 px tra uno e l'altro), nell'ordine COT, ATR, RSI,
+   //   correlazione. Le candele tengono sempre almeno il 45% dell'altezza: con tanti riquadri accesi si stringono loro.
+   let att=SK?["cot","atr","rsi","cor"].filter(k=>S.ind[k]&&(k!="cot"||(O.cot&&O.cot.length))):[];const lib=G.H-G.pt-G.pb;
+   if(W<600&&att.length>2)att=att.filter(k=>(S.ord||[]).slice(-2).includes(k)).slice(0,2);   // telefono: gli ultimi 2 accesi
+   W0.dataset.np=att.length;                                     // il CSS allunga il riquadro del grafico con i riquadri accesi
+   let ph=att.length?Math.round(Math.max(44,Math.min(86,G.H*.17))):0;
+   if(att.length&&lib-att.length*(ph+10)<lib*.45)ph=Math.max(34,Math.floor((lib*.55)/att.length-10));
+   G.PW=G.W-G.pl-G.pr;G.PH=lib-att.length*(ph+10);
+   G.panes=att.map((k,j)=>({k,y0:G.pt+G.PH+10+j*(ph+10),h:ph}));G.rh=0;}
   // limiti della vista: almeno 12 candele, al massimo tutte (+ un po' di spazio vuoto a destra, come TradingView)
   function limita(v,N){let n=v.i1-v.i0;n=Math.max(12,Math.min(N+12,n));
    if(v.i1-v.i0!=n){const c=(v.i0+v.i1)/2;v.i0=c-n/2;v.i1=c+n/2;}
@@ -196,15 +244,50 @@
     for(const [t,cl,nome] of (NM?[]:[[t0,"sgn","Segnale"],[ing,"ing","Ingresso"],[usc,"usc","Uscita"]]))if(!isNaN(t)&&t>=tMin&&t<=tMax)L.push([t,cl,nome]);
     let ux=-99,r=0;L.sort((p,q)=>p[0]-q[0]).forEach(([t,cl,nome,r1])=>{const k=idx(t),x=X(k+Math.max(0,Math.min(1,(t-B[k].t)/36e5))-.5);r=x-ux<48?(r+1)%3:0;ux=x;
      svg+=`<line class="vfc-l ${cl}" x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}"/>`+etichetta(x,pt-7+r*11,cl,nome,r1);});}
-   // v9.55 INDICATORI: MA 50 e MA 200 sulle candele, RSI 14 nel riquadro sotto (linee 30 e 70)
+   // v9.55/v9.57 INDICATORI: MA e profilo sulle candele, riquadri sotto (COT, ATR, RSI, correlazione)
+   let destra="";                                               // etichette sulla scala di destra (disegnate fuori dal ritaglio)
    if(SK){const I=indicatori(S.tf),linea=(arr,yf)=>{let dd="",su=false;for(let i=a0;i<=a1;i++){const v=arr[i];if(v==null){su=false;continue;}
       dd+=(su?"L":"M")+X(i).toFixed(1)+" "+yf(v).toFixed(1);su=true;}return dd;};
+    // PROFILO DEL PREZZO: tempo passato a ogni livello nelle candele visibili (ogni candela pesa 1, distribuita sul suo range)
+    if(S.ind.prof){const nb=Math.max(20,Math.min(60,Math.round(PH/9))),bh=(hi-lo)/nb,w=new Array(nb).fill(0);
+     for(let i=a0;i<=a1;i++){const x=B[i],r=Math.max(x.h-x.l,bh*.01);
+      for(let b=Math.max(0,Math.floor((x.l-lo)/bh));b<=Math.min(nb-1,Math.floor((x.h-lo)/bh));b++){const da=lo+b*bh,ab=da+bh;w[b]+=Math.max(0,Math.min(ab,x.h)-Math.max(da,x.l))/r;}}
+     const tot=w.reduce((p,q)=>p+q,0),mx=Math.max(...w);
+     if(tot>0){const ord=w.map((v,b)=>[v,b]).sort((p,q)=>q[0]-p[0]),va=new Set();let acc=0;for(const [v,b] of ord){if(acc>=tot*.7)break;va.add(b);acc+=v;}
+      const poc=ord[0][1],larg=PW*.22;
+      for(let b=0;b<nb;b++){if(!w[b])continue;const y1=Y(lo+(b+1)*bh),y2=Y(lo+b*bh);
+       svg+=`<rect class="vfc-pf${va.has(b)?" va":""}" x="${pl}" y="${(y1+.5).toFixed(1)}" width="${(w[b]/mx*larg).toFixed(1)}" height="${Math.max(1,y2-y1-1).toFixed(1)}"/>`;}
+      const yp=Y(lo+(poc+.5)*bh);svg+=`<line class="vfc-poc" x1="${pl}" x2="${W-pr}" y1="${yp}" y2="${yp}"/><text class="vfc-pt2" x="${pl+4}" y="${yp-4}">POC</text>`;}}
     if(S.ind.m200)svg+=`<path class="vfc-ma m200" d="${linea(I.m200,Y)}"/>`;
     if(S.ind.m50)svg+=`<path class="vfc-ma m50" d="${linea(I.m50,Y)}"/>`;
-    if(G.rh){const r0=pt+PH+10,YR=v=>r0+(100-v)/100*G.rh;G.r0=r0;
-     svg+=`<rect class="vfc-rb" x="${pl}" y="${r0}" width="${PW}" height="${G.rh}"/><rect class="vfc-rz7" x="${pl}" y="${YR(70)}" width="${PW}" height="${YR(30)-YR(70)}"/>`+
-      `<line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${YR(70)}" y2="${YR(70)}"/><line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${YR(30)}" y2="${YR(30)}"/>`+
-      `<path class="vfc-rsi" d="${linea(I.rsi,YR)}"/>`;}}
+    const tag=(y,txt,cl)=>`<rect class="vfc-rt ${cl}" x="${W-pr+1}" y="${(y-9).toFixed(1)}" width="${pr-2}" height="18" rx="3"/><text class="vfc-rtt" x="${W-pr+6}" y="${(y+4).toFixed(1)}">${txt}</text>`;
+    const ult=arr=>{for(let i=Math.min(N-1,a1);i>=a0;i--)if(arr[i]!=null)return arr[i];return null;};
+    for(const P of G.panes||[]){const r0=P.y0,h=P.h,TXT=t=>`<text class="vfc-rl" x="${pl+4}" y="${r0+12}">${t}</text>`;
+     svg+=`<rect class="vfc-rb" x="${pl}" y="${r0}" width="${PW}" height="${h}"/>`;
+     if(P.k=="rsi"){const YR=v=>r0+(100-v)/100*h,u=ult(I.rsi);
+      svg+=`<rect class="vfc-rz7" x="${pl}" y="${YR(70)}" width="${PW}" height="${YR(30)-YR(70)}"/><line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${YR(70)}" y2="${YR(70)}"/><line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${YR(30)}" y2="${YR(30)}"/>`+
+       `<path class="vfc-rsi" d="${linea(I.rsi,YR)}"/>`+TXT("RSI 14");
+      destra+=(h>=50?`<text class="vfc-ax" x="${W-pr+6}" y="${YR(70)+4}">70</text><text class="vfc-ax" x="${W-pr+6}" y="${YR(30)+4}">30</text>`:"")+(u!=null?tag(YR(u),fx(u,0),"rsi"+(u>=70||u<=30?" alto":"")):"");}
+     if(P.k=="atr"){let m=0;for(let i=a0;i<=a1;i++)if(I.atr[i]!=null)m=Math.max(m,I.atr[i]);m=m*1.15||1;const YA=v=>r0+h-(v/m)*(h-14),u=ult(I.atr);
+      // regime: striscia colorata alla base, una cella per candela
+      for(let i=a0;i<=a1;i++){const rg=I.reg[i];if(rg==null||rg==1)continue;svg+=`<rect class="vfc-rg${rg}" x="${(X(i)-cw/2).toFixed(1)}" y="${r0+h-4}" width="${(cw+.4).toFixed(1)}" height="4"/>`;}
+      svg+=`<path class="vfc-atr" d="${linea(I.atr,YA)}"/>`+TXT(S.tf=="d"?"ATR 14 · % al giorno":"ATR 14 · % all'ora");
+      if(u!=null)destra+=tag(YA(u),fx(u,2)+"%","atr");}
+     if(P.k=="cot"){let m=0;for(let i=a0;i<=a1;i++)if(I.cot[i]!=null)m=Math.max(m,Math.abs(I.cot[i]));m=(m||1)*1.15;
+      const YC=v=>r0+h/2-(v/m)*(h/2-6),z0=YC(0);let pos="",neg="",dd="",su=false,px=null;
+      for(let i=a0;i<=a1;i++){const v=I.cot[i];if(v==null){su=false;continue;}const x=X(i)-cw/2,y=YC(v);
+       dd+=(su?"H"+x.toFixed(1)+"V"+y.toFixed(1):"M"+x.toFixed(1)+" "+y.toFixed(1))+"H"+(x+cw).toFixed(1);su=true;
+       const r=`<rect x="${x.toFixed(1)}" y="${Math.min(y,z0).toFixed(1)}" width="${(cw+.4).toFixed(1)}" height="${Math.abs(y-z0).toFixed(1)}"/>`;if(v>=0)pos+=r;else neg+=r;}
+      const u=ult(I.cot);
+      svg+=`<g class="vfc-cp">${pos}</g><g class="vfc-cn">${neg}</g><line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${z0}" y2="${z0}"/><path class="vfc-cl" d="${dd}"/>`+TXT("Speculatori · % open interest");
+      destra+=(h>=50?`<text class="vfc-ax" x="${W-pr+6}" y="${z0+4}">0</text>`:"")+(u!=null?tag(YC(u),(u>0?"+":"")+fx(u,1)+"%",u>=0?"su":"giu"):"");}
+     if(P.k=="cor"){const YK=v=>r0+h/2-v*(h/2-6);
+      svg+=`<line class="vfc-r37" x1="${pl}" x2="${W-pr}" y1="${YK(0)}" y2="${YK(0)}"/>`;
+      if(S.tf!="d")svg+=TXT("Correlazione · solo nel grafico giornaliero");
+      else{correlazioni();const C=S.COR;let et="";
+       if(C)for(const [k,,nome] of RIF){if(!C[k])continue;svg+=`<path class="vfc-cor ${k}" d="${linea(C[k],YK)}"/>`;const u=ult(C[k]);et+=`<tspan class="vfc-k${k}"> ● </tspan>${nome}${u!=null?" "+(u>0?"+":"")+fx(u,2):""}`;}
+       svg+=`<text class="vfc-rl" x="${pl+4}" y="${r0+12}">${W<600?"Correl. 60 s.":"Correlazione 60 sedute"}${C===undefined||S.CORc?" · carico…":C===null?" · non disponibile":""}${et}</text>`;
+       if(h>=50)destra+=`<text class="vfc-ax" x="${W-pr+6}" y="${YK(1)+8}">+1</text><text class="vfc-ax" x="${W-pr+6}" y="${YK(0)+4}">0</text><text class="vfc-ax" x="${W-pr+6}" y="${YK(-1)}">&minus;1</text>`;}}}}
    svg+=`<line class="vfc-x" x1="0" x2="0" y1="${pt}" y2="${H-pb}" visibility="hidden"/><line class="vfc-y" x1="${pl}" x2="${W-pr}" y1="0" y2="0" visibility="hidden"/></g>`;
    // v8.88 SCALA DEI PREZZI COME TRADINGVIEW: livelli "tondi" (passo 1, 2 o 5 x 10^n, circa uno ogni 48 px) che restano
    // fermi mentre si sposta il grafico (prima 5 livelli calcolati sui bordi: i numeri cambiavano a ogni fotogramma)
@@ -222,9 +305,7 @@
     svg+=`<line class="vfc-gr" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/>`+(Math.abs(y-yu)<15?"":`<text class="vfc-ax" x="${W-pr+6}" y="${y+4}">${fmtA(p)}</text>`);}
    if(yu>=pt&&yu<=pt+PH){const c=U.c>=U.o?"su":"giu";
     svg+=`<line class="vfc-ul ${c}" x1="${pl}" x2="${W-pr}" y1="${yu}" y2="${yu}"/><rect class="vfc-ut ${c}" x="${W-pr+1}" y="${yu-9}" width="${pr-2}" height="18" rx="3"/><text class="vfc-utt" x="${W-pr+6}" y="${yu+4}">${fmt(U.c)}</text>`;}
-   if(SK&&G.rh){const I=indicatori(S.tf),YR=v=>G.r0+(100-v)/100*G.rh,ur=I.rsi[N-1];
-    svg+=`<text class="vfc-ax" x="${W-pr+6}" y="${YR(70)+4}">70</text><text class="vfc-ax" x="${W-pr+6}" y="${YR(30)+4}">30</text><text class="vfc-rl" x="${pl+4}" y="${G.r0+12}">RSI 14</text>`;
-    if(ur!=null){const c=ur>=70?"alto":ur<=30?"basso":"";svg+=`<rect class="vfc-rt ${c}" x="${W-pr+1}" y="${YR(ur)-9}" width="${pr-2}" height="18" rx="3"/><text class="vfc-rtt" x="${W-pr+6}" y="${YR(ur)+4}">${fx(ur,0)}</text>`;}}
+   svg+=destra;                                                 // v9.57 etichette dei riquadri sulla scala di destra
    // etichetta del mirino (prezzo dove sta il dito o il mouse): sopra a tutto
    svg+=`<g class="vfc-yt" visibility="hidden"><rect x="${W-pr+1}" y="-9" width="${pr-2}" height="18" rx="3"/><text x="${W-pr+6}" y="4"></text></g>`;
    svg+=`<rect class="vfc-asse" x="${W-pr}" y="${pt}" width="${pr}" height="${PH}"><title>Trascina in su o in giù per allungare il grafico · doppio clic: scala automatica</title></rect></svg>`;
@@ -256,7 +337,11 @@
     (ep?`<span class="${ep.v>0?"up":"down"}">${ep.v>0?"Speculatori: comprano":"Speculatori: vendono"}${ep.forte?" (spinta forte)":""}</span>`:"")+
     (nn.length?`<span class="vfc-tn">${nn.map(esc).join(", ")}</span>`:"")+
     (SK?(()=>{const I=indicatori(S.tf),q=[];if(S.ind.m50&&I.m50[i]!=null)q.push(`MA 50 ${fmt(I.m50[i])}`);if(S.ind.m200&&I.m200[i]!=null)q.push(`MA 200 ${fmt(I.m200[i])}`);
-     if(S.ind.rsi&&I.rsi[i]!=null)q.push(`RSI <b class="${I.rsi[i]>=70||I.rsi[i]<=30?"vfc-rw":""}">${fx(I.rsi[i],0)}</b>`);return q.length?`<span>${q.join(" · ")}</span>`:"";})():"")+
+     if(S.ind.cot&&I.cot[i]!=null)q.push(`Speculatori ${I.cot[i]>0?"+":""}${fx(I.cot[i],1)}%`);
+     if(S.ind.atr&&I.atr[i]!=null)q.push(`ATR ${fx(I.atr[i],2)}%${I.reg[i]==0?" (calma)":I.reg[i]==2?" (agitata)":""}`);
+     if(S.ind.rsi&&I.rsi[i]!=null)q.push(`RSI <b class="${I.rsi[i]>=70||I.rsi[i]<=30?"vfc-rw":""}">${fx(I.rsi[i],0)}</b>`);
+     if(S.ind.cor&&d&&S.COR)for(const [k,,nome] of RIF){const c=S.COR[k];if(c&&c[i]!=null)q.push(`${nome} ${c[i]>0?"+":""}${fx(c[i],2)}`);}
+     return q.length?`<span>${q.join(" · ")}</span>`:"";})():"")+
     (rz?`<span>Prima ora <b class="${rz.r[2]>=0?"up":"down"}">${pcM(rz.r[2])}</b> (${fx(rz.r[5],1)}× la stessa ora) · 4 ore ${pcM(rz.r[3])} · 24 ore ${pcM(rz.r[4])}</span>`:"")+(cc?`<span class="vfc-tc">Report COT</span>`:"");}
   function nascondi(){S.ci=null;S.cp=null;g.querySelectorAll(".vfc-x,.vfc-y,.vfc-yt").forEach(x=>x.setAttribute("visibility","hidden"));tip.innerHTML=vuoto;}
 
