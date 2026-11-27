@@ -264,7 +264,9 @@ function livelliCOT(spec){try{const k=spec.slice(2),f=flussiDi(spec);if(!f.lengt
  const pc=g=>(D.assets[g]||{}).pct_oi;let ora;
  if(spec[0]=="p"){const p=D.pairs.find(x=>x.pair==k)||{};if(pc(p.base)==null||pc(p.quote)==null)return null;ora=pc(p.base)-pc(p.quote);}
  else{if(pc(k)==null)return null;ora=invDi(k)?-pc(k):pc(k);}
- const out=new Array(f.length);let v=ora;for(let i=f.length-1;i>=0;i--){out[i]=[f[i][0],+v.toFixed(2)];v-=f[i][1];}
+ // il dato e' del MARTEDI' ma si conosce solo il VENERDI' dell'uscita: sul grafico cambia dal venerdi' (niente "senno di poi")
+ const ven=d=>new Date(Date.parse(d+"T12:00Z")+3*864e5).toISOString().slice(0,10);
+ const out=new Array(f.length);let v=ora;for(let i=f.length-1;i>=0;i--){out[i]=[ven(f[i][0]),+v.toFixed(2)];v-=f[i][1];}
  return out;}catch(e){return null;}}
 function usaTV(){const pan=$("tvpannello");pan.classList.add("contv");pan.classList.remove("nostro");
  // v9.55 se il grafico incorporato non e' il future, lo si dice in testata (una volta sola)

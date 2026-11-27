@@ -89,7 +89,7 @@
      ["cor","Correlazione","Correlazione a 60 sedute con il dollaro e con l'S&P 500 (solo giornaliero)"]].map(([k,t,ti])=>`<button type="button" data-i="${k}" title="${ti}">${t}</button>`).join("")}
      <details class="info vfc-ii"><summary title="Come leggere gli indicatori" aria-label="Informazioni">i</summary><div><b>MA 50 / MA 200</b>: medie mobili delle chiusure; sopra la MA 200 = tendenza di fondo al rialzo.
       <b>Profilo</b>: barre a sinistra = quanto tempo il prezzo e' rimasto a ogni livello nella parte visibile; zona piu' chiara = 70% del tempo; <b>POC</b> = il livello piu' frequentato. Il forex non ha un volume centrale, per questo si misura il tempo.
-      <b>COT</b>: posizione netta degli speculatori in % dei contratti aperti, ricostruita dalle variazioni settimanali (data del marted&igrave;).
+      <b>COT</b>: posizione netta degli speculatori in % dei contratti aperti, ricostruita dalle variazioni settimanali. Il dato &egrave; del marted&igrave; ma cambia sul grafico solo il venerd&igrave; dell'uscita, come le fasce: niente "senno di poi".
       <b>ATR</b>: movimento medio di una candela in % del prezzo (14 candele). Colore sotto la linea: <span class="vfc-c0">calma</span>, normale, <span class="vfc-c2">agitata</span> rispetto all'ultimo anno. Serve a dimensionare le posizioni, non &egrave; un segnale.
       <b>RSI</b>: forza delle ultime 14 candele; sopra 70 ipercomprato, sotto 30 ipervenduto.
       <b>Correlazione</b>: quanto si muove insieme al dollaro (ETF UUP) e all'S&P 500 nelle ultime 60 sedute: +1 insieme, &minus;1 al contrario, 0 indipendente.</div></details></div>`:""}
