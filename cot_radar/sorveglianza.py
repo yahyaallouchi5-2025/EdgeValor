@@ -404,11 +404,20 @@ def _api(url, token, corpo):
         return False
 
 
-def ripara(prob, prec, adesso, token, chiama=None):
+def live_in_corso(token):
+    """v9.53 id dei giri del ciclo live ancora accesi (in corso). Servono al riavvio: dalla v9.53 una partenza nuova
+    NON spegne piu' quella accesa (resta in attesa), quindi un ciclo acceso ma fermo va spento a mano prima."""
+    js = _prova(lambda: _json("https://api.github.com/repos/%s/actions/workflows/prezzi-live-continuo.yml/runs"
+                              "?status=in_progress&per_page=5" % REPO, token))
+    return [r["id"] for r in (js or {}).get("workflow_runs") or [] if r.get("id")]
+
+
+def ripara(prob, prec, adesso, token, chiama=None, in_corso=None):
     """Prova a riparare i problemi riparabili. -> (memoria aggiornata, elenco delle azioni fatte in questo giro).
-    memoria = {"live": iso dell'ultimo riavvio, "run_<id>": iso del rilancio}; chiama = funzione per i test."""
+    memoria = {"live": iso dell'ultimo riavvio, "run_<id>": iso del rilancio}; chiama, in_corso = funzioni per i test."""
     import re
     chiama = chiama or _api
+    in_corso = in_corso or live_in_corso
     mem = {k: v for k, v in ((prec or {}).get("riparazioni") or {}).items()
            if isinstance(v, str) and _eta_ore(adesso, v) < GIORNI_MEMORIA * 24}
     azioni, ora = [], adesso.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -417,6 +426,9 @@ def ripara(prob, prec, adesso, token, chiama=None):
         if p.startswith("Prezzi live fermi"):
             if "live" in mem and _eta_ore(adesso, mem["live"]) < ORE_TRA_RIAVVII:
                 continue
+            # v9.53 prezzi fermi con un ciclo ancora acceso = ciclo bloccato: prima lo si spegne, poi si riparte
+            for rid in (in_corso(token) if token else []):
+                chiama(base + "runs/%s/cancel" % rid, token, {})
             if token and chiama(base + "workflows/prezzi-live-continuo.yml/dispatches", token, {"ref": "main"}):
                 mem["live"] = ora
                 azioni.append("Prezzi live: ciclo riavviato in automatico.")

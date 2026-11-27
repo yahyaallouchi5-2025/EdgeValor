@@ -132,18 +132,18 @@ class TestRiparazione(unittest.TestCase):
         ch = lambda url, tok, corpo: (chiamate.append(url), True)[1]
         prob = ["Prezzi live fermi da 90 minuti a borsa aperta.",
                 'Ultimo giro "Sito" fallito al passo "Pubblica": https://github.com/a/b/actions/runs/123']
-        mem, az = s.ripara(prob, {}, ora, "t", ch)
+        mem, az = s.ripara(prob, {}, ora, "t", ch, lambda tok: [])
         self.assertEqual(len(chiamate), 2)
         self.assertTrue(chiamate[0].endswith("prezzi-live-continuo.yml/dispatches"))
         self.assertTrue(chiamate[1].endswith("workflows/sito.yml/dispatches"))
         self.assertIn("run_123", mem)
         self.assertEqual(len(az), 2)
         # un'ora dopo: il live non si riavvia di nuovo, il giro 123 non si rilancia una seconda volta
-        mem2, az2 = s.ripara(prob, {"riparazioni": mem}, ora + timedelta(hours=1), "t", ch)
+        mem2, az2 = s.ripara(prob, {"riparazioni": mem}, ora + timedelta(hours=1), "t", ch, lambda tok: [])
         self.assertEqual(len(chiamate), 2)
         self.assertEqual(az2, [])
         # tre ore dopo il live si puo' riavviare di nuovo
-        s.ripara(prob, {"riparazioni": mem2}, ora + timedelta(hours=3), "t", ch)
+        s.ripara(prob, {"riparazioni": mem2}, ora + timedelta(hours=3), "t", ch, lambda tok: [])
         self.assertEqual(len(chiamate), 3)
         self.assertTrue(s.riparabile(prob[1]) and not s.riparabile("Sito non aggiornato da 31 ore."))
 
@@ -168,3 +168,31 @@ class TestFontiParziali(unittest.TestCase):
         st["fonti"]["fred"] = "cache"
         self.assertEqual([x for x in S.problemi(ora, stato=st) if x.startswith("Fonte ")],
                          ["Fonte FRED non raggiunta nell'ultimo aggiornamento: in uso i dati salvati (cache)."])
+
+
+class TestStaffettaLive(unittest.TestCase):
+    """v9.53 ciclo live a staffetta: riavvio che spegne il ciclo bloccato e controllo "serve il giro dopo"."""
+    def test_riavvio_spegne_ciclo_bloccato(self):
+        from cot_radar import sorveglianza as s
+        from datetime import datetime, timezone
+        ora = datetime(2026, 11, 25, 12, 0, tzinfo=timezone.utc)
+        chiamate = []
+        ch = lambda url, tok, corpo: (chiamate.append(url), True)[1]
+        s.ripara(["Prezzi live fermi da 90 minuti a borsa aperta."], {}, ora, "t", ch, lambda tok: [77])
+        self.assertEqual(len(chiamate), 2)
+        self.assertTrue(chiamate[0].endswith("runs/77/cancel"))                  # prima si spegne il ciclo fermo
+        self.assertTrue(chiamate[1].endswith("prezzi-live-continuo.yml/dispatches"))
+
+    def test_borsa_entro(self):
+        from cot_radar import live
+        from datetime import datetime, timezone
+        cal = {"borse": {}}
+        # venerdi' 27/11/2026 07:00 UTC: l'Europa apre alle 08:00 UTC -> serve il giro dopo
+        self.assertTrue(live.borsa_entro(6.5, datetime(2026, 11, 27, 7, 0, tzinfo=timezone.utc), cal))
+        # sabato 12:00 UTC: tutto chiuso fino a domenica sera (Sydney apre domenica 23:00 UTC)
+        self.assertFalse(live.borsa_entro(6.5, datetime(2026, 11, 28, 12, 0, tzinfo=timezone.utc), cal))
+        # domenica 18:00 UTC: Sydney apre entro 6,5 ore -> si', il ciclo riparte da solo per la settimana
+        self.assertTrue(live.borsa_entro(6.5, datetime(2026, 11, 29, 18, 0, tzinfo=timezone.utc), cal))
+        # festa: con il calendario che segna chiuse tutte le borse nel giorno, niente giro inutile
+        fest = {"borse": {b: {"festivi": {"2026-11-27": "x", "2026-11-26": "x"}} for b in ("US", "XETRA", "TO", "AU")}}
+        self.assertFalse(live.borsa_entro(1, datetime(2026, 11, 27, 9, 0, tzinfo=timezone.utc), fest))

@@ -22,7 +22,7 @@ import os
 import sys
 import time
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from . import eodhd
@@ -140,9 +140,21 @@ def qualche_borsa_aperta(adesso=None, cal=None):
     return any(aperta(b, adesso, cal) for b in ORARI)
 
 
+def borsa_entro(ore=6.5, adesso=None, cal=None):
+    """v9.53 STAFFETTA del ciclo live: True se una borsa di ORARI e' aperta adesso o apre entro `ore` ore.
+    Il workflow, prima di chiudersi, avvia da solo il giro successivo solo se servira' (mai nel fine settimana a vuoto).
+    Si controlla ogni 15 minuti della finestra: basta un istante con una borsa aperta."""
+    t0 = adesso or datetime.now(timezone.utc)
+    cal = calendario() if cal is None else cal
+    passi = int(ore * 4) + 1
+    return any(qualche_borsa_aperta(t0 + timedelta(minutes=15 * i), cal) for i in range(passi))
+
+
 def main(argv):
     if "--aperta" in argv:                         # v7.24 per il ciclo del workflow: codice 0 = almeno una borsa aperta
         return 0 if qualche_borsa_aperta() else 1
+    if "--staffetta" in argv:                      # v9.53 codice 0 = serve il giro successivo (borsa aperta entro 6,5 ore)
+        return 0 if borsa_entro() else 1
     if not eodhd.attivo():
         log.warning("live: manca EODHD_API_KEY, niente prezzi intraday")
         return 0
