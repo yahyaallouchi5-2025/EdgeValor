@@ -5,6 +5,13 @@
 # commit, sovrascritto). Anche se GitHub parte in ritardo, il ciclo copre comunque la seduta.
 # Una partenza nuova sostituisce quella vecchia (concurrency): mai due cicli insieme.
 # Chiamate EODHD: ~1 per simbolo a giro, ~64 giri al giorno (dentro il limite del piano). Chiave solo dai Secrets.
+# v9.53 STAFFETTA (causa dei prezzi fermi del 25 e 26/11): GitHub avvia le partenze programmate con ore di ritardo
+# (il 26/11 quelle di giorno sono partite tra le 17 e le 05 UTC) e ogni partenza nuova SPEGNEVA il ciclo acceso.
+# Ora: 1) 10 minuti prima della fine il ciclo avvia da solo il giro successivo, se una borsa e' aperta o apre entro
+#      6,5 ore (live.py --staffetta): copertura continua senza dipendere dagli orari di GitHub;
+#      2) cancel-in-progress: false = una partenza nuova ASPETTA che finisca quella accesa (non la spegne piu');
+#      3) le partenze programmate restano come riserva se la staffetta si interrompe; la sorveglianza, se i prezzi
+#         restano fermi, spegne il ciclo bloccato e ne avvia uno nuovo (sorveglianza.ripara).
 name: Prezzi live continuo
 on:
   schedule:
@@ -17,9 +24,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write          # v9.53 per avviare il giro successivo (staffetta)
 concurrency:
   group: prezzi-live-continuo
-  cancel-in-progress: true
+  cancel-in-progress: false   # v9.53 la partenza nuova aspetta, non spegne il ciclo acceso
 jobs:
   ciclo:
     runs-on: ubuntu-latest
@@ -31,6 +39,8 @@ jobs:
           EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
         run: |
           FINE=$(( $(date +%s) + 345*60 ))
+          STAFFETTA=$(( FINE - 10*60 ))   # v9.53 da qui in poi si avvia il giro successivo (una volta sola)
+          PASSATA=0
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           while [ "$(date +%s)" -lt "$FINE" ]; do
@@ -46,5 +56,23 @@ jobs:
             else
               echo "$(date -u +%H:%M) borse chiuse"
             fi
-            sleep 900
+            # v9.53 STAFFETTA: il giro successivo parte adesso e resta in attesa finche' questo non finisce
+            if [ "$PASSATA" = 0 ] && [ "$(date +%s)" -ge "$STAFFETTA" ]; then
+              PASSATA=1
+              if python3 -m cot_radar.live --staffetta; then
+                curl -sf -m 30 -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/repos/${{ github.repository }}/actions/workflows/prezzi-live-continuo.yml/dispatches" \
+                  -d '{"ref":"main"}' && echo "$(date -u +%H:%M) staffetta: giro successivo avviato" || echo "staffetta non riuscita: restano le partenze programmate"
+              else
+                echo "$(date -u +%H:%M) nessuna borsa aperta nelle prossime ore: niente staffetta"
+              fi
+            fi
+            ADESSO=$(date +%s)
+            [ "$ADESSO" -ge "$FINE" ] && break
+            ATTESA=900
+            # l'ultima pausa si accorcia: il ciclo finisce puntuale e il giro successivo parte subito
+            [ $(( FINE - ADESSO )) -lt 900 ] && ATTESA=$(( FINE - ADESSO ))
+            # se la staffetta deve ancora partire, ci si sveglia in tempo per avviarla
+            [ "$PASSATA" = 0 ] && [ "$ADESSO" -lt "$STAFFETTA" ] && [ $(( STAFFETTA - ADESSO )) -lt "$ATTESA" ] && ATTESA=$(( STAFFETTA - ADESSO ))
+            sleep "$ATTESA"
           done
