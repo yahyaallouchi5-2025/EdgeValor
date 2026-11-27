@@ -4630,3 +4630,5 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .tvpannello.v2 .tvmsg a{color:var(--acc);font-weight:600}
 .tvpannello.v2:has(.tvmsg) #tvfull{display:none}
 @media (max-width:900px){.tvpannello.v2 .tvchart:has(.tvmsg){height:auto;min-height:140px}}
+/* freccia grigia delle righe disegnata (uguale su tutti i sistemi: il carattere ► cambiava forma con il font) */
+svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}

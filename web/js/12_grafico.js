@@ -236,7 +236,7 @@ function disegnaCOT(spec){const box=$("tvcot");try{
    Le ultime 3 settimane sono piene. Dato del marted&igrave;, pubblicato il venerd&igrave; alle 21:30.</div></details></h3>
    <div class="sk-fl"><p>${sintesiFlussi(f)}</p><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Flussi COT settimanali">${fascia}<line x1="0" x2="${W}" y1="${H/2}" y2="${H/2}" stroke="var(--line)"/>${barre}</svg>
    <div class="sk-as"><span>${fd(f[0][0])}</span><span>${fd(ud)}</span></div></div></div>
-  <div class="sk-acc">${L.dett.filter(x=>x.t).map(x=>`<details class="sk-r"><summary><span>${x.t}</span>${x.v?`<em>${x.v}</em>`:""}<b class="sk-fr" aria-hidden="true">&#9658;</b></summary>
+  <div class="sk-acc">${L.dett.filter(x=>x.t).map(x=>`<details class="sk-r"><summary><span>${x.t}</span>${x.v?`<em>${x.v}</em>`:""}<svg class="sk-fr" viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 1.2 8.3 5 2.5 8.8z"/></svg></summary>
    <div class="sk-rc">${senzaTitolo(x.h)}</div></details>`).join("")}</div>
   <p class="sk-piede">Dati di studio, non un consiglio di investimento.</p>`;
  /* i link [data-vai] (es. "Approfondisci" della stagionalita') sono gestiti da un unico ascoltatore globale (vedi navigazione) */
