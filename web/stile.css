@@ -4825,3 +4825,6 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
 /* v9.67 provenienza della fase sulla card del Quadro economico: "prima Stagflazione" accanto alla fase */
 .qe-riga{display:flex;align-items:center;gap:8px;min-width:0}   /* v9.68: si chiamava .qe-fr, lo stesso nome della freccia: corretta */
 .qe-da{font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* v9.69 (Ya: "si vede cosi' da telefono", testo tagliato "prima Sta..."): sulle card strette la provenienza va a capo,
+   sotto la fase, scritta per intero; la riga e' riservata anche quando e' vuota, cosi' le card restano allineate */
+.qe-riga{flex-direction:column;align-items:flex-start;gap:5px}.qe-da{min-height:14px;line-height:14px;white-space:normal;overflow:visible}

@@ -362,6 +362,14 @@ def crea(cartella):
         fh.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                  "".join(f"  <url><loc>{u}</loc><lastmod>{oggi}</lastmod><priority>{p}</priority></url>\n" for u, p in pagine) +
                  "</urlset>\n")
+    # v9.69 INDEXNOW (indexnow.py): file della chiave nel sito + una segnalazione al giorno a Bing e agli altri motori
+    # (da li' pescano anche diversi assistenti AI). Mai bloccante.
+    try:
+        from . import indexnow, storico as _sto
+        indexnow.scrivi_chiave(cartella)
+        indexnow.segnala([u for u, _ in pagine], _sto.CARTELLA)
+    except Exception as e:
+        log.warning("IndexNow non eseguito (%s: %s)", type(e).__name__, e)
     # v7.94 llms.txt: presentazione in testo semplice per gli assistenti AI (ChatGPT, Claude, Perplexity, Gemini...),
     # che lo leggono per spiegare cos'e' il sito e chi l'ha fondato. Solo informazioni pubbliche, mai email private.
     with open(os.path.join(cartella, "llms.txt"), "w", encoding="utf-8", newline="\n") as fh:

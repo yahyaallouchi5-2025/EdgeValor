@@ -114,7 +114,7 @@ try{(function(){
  let borsa=null;                                           // top.json "economie": arriva dopo, se c'e'
  // v9.67 PROVENIENZA della fase (registro unico dei cambi di stato, cot_radar/stati.py -> D.stati): accanto alla fase
  //   "prima Stagflazione" (al passaggio del mouse: da quando). Solo se la fase confermata del registro e' quella mostrata.
- const prima=x=>{const s=D.stati&&D.stati.stati&&D.stati.stati["ciclo:"+x.id];if(!s||!s.prima||s.stato!=x.regime)return "";
+ const prima=x=>{const s=D.stati&&D.stati.stati&&D.stati.stati["ciclo:"+x.id];if(!s||!s.prima||s.stato!=x.regime)return `<small class="qe-da"></small>`;   // v9.69 riga vuota: su telefono tutte le card restano alte uguali
   const d=s.dal||"";return `<small class="qe-da" title="${T("Fase confermata dal")} ${d.slice(8,10)}/${d.slice(5,7)}/${d.slice(0,4)}">${T("prima")} ${esc(T(s.prima))}</small>`;};
  const card=x=>{if(x.regime=="Recessione")x.regime="Rallentamento";const f=FASI[x.regime];
   return `<button type="button" class="qe-card${x.id==sel?" on":""}" data-id="${x.id}" aria-expanded="${x.id==sel}" aria-controls="qe-det" title="${x.id==sel?"Chiudi il dettaglio":"Apri il dettaglio"}">
