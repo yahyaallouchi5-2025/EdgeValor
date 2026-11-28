@@ -69,3 +69,14 @@ class ContestoValute(unittest.TestCase):
         self.assertEqual(p["USD"]["stato"], "taglio")
         self.assertEqual(p["EUR"]["stato"], "ferma")
         self.assertAlmostEqual(p["USD"]["d"], -0.5)
+
+
+class TestProvenienzaTassi(unittest.TestCase):
+    def test_storia_della_politica(self):
+        from cot_radar import carry
+        m = {f"2025-{i:02d}": 2.0 for i in range(1, 13)}
+        m.update({f"2026-{i:02d}": 2.0 + (0.1 * i if i > 6 else 0) for i in range(1, 11)})
+        p = carry.politica({"EUR": m})["EUR"]
+        self.assertEqual(p["storia"][-1], ["2026-10", p["d"]])
+        self.assertEqual(len(p["storia"]), 13)
+        self.assertEqual(dict(p["storia"])["2026-06"], 0.0)

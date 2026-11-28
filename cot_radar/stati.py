@@ -156,6 +156,8 @@ def applica(reg, osservazioni, oggi):
             a["ultimo"] = oggi
         if a["n"] >= conferma:
             c = {"k": k, "nome": o["nome"], "gruppo": o["gruppo"], "prima": r["stato"], "dopo": stato, "d": oggi}
+            if o.get("nota"):                           # v9.73 testo in piu' del cambio (es. rotazione: cosa e' cambiato)
+                c["nota"] = o["nota"]
             if a["dal"] != oggi:
                 c["visto_dal"] = a["dal"]
             r["prima"], r["stato"], r["dal"] = r["stato"], stato, oggi
@@ -170,7 +172,36 @@ def applica(reg, osservazioni, oggi):
 
 
 # --------------------------------------------------------------------------- le osservazioni di oggi
-def osserva(quadro=None, market=None, carry=None):
+MESI = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre",
+        "Novembre", "Dicembre"]
+
+
+def rotazione(port):
+    """v9.73 ROTAZIONE DEI PORTAFOGLI come cambio di stato (Ya, 28/11/2026: nelle Novita' anche "le rotazioni").
+    stato = mese della rotazione in vigore ("Dicembre 2026"); nota = per ogni profilo QUANTI mercati sono entrati e
+    usciti (i nomi dei mercati restano nella scheda Portafogli, che e' Premium). None se non c'e' una rotazione gia'
+    eseguita (in attesa del primo giorno di borsa = non ancora)."""
+    p = port or {}
+    d = p.get("rotazione")
+    if not d or p.get("attesa") or p.get("avviso"):
+        return None
+    pezzi = []
+    for prof in p.get("profili") or []:
+        c = next((x for x in prof.get("rotazioni") or [] if x.get("data") == d), None)
+        if c is None:
+            continue
+        e, u = len(c.get("entrati") or []), len(c.get("usciti") or [])
+        pezzi.append(prof.get("nome", "") + ": " + ("nessun cambio" if not e + u else
+                     " e ".join(t for t in ((f"{e} in entrata" if e else ""), (f"{u} in uscita" if u else "")) if t)))
+    try:
+        stato = f"{MESI[int(d[5:7]) - 1]} {d[:4]}"
+    except (ValueError, IndexError):
+        return None
+    return {"k": "rotazione", "nome": "Rotazione dei portafogli", "gruppo": "rotazione", "stato": stato,
+            "nota": " · ".join(pezzi) or None}
+
+
+def osserva(quadro=None, market=None, carry=None, port=None):
     """Legge gli stati di oggi dai blocchi gia' calcolati della pagina. Ogni blocco e' facoltativo (None = saltato).
     quadro = economie.calcola() (+ "modalita" e "debito"), market = {"risk": ...}, carry = pagina del carry ("politica")."""
     out = []
@@ -209,6 +240,9 @@ def osserva(quadro=None, market=None, carry=None):
     if isinstance(r, (int, float)):
         out.append({"k": "clima", "nome": "Clima del mercato", "gruppo": "clima", "conferma": CLIMA_CONFERMA,
                     "stato": "Fiducia" if r >= CLIMA_SOGLIA else "Paura" if r <= -CLIMA_SOGLIA else "Neutro"})
+    rot = rotazione(port)
+    if rot:
+        out.append(rot)
     for val, p in sorted(((carry or {}).get("politica") or {}).items()):
         if p.get("stato") in NOMI_POLITICA:
             out.append({"k": "tassi:" + val, "nome": "Politica dei tassi " + val, "gruppo": "tassi",
@@ -217,7 +251,7 @@ def osserva(quadro=None, market=None, carry=None):
 
 
 # --------------------------------------------------------------------------- per la pagina
-PUBBLICI = ("ciclo", "allarme", "modalita", "debito", "clima")     # gia' visibili a tutti nella Dashboard
+PUBBLICI = ("ciclo", "allarme", "modalita", "debito", "clima", "rotazione")     # gia' visibili a tutti nella Dashboard
 
 
 def vista(reg, oggi, premium=False):
@@ -227,19 +261,19 @@ def vista(reg, oggi, premium=False):
     dal = (date.fromisoformat(oggi) - timedelta(days=GIORNI_PAGINA)).isoformat()
     stati = {k: {x: v[x] for x in ("nome", "gruppo", "stato", "dal", "prima") if v.get(x) is not None}
              for k, v in reg["stati"].items() if ok(v.get("gruppo"))}
-    cambi = [{x: c[x] for x in ("k", "nome", "gruppo", "prima", "dopo", "d")}
+    cambi = [{x: c[x] for x in ("k", "nome", "gruppo", "prima", "dopo", "d", "nota") if x in c}
              for c in reversed(reg["cambi"]) if c["d"] >= dal and ok(c.get("gruppo"))]
     return {"agg": reg.get("agg"), "stati": stati, "cambi": cambi}
 
 
-def aggiorna(cartella, quadro=None, market=None, carry=None, oggi=None):
+def aggiorna(cartella, quadro=None, market=None, carry=None, oggi=None, port=None):
     """Tutto insieme (chiamata da pagina.py): legge il registro, applica le osservazioni di oggi, lo tiene in attesa
     per salva() e restituisce (vista pubblica, vista Premium). Senza cartella (demo, PC senza archivio) lavora in
     memoria: la pagina mostra comunque i "semi" delle fonti. Mai un'eccezione verso la pagina: la chiama in try."""
     global _in_attesa
     oggi = oggi or datetime.now().strftime("%Y-%m-%d")
     reg = leggi(cartella) if cartella else _vuoto()
-    nuovi = applica(reg, osserva(quadro, market, carry), oggi)
+    nuovi = applica(reg, osserva(quadro, market, carry, port), oggi)
     for c in nuovi:
         if not c.get("seme"):
             log.info("CAMBIO DI STATO: %s: %s -> %s", c["nome"], c["prima"], c["dopo"])

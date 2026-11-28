@@ -343,7 +343,7 @@ def build(data_source=load_all, demo=False, sito=False):
         from . import stati
         stati_pag, stati_prem = stati.aggiorna(
             storico.CARTELLA if (os.path.isdir(storico.CARTELLA) and not demo) else None,
-            quadro=quadro_pag, market=market, carry=carry_pag)
+            quadro=quadro_pag, market=market, carry=carry_pag, port=port)
     except Exception:
         log.warning("registro degli stati non aggiornato:\n%s", traceback.format_exc())
     # v8.50 COSTO / GUADAGNO DEL RINNOVO DEI FUTURE sulle materie prime (rinnovo.py): solo informativo. Isolato.

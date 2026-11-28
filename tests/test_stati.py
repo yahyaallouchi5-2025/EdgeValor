@@ -183,3 +183,30 @@ class TestVistaESalvataggio(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRotazione(unittest.TestCase):
+    """v9.73 la rotazione mensile dei portafogli entra nel registro (Novita' "Mercati")."""
+    PORT = {"rotazione": "2026-12-01", "profili": [
+        {"nome": "Conservativo", "rotazioni": [{"data": "2026-11-02", "entrati": ["GOLD"], "usciti": []},
+                                           {"data": "2026-12-01", "entrati": ["EM"], "usciti": ["WTI", "COPPER"]}]},
+        {"nome": "Moderato", "rotazioni": [{"data": "2026-12-01", "entrati": [], "usciti": []}]}]}
+
+    def test_osservazione(self):
+        o = stati.rotazione(self.PORT)
+        self.assertEqual(o["stato"], "Dicembre 2026")
+        self.assertEqual(o["nota"], "Conservativo: 1 in entrata e 2 in uscita · Moderato: nessun cambio")
+
+    def test_in_attesa_o_in_manutenzione_non_conta(self):
+        self.assertIsNone(stati.rotazione(dict(self.PORT, attesa=True)))
+        self.assertIsNone(stati.rotazione(dict(self.PORT, avviso={"codice": "x"})))
+        self.assertIsNone(stati.rotazione(None))
+
+    def test_cambio_con_nota_nella_vista_pubblica(self):
+        reg = stati._vuoto()
+        nov = dict(self.PORT, rotazione="2026-11-02")
+        self.assertEqual(stati.applica(reg, stati.osserva(port=nov), "2026-11-28"), [])       # prima volta: nessun cambio
+        nuovi = stati.applica(reg, stati.osserva(port=self.PORT), "2026-12-01")
+        self.assertEqual((nuovi[0]["prima"], nuovi[0]["dopo"]), ("Novembre 2026", "Dicembre 2026"))
+        v = stati.vista(reg, "2026-12-01")
+        self.assertIn("nessun cambio", v["cambi"][0]["nota"])

@@ -99,7 +99,10 @@ function contesto(p){if(!p||!p.base||!p.quote)return null;const b=p.base,q=p.quo
  if(F[b]&&F[q]){const d=F[b].r-F[q].r;out.forza={b:F[b],q:F[q],verso:Math.abs(d)>=0.5?Math.sign(d):0};}
  // --- politica monetaria (variazione dei tassi negli ultimi 3 mesi, base meno quotata)
  const P=(D.carry||{}).politica||{};
- if(P[b]&&P[q]){const d=P[b].d-P[q].d;out.pol={b:P[b],q:P[q],d,verso:Math.abs(d)>=0.15?Math.sign(d):0};}
+ if(P[b]&&P[q]){const vr=x=>Math.abs(x)>=0.15?Math.sign(x):0,d=P[b].d-P[q].d;out.pol={b:P[b],q:P[q],d,verso:vr(d)};
+  // v9.73 PROVENIENZA: da quale mese i tassi dicono questo, e cosa dicevano prima (storia mensile di carry.politica)
+  const sq=new Map(P[q].storia||[]),st=(P[b].storia||[]).filter(x=>sq.has(x[0])).map(x=>[x[0],vr(x[1]-sq.get(x[0]))]);
+  let i=st.length-1;if(i>0&&st[i][1]==out.pol.verso){while(i>0&&st[i-1][1]==out.pol.verso)i--;if(i>0){out.pol.dal=st[i][0];out.pol.prima=st[i-1][1];}}}
  out.vs=vs;out.b=b;out.q=q;return out;}
 const NOMEV={USD:"dollaro",EUR:"euro",GBP:"sterlina",JPY:"yen",CHF:"franco",CAD:"dollaro canadese",AUD:"dollaro australiano",NZD:"dollaro neozelandese",MXN:"peso",ZAR:"rand",BRL:"real"};
 /* colore di un pezzo del contesto: verde se concorda con il segnale, rosso se contro, normale se neutro/senza segnale */
@@ -135,7 +138,7 @@ function lettura(spec,f,p,k,inv){
  if(cx&&(cx.news||cx.forza||cx.pol)){const sg=x=>`${x>=0?"+":"&minus;"}${fx(Math.abs(x),2)}`,parti=[];
   if(cx.news){const e=cx.news.ev;parti.push(`ultima notizia <b>${esc(e.nome)}</b> (${cx.news.imp} impatto, ${fd(e.data)})${e.z!=null?` &rarr; tasso a 2 anni ${e.pb>=0?"+":""}${fx(e.pb,1)} pb (${e.z>=0?"+":""}${fx(e.z,1)}&sigma;), <b style="color:${ctxCol(cx.news.verso,cx.vs)}">${cx.news.txt}</b>`:` &rarr; ${cx.news.txt}`}`);}
   if(cx.forza)parti.push(`forza 4 settimane: <b>${cx.b} ${cx.forza.b.stato}</b> (${sg(cx.forza.b.r)}%, ${cx.forza.b.rank}&ordf; su 8) / <b>${cx.q} ${cx.forza.q.stato}</b> (${sg(cx.forza.q.r)}%, ${cx.forza.q.rank}&ordf;)`);
-  if(cx.pol)parti.push(`tassi negli ultimi 3 mesi: ${cx.b} ${sg(cx.pol.b.d)} punti (${cx.pol.b.stato}), ${cx.q} ${sg(cx.pol.q.d)} (${cx.pol.q.stato}) &rarr; <b style="color:${ctxCol(cx.pol.verso,cx.vs)}">${cx.pol.verso?"favorisce "+(cx.pol.verso>0?cx.b:cx.q):"neutra"}</b>`);
+  if(cx.pol)parti.push(`tassi negli ultimi 3 mesi: ${cx.b} ${sg(cx.pol.b.d)} punti (${cx.pol.b.stato}), ${cx.q} ${sg(cx.pol.q.d)} (${cx.pol.q.stato}) &rarr; <b style="color:${ctxCol(cx.pol.verso,cx.vs)}">${cx.pol.verso?"favorisce "+(cx.pol.verso>0?cx.b:cx.q):"neutra"}</b>${cx.pol.dal?` da ${fd(cx.pol.dal)}, prima ${cx.pol.prima?"favoriva "+(cx.pol.prima>0?cx.b:cx.q):"neutra"}`:""}`);
   metti("Contesto",cx.pol&&cx.pol.verso?"favorisce "+(cx.pol.verso>0?cx.b:cx.q):cx.forza?`${cx.b} ${cx.forza.b.stato}`:"",`<div class="tatt"><p><b>Contesto</b>: ${parti.join(" &middot; ")}.</p><details class="info tatti"><summary title="Come leggerlo" aria-label="Informazioni">i</summary><div><b>Notizia</b>: ultima notizia di medio o alto impatto degli ultimi 7 giorni su una delle due valute. La sorpresa &egrave; misurata dal mercato (tasso a 2 anni oltre la norma, |&sigma;| &ge; 1): disponibile per dollaro ed euro. <b>Forza</b>: rendimento di ogni valuta contro la media delle 8 principali nelle ultime 4 settimane (prime 3 = forte, ultime 3 = debole). <b>Politica monetaria</b>: variazione dei tassi a breve negli ultimi 3 mesi disponibili (dati mensili, 1-2 mesi di ritardo): la valuta che alza di pi&ugrave; (o taglia di meno) attira capitali. Verde = a favore del segnale COT, rosso = contro. Informativo: non cambia il punteggio.</div></details></div>`);}
  // --- v6.88 LETTURA TATTICA (cot_radar/tattica.py): regressione e indicatori sulle chiusure, SOLO informativa
  const tt=(D.tat||{})[p?p.pair:k];

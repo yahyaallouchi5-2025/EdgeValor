@@ -333,7 +333,11 @@ def politica(per_val, mesi=POLITICA_MESI):
             continue
         d = m[ks[-1]] - m[ks[-1 - mesi]]
         out[val] = {"d": round(d, 2), "al": ks[-1],
-                    "stato": "rialzo" if d >= POLITICA_SOGLIA else "taglio" if d <= -POLITICA_SOGLIA else "ferma"}
+                    "stato": "rialzo" if d >= POLITICA_SOGLIA else "taglio" if d <= -POLITICA_SOGLIA else "ferma",
+                    # v9.73 (Ya, 28/11/2026: "fammi vedere la provenienza: prima erano favorevoli o sfavorevoli?")
+                    #   la stessa variazione nei 12 mesi prima, [mese, punti] dal piu' vecchio: il grafico ci calcola
+                    #   DA QUANDO i tassi favoriscono una valuta della coppia e cosa dicevano PRIMA (12_grafico.js)
+                    "storia": [[ks[i], round(m[ks[i]] - m[ks[i - mesi]], 2)] for i in range(max(mesi, len(ks) - 13), len(ks))]}
     return out
 
 

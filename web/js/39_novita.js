@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-28T18",t:"Aggiornamento Novità e grafici",x:"Nell'elenco Mercati arriva anche la rotazione mensile dei portafogli. Nel grafico delle coppie: da quando i tassi favoriscono una valuta e cosa dicevano prima.",s:"port"},
   {d:"2026-11-28T16",t:"Aggiornamento Quadro economico",x:"Eurozona con la disoccupazione e l'allarme. Accanto a ogni dato c'è il mese a cui si riferisce: è l'ultimo pubblicato dalla fonte.",s:"sig",q:"#quadro"},
   {d:"2026-11-28T14",t:"Aggiornamento Quadro economico",x:"Inflazione USA di nuovo in scheda (3,9%) e fase corretta: Espansione. Mancava il mese di confronto, ottobre 2025, mai pubblicato.",s:"sig",q:"#quadro"},
   {d:"2026-11-28T12",t:"Aggiornamento Quadro economico",x:"La fase «Recessione» ora si chiama «Rallentamento»: crescita e inflazione in calo, non una recessione del PIL. La crescita cambia direzione solo oltre una soglia minima.",s:"sig",q:"#quadro"},
@@ -76,9 +77,11 @@
    allarme:c=>({x:"Regola sulla disoccupazione (Sahm). Solo contesto, non un segnale.",q:".qe-det",apri:QE(c.k.split(":")[1])}),
    modalita:()=>({x:"Confermata dopo 7 giorni di borsa di fila. Solo contesto, non un segnale.",q:".mm-fasi",apri:QE("usa")}),
    debito:()=>({x:"Fase confermata per 2 trimestri di fila. Solo contesto, non un segnale.",q:".cd-fasi:not(.mm-fasi)",apri:QE("usa")}),
-   clima:()=>({x:"Confermato dopo 3 giorni di fila. Solo contesto, non un segnale.",q:".kz2"})};
+   clima:()=>({x:"Confermato dopo 3 giorni di fila. Solo contesto, non un segnale.",q:".kz2"}),
+   // v9.73 rotazione mensile dei portafogli: quanti mercati entrano ed escono per profilo (i nomi sono nella scheda)
+   rotazione:c=>({t:`Rotazione di ${c.dopo.toLowerCase()}`,x:c.nota||"Composizione del mese aggiornata.",s:"port"})};
   ((D.stati&&D.stati.cambi)||[]).forEach(c=>{const f=COME[c.gruppo];if(!f)return;const m=f(c);
-   NOVITA.push({d:c.d,t:`${c.nome}: ${c.prima} → ${c.dopo}`,x:m.x,s:"sig",q:m.q,lab:c.nome,apri:m.apri,cambio:1});});
+   NOVITA.push({d:c.d,t:m.t||`${c.nome}: ${c.prima} → ${c.dopo}`,x:m.x,s:m.s||"sig",q:m.q,h:m.h,lab:c.nome,apri:m.apri,cambio:1});});
   NOVITA.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:(b.cambio||0)-(a.cambio||0));}catch(e){}   // a parita' di data prima i mercati
  // v9.67 DUE ELENCHI, ognuno con il suo limite: 10 voci "Mercati" e 10 "Piattaforma". Prima il limite era unico (10)
  //   e i nostri aggiornamenti spingevano fuori i cambi dei mercati (v8.67).
