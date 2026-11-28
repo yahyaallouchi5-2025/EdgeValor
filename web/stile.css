@@ -1996,7 +1996,7 @@ a.blhome{text-decoration:none;color:inherit;cursor:pointer}
 .ptax-r+.ptax-r{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .ptax-r:hover{background:color-mix(in srgb,var(--acc) 6%,transparent)}
 .ptax-me{background:color-mix(in srgb,var(--acc) 9%,transparent)}
-.ptax-n{font-size:13.5px;font-weight:700;color:var(--ink);min-width:0}
+.ptax-n{font-size:13.5px;font-weight:700;color:var(--ink);min-width:0}.ptax-n small{display:block;margin-top:2px;font-size:11.5px;font-weight:500;color:var(--mute)}
 .ptax-c{display:grid;gap:2px;min-width:0}.ptax-c small{font-size:11px;color:var(--mute);white-space:nowrap}
 .ptax-c b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
 .ptax-dd i{display:block;height:4px;border-radius:3px;background:color-mix(in srgb,var(--line) 70%,transparent);overflow:hidden;margin-top:3px}
