@@ -12,7 +12,8 @@ COSA FA (workflow controllo-visivo.yml, ogni giorno e a mano)
        una sopra l'altra);
     4) RISCHIO SFARFALLIO: animazioni infinite che non usano solo transform/opacity (filtri, ombre, bordi, colori
        animati costringono il browser a ridisegnare: e' la causa dello sfarfallio della card Black Friday, v9.19);
-    5) v9.78 DATI MANCANTI: ogni "n/d" visibile (un dato che non e' arrivato), con il titolo della card.
+    5) v9.78 DATI MANCANTI: ogni "n/d" visibile (un dato che non e' arrivato), con il titolo della card;
+    6) v9.80 PROVE DI FUNZIONAMENTO (PROVE): ricerca in alto, fumetti (i) dentro lo schermo, grafico a tutto schermo.
   Se trova qualcosa il giro FALLISCE: la sorveglianza (ogni ora) lo vede tra i giri falliti e manda l'email privata
   al fondatore; l'elenco dei problemi e' nel riepilogo del giro su GitHub (Actions -> Controllo visivo).
   Nessun utente vede nulla.
@@ -88,6 +89,29 @@ CONTROLLO = r"""(dove)=>{const out=[],W=innerWidth;
  return out.map(p=>dove+": "+p);}"""
 
 
+# v9.80 PROVE DI FUNZIONAMENTO dentro il terminale (eseguite nella pagina, async): restituiscono i difetti trovati.
+#   1) ricerca in alto (solo PC): scrivendo "eur" devono comparire risultati sotto il campo;
+#   2) fumetti (i): ognuno, aperto, deve stare dentro lo schermo (il bug del 28/11: usciva in alto a sinistra);
+#   3) grafico: aprendo il primo strumento, la finestra deve occupare tutto lo schermo e i suoi (i) restare dentro.
+PROVE = r"""async (schermo)=>{const out=[],dorme=ms=>new Promise(r=>setTimeout(r,ms)),W=innerWidth,H=innerHeight;
+ const fuori=b=>{const r=b.getBoundingClientRect();return r.width>2&&(r.left<-2||r.right>W+2||r.top<-2);};
+ const prova=(nome,ds)=>{let n=0;for(const d of ds){if(!d.offsetParent)continue;d.open=true;const b=d.querySelector(":scope>div");
+   if(b&&fuori(b)&&n++<3)out.push(`fumetto (i) fuori dallo schermo in ${nome}: "${(b.textContent||"").trim().slice(0,40)}"`);d.open=false;}};
+ if(schermo=="PC"){const q=document.getElementById("hdq");
+  if(!q)out.push("ricerca in alto assente");
+  else{q.focus();q.value="eur";q.dispatchEvent(new Event("input",{bubbles:true}));await dorme(400);
+   const n=document.querySelectorAll("#hdris .hdr-r").length;if(!n)out.push("ricerca in alto: nessun risultato per \"eur\"");
+   q.value="";q.dispatchEvent(new Event("input",{bubbles:true}));q.blur();}}
+ prova("pagina",[...document.querySelectorAll("details.info")].slice(0,60));
+ const tv=[...document.querySelectorAll("[data-tv]")].find(x=>x.offsetParent);
+ if(tv&&typeof apriGrafico=="function"){try{apriGrafico(tv.dataset.tv);}catch(e){out.push("grafico non aperto: "+String(e).slice(0,60));}
+  await dorme(1500);const m=document.getElementById("tvmodal"),p=document.querySelector(".tvpannello");
+  if(!m||m.hidden)out.push("grafico non aperto");
+  else{if(p&&p.getBoundingClientRect().width<W-4)out.push(`grafico non a tutto schermo (${Math.round(p.getBoundingClientRect().width)} px su ${W})`);
+   prova("grafico",[...m.querySelectorAll("details.info")]);const x=document.getElementById("tvchiudi");if(x)x.click();await dorme(300);}}
+ return out;}"""
+
+
 def controlla(pagine=PAGINE, schermi=SCHERMI):
     """Apre ogni pagina su ogni schermo e restituisce l'elenco dei problemi trovati."""
     from playwright.sync_api import sync_playwright
@@ -116,6 +140,13 @@ def controlla(pagine=PAGINE, schermi=SCHERMI):
                         pg.evaluate("id=>document.querySelectorAll('section[id]').forEach(s=>s.style.display=s.id==id?'block':'none')", sid)
                         pg.wait_for_timeout(400)
                         problemi += pg.evaluate(CONTROLLO, "%s %s, scheda %s" % (nome_p, nome_s, sid))
+                # v9.80 PROVE DI FUNZIONAMENTO (Ya, 28/11/2026: "fare in modo che si rompano il meno possibile"): oltre a come
+                #   si vede, si prova a USARE il terminale come un utente. Ogni prova fallita e' un'anomalia per il fondatore.
+                if nome_p == "Terminale":
+                    try:
+                        problemi += ["%s: %s" % (dove, x) for x in pg.evaluate(PROVE, nome_s)]
+                    except Exception as e:
+                        problemi.append("%s: prove di funzionamento non eseguite (%s)" % (dove, type(e).__name__))
                 problemi += ["%s: errore JavaScript: %s" % (dove, e) for e in errori[:3]]
                 ctx.close()
         br.close()

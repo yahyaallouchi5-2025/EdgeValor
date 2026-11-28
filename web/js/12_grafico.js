@@ -295,7 +295,12 @@ function disegnaNostro(spec,ck){const box=$("tvchart"),pan=$("tvpannello");pan.c
    opz:{scheda:true,sym:ck.sym,inv:ck.inv,valute:ck.valute,cot:livelliCOT(spec),manca:()=>{if(TV.spec===spec&&!$("tvmodal").hidden)usaTV();}}});};
  // fasce e notizie arrivano con verifica.json: si aspetta al massimo 2,5 secondi, poi il grafico parte comunque
  //   (un solo disegno: niente grafico che si ridisegna sotto il dito)
- if(D.cmp||!window.ebCaricaVerifica)parti();else{ebCaricaVerifica().then(parti,parti);setTimeout(parti,2500);}}
+ // v9.81 (Ya, 28/11/2026: "dove sono gli speculatori passati e le fasce verticali?") se il file arrivava DOPO i 2,5
+ //   secondi il grafico restava senza fasce e con la posizione COT solo delle ultime 26 settimane, per sempre.
+ //   Ora, appena il file arriva, il grafico si ridisegna una volta con la storia completa.
+ if(D.cmp||!window.ebCaricaVerifica)parti();else{let senza=false;
+  ebCaricaVerifica().then(ok=>{if(!fatto)return parti();if(ok&&senza&&TV.spec===spec&&!$("tvmodal").hidden){fatto=false;parti();}},parti);
+  setTimeout(()=>{if(!fatto){senza=true;parti();}},2500);}}
 function apriGrafico(spec){TV.spec=spec;const info=tvInfo(spec),m=$("tvmodal");disegnaCOT(spec);
  $("tvtitolo").innerHTML=`<span class="pair">${esc(info.nome)}</span> ${info.label?badge(info.label):""} ${avvisoNotizia(spec)} <span class="small">punteggio ${fmt(info.score)}</span>`;
  $("tvsotto").innerHTML=`${esc(info.sotto)}`+   /* simbolo TradingView tolto: si vede gia' nel grafico */(info.inv?` &middot; <b style="color:var(--warn)">grafico quotato al contrario: posizionamento al RIALZO = grafico che SCENDE</b>`:"");

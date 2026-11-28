@@ -472,6 +472,9 @@ window.ebCaricaVerifica=(function(){let P=null;return function(){
   .then(v=>{if(!v||(!v.reg&&!v.cmp))throw new Error("file non aperto");D.reg=v.reg;D.cmp=v.cmp;D.carry_st=v.carry_st;if(v.pos)D.pos=v.pos;return true;})
   .catch(e=>{P=null;throw e;});
  return P;};})();
+// v9.81 il file si scarica in anticipo (5 secondi dopo l'apertura, solo Premium): quando si apre un grafico fasce
+//   degli speculatori e posizione COT degli ultimi 3 anni ci sono gia', senza attese ne' grafici incompleti
+setTimeout(()=>{try{window.ebCaricaVerifica().catch(()=>{});}catch(e){}},5000);
 (function(){const el=$("verifica");if(!el)return;
  if(D.reg||D.cmp||!D.verifica){ebVerifica();return;}
  if(!EB_PREMIUM)return;                                  // v8.08 Live chiusa al Basic: lucchetto di 45_chiuse.js, niente download
