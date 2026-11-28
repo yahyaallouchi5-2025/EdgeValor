@@ -120,7 +120,7 @@ try{(function(){
   return `<button type="button" class="qe-card${x.id==sel?" on":""}" data-id="${x.id}" aria-expanded="${x.id==sel}" aria-controls="qe-det" title="${x.id==sel?"Chiudi il dettaglio":"Apri il dettaglio"}">
    <span class="qe-cn">${bandiera(x.id)}<b>${esc(x.nome)}</b>${x.allarme?`<i class="qe-dot" title="Allarme recessione"></i>`:""}<svg class="qe-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
    <span class="qe-riga"><span class="qe-chip ${f[1]}">${x.regime}</span>${prima(x)}</span>
-   <span class="qe-cs"><span>Crescita ${fr(x.cli,x.cli3,"bene",x.cresce)}</span><span>Inflazione ${fx(x.infl,1)}% ${fr(x.infl,x.infl6,"male",x.sale)}</span></span></button>`;};
+   <span class="qe-cs"><span>Crescita ${fr(x.cli,x.cli3,"bene",x.cresce)}</span>${x.infl==null?"":`<span>Inflazione ${fx(x.infl,1)}% ${fr(x.infl,x.infl6,"male",x.sale)}</span>`}</span></button>`;};
  function dettaglio(x){const f=FASI[x.regime],b=borsa&&borsa.economie&&borsa.economie[x.id],nomiS=(borsa&&borsa.settori)||{};
   const ind=(nome,val,sotto,freccia)=>`<div class="qe-i"><small>${nome}</small><b>${val}${freccia||""}</b><span>${sotto}</span></div>`;
   const mappa=`<div class="qe-mappa" role="img" aria-label="Fase: ${x.regime}"><span class="qe-ax qe-ay">Crescita &#9650;</span>
@@ -128,7 +128,8 @@ try{(function(){
     <span class="qe-ax qe-ax2">Inflazione &#9654;</span></div>`;
   // v7.64 "100 = media" spostato nel fumetto (i) dell intestazione: le schede non vanno a capo
   const tiles=[ind("Anticipatore OCSE",fx(x.cli,1),`3 mesi fa ${fx(x.cli3,1)}`,fr(x.cli,x.cli3,"bene")),
-   ind("Inflazione",fx(x.infl,1)+"%",`<em class="qe-ti">${x.tipo_infl}</em> &middot; 6 mesi fa ${fx(x.infl6,1)}%`,fr(x.infl,x.infl6,"male"))];
+   // v9.71 un numero vuoto non si mostra mai ("n/d"): la riga sparisce e l'anomalia arriva all'amministratore (controlli.schede)
+   x.infl==null?"":ind("Inflazione",fx(x.infl,1)+"%",`<em class="qe-ti">${x.tipo_infl}</em> &middot; 6 mesi fa ${fx(x.infl6,1)}%`,fr(x.infl,x.infl6,"male"))];
   if(x.disoc!=null)tiles.push(ind("Disoccupazione",fx(x.disoc,1)+"%",x.sahm!=null?`Sahm ${fx(x.sahm,2)} su 0,50`:"",""));
   if(x.curva!=null)tiles.push(ind("Curva 10-2 anni",(x.curva>0?"+":"")+fx(x.curva,2),x.curva<0?"invertita":"normale",""));
   // v8.35 GDPNow (solo USA): stima in tempo reale del PIL del trimestre in corso; spiegazione nel fumetto (i) in alto

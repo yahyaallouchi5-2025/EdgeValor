@@ -376,6 +376,9 @@ def build(data_source=load_all, demo=False, sito=False):
         log.exception("stato delle fonti non calcolato")
         sources = []
     controlli = controlla(assets, pairs, fred, ecb, mort)        # qualita' dei dati (errori "invisibili")
+    if not demo:
+        from .controlli import schede as _schede
+        controlli += _schede(quadro_pag)                         # v9.71 numeri vuoti nelle schede del Quadro economico
     log.info("Calcolo fatto: %d strumenti, %d coppie, mercato %s", len(assets), len(pairs), "si" if market else "no")
 
     n_err = raccoglitore.conta("ERROR") + raccoglitore.conta("CRITICAL")

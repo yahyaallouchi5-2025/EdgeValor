@@ -99,3 +99,36 @@ class TestSogliaCrescita(unittest.TestCase):
         f = EC.fase(cli, cpi, None)
         self.assertTrue(f["ferma"])
         self.assertIn(f["regime"], ("Ripresa", "Rallentamento"))
+
+
+class TestBuchiNeiDati(unittest.TestCase):
+    """v9.71 ottobre 2025 mai pubblicato (USA) e "NaN" della BIS: mai un numero vuoto in scheda."""
+
+    def test_colma_un_mese(self):
+        from cot_radar import quadro as Q
+        s = Q.colma({"2025-09": 324.245, "2025-11": 325.063, "2025-12": 326.0})
+        self.assertAlmostEqual(s["2025-10"], 324.654, places=2)
+        self.assertEqual(s["2025-09"], 324.245)
+
+    def test_colma_non_inventa_buchi_lunghi(self):
+        from cot_radar import quadro as Q
+        s = Q.colma({"2025-08": 1.0, "2025-11": 2.0, "2025-12": float("nan")})
+        self.assertEqual(sorted(s), ["2025-08", "2025-11"])
+
+    def test_fase_ignora_nan(self):
+        import cot_radar.economie as E
+        from cot_radar import quadro as Q
+        mesi = [Q.mm("2026-10", -k) for k in range(30)][::-1]
+        cli = {m: 100 + i * 0.1 for i, m in enumerate(mesi)}
+        cpi = {m: 2.0 + i * 0.05 for i, m in enumerate(mesi)}
+        cpi["2026-10"] = float("nan")
+        st = E.fase(cli, cpi, {})
+        self.assertEqual(st["mese_cpi"], "2026-09")
+        self.assertTrue(st["infl"] == st["infl"])            # non NaN
+
+    def test_anomalia_se_manca_un_numero(self):
+        from cot_radar import controlli as C
+        self.assertEqual(C.schede({"economie": [{"id": "eur", "nome": "Eurozona", "infl": 4.0, "infl6": 3.0, "cli": 100.5}]}), [])
+        a = C.schede({"economie": [{"id": "eur", "nome": "Eurozona", "infl": None, "infl6": 3.0, "cli": 100.5}]})
+        self.assertEqual(a[0]["livello"], "ERROR")
+        self.assertIn("inflazione", a[0]["messaggio"])

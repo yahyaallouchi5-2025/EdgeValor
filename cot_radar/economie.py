@@ -25,6 +25,7 @@ import re
 import csv
 import io
 import json
+import math
 import os
 import time
 import urllib.error
@@ -101,7 +102,9 @@ def scarica_inflazione(get=_get):
     out = {}
     for r in _righe(get(URL_BIS.format(paesi="+".join(e[3] for e in ECONOMIE), dal="2000-01"))):
         try:
-            out.setdefault(r["REF_AREA"], {})[r["TIME_PERIOD"]] = float(r["OBS_VALUE"])
+            v = float(r["OBS_VALUE"])
+            if math.isfinite(v):                     # v9.71 la BIS scrive "NaN" nei mesi senza dato: non e' un numero
+                out.setdefault(r["REF_AREA"], {})[r["TIME_PERIOD"]] = v
         except (KeyError, ValueError):
             pass
     return out
@@ -157,7 +160,8 @@ _MESE = re.compile(r"^\d{4}-\d{2}$")
 def solo_mesi(serie):
     """Tiene solo le chiavi 'AAAA-MM' (v7.22b: l'OCSE manda alcune disoccupazioni trimestrali, '2026-Q3',
     anche lunghe 7 caratteri: nella cache vecchia ci sono ancora)."""
-    return {k: v for k, v in (serie or {}).items() if _MESE.match(str(k))}
+    return {k: v for k, v in (serie or {}).items()
+            if _MESE.match(str(k)) and isinstance(v, (int, float)) and math.isfinite(v)}     # v9.71 via anche i "NaN" in cache
 
 
 CONFERMA_MESI = 2
@@ -232,7 +236,7 @@ def fase(cli, cpi, une, oggi_mese=None):
 def storico_usa(cli, cartella):
     """Tabella della (i): rendimento medio annualizzato del mese dopo per fase, dal 1990 (oro dal 2004), con la regola
     di oggi (CLI + inflazione). Inflazione USA dal CPI archiviato (FRED), pubblicato con 1 mese di ritardo."""
-    cpi_i = Q._csv(cartella, "CPIAUCSL.csv")
+    cpi_i = Q.colma(Q._csv(cartella, "CPIAUCSL.csv"))
     spx, gld = Q._csv(cartella, os.path.join("yahoo", "_GSPC.csv")), Q._csv(cartella, os.path.join("yahoo", "GLD.csv"))
     d10 = Q._csv(cartella, "DGS10.csv")
     if not (cli and cpi_i and spx):
@@ -264,12 +268,14 @@ def calcola(fred, cartella=None, scarica=True):
         usa_fred = Q.calcola(fred, None)            # indicatori FRED degli USA (anche la curva 10-2 e l'allarme)
     except Exception as e:
         log.warning("economie: indicatori USA da FRED non calcolati (%s)", e)
+    if fred and not usa_fred:
+        log.warning("economie: indicatori USA da FRED mancanti (curva, spread, produzione): scheda USA ridotta")
     out = []
     for eid, nome, ocse, bis, valuta in ECONOMIE:
         c = cli_eurozona(cli) if eid == "eur" else cli.get(ocse) or {}
         p = cpi.get(bis) or {}
         if eid == "usa" and usa_fred:                # inflazione USA: stessa serie della card USA (FRED, piu' fresca)
-            cpi_f = Q.mensile(fred.get("CPIAUCSL"))
+            cpi_f = Q.colma(Q.mensile(fred.get("CPIAUCSL")))      # v9.71 ottobre 2025 mai pubblicato
             p = {m: (cpi_f[m] / cpi_f[Q.mm(m, -12)] - 1) * 100 for m in cpi_f if Q.mm(m, -12) in cpi_f} or p
         u = Q.mensile(fred.get("UNRATE")) if eid == "usa" else (une.get(ocse) or {})
         try:

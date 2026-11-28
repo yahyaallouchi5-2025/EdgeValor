@@ -25,6 +25,22 @@ def _ok(x):
     return isinstance(x, (int, float)) and not math.isnan(x) and not math.isinf(x)
 
 
+def schede(quadro):
+    """v9.71 (Ya, 28/11/2026: "non voglio piu' vedere n/d in nessuna scheda, al massimo mi arriva l'anomalia").
+    Controlla i numeri che il Quadro economico mostra in pagina: uno vuoto diventa un'anomalia per l'amministratore
+    (registro e sorveglianza), mentre la scheda nasconde la riga. -> [{"livello", "fonte", "messaggio"}]"""
+    trovati = []
+    for e in (quadro or {}).get("economie") or []:
+        vuoti = [n for k, n in (("infl", "inflazione"), ("infl6", "inflazione di 6 mesi fa"), ("cli", "crescita")) if not _ok(e.get(k))]
+        if e.get("id") == "usa" and not _ok(e.get("curva")):
+            vuoti.append("curva dei tassi")
+        if vuoti:
+            trovati.append({"livello": "ERROR", "fonte": "Quadro economico",
+                            "messaggio": f"{e.get('nome')}: dato mancante in scheda ({', '.join(vuoti)})"})
+            log.error("[controllo Quadro economico] %s", trovati[-1]["messaggio"])
+    return trovati
+
+
 def controlla(assets, pairs, fred, ecb, mort):
     """Restituisce la lista delle anomalie trovate: [{"livello", "fonte", "messaggio"}]."""
     trovati = []

@@ -29,6 +29,7 @@ STORICO (tabella nella (i)): rendimento medio ANNUALIZZATO del mese dopo, per re
 DEBUG: python -c "from cot_radar import quadro; help(quadro.calcola)"
 """
 import csv
+import math
 import os
 
 from .log import log
@@ -53,6 +54,21 @@ def mensile(punti):
     out = {}
     for d, v in sorted(punti or []):
         out[d[:7]] = v
+    return out
+
+
+def colma(serie):
+    """v9.71 BUCHI DI UN MESE in una serie mensile {'AAAA-MM': v} (Ya, 28/11/2026: "Inflazione n/d" nella scheda USA).
+    L'indice dei prezzi USA di OTTOBRE 2025 non e' mai stato pubblicato (chiusura del governo): a ottobre 2026 il
+    confronto a 12 mesi non aveva il mese di partenza, la scheda USA perdeva i suoi indicatori e ripiegava su una
+    fonte con il valore vuoto. Qui un mese mancante CON i due vicini presenti viene stimato con la loro media
+    geometrica (meta' strada tra i due, in percentuale). Buchi piu' lunghi restano buchi. Non tocca i valori veri.
+    DEBUG: colma({'2025-09': 324.245, '2025-11': 325.063})['2025-10'] -> 324.654"""
+    out = {m: v for m, v in (serie or {}).items() if isinstance(v, (int, float)) and math.isfinite(v)}
+    for m in list(out):
+        dopo, poi = mm(m, 1), mm(m, 2)
+        if dopo not in out and poi in out and out[m] > 0 and out[poi] > 0:
+            out[dopo] = (out[m] * out[poi]) ** 0.5
     return out
 
 
@@ -115,6 +131,7 @@ def storico(cartella):
     """Rendimento medio annualizzato (%) del mese dopo per regime dal 1990: {regime: {mercato: [media, mesi]}}."""
     s = {k: _csv(cartella, k + ".csv") for k in ("CPIAUCSL", "UNRATE", "INDPRO", "DGS10", "DGS2", "BAMLH0A0HYM2")}
     spx, gld = _csv(cartella, os.path.join("yahoo", "_GSPC.csv")), _csv(cartella, os.path.join("yahoo", "GLD.csv"))
+    s["CPIAUCSL"] = colma(s["CPIAUCSL"])                    # v9.71 ottobre 2025 mai pubblicato
     if not (s["CPIAUCSL"] and s["UNRATE"] and s["INDPRO"] and spx and s["DGS10"]):
         return None
     tab = {}
@@ -138,6 +155,7 @@ def calcola(fred, cartella=None):
     """Dati della card. fred = {codice: [[data, valore]]} (download della Dashboard, circa 3 anni);
     cartella = archivio storico (per la tabella). None se mancano i dati."""
     g = {k: mensile(fred.get(k)) for k in ("CPIAUCSL", "UNRATE", "INDPRO", "DGS10", "DGS2", "BAMLH0A0HYM2")}
+    g["CPIAUCSL"] = colma(g["CPIAUCSL"])                    # v9.71 ottobre 2025 mai pubblicato
     if not (g["CPIAUCSL"] and g["UNRATE"] and g["INDPRO"]):
         return None
     u = min(max(g["CPIAUCSL"]), max(g["INDPRO"]), max(g["UNRATE"]))      # ultimo mese con tutti e tre i dati
