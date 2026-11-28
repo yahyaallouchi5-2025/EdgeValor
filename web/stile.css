@@ -4536,8 +4536,10 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 .tvpannello.v2 .tvtesta{align-items:center;padding:14px 18px}
 .tvpannello.v2 #tvchiudi{width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:11px}
 @media (min-width:901px){
- .tvmodal:has(.tvpannello.v2){padding:2.2vh 2vw}
- .tvpannello.v2{width:min(1320px,100%);height:min(880px,100%);border:1px solid var(--line);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.55);padding:0}
+ /* v9.77 (Ya, 28/11/2026: "deve essere espansa dal lato A al lato B, come tutte le altre schede") grafico a tutto
+    schermo anche su PC: prima era una finestra di 1320 px al centro, con il terminale visibile ai lati */
+ .tvmodal:has(.tvpannello.v2){padding:0}
+ .tvpannello.v2{width:100vw;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none;padding:0}
 }
 /* telefono e tablet: un solo foglio che scorre */
 @media (max-width:900px){
@@ -4573,7 +4575,10 @@ html:not(.eb-admin) #pfapri.pfanom::after{display:none}
 /* --- colonna di lettura */
 .sk-sez{padding:14px 16px 0}
 .sk-sez h3{display:flex;align-items:center;gap:7px;margin:0 0 9px;font:800 11px system-ui;letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
-.sk-sez h3 details.info{position:static}
+/* v9.77 fumetto (i) di "Lettura di oggi" e "Flussi": prima usciva in alto a sinistra dello schermo (si agganciava alla
+   finestra del grafico). Ora si apre sotto il titolo, largo quanto la colonna di destra. */
+.sk-sez h3{position:relative}.sk-sez h3 details.info{position:static}
+.sk-sez h3 details.info>div{position:absolute;left:0;right:0;top:calc(100% + 6px);width:auto;max-width:none;z-index:5}
 .sk-carte{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .sk-c{min-width:0;padding:9px 11px;border-radius:11px;background:var(--soft);border:1px solid var(--line)}
 .sk-c small{display:block;font-size:11px;color:var(--mute);margin-bottom:3px}
