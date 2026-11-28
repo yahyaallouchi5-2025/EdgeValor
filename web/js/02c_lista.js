@@ -147,5 +147,35 @@ try{(function(){
   document.querySelectorAll(".stl").forEach(b=>{const [tp,...r]=b.dataset.stl.split(":"),on=ha(tp,r.join(":"));
    b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);b.title=on?"Togli dalla mia lista":"Aggiungi alla mia lista";b.setAttribute("aria-label",b.title);});
   if(!pan.hidden){disegna();if(L.az.length&&!titoli)caricaTitoli().then(()=>{if(!pan.hidden)disegna();});}}
- window.ebLista={ha,stella,cambia,apri,esporta,importa};
+ /* v9.79 RICERCA DELLA TESTATA (PC) - Ya, 28/11/2026: "clicco sopra e mi porta sotto". Prima il campo in alto era solo un
+    pulsante che apriva la ricerca della watchlist nella barra laterale (e il clic su un risultato lo AGGIUNGEVA alla
+    lista). Ora il campo in alto e' vero: i risultati si aprono SOTTO il campo, il clic porta alla scheda del titolo,
+    del paese, della coppia o del mercato; la stellina a destra lo aggiunge alla watchlist. Stesso elenco della ricerca
+    della watchlist (universo()). Frecce su/giu' per scegliere, Invio per aprire, Esc per chiudere.
+    USO: ebLista.cercaQui(input, riquadroRisultati)  (03d_testata.js) */
+ function vai(tp,id){if(tp=="az"){if(window.ebApriTitolo)ebApriTitolo(id);}else if(tp=="pa")vaiPaese(id);
+  else if(tp=="fx")vaiRiga("pairs","p:"+id);else vaiRiga("assets","a:"+id);
+  try{window.ebStat&&ebStat.ev("cerca",{tipo:tp});}catch(e){}}
+ function cercaQui(inp,box){let sel=-1;
+  const chiudiR=()=>{box.hidden=true;box.innerHTML="";sel=-1;inp.setAttribute("aria-expanded","false");};
+  const evid=()=>box.querySelectorAll(".hdr-r").forEach((r,i)=>{r.classList.toggle("sel",i==sel);if(i==sel)r.scrollIntoView({block:"nearest"});});
+  function mostraR(){const q=inp.value.trim().toLowerCase();if(q.length<2)return chiudiR();
+   if(!U||(!U.az&&titoli)){U=universo();U.az=!!titoli;}
+   const par=q.split(/\s+/);
+   const tro=U.filter(x=>par.every(w=>x[4].includes(w))).sort((a,b)=>(a[2].toLowerCase().startsWith(q)?0:1)-(b[2].toLowerCase().startsWith(q)?0:1)||a[2].length-b[2].length).slice(0,10);
+   box.innerHTML=tro.length?tro.map(x=>`<div class="hdr-r" data-vai="${x[0]}:${esc(x[1])}" role="option"><em class="le le-${x[0]}">${ETI[x[0]]}</em><div class="ln"><b>${esc(x[2])}</b><span>${esc(x[3])}</span></div>${stella(x[0],x[1])}</div>`).join("")
+    :`<div class="lvuota"><b>${T("Nessun risultato")}</b><span>${titoli?T("Prova con il nome o con la sigla."):T("Sto caricando l'elenco delle aziende…")}</span></div>`;
+   box.hidden=false;sel=tro.length?0:-1;evid();inp.setAttribute("aria-expanded","true");}
+  inp.addEventListener("input",mostraR);
+  inp.addEventListener("focus",()=>{if(!titoli)caricaTitoli().then(()=>{U=null;if(inp.value.trim())mostraR();});else if(inp.value.trim())mostraR();});
+  inp.addEventListener("keydown",ev=>{const n=box.querySelectorAll(".hdr-r").length;
+   if(ev.key=="Escape"){chiudiR();inp.blur();return;}
+   if(!n)return;if(ev.key=="ArrowDown"){ev.preventDefault();sel=(sel+1)%n;evid();}
+   else if(ev.key=="ArrowUp"){ev.preventDefault();sel=(sel-1+n)%n;evid();}
+   else if(ev.key=="Enter"&&sel>=0){ev.preventDefault();box.querySelectorAll(".hdr-r")[sel].click();}});
+  box.addEventListener("mousedown",ev=>ev.preventDefault());              // il clic non toglie il fuoco al campo prima di arrivare
+  box.addEventListener("click",ev=>{const r=ev.target.closest(".hdr-r");if(!r||ev.target.closest(".stl"))return;
+   const [tp,...id]=r.dataset.vai.split(":");inp.value="";chiudiR();inp.blur();vai(tp,id.join(":"));});
+  document.addEventListener("click",ev=>{if(!box.hidden&&!ev.target.closest(".hdcerca"))chiudiR();});}
+ window.ebLista={ha,stella,cambia,apri,esporta,importa,cercaQui};
 })();}catch(e){console.error("[EdgeValor] la mia lista:",e);window.ebLista=window.ebLista||{ha:()=>false,stella:()=>"",cambia:()=>false,apri:()=>{}};}

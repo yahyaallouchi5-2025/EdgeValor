@@ -30,7 +30,13 @@ try{(function(){
  const sx=bar.querySelector(".hdsx"),ce=bar.querySelector(".hdcerca"),av=$("hdav"),ini=av.querySelector(".hdini"),nome=av.querySelector(".hdnome"),eti=av.querySelector(".hdeti"),num=bar.querySelector(".hdnum");
  // --- logo, pulsante della barra e ricerca: spostati qui sul PC, di nuovo nella barra laterale sul telefono
  // v9.65 (Ya): il pulsante che stringe/allarga la barra NON sta in testata: resta in cima alla barra laterale
- const mossi=[[side.querySelector(".blogo"),sx],[side.querySelector(".scerca"),ce]].filter(x=>x[0])
+ // v9.79 la ricerca in alto e' un campo vero con i risultati sotto (02c_lista.js, ebLista.cercaQui): non si sposta piu'
+ //   il pulsante della barra laterale (che apriva la ricerca della watchlist laggiu')
+ ce.innerHTML=`<label class="scerca hdq"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+  <input id="hdq" type="search" placeholder="${T("Cerca titoli, paesi, valute")}" aria-label="${T("Cerca titoli, paesi, valute")}" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="hdris"><kbd>/</kbd></label>
+  <div id="hdris" class="hdris" role="listbox" hidden></div>`;
+ try{window.ebLista&&ebLista.cercaQui&&ebLista.cercaQui($("hdq"),$("hdris"));}catch(e){console.warn("[EdgeValor] ricerca in alto:",e);}
+ const mossi=[[side.querySelector(".blogo"),sx]].filter(x=>x[0])
   .map(([el,dove])=>{const casa=document.createComment("testata");el.before(casa);return {el,dove,casa};});
  function sposta(){const su=pc.matches;h.classList.toggle("tst",su);
   mossi.forEach(m=>{if(su){if(!m.dove.contains(m.el))m.dove.append(m.el);}else if(m.dove.contains(m.el))m.casa.after(m.el);});

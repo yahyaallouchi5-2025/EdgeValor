@@ -32,7 +32,8 @@ try{(function(){const side=$("side"),nav=$("nav");if(!side||!nav)return;
  function focusCerca(){const i=$("lbox")&&$("lbox").querySelector("input");if(i){i.focus({preventScroll:true});i.scrollIntoView({block:"nearest"});}}
  // v9.78 (Ya, 28/11/2026: "cerco un titolo e al click non si clicca") con la barra RIDOTTA e la watchlist gia' aperta
  //   (aria-expanded="true" salvato) il clic non riallargava la barra: il campo restava nascosto. Ora la riallarga sempre.
- cerca.onclick=()=>{if(lista&&(lista.getAttribute("aria-expanded")!="true"||(!mob()&&document.documentElement.classList.contains("ridotta"))))lista.click();setTimeout(focusCerca,60);};
+ cerca.onclick=()=>{const hq=$("hdq");if(hq&&h.classList.contains("tst")){hq.focus();return;}    // v9.79 PC: campo in alto
+  if(lista&&(lista.getAttribute("aria-expanded")!="true"||(!mob()&&document.documentElement.classList.contains("ridotta"))))lista.click();setTimeout(focusCerca,60);};
  // "/" sul PC porta alla ricerca (mai mentre si scrive in un campo)
  document.addEventListener("keydown",e=>{if(e.key!="/"||e.ctrlKey||e.metaKey||e.altKey||mob())return;
   const t=e.target;if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))return;e.preventDefault();cerca.click();});

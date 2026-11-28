@@ -10,7 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
-  {d:"2026-11-29T02",t:"Ricerca in alto corretta",x:"Con la barra laterale chiusa il campo di ricerca ora si apre sempre.",s:""},
+  {d:"2026-11-29T03",t:"Nuova ricerca in alto",x:"Scrivi un titolo, un paese o una valuta: i risultati compaiono sotto il campo e un clic apre la scheda. La stellina lo aggiunge alla watchlist.",s:""},
   {d:"2026-11-29T01",t:"Aggiornamento grafici",x:"Su PC il grafico si apre a tutto schermo. Le spiegazioni (i) della colonna di destra si aprono sotto il titolo.",s:""},
   {d:"2026-11-29T00",t:"Aggiornamento scheda Portafogli",x:"Simulatore più chiaro: cosa vuol dire seguire il portafoglio, quanto costa il prestito con la leva e cosa è già tolto dal risultato.",s:"port",p:true},
   {d:"2026-11-28T23",t:"Aggiornamento scheda Portafogli",x:"«Quanto resta dopo le tasse»: due righe sole, il portafoglio scelto e l'S&P 500 come confronto.",s:"port",p:true},
