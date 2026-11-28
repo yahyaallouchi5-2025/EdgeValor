@@ -313,8 +313,8 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
     <div class="phmsw" role="tablist"><button type="button" data-m="r" class="${hmModo=="r"?"on":""}" role="tab" aria-selected="${hmModo=="r"}">Risultato del mese</button><button type="button" data-m="dd" class="${hmModo=="dd"?"on":""}" role="tab" aria-selected="${hmModo=="dd"}">Scenario peggiore</button></div></div>
    <div class="phmbox"><div class="phm">${hmCelle(m,hmModo)}</div><div class="phmtip" hidden></div></div>
    <div class="phmleg">${hmLeg(hmModo,c)}</div>
-   <div class="pmini">${k("Peggior "+m.mese,pc(m.peggiore[1]),String(m.peggiore[0]),"down")}${k(m.mese[0].toUpperCase()+m.mese.slice(1)+" medio",pc(m.media),`su ${m.n} anni`,m.media>=0?"up":"down")}
-    ${k("Anni positivi",`${m.positivi} su ${m.n}`,`${wr}% degli anni`)}${k("Max drawdown",pc(ddTot),"di sempre","down")}</div>
+   ${/* v9.74 (Ya, 28/11/2026: "niente doppioni") tolti i 4 riquadri in fondo: peggiore e media del mese sono sulla barra
+        di "Andamento portafoglio", gli anni positivi nel suo terzo riquadro, il max drawdown tra i numeri in alto. */""}
    ${m.mercati.length?`<div class="pstag"><div class="pstag-t">${m.mese[0].toUpperCase()+m.mese.slice(1)} per mercato</div>${m.mercati.map(x=>`<div class="pstag-r"><span>${esc(nomeK(x.k))}</span><i><s class="${x.media>=0?"su":"giu"}" style="width:${Math.min(100,Math.abs(x.media)*8)}%"></s></i><b class="${x.media>=0?"up":"down"}">${pc(x.media)}</b><em><span>${x.pos}% positivi</span><span>${x.n} anni</span></em></div>`).join("")}</div>`:""}</div>`;}
 
 

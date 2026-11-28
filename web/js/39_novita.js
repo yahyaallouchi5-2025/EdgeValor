@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-28T21",t:"Aggiornamento scheda Portafogli",x:"Rischio del mese più pulito: tolti i numeri che comparivano già in Andamento e in alto.",s:"port",p:true},
   {d:"2026-11-28T18",t:"Aggiornamento Novità e grafici",x:"Nell'elenco Mercati arriva anche la rotazione mensile dei portafogli. Nel grafico delle coppie: da quando i tassi favoriscono una valuta e cosa dicevano prima.",s:"port"},
   {d:"2026-11-28T16",t:"Aggiornamento Quadro economico",x:"Eurozona con la disoccupazione e l'allarme. Accanto a ogni dato c'è il mese a cui si riferisce: è l'ultimo pubblicato dalla fonte.",s:"sig",q:"#quadro"},
   {d:"2026-11-28T14",t:"Aggiornamento Quadro economico",x:"Inflazione USA di nuovo in scheda (3,9%) e fase corretta: Espansione. Mancava il mese di confronto, ottobre 2025, mai pubblicato.",s:"sig",q:"#quadro"},
