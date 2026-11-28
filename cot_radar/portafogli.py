@@ -1166,7 +1166,10 @@ def simulatore(curva, tassi):
     in perdita), dd (drawdown peggiore mediano, %), n}}}, "prelievo": {leva: {p10, p50}} (% annuo, 10 anni)}"""
     if not curva or len(curva) < 300:
         return None
-    out = {"dal": curva[0][0], "spread": SPREAD_LEVA, "leve": {}, "prelievo": {}}
+    out = {"dal": curva[0][0], "spread": SPREAD_LEVA, "leve": {}, "prelievo": {},
+           # v9.76 (Ya, 28/11/2026: "a leva 1,5 non ci sono indicazioni su quanto vado a pagare") tasso BCE di oggi e
+           #   costo di compravendita del modello: la pagina mostra in euro cosa e' gia' tolto dal risultato
+           "tasso": round(tassi[max(tassi)], 2) if tassi else None, "costo": COSTO * 100}
     for L in LEVE:
         cl = con_leva(curva, tassi or {}, L)
         gv = [v for _, v in cl]                        # valori GIORNALIERI (per il drawdown vero, anche a meta' mese)

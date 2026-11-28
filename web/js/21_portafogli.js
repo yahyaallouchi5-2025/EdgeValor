@@ -490,20 +490,29 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
   const anni=+simOrz,annuo=m=>pc((Math.pow(m,1/anni)-1)*100),v=m=>eur(simCap*m);
   const lo=o.p5,hi=o.p95,sp=(hi-lo)||1,x=m=>Math.max(0,Math.min(100,(m-lo)/sp*100)).toFixed(1);
   const pr=(S.prelievo||{})[simLeva];
-  return `<div class="psim-g"><span class="small">In met&agrave; dei casi, dopo ${anni} ${anni==1?"anno":"anni"}</span>
+  // v9.76 (Ya, 28/11/2026: "dopo 10 anni non l'ho capita; a leva 1,5 non so quanto pago") frase intera al posto di
+  //   "dopo N anni" e riga dei costi gia' tolti dal risultato (prestito in euro quando c'e' la leva).
+  const L=+simLeva,pres=simCap*(L-1),ti=S.tasso!=null?S.tasso+S.spread:null;
+  const costi=`<div class="psim-costi"><span class="psim-ct">Gi&agrave; tolto dal risultato</span>
+    <span>Compravendite: ${fx(S.costo!=null?S.costo:0.1,2)}% di ogni scambio</span>
+    ${L>1?`<span>Prestito di ${eur(pres)}: interesse ${ti!=null?`${fx(ti,1)}% l'anno, circa <b>${eur(pres*ti/100)}</b> il primo anno`:`tasso BCE + ${fx(S.spread,1)} punti l'anno`}</span>`:""}
+    <span class="psim-no">Non inclusi: tasse e commissioni fisse del broker</span></div>`;
+  return `<div class="psim-g"><span class="small">Seguendo il portafoglio per ${anni} ${anni==1?"anno":"anni"}${L>1?` con ${eur(simCap)} tuoi e ${eur(pres)} in prestito, in met&agrave; dei casi il tuo capitale &egrave; diventato`:`, in met&agrave; dei casi ${eur(simCap)} sono diventati`}</span>
     <b class="${o.p50>=1?"up":"down"}">${v(o.p50)}</b><span class="small">${annuo(o.p50)} l'anno</span></div>
    <div class="psim-bar"><i style="left:${x(o.p25)}%;width:${(x(o.p75)-x(o.p25)).toFixed(1)}%"></i><s style="left:${x(o.p50)}%"></s>
     ${lo<1&&hi>1?`<u style="left:${x(1)}%" title="capitale iniziale"></u>`:""}</div>
    <div class="psim-bl"><span>${v(lo)}</span><span>9 casi su 10 tra questi valori</span><span>${v(hi)}</span></div>
    <div class="pmc-k psim-k"><div><small>Partenze in perdita</small><b class="${o.perdita>0?"down":"up"}">${fx(o.perdita,0)}%</b></div>
     <div><small>Drawdown tipico</small><b class="down">${pc(o.dd)}</b></div><div><small>Drawdown peggiore</small><b class="down">${pc(o.dd_peggiore)}</b></div></div>
+   ${costi}
    ${pr?`<div class="psim-r"><span>Rendita annua sostenibile</span><b>${fx(pr.p50,1)}% l'anno &middot; ${eur(simCap*pr.p50/100)}</b><em>minimo ${fx(pr.p10,1)}% in 9 casi su 10</em></div>`:""}
 `;}
  function simulatoreHTML(p){if(!p.sim)return "";
   const b=(arr,cur,attr,lab)=>`<div class="vfswitch psim-s">${arr.map(x=>`<button data-${attr}="${x}" class="${x==cur?"on":""}">${lab(x)}</button>`).join("")}</div>`;
-  return `<details class="psez" data-sez="sim"${SEZ.sim?" open":""}><summary><h3 class="vft">Simulatore</h3><details class="info prinfo" onclick="event.stopPropagation()"><summary title="Come funziona" aria-label="Come funziona">i</summary><div><b>Cosa mostra.</b> Il capitale investito in questo profilo partendo in ogni mese dello storico (dal ${gg(p.sim.dal)}): il valore a fine periodo nel caso medio (mediana) e la fascia che contiene 9 casi su 10. Stessa misura del sito: euro, acquisto prudente, costi inclusi.<br><br><b>Leva.</b> 1,3&times; e 1,5&times; = investire anche denaro preso a prestito, con un costo stimato di tasso BCE + ${fx(p.sim.spread,1)} punti l'anno. Guadagni e drawdown crescono insieme; costi e condizioni reali dipendono dal broker.<br><br><b>Rendita.</b> Prelievo annuo massimo che, in 10 anni, avrebbe lasciato il capitale finale almeno uguale a quello iniziale.<br><br><b>Attenzione.</b> Le regole del portafoglio sono state riviste guardando anche questi anni: i numeri futuri possono essere peggiori.</div></details><span class="small">quanto sarebbe diventato il capitale</span></summary><div class="card psim" id="psim">
-   <div class="psim-c"><label class="pcap">Capitale <input type="text" inputmode="numeric" value="${mil(simCap)}" aria-label="Capitale del simulatore in euro"> &euro;</label>
-    ${b(["1","3","5","10"],simOrz,"orz",x=>x+(x=="1"?" anno":" anni"))}${b(["1.0","1.3","1.5"],simLeva,"leva",x=>x=="1.0"?"Senza leva":"Leva "+x.replace(".",",")+"&times;")}</div>
+  return `<details class="psez" data-sez="sim"${SEZ.sim?" open":""}><summary><h3 class="vft">Simulatore</h3><details class="info prinfo" onclick="event.stopPropagation()"><summary title="Come funziona" aria-label="Come funziona">i</summary><div><b>Cosa mostra.</b> Non &egrave; "compra e tieni fermo": &egrave; seguire il portafoglio per tutto il periodo, con il controllo e le rotazioni di ogni mese. Il capitale &egrave; investito in questo profilo partendo in ogni mese dello storico (dal ${gg(p.sim.dal)}): il valore a fine periodo nel caso medio (mediana) e la fascia che contiene 9 casi su 10. Stessa misura del sito: euro, acquisto prudente, costi inclusi.<br><br><b>Leva.</b> 1,3&times; e 1,5&times; = investire anche denaro preso a prestito, con un costo stimato di tasso BCE + ${fx(p.sim.spread,1)} punti l'anno. Guadagni e drawdown crescono insieme; costi e condizioni reali dipendono dal broker.<br><br><b>Rendita.</b> Prelievo annuo massimo che, in 10 anni, avrebbe lasciato il capitale finale almeno uguale a quello iniziale.<br><br><b>Attenzione.</b> Le regole del portafoglio sono state riviste guardando anche questi anni: i numeri futuri possono essere peggiori.</div></details><span class="small">quanto sarebbe diventato il capitale</span></summary><div class="card psim" id="psim">
+   <div class="psim-c"><div class="psim-f"><small>Capitale</small><label class="pcap"><input type="text" inputmode="numeric" value="${mil(simCap)}" aria-label="Capitale del simulatore in euro"> &euro;</label></div>
+    <div class="psim-f"><small>Per quanto segui il portafoglio</small>${b(["1","3","5","10"],simOrz,"orz",x=>x+(x=="1"?" anno":" anni"))}</div>
+    <div class="psim-f"><small>Denaro in prestito</small>${b(["1.0","1.3","1.5"],simLeva,"leva",x=>x=="1.0"?"Nessuno":"Leva "+x.replace(".",",")+"&times;")}</div></div>
    <div class="psim-b">${simCorpo(p)}</div></div></details>`;}
  function simEventi(p){const c=el.querySelector("#psim");if(!c)return;const corpo=()=>{c.querySelector(".psim-b").innerHTML=simCorpo(p);};
   const salva=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
@@ -955,8 +964,9 @@ try{(function(){const P=D.port,el=$("port");if(!el)return;
      d.testo(xc+cw2/2,y+10,String(a2),{s:6.5,c:C.mute,a:"c"});d.testo(xc+cw2/2,y+21,pc(x.r),{s:7.8,b:true,a:"c"});}
     y+=30;}
    const wr=Math.round(100*m.positivi/m.n),Mz=m.mese[0].toUpperCase()+m.mese.slice(1);
-   const K2=[["Peggior "+m.mese,pc(m.peggiore[1]),String(m.peggiore[0]),C.down],[Mz+" medio",pc(m.media),"su "+m.n+" anni",m.media>=0?C.up:C.down],["Anni positivi",`${m.positivi} su ${m.n}`,"win rate "+wr+"%",C.ink],["Max drawdown storico",pc(ddTot),"intero backtest",C.down]];
-   y=d.serve(y,62,T);y+=6;K2.forEach((k,i)=>{const x=M+i*(bw+8);d.rett(x,y,bw,50,{f:C.soft,r:7});
+   const K2=[["Peggior "+m.mese,pc(m.peggiore[1]),String(m.peggiore[0]),C.down],[Mz+" medio",pc(m.media),"su "+m.n+" anni",m.media>=0?C.up:C.down],["Anni positivi",`${m.positivi} su ${m.n}`,"win rate "+wr+"%",C.ink]];
+   // v9.76 (Ya: "niente doppioni") tolto "Max drawdown storico": e' gia' tra i quattro numeri in alto del PDF
+   const bw3=(LW-16)/3;y=d.serve(y,62,T);y+=6;K2.forEach((k,i)=>{const x=M+i*(bw3+8);d.rett(x,y,bw3,50,{f:C.soft,r:7});
     d.testo(x+11,y+15,k[0],{s:7.6,c:C.mute});d.testo(x+11,y+32,k[1],{s:13,b:true,c:k[3]});d.testo(x+11,y+43,k[2],{s:7,c:C.mute});});y+=50;
    if(m.mercati&&m.mercati.length){y=d.serve(y,40,T);d.testo(M,y+22,`Stagionalità di ${m.mese} per mercato (informativa)`,{s:8.5,b:true});y+=30;
     m.mercati.forEach(x=>{y=d.serve(y,16,T);d.testo(M,y+9,d.taglia(nomeK(x.k),170,8),{s:8});const bx=M+180,bl=LW-300,w=Math.min(1,Math.abs(x.media)/12.5)*bl/2;

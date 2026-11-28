@@ -1839,6 +1839,10 @@ a.blhome{text-decoration:none;color:inherit;cursor:pointer}
 .psim-t .info div{font:500 13px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink2);left:auto;right:0}
 .psim-c{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:14px 0 6px}
 .psim-c .pcap{margin-top:0}.psim-s{margin:0}
+/* v9.76 simulatore: etichetta sopra ogni comando e riga dei costi gia' tolti dal risultato */
+.psim-c{align-items:flex-end}.psim-f{display:flex;flex-direction:column;gap:6px;min-width:0}.psim-f>small{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}
+.psim-costi{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);font-size:12.5px;color:var(--ink2)}
+.psim-costi .psim-ct{flex-basis:100%;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}.psim-costi b{color:var(--ink)}.psim-costi .psim-no{color:var(--mute)}
 .psim-g{display:flex;flex-direction:column;gap:2px;margin:14px 0 10px}
 .psim-g b{font-size:34px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
 .psim-bar{position:relative;height:12px;border-radius:99px;margin:6px 4px;
