@@ -34,7 +34,8 @@ try{(function(){
  const C={ink:"#14202e",mute:"#5d6b80",line:"#d5dde8",soft:"#f3f6fa",acc:"#1a9e93",up:"#11935f",down:"#d2453f",navy:"#0a1628",warn:"#c98a14",bianco:"#ffffff"};
 
  // v9.10 con il terminale in inglese anche il PDF esce in inglese: ogni testo passa dal traduttore della pagina (00t_lingua.js)
- const trP=s=>typeof s=="string"&&window.ebTr?ebTr(s):s;
+ // v9.82 nei PDF un dato mancante e' un trattino, mai "n/d" (Ya, 28/11/2026)
+ const trP=s=>{if(typeof s!="string")return s;s=s.replace(/(^|[^A-Za-z])n\/d(?![A-Za-z])/g,"$1–");return window.ebTr?ebTr(s):s;};
  function Doc(o){o=o||{};const land=!!o.land,PW=land?841.89:595.28,PH=land?595.28:841.89,M=36;
   const pg=[];let cur=null;
   const d={PW,PH,M,C,

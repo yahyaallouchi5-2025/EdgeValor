@@ -94,7 +94,7 @@
       <b>RSI</b>: forza delle ultime 14 candele; sopra 70 ipercomprato, sotto 30 ipervenduto.
       <b>Correlazione</b>: quanto si muove insieme al dollaro (ETF UUP) e all'S&P 500 nelle ultime 60 sedute: +1 insieme, &minus;1 al contrario, 0 indipendente.</div></details></div>`:""}
     <div class="vfc-btn"><button type="button" data-z="-1" title="Riduci" aria-label="Riduci">${ico("meno")}</button><button type="button" data-z="1" title="Ingrandisci" aria-label="Ingrandisci">${ico("piu")}</button><button type="button" data-r title="Ripristina la vista" aria-label="Ripristina la vista">${ico("reset")}</button><button type="button" data-f title="Schermo intero" aria-label="Schermo intero">${ico("full")}</button></div></div>
-   <div class="vfc-leg"></div><div class="vfc-g"><p class="small vfc-v">Caricamento&hellip;</p></div>
+   <div class="vfc-leg"></div><div class="vfc-g"><i class="sk vfc-v" style="width:100%;height:100%;min-height:240px;border-radius:12px" aria-label="Caricamento"></i></div>
    <div class="vfc-tip"><span>${matchMedia("(pointer:coarse)").matches?"Trascina per spostarti, due dita per lo zoom, dito fermo per il mirino":"Trascina per spostarti, rotella o due dita per lo zoom"}</span></div></div>`;
   const W0=box.querySelector(".vfc-w"),g=box.querySelector(".vfc-g"),tip=box.querySelector(".vfc-tip"),leg=box.querySelector(".vfc-leg");
   const vuoto=tip.innerHTML;
@@ -116,7 +116,7 @@
    leg.innerHTML=SK?legSK(tf):NM?(tf=="d"?`<span><i class="lg-ev"></i>Notizie</span>`:`<span><i class="lg-lev"></i>Notizie</span><span><i class="lg-rz"></i>Mossa della prima ora</span>`)
     :tf=="d"?`<span><i class="lg-su"></i>Speculatori comprano</span><span><i class="lg-giu"></i>vendono</span><span><i class="lg-cot"></i>Report COT</span><span><i class="lg-ev"></i>Notizie</span>`
     :`<span><i class="lg-lcot"></i>Report COT</span><span><i class="lg-lev"></i>Notizie</span><span><i class="lg-sgn"></i>Segnale</span><span><i class="lg-ling"></i>Ingresso</span>`;
-   if(!S.B[tf])g.innerHTML=`<p class="small vfc-v">Caricamento&hellip;</p>`;
+   if(!S.B[tf])g.innerHTML=`<i class="sk vfc-v" style="width:100%;height:100%;min-height:240px;border-radius:12px" aria-label="Caricamento"></i>`;
    carica(tf).then(B=>{if(S.tf!=tf)return;
     if((!B||B.length<3)&&SK&&tf=="d"&&O.manca){O.manca();return;}      // v9.55 niente candele: la scheda torna a TradingView
     if(!B||B.length<3){g.innerHTML=`<p class="small vfc-v">${tf=="h"?"Candele orarie non ancora disponibili (si aggiornano ogni notte).":"Candele giornaliere non ancora disponibili (si aggiornano ogni notte)."}</p>`;return;}

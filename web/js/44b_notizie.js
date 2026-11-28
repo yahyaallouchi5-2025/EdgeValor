@@ -123,7 +123,7 @@
    GRUPPI.map(([g,f])=>{const q=L.filter(x=>f(x.s)&&!top.some(t=>t[0]==x.s));
     return q.length?`<optgroup label="${g}">${q.map(x=>`<option value="${esc(x.s)}">${esc(etichetta(x.s))}${vecchio(x)?` (fino al ${x.al.slice(0,4)})`:""}</option>`).join("")}</optgroup>`:"";}).join("")+`</select>`;}
 
- function strumento(){const g=el.querySelector(".nm-graf");g.innerHTML=`<p class="small">Caricamento&hellip;</p>`;
+ function strumento(){const g=el.querySelector(".nm-graf");g.innerHTML=ebSk(4,48,false);   // v9.82 sagoma
   leggi(BASE+S.s+".json").then(X=>{if(!X){g.innerHTML=`<p class="small">Dati non disponibili per questo strumento.</p>`;return;}
    S.X=X;const dd=[...new Set(X.ev.map(e=>e[1]))];if(S.d&&!dd.includes(S.d))S.d="";
    resto();});}

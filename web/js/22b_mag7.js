@@ -105,7 +105,8 @@
     attesa.observe(document.documentElement,{attributes:true,attributeFilter:["class"]});}
    return;}
   if(S.dati){disegna(box);return;}
-  carica().then(d=>{if(d)disegna(box);});}
+  if(!box.innerHTML.trim())box.innerHTML=ebSk(5,46);        // v9.82 sagoma mentre arrivano i dati
+  carica().then(d=>{if(d)disegna(box);else box.innerHTML="";});}
 
  window.ebMag7={monta,dati:()=>S.dati};
 }catch(e){console.warn("[EdgeValor] mag7",e);}})();

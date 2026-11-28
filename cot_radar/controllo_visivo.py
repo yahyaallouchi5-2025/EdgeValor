@@ -55,7 +55,7 @@ CONTROLLO = r"""(dove)=>{const out=[],W=innerWidth;
     const l=Math.max(r.left,q.left),t=Math.max(r.top,q.top),rr=Math.min(r.right,q.right),b=Math.min(r.bottom,q.bottom);
     if(rr-l<2||b-t<2)return null;r={left:l,top:t,right:rr,bottom:b,width:rr-l,height:b-t};}}return r;};
  const testi=[];const tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let tn;
- while(tn=tw.nextNode()){if(tn.nodeValue.trim().length<2)continue;const e=tn.parentElement;
+ while(tn=tw.nextNode()){if(tn.nodeValue.trim().length<2&&tn.nodeValue.indexOf("\u2012")<0)continue;const e=tn.parentElement;
   if(!e||e.closest("svg,script,style,[aria-hidden=true],.spiega")||!vis(e))continue;
   const det=e.closest("details:not([open])");if(det&&!e.closest("summary"))continue;   // risposta chiusa: non si vede
   // un rettangolo per ogni RIGA del testo (un testo che va a capo non "copre" il testo accanto)
@@ -80,12 +80,12 @@ CONTROLLO = r"""(dove)=>{const out=[],W=innerWidth;
   if(area<2500&&male.every(p=>/^(boxShadow|backgroundColor|color)$/.test(p)))continue;
   const nome=(an.animationName||an.id||"animazione")+":"+male.join(",");
   if(male.length&&!visti.has(nome)){visti.add(nome);out.push(`animazione infinita che ridisegna (${male.join(", ")}): ${an.animationName||"senza nome"} su ${el.className&&el.className.baseVal===undefined?String(el.className).split(" ")[0]:el.tagName}`);}}
- // 5) v9.78 (Ya, 28/11/2026: "non voglio piu' vedere n/d in nessun dato, nessuna scheda: al massimo mi arriva
+ // 5) v9.82: il terminale scrive "‒" (U+2012) al posto di n/d, e si cerca quello. v9.78 (Ya, 28/11/2026: "non voglio piu' vedere n/d in nessun dato, nessuna scheda: al massimo mi arriva
  //    l'anomalia") ogni "n/d" visibile e' un dato che non e' arrivato: si segnala con il titolo della card
- const nd=new Map();for(const [tn,r,t] of testi){if(!/(^|[^a-z])n\/d([^a-z]|$)/i.test(t))continue;const c=tn.parentElement.closest(".card,section,table,.fc,[class*=card]")||document.body;
+ const nd=new Map();for(const [tn,r,t] of testi){if(!/(^|[^a-z])n\/d([^a-z]|$)/i.test(t)&&t.indexOf("\u2012")<0)continue;const c=tn.parentElement.closest(".card,section,table,.fc,[class*=card]")||document.body;
   const ti=(c.querySelector("h2,h3,h4,.titolo,summary")||{}).textContent||"";const k=(ti.trim().replace(/\s+/g," ").slice(0,40)||c.id||c.className||"pagina");
   nd.set(k,(nd.get(k)||0)+1);}
- for(const [k,v] of nd)out.push(`dato mancante "n/d" (${v}) in: ${k}`);
+ for(const [k,v] of nd)out.push(`dato mancante (${v}) in: ${k}`);
  return out.map(p=>dove+": "+p);}"""
 
 

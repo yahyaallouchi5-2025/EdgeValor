@@ -38,6 +38,18 @@ const COL={"STRONG BUY":"var(--sb)","BUY":"var(--b)","NEUTRO":"var(--n)","SELL":
 const fmt=n=>{if(n==null||isNaN(n))return"n/d";const r=Math.round(n);return(r>0?"+":"")+(r==0?0:r).toLocaleString(EB_LOC);};
 const fx=(n,d=2)=>n==null||isNaN(n)?"n/d":n.toLocaleString(EB_LOC,{minimumFractionDigits:d,maximumFractionDigits:d});
 const sg=(n,d=2)=>n==null||isNaN(n)?"n/d":(n>0?"+":"")+fx(n,d);
+/* v9.82 MAI "n/d" IN PAGINA (Ya, 28/11/2026: "non voglio piu' vederlo in nessun dato, nessuna scheda: al massimo mi
+   arriva l'anomalia"). Un solo punto per tutto il terminale: ogni "n/d" scritto da qualunque scheda (anche dai dati del
+   server) diventa un trattino discreto "‒" (U+2012, usato SOLO per i dati mancanti). Il controllo visivo automatico
+   (cot_radar/controllo_visivo.py) cerca proprio questo segno e manda l'anomalia al fondatore con il nome della card.
+   DEBUG: F12 -> Console -> document.body.innerText.includes("‒") */
+(function(){const RE=/(^|[^A-Za-z])n\/d(?![A-Za-z])/g,ND="$1‒";
+ const fix=t=>{if(t.nodeValue&&t.nodeValue.indexOf("n/d")>=0)t.nodeValue=t.nodeValue.replace(RE,ND);};
+ const giro=r=>{if(!r)return;if(r.nodeType==3)return fix(r);if(r.nodeType!=1||r.closest&&r.closest("script,style,textarea"))return;
+  const w=document.createTreeWalker(r,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode())fix(n);};
+ const via=()=>{giro(document.body);new MutationObserver(ms=>{for(const m of ms){if(m.type=="characterData")fix(m.target);else m.addedNodes.forEach(giro);}})
+  .observe(document.body,{childList:true,subtree:true,characterData:true});};
+ if(document.body)via();else document.addEventListener("DOMContentLoaded",via);})();
 const c2=v=>{const t=v.toFixed(2);return t=="-0.00"?"0.00":t;};const c1=v=>{const t=v.toFixed(1);return t=="-0.0"?"0.0":t;};
 const verb=s=>s>=20?["COMPRANO","up","▲"]:s<=-20?["VENDONO","down","▼"]:["neutri","flat","■"];
 // v7.42 ETICHETTE DI POSIZIONAMENTO: nei dati restano BUY/SELL (cosi' regole e registro non cambiano), in pagina si
@@ -193,6 +205,10 @@ window.addEventListener("unhandledrejection",ev=>{window.__errori.push({sezione:
    finte sfocate (la forma del contenuto, mai i dati veri). Il pulsante apre la richiesta Premium (26_feedback.js). */
 const EB_PREMIUM=!!D.premium;
 const LUCCHETTO='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/><circle cx="12" cy="15.5" r="1.4"/></svg>';
+/* v9.82 SAGOMA DI CARICAMENTO comune (Ya, 28/11/2026: "alcune schede non hanno l'effetto skeleton, doveva essere la
+   base del precaricamento"). ebSk(righe, altezza riga, con titolo) -> HTML di barre grigie che scorrono (classe .sk),
+   da mettere al posto di "Caricamento…" in ogni riquadro che aspetta dati da un file. */
+function ebSk(righe=4,h=44,tit=true){return `<div class="eb-sk" aria-busy="true" aria-label="Caricamento">${tit?'<i class="sk" style="width:38%;height:18px;margin-bottom:14px"></i>':""}${Array.from({length:righe},(_,i)=>`<i class="sk" style="width:${100-(i%3)*9}%;height:${h}px;margin-bottom:10px"></i>`).join("")}</div>`;}
 function ebBlocco(tit,txt,o){o=o||{};
  const fondo=o.velo?`<div class="plk-fondo" aria-hidden="true">${Array(o.righe||5).fill(0).map((_,i)=>`<i style="width:${[92,78,86,70,82,74,88][i%7]}%"></i>`).join("")}</div>`:"";
  return `<div class="card plk${o.velo?" plk-velo":""}${o.cls?" "+o.cls:""}">${fondo}<div class="plk-in"><span class="plk-ico">${LUCCHETTO}</span>

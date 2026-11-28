@@ -94,7 +94,7 @@ try{(function(){const el=$("stag");if(!el)return;
   if(!I||!I.simboli||!I.simboli.length){box.innerHTML=`<div class="card sr-vuota"><h3>Ora di Roma</h3><p class="small">Lo storico orario &egrave; in download (17 anni di dati per il forex): le tabelle compaiono qui da sole appena pronte.</p></div>`;return;}
   const opz=Object.keys(FASI).map(f=>{const s=I.simboli.filter(x=>x.f==f);return s.length?`<optgroup label="${FASI[f]}">${s.map(x=>`<option value="${esc(x.s)}"${x.s==R.sel?" selected":""}>${esc(x.n)}</option>`).join("")}</optgroup>`:"";}).join("");
   const meta=I.simboli.find(x=>x.s==R.sel)||{};
-  let corpo='<p class="small sr-car">Caricamento&hellip;</p>';
+  let corpo=ebSk(5,40,false);                              // v9.82 sagoma al posto di "Caricamento…"
   // v7.64 strumenti con meno di 10 anni di candele orarie (dati giornalieri da Yahoo): solo Giornaliero/Settimanale/Mensile
   const soloG=!!(X&&(X.solo_giorni||!X.ora));if(soloG&&R.vista=="ora")R.vista="giorno";
   if(X){const cO=(X.ora||{})[String(a.wd)]||{},ora=cO[String(a.ora)];
@@ -133,6 +133,7 @@ try{(function(){const el=$("stag");if(!el)return;
   // v7.93 Basic: la stagionalita' oraria (ora, giorno, settimana in ora di Roma) e' dettaglio Premium
   if(!EB_PREMIUM&&window.EB_CHIUSE){box.remove();return;}   // v8.07 scheda Stagionalita' chiusa al Basic: un solo lucchetto (45_chiuse.js)
   if(!EB_PREMIUM){box.innerHTML=ebBlocco("Stagionalità in ora di Roma","Ora per ora, giorno per giorno e mese per mese, con gli effetti affidabili.",{velo:true,righe:4});return;}
+  box.innerHTML=ebSk(6,40);                                // v9.82 sagoma mentre arriva l'elenco degli strumenti
   fetch(BASE+"indice.json").then(r=>r.ok?r.json():null).then(j=>{R.idx=j;if(j&&j.simboli&&j.simboli.length){if(!j.simboli.some(x=>x.s==R.sel))R.sel=j.simboli[0].s;carica();}else disegna();}).catch(()=>{R.idx=null;disegna();});};
  const vis=()=>{if(el.offsetParent!==null)avvia();};
  new MutationObserver(vis).observe(el,{attributes:true,attributeFilter:["class","style"]});document.addEventListener("click",()=>setTimeout(vis,50));vis();

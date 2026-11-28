@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-29T06",t:"Caricamento più pulito",x:"Mentre arrivano i dati, Stagionalità, Notizie, Magnifiche 7 e grafici mostrano la sagoma della scheda. Un dato non ancora arrivato si vede come un trattino.",s:""},
   {d:"2026-11-29T05",t:"Aggiornamento grafici",x:"Speculatori sempre completi nel grafico: fasce verticali e posizione degli ultimi anni, anche quando i dati arrivano dopo l'apertura.",s:""},
   {d:"2026-11-29T04",t:"Aggiornamento scheda Dashboard",x:"La Selezione di oggi ora è tradotta anche in inglese.",s:"sig"},
   {d:"2026-11-29T03",t:"Nuova ricerca in alto",x:"Scrivi un titolo, un paese o una valuta: i risultati compaiono sotto il campo e un clic apre la scheda. La stellina lo aggiunge alla watchlist.",s:""},
