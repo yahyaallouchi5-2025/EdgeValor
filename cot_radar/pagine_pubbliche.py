@@ -149,9 +149,37 @@ METODO = f"""
 FAQ = ('<div class="titsez"><small>Domande frequenti</small><h1>Le risposte, prima di entrare.</h1></div><div class="faq">__FAQ__' +
        f'</div><div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="{TG}" target="_blank" rel="noopener">Iscriviti al canale Telegram</a></div>')
 
+# v9.70 CHI SIAMO (Ya, 28/11/2026): chi c'e' dietro, cosa fa il terminale e cosa NON e'. Serve a chi arriva da un motore di
+#       ricerca o da un assistente AI e vuole sapere se il sito e' serio. "__CHI__" = la presentazione del fondatore, presa
+#       dalla home in crea() (una sola fonte per testo e foto).
+CHI = f"""
+<div class="titsez"><small>Chi siamo</small><h1>Un terminale di dati, con un nome e un volto.</h1>
+ <p>EdgeValor è un progetto italiano indipendente. Raccoglie dati pubblici sui mercati e li mette in ordine, in un solo posto.</p></div>
+__CHI__
+<div class="sez2"><h2>Cosa fa il terminale</h2><p>Ogni indicatore è provato sullo storico prima di entrare.</p>
+ <div class="per">
+  <div class="dato"><b>Portafogli modello</b><p>Tre profili di rischio provati dal 2006, con un controllo al mese e il drawdown sempre accanto al rendimento.</p></div>
+  <div class="dato"><b>Quadro dei mercati</b><p>Clima di mercato, fase delle grandi economie, tassi, posizioni dei grandi operatori dal report COT.</p></div>
+  <div class="dato"><b>Aziende e stagionalità</b><p>Azionario per settore, schede delle aziende e comportamento storico degli strumenti nei mesi dell'anno.</p></div>
+ </div></div>
+<div class="sez2"><h2>Cosa non è</h2>
+ <div class="per">
+  <div class="dato"><b>Non è un servizio di segnali</b><p>È uno strumento di dati. Non dice cosa comprare o vendere: mostra i numeri e come sono stati calcolati.</p></div>
+  <div class="dato"><b>Non è consulenza</b><p>Nessuna raccomandazione personalizzata. Ogni decisione resta di chi investe.</p></div>
+  <div class="dato"><b>Non promette rendimenti</b><p>I risultati passati non garantiscono quelli futuri. I mesi negativi restano scritti come quelli positivi.</p></div>
+ </div></div>
+<div class="sez2"><h2>Da dove arrivano i dati</h2>
+ <p>CFTC, Federal Reserve, Banca Centrale Europea, Fondo Monetario Internazionale, OCSE, BIS e prezzi di borsa. <a href="/legale/#fonti">Elenco delle fonti</a></p></div>
+<div class="sez2"><h2>Contatti</h2>
+ <p>Scrivi al fondatore su Telegram: <a href="https://t.me/Yahya_1294" target="_blank" rel="noopener">@Yahya_1294</a>. Le analisi settimanali escono sul <a href="{TG}" target="_blank" rel="noopener">canale Telegram</a>. Per segnalazioni e richieste: <a href="/legale/#contatti">contatti</a>.</p></div>
+<div class="fine"><a class="btn pri" href="/accedi/">{FRECCIA}Inizia la prova</a><a class="btn sec" href="/metodo/">Leggi il metodo</a></div>
+"""
+CSS_CHI = ".pag .chialtro summary{display:none}.sez2 p a{color:var(--acc)}.pag .chi{margin-top:8px}.pag .sez2 .per{margin-top:28px}"
+
 PAGINE = {"prezzi": ("Prezzi · EdgeValor", f"Prova Premium gratis per {PROVA} giorni, senza carta. Poi Basic oppure Premium a {eu(MENSILE)} € al mese o {eu(ANNUALE)} € al mese con il piano annuale.", PREZZI),
           "accedi": ("Accedi o registrati · EdgeValor", f"Entra nel terminale EdgeValor con la tua email: nessuna password, {PROVA} giorni di Premium in prova.", ACCEDI),
           "metodo": ("Il metodo · EdgeValor", "Come nascono i portafogli modello di EdgeValor: dati pubblici, filtro di trend, prova su vent'anni di storico e rotazione mensile.", METODO),
+          "chi-siamo": ("Chi siamo · EdgeValor", "Chi c'è dietro EdgeValor: il fondatore Yahya Allouchi, cosa fa il terminale, da dove arrivano i dati e come contattarci. Uno strumento di dati, non un servizio di segnali.", CHI),
           "faq": ("Domande frequenti · EdgeValor", "Cos'è EdgeValor, cosa analizza (report COT, stagionalità, correlazioni, azionario, macro, paesi del mondo), canale Telegram, prezzi e rischi.", FAQ)}
 
 
@@ -248,6 +276,15 @@ def scrivi(cartella, percorso, titolo, desc, corpo, testa, piede, qui="", extra=
     return SITO_PUBBLICO + percorso + "/"
 
 
+def fondatore(home):
+    """Il riquadro "Il fondatore" della home (<div class="chi ...">), con il testo tutto aperto. "" se la home non lo ha."""
+    m = re.search(r'<div class="chi appare">.*?</details></div>\s*</div>', home, re.S)
+    if not m:
+        log.warning("chi siamo: riquadro del fondatore non trovato nella home")
+        return ""
+    return m.group(0).replace('class="chi appare"', 'class="chi"').replace('<details class="chialtro">', '<details class="chialtro" open>')
+
+
 def crea(cartella, home):
     """Scrive le 4 pagine in cartella/<nome>/index.html partendo dall'HTML della home. -> elenco degli indirizzi (sitemap)."""
     c = cornice(home)
@@ -261,6 +298,12 @@ def crea(cartella, home):
     for nome, (titolo, desc, corpo) in PAGINE.items():
         corpo = corpo.replace("__FAQ__", domande.html(aperta=True))
         head = domande.dati_strutturati() if nome == "faq" else ""        # v8.30 FAQPage anche su /faq/
+        css = ""
+        if nome == "chi-siamo":                                  # v9.70 presentazione del fondatore presa dalla home, tutta aperta
+            corpo, css = corpo.replace("__CHI__", fondatore(home)), CSS_CHI
+            head = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"AboutPage","url":"' + SITO_PUBBLICO +
+                    'chi-siamo/","name":"Chi siamo","inLanguage":"it","about":{"@id":"https://edgevalor.com/#org"},'
+                    '"mainEntity":{"@id":"https://edgevalor.com/#fondatore"}}</script>')
         if nome == "prezzi":                                     # v9.18 campagna stagionale: striscia e offerta per Google
             from . import campagne
             c = campagne.in_vista()
@@ -268,7 +311,7 @@ def crea(cartella, home):
             head += campagne.dati_strutturati(c, MENSILE, ANNUALE * 12)
             if c and c["da"] <= datetime.now(ZoneInfo("Europe/Rome")):
                 desc = f"{c['nome']}: " + campagne._testi(c)[0]
-        fatte.append(scrivi(cartella, nome, titolo, desc, corpo, testa, piede, qui=nome, extra=extra.get(nome, ""), head=head))
+        fatte.append(scrivi(cartella, nome, titolo, desc, corpo, testa, piede, qui=nome, extra=extra.get(nome, ""), head=head, css=css))
     # v9.28 disiscrizione dalle offerte: pagina scritta ma NON restituita (fuori dalla sitemap) e fuori da Google
     scrivi(cartella, "offerte", "Email con le offerte · EdgeValor", "Scegli se ricevere le email con le offerte di EdgeValor.",
            OFFERTE, testa, piede, extra=JS_OFFERTE.replace("__API__", SUPABASE_URL), css=CSS_OFFERTE,
