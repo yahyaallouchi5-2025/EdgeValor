@@ -47,25 +47,28 @@ try{(function(){const el=$("topaz");if(!el)return;
   // v7.93 Basic: la Selezione di oggi (nomi delle azioni con l'edge) e' Premium
   // v8.65 (Ya, 22/11/2026): il Basic vede le prime 2 aziende (premium.py manda solo quelle); le altre restano Premium.
   //   Per il Basic niente collegamenti alle schede complete delle aziende (chiuse): i pulsanti aprono l'offerta Premium.
-  const BASIC=!EB_PREMIUM,T=d.titoli||[];
-  if(BASIC&&!T.length){el.innerHTML=ebBlocco("Le azioni di oggi","Le aziende che superano tutti i filtri di trend, forza e stagionalità, ricalcolate ogni sera.",{velo:true,righe:5});return;}const mese=MESI[(d.mese||oggiRoma().m+1)-1];
-  if(!T.length){el.innerHTML=`<div class="card tz"><div class="tztesta"><div><span class="tzchip">Selezione di oggi</span><h3>Le azioni pi&ugrave; forti</h3></div></div><p class="small" style="margin:8px 0 0">Oggi nessun titolo supera tutti i filtri: la selezione torna appena trend, forza e stagionalit&agrave; si allineano.</p></div>`;apriSc();return;}
-  const slide=(t,i)=>`<article class="tzs${i?"":" on"}" data-i="${i}" aria-roledescription="slide" aria-label="${i+1} di ${T.length}">
-   <div class="tzinfo"><span class="tzpos">#${i+1} di ${T.length} &middot; ${esc((d.settori||{})[t.s]||t.s)}</span>
+  // v9.80 (Ya, 28/11/2026: "passo all'inglese e la Selezione di oggi resta in italiano") testi in due lingue.
+  //   Qui T e' l'elenco dei titoli (non la funzione di traduzione), quindi si sceglie con EN.
+  const BASIC=!EB_PREMIUM,T=d.titoli||[],EN=typeof EB_LANG!="undefined"&&EB_LANG=="en",L=(it,en)=>EN?en:it;
+  const MESI_EN=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  if(BASIC&&!T.length){el.innerHTML=ebBlocco(L("Le azioni di oggi","Today's stocks"),L("Le aziende che superano tutti i filtri di trend, forza e stagionalità, ricalcolate ogni sera.","Companies that pass every trend, strength and seasonality filter, recalculated every evening."),{velo:true,righe:5});return;}const mese=(EN?MESI_EN:MESI)[(d.mese||oggiRoma().m+1)-1];
+  if(!T.length){el.innerHTML=`<div class="card tz"><div class="tztesta"><div><span class="tzchip">${L("Selezione di oggi","Today's selection")}</span><h3>${L("Le azioni pi&ugrave; forti","The strongest stocks")}</h3></div></div><p class="small" style="margin:8px 0 0">${L("Oggi nessun titolo supera tutti i filtri: la selezione torna appena trend, forza e stagionalit&agrave; si allineano.","Today no stock passes every filter: the selection returns as soon as trend, strength and seasonality line up.")}</p></div>`;apriSc();return;}
+  const slide=(t,i)=>`<article class="tzs${i?"":" on"}" data-i="${i}" aria-roledescription="slide" aria-label="${i+1} ${L("di","of")} ${T.length}">
+   <div class="tzinfo"><span class="tzpos">#${i+1} ${L("di","of")} ${T.length} &middot; ${esc((d.settori||{})[t.s]||t.s)}</span>
     <h4>${esc(t.n)}</h4><span class="small">${esc(t.t)} &middot; ${t.l.map(x=>esc((d.listini||{})[x]||x)).join(", ")}</span>
     <div class="tzprz"><b>${prezzo(t.p,t.val)}</b><span class="${(t.v1g||0)>=0?"up":"down"}">${pc(t.v1g,2)}</span></div></div>
    <ul class="tzperche">
-    <li><i class="ok"></i><span>Ultimi 12 mesi <b class="up">${pc(t.v1a)}</b>, ultimi 3 mesi <b class="up">${pc(t.v3m)}</b></span></li>
-    <li><i class="ok"></i><span>Sopra la media a 200 giorni del <b>${fx(t.t200,1)}%</b>${t.dmax!=null?` &middot; ${t.dmax>-0.5?"sui massimi dell'anno":"a "+fx(-t.dmax,1)+"% dal massimo dell'anno"}`:""}</span></li>
-    <li><i class="ok"></i><span>${mese[0].toUpperCase()+mese.slice(1)} positivo nel <b>${t.st_pos}%</b> degli anni (${t.st_n} anni, media <b>${pc(t.st_media)}</b>)</span></li></ul>
-   <div class="tzdx">${anello(t.pt)}<div class="tzgraf">${spark(t.sp)}<span class="small">ultimo anno</span></div>
-    ${BASIC?`<button class="tzapri tzprem" data-premium>Scheda completa con Premium <span aria-hidden="true">&rarr;</span></button>`
-     :`<button class="tzapri" data-t="${esc(t.t)}">Apri grafico e stagionalit&agrave; <span aria-hidden="true">&rarr;</span></button>`}</div></article>`;
-  el.innerHTML=`<div class="card tz" tabindex="0" aria-roledescription="carosello" aria-label="Le azioni pi&ugrave; forti di oggi">
-   <div class="tztesta"><div><span class="tzchip"><i></i>Selezione di oggi</span><h3>Le ${T.length} azioni pi&ugrave; forti <details class="info tzinf"><summary title="Da dove vengono" aria-label="Da dove vengono">i</summary><div>Solo titoli che si comprano davvero in euro su Scalable: <b>Wall Street ed Europa continentale</b>. Londra (imposta di bollo dello 0,5% in acquisto), Toronto, Sydney e Asia restano nell'Azionario per l'analisi ma non entrano qui n&eacute; nei portafogli. Le seconde quotazioni della stessa societ&agrave; (es. ASML ad Amsterdam e al Nasdaq) contano una volta sola.</div></details></h3>
-    <span class="small">Una per settore, solo lato acquisto &middot; dati al ${gg(d.aggiornato)}</span></div>
-    <div class="tzcom"><button class="tzfr" data-v="-1" aria-label="Precedente">&lsaquo;</button><div class="tzdots">${T.map((t,i)=>`<button class="${i?"":"on"}" data-i="${i}" aria-label="${esc(t.n)}"><i></i></button>`).join("")}</div><button class="tzfr" data-v="1" aria-label="Successiva">&rsaquo;</button>
-     ${BASIC?`<button class="tzvedi" data-premium>Tutte con Premium</button>`:`<button class="tzvedi">Classifica completa</button>`}</div></div>
+    <li><i class="ok"></i><span>${L("Ultimi 12 mesi","Last 12 months")} <b class="up">${pc(t.v1a)}</b>, ${L("ultimi 3 mesi","last 3 months")} <b class="up">${pc(t.v3m)}</b></span></li>
+    <li><i class="ok"></i><span>${L("Sopra la media a 200 giorni del","Above the 200-day average by")} <b>${fx(t.t200,1)}%</b>${t.dmax!=null?` &middot; ${t.dmax>-0.5?L("sui massimi dell'anno","at the year's high"):L("a "+fx(-t.dmax,1)+"% dal massimo dell'anno",fx(-t.dmax,1)+"% from the year's high")}`:""}</span></li>
+    <li><i class="ok"></i><span>${mese[0].toUpperCase()+mese.slice(1)} ${L("positivo nel","positive in")} <b>${t.st_pos}%</b> ${L("degli anni","of years")} (${t.st_n} ${L("anni, media","years, average")} <b>${pc(t.st_media)}</b>)</span></li></ul>
+   <div class="tzdx">${anello(t.pt)}<div class="tzgraf">${spark(t.sp)}<span class="small">${L("ultimo anno","last year")}</span></div>
+    ${BASIC?`<button class="tzapri tzprem" data-premium>${L("Scheda completa con Premium","Full page with Premium")} <span aria-hidden="true">&rarr;</span></button>`
+     :`<button class="tzapri" data-t="${esc(t.t)}">${L("Apri grafico e stagionalit&agrave;","Open chart and seasonality")} <span aria-hidden="true">&rarr;</span></button>`}</div></article>`;
+  el.innerHTML=`<div class="card tz" tabindex="0" aria-roledescription="carosello" aria-label="${L("Le azioni pi&ugrave; forti di oggi","Today's strongest stocks")}">
+   <div class="tztesta"><div><span class="tzchip"><i></i>${L("Selezione di oggi","Today's selection")}</span><h3>${L(`Le ${T.length} azioni pi&ugrave; forti`,`The ${T.length} strongest stocks`)} <details class="info tzinf"><summary title="${L("Da dove vengono","Where they come from")}" aria-label="${L("Da dove vengono","Where they come from")}">i</summary><div>${L("Solo titoli che si comprano davvero in euro su Scalable: <b>Wall Street ed Europa continentale</b>. Londra (imposta di bollo dello 0,5% in acquisto), Toronto, Sydney e Asia restano nell'Azionario per l'analisi ma non entrano qui n&eacute; nei portafogli. Le seconde quotazioni della stessa societ&agrave; (es. ASML ad Amsterdam e al Nasdaq) contano una volta sola.","Only stocks you can actually buy in euro on Scalable: <b>Wall Street and continental Europe</b>. London (0.5% stamp duty on purchases), Toronto, Sydney and Asia stay in Stocks for analysis but do not enter here or the portfolios. Second listings of the same company (e.g. ASML in Amsterdam and on the Nasdaq) count once.")}</div></details></h3>
+    <span class="small">${L("Una per settore, solo lato acquisto &middot; dati al","One per sector, buy side only &middot; data as of")} ${gg(d.aggiornato)}</span></div>
+    <div class="tzcom"><button class="tzfr" data-v="-1" aria-label="${L("Precedente","Previous")}">&lsaquo;</button><div class="tzdots">${T.map((t,i)=>`<button class="${i?"":"on"}" data-i="${i}" aria-label="${esc(t.n)}"><i></i></button>`).join("")}</div><button class="tzfr" data-v="1" aria-label="${L("Successiva","Next")}">&rsaquo;</button>
+     ${BASIC?`<button class="tzvedi" data-premium>${L("Tutte con Premium","All with Premium")}</button>`:`<button class="tzvedi">${L("Classifica completa","Full ranking")}</button>`}</div></div>
    <div class="tzbox">${T.map(slide).join("")}</div></div>`;
   const box=el.querySelector(".tz"),sl=[...el.querySelectorAll(".tzs")],dots=[...el.querySelectorAll(".tzdots button")];
   let cur=0,tm=null,inizio=0,pausa=false;
