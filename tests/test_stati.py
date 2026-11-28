@@ -23,13 +23,13 @@ class TestMotore(unittest.TestCase):
 
     def test_seme_registra_il_cambio_con_la_sua_data(self):
         reg = stati._vuoto()
-        n = stati.applica(reg, oss("Recessione", seme={"prima": "Stagflazione", "dal": "2026-09-01"}), "2026-11-28")
+        n = stati.applica(reg, oss("Rallentamento", seme={"prima": "Stagflazione", "dal": "2026-09-01"}), "2026-11-28")
         self.assertEqual(len(n), 1)
-        self.assertEqual((n[0]["prima"], n[0]["dopo"], n[0]["d"], n[0]["seme"]), ("Stagflazione", "Recessione", "2026-09-01", True))
+        self.assertEqual((n[0]["prima"], n[0]["dopo"], n[0]["d"], n[0]["seme"]), ("Stagflazione", "Rallentamento", "2026-09-01", True))
         self.assertEqual(reg["stati"]["clima"]["dal"], "2026-09-01")
         self.assertEqual(reg["stati"]["clima"]["prima"], "Stagflazione")
         # il giro dopo non lo ripete
-        self.assertEqual(stati.applica(reg, oss("Recessione", seme={"prima": "Stagflazione", "dal": "2026-09-01"}), "2026-11-29"), [])
+        self.assertEqual(stati.applica(reg, oss("Rallentamento", seme={"prima": "Stagflazione", "dal": "2026-09-01"}), "2026-11-29"), [])
         self.assertEqual(len(reg["cambi"]), 1)
 
     def test_conferma_tre_giorni_diversi(self):
@@ -90,8 +90,8 @@ class TestMotore(unittest.TestCase):
 
 class TestOsserva(unittest.TestCase):
     QUADRO = {"economie": [
-        {"id": "aus", "nome": "Australia", "regime": "Recessione", "allarme": True,
-         "cambio": {"prima": "Stagflazione", "dopo": "Recessione", "mese": "2026-08"}},
+        {"id": "aus", "nome": "Australia", "regime": "Rallentamento", "allarme": True,
+         "cambio": {"prima": "Stagflazione", "dopo": "Rallentamento", "mese": "2026-08"}},
         {"id": "usa", "nome": "USA", "regime": "Ripresa", "allarme": False},
         {"id": "jpn", "nome": "Giappone", "regime": "Stagflazione"}],          # senza dato sulla disoccupazione
         "modalita": {"modo": "NORMALE", "prima": "PESSIMISMO", "conf": "2026-11-10", "da": "2026-11-02"},
@@ -99,7 +99,7 @@ class TestOsserva(unittest.TestCase):
 
     def test_tutti_gli_indicatori(self):
         o = {x["k"]: x for x in stati.osserva(self.QUADRO, {"risk": -97}, {"politica": {"EUR": {"stato": "taglio"}, "JPY": {"stato": "boh"}}})}
-        self.assertEqual(o["ciclo:aus"]["stato"], "Recessione")
+        self.assertEqual(o["ciclo:aus"]["stato"], "Rallentamento")
         self.assertEqual(o["ciclo:aus"]["seme"], {"prima": "Stagflazione", "dal": "2026-09-01"})
         self.assertEqual(o["ciclo:usa"]["stato"], "Ripresa")
         self.assertIsNone(o["ciclo:usa"]["seme"])
@@ -156,6 +156,23 @@ class TestVistaESalvataggio(unittest.TestCase):
         pub, _ = stati.aggiorna(None, quadro=TestOsserva.QUADRO, oggi="2026-11-28")
         self.assertEqual(pub["stati"]["ciclo:aus"]["dal"], "2026-09-01")
         self.assertIsNone(stati._in_attesa)
+
+    def test_nome_cambiato_non_crea_un_cambio(self):
+        # v9.68 "Recessione" e' diventata "Rallentamento": nel registro salvato si riscrive il nome, nessun cambio finto
+        with tempfile.TemporaryDirectory() as d:
+            vecchio = {"v": 1, "agg": "2026-11-28", "stati": {"ciclo:aus": {"nome": "Ciclo economico Australia", "gruppo": "ciclo",
+                       "stato": "Recessione", "dal": "2026-09-01", "prima": "Stagflazione"},
+                       "allarme:aus": {"nome": "Allarme", "gruppo": "allarme", "stato": "Acceso", "dal": "2026-11-28"}},
+                       "cambi": [{"k": "ciclo:aus", "nome": "Ciclo economico Australia", "gruppo": "ciclo", "prima": "Stagflazione",
+                                  "dopo": "Recessione", "d": "2026-09-01", "seme": True}]}
+            with open(os.path.join(d, stati.FILE), "w", encoding="utf-8") as fh:
+                json.dump(vecchio, fh)
+            reg = stati.leggi(d)
+            self.assertEqual(reg["stati"]["ciclo:aus"]["stato"], "Rallentamento")
+            self.assertEqual(reg["cambi"][0]["dopo"], "Rallentamento")
+            nuovi = stati.applica(reg, [{"k": "ciclo:aus", "nome": "Ciclo economico Australia", "gruppo": "ciclo", "stato": "Rallentamento"}], "2026-11-29")
+            self.assertEqual(nuovi, [])
+            self.assertEqual(reg["stati"]["ciclo:aus"]["dal"], "2026-09-01")
 
     def test_file_rovinato_non_blocca(self):
         with tempfile.TemporaryDirectory() as d:

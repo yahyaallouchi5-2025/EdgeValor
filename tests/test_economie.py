@@ -22,7 +22,7 @@ class FaseEconomia(unittest.TestCase):
         self.assertEqual(EC.fase(su, scende, None)["regime"], "Ripresa")
         self.assertEqual(EC.fase(su, sale, None)["regime"], "Espansione")
         self.assertEqual(EC.fase(giu, sale, None)["regime"], "Stagflazione")
-        self.assertEqual(EC.fase(giu, scende, None)["regime"], "Recessione")
+        self.assertEqual(EC.fase(giu, scende, None)["regime"], "Rallentamento")
         self.assertIsNone(EC.fase({}, sale, None))
 
     def test_allarme_sahm(self):
@@ -67,3 +67,35 @@ class Cache(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSogliaCrescita(unittest.TestCase):
+    """v9.68 soglia minima sulla crescita (economie.SOGLIA_CLI): un movimento a 3 mesi dentro +/-0,10 non cambia direzione."""
+
+    def _serie(self, valori, da=(2025, 1)):
+        a, m = da
+        out = {}
+        for v in valori:
+            out["%04d-%02d" % (a, m)] = v
+            a, m = (a + 1, 1) if m == 12 else (a, m + 1)
+        return out
+
+    def test_movimento_piccolo_tiene_la_direzione_di_prima(self):
+        # sale forte, poi scende di 0,08 in 3 mesi (il caso dell'Australia): la crescita resta "su"
+        cli = self._serie([99.0, 99.3, 99.6, 99.9, 100.2, 100.2, 100.15, 100.12])
+        d = EC.direzione(cli)
+        self.assertTrue(d["2025-05"])
+        self.assertTrue(d["2025-08"])                      # 100.12 - 100.2 = -0.08: dentro la soglia
+        cli["2025-09"] = 99.9                              # 99.9 - 100.2 = -0.3: oltre la soglia
+        self.assertFalse(EC.direzione(cli)["2025-09"])
+
+    def test_primo_mese_decide_il_segno(self):
+        self.assertFalse(EC.direzione(self._serie([100.0, 100.0, 100.0, 99.95]))["2025-04"])
+        self.assertTrue(EC.direzione(self._serie([100.0, 100.0, 100.0, 100.05]))["2025-04"])
+
+    def test_fase_segna_la_crescita_ferma(self):
+        cli = self._serie([100.0] * 9 + [100.05])
+        cpi = self._serie([2.0] * 10)
+        f = EC.fase(cli, cpi, None)
+        self.assertTrue(f["ferma"])
+        self.assertIn(f["regime"], ("Ripresa", "Rallentamento"))

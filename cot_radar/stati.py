@@ -19,7 +19,7 @@ REGOLE (uguali per tutti, in un posto solo)
      compare in cima il giorno in cui succede. Nel registro resta anche "visto_dal" (primo giorno osservato).
   3) PRIMA VOLTA che si vede un indicatore: si scrive lo stato senza creare un cambio (niente raffica di avvisi alla
      partenza). Eccezione: il "seme", cioe' il cambio che la fonte conosce gia' con la sua data (es. economie.py:
-     "Stagflazione -> Recessione, agosto 2026"): si registra con QUELLA data, cosi' lo storico non parte vuoto.
+     "Stagflazione -> Rallentamento, agosto 2026"): si registra con QUELLA data, cosi' lo storico non parte vuoto.
   4) Dato mancante (stato None) = non si tocca niente: mai un cambio inventato da una fonte che non risponde.
   5) Il registro si scrive SOLO dopo che l'aggiornamento e' stato approvato (main.py -> stati.salva(), come
      registro.salva): un giro con dati sospetti non lascia cambi finti.
@@ -65,13 +65,29 @@ def leggi(cartella=None):
         with open(os.path.join(cartella, FILE), encoding="utf-8") as fh:
             r = json.load(fh)
         if isinstance(r, dict) and isinstance(r.get("stati"), dict) and isinstance(r.get("cambi"), list):
-            return r
+            return _rinomina(r)
         log.warning("stati.json con formato inatteso: riparto da vuoto")
     except FileNotFoundError:
         pass
     except (OSError, ValueError) as e:
         log.warning("stati.json non letto (%s): riparto da vuoto", type(e).__name__)
     return _vuoto()
+
+
+# v9.68 nomi cambiati senza cambiare lo stato: nel registro si riscrivono, cosi' NON nasce un cambio finto
+#   ("Recessione -> Rallentamento" sarebbe solo un'etichetta diversa). {gruppo: {vecchio: nuovo}}
+RINOMINATI = {"ciclo": {"Recessione": "Rallentamento"}}
+
+
+def _rinomina(reg):
+    for x in list(reg["stati"].values()) + reg["cambi"]:
+        m = RINOMINATI.get(x.get("gruppo")) or {}
+        for campo in ("stato", "prima", "dopo"):
+            if x.get(campo) in m:
+                x[campo] = m[x[campo]]
+        if isinstance(x.get("attesa"), dict) and x["attesa"].get("stato") in m:
+            x["attesa"]["stato"] = m[x["attesa"]["stato"]]
+    return reg
 
 
 def salva():

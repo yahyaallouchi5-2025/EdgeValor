@@ -7,7 +7,8 @@ STESSA REGOLA PER TUTTE (cosi' si confrontano tra loro)
   crescita SU    = indicatore anticipatore OCSE (CLI, "amplitude adjusted") piu' alto di 3 mesi prima
                    (Eurozona: media di Germania, Francia, Italia e Spagna pesata per il PIL)
   inflazione SU  = inflazione annua piu' alta di 6 mesi prima (BIS; USA da FRED)
-  -> Ripresa (su, giu'), Espansione (su, su), Stagflazione (giu', su), Recessione (giu', giu')  [quadro.REGIMI]
+  -> Ripresa (su, giu'), Espansione (su, su), Stagflazione (giu', su), Rallentamento (giu', giu')  [quadro.REGIMI]
+     (v9.68: "Rallentamento" si chiamava "Recessione"; la crescita ha una soglia minima, vedi SOGLIA_CLI)
   ALLARME RECESSIONE = regola di Sahm sulla disoccupazione (OCSE; USA da FRED) >= 0,5 punti;
                        per gli USA anche curva 10-2 invertita + spread high yield in salita (quadro.stato)
 
@@ -160,6 +161,27 @@ def solo_mesi(serie):
 
 
 CONFERMA_MESI = 2
+# v9.68 (Ya, 28/11/2026: "Australia in recessione? Non credo") SOGLIA MINIMA SULLA CRESCITA.
+#   Prima bastava un movimento qualsiasi dell'indicatore OCSE per dire "crescita giu'": l'Australia era passata di fase
+#   con -0,08 punti in 3 mesi, cioe' praticamente ferma. Ora un movimento a 3 mesi dentro +/-SOGLIA_CLI NON cambia la
+#   direzione: resta quella di prima (isteresi). Misura sullo storico OCSE (dal 1960, 6 economie): meta' dei movimenti
+#   a 3 mesi supera 0,3-0,45 punti, un quarto sta sotto 0,13-0,21; con la soglia a 0,10 i cambi di direzione scendono
+#   del 15-25% (USA 71 -> 59, Australia 65 -> 49, Giappone 65 -> 50, Germania 61 -> 47): spariscono i passaggi da rumore.
+SOGLIA_CLI = 0.10
+
+
+def direzione(cli, soglia=SOGLIA_CLI):
+    """{mese: True se la crescita sale} con la soglia minima: variazione a 3 mesi oltre +soglia = sale, sotto -soglia =
+    scende, in mezzo = resta la direzione del mese prima (al primo mese disponibile decide il segno)."""
+    out, prec = {}, None
+    for m in sorted(cli):
+        m3 = Q.mm(m, -3)
+        if m3 not in cli:
+            continue
+        d = cli[m] - cli[m3]
+        prec = True if d > soglia else False if d < -soglia else (prec if prec is not None else d > 0)
+        out[m] = prec
+    return out
 
 
 def fase(cli, cpi, une, oggi_mese=None):
@@ -170,7 +192,8 @@ def fase(cli, cpi, une, oggi_mese=None):
     m_cli = max(cli)
     m_cpi = max(cpi)
     try:
-        cresce = cli[m_cli] > cli[Q.mm(m_cli, -3)]
+        dire = direzione(cli)                           # v9.68 con la soglia minima (SOGLIA_CLI)
+        cresce = dire[m_cli]
         sale = cpi[m_cpi] > cpi[Q.mm(m_cpi, -6)]
     except KeyError:
         return None
@@ -179,13 +202,14 @@ def fase(cli, cpi, une, oggi_mese=None):
     out = {"regime": Q.REGIMI[(cresce, sale)], "cresce": cresce, "sale": sale, "tipo_infl": tipo,
            "mese": min(m_cli, m_cpi), "mese_cli": m_cli, "mese_cpi": m_cpi,
            "cli": round(cli[m_cli], 2), "cli3": round(cli[Q.mm(m_cli, -3)], 2),
+           "ferma": abs(cli[m_cli] - cli[Q.mm(m_cli, -3)]) <= SOGLIA_CLI,     # v9.68 movimento dentro la soglia
            "infl": round(infl, 1), "infl6": round(infl6, 1)}
     # v8.44 ULTIMO CAMBIO DI FASE CONFERMATO (avviso nelle Novita'): la fase del mese deve restare uguale CONFERMA_MESI
     #   mesi di fila (studi/risultati_conferma_stati.txt: con 2 mesi i cambi che durano meno di 3 mesi scendono dal
     #   43% al 10%). Solo per l'avviso: la scheda mostra sempre la fase di oggi.
     try:
-        storia = [(m, Q.REGIMI[(cli[m] > cli[Q.mm(m, -3)], cpi[m] > cpi[Q.mm(m, -6)])])
-                  for m in sorted(cli) if m in cpi and Q.mm(m, -3) in cli and Q.mm(m, -6) in cpi][-36:]
+        storia = [(m, Q.REGIMI[(dire[m], cpi[m] > cpi[Q.mm(m, -6)])])
+                  for m in sorted(cli) if m in cpi and m in dire and Q.mm(m, -6) in cpi][-36:]
         cur, serie, ultimo = None, 0, None
         for i, (m, r) in enumerate(storia):
             serie = serie + 1 if i and storia[i - 1][1] == r else 1

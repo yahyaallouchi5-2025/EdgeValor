@@ -15,8 +15,8 @@ try{(function(){
  const pc=(v,d=1)=>v==null?"n/d":(v>0?"+":"")+fx(v,d)+"%";
  // le 4 fasi: frase breve, classe colore, nome internazionale ("Investment Clock")
  const FASI={Ripresa:["cresce, inflazione in calo","qe-esp","Recovery"],Espansione:["cresce, inflazione in salita","qe-rec","Overheat"],
-             Recessione:["rallenta, inflazione in calo","qe-sta","Reflation"],Stagflazione:["rallenta, inflazione in salita","qe-sur","Stagflation"]};
- const ORD=["Ripresa","Espansione","Recessione","Stagflazione"];           // in alto: crescita su; a destra: inflazione su
+             Rallentamento:["rallenta, inflazione in calo","qe-sta","Reflation"],Stagflazione:["rallenta, inflazione in salita","qe-sur","Stagflation"]};
+ const ORD=["Ripresa","Espansione","Rallentamento","Stagflazione"];   // v9.68 "Rallentamento" si chiamava "Recessione"           // in alto: crescita su; a destra: inflazione su
  // mercati collegati a ogni economia (punteggio COT della Dashboard: D.assets[chiave].score da -100 a +100)
  const COLLEGATI={usa:["DXY","SP500","US10Y"],eur:["EUR","EAFE"],jpn:["JPY"],gbr:["GBP"],aus:["AUD","COPPER","GOLD"],can:["CAD","WTI"]};
  const NOMI={DXY:"Indice del dollaro",SP500:"S&P 500",US10Y:"Treasury 10 anni",EUR:"Euro",EAFE:"Azioni Europa e Asia",JPY:"Yen",
@@ -51,7 +51,7 @@ try{(function(){
  const st=E.storico,cel=x=>x?`<td class="num ${x[0]>=0?"up":"down"}">${pc(x[0])}</td>`:`<td class="num">n/d</td>`;
  const tab=st?`<table class="qe-tab"><tr><th>Fase</th><th class="num">S&amp;P 500</th><th class="num">Treasury</th><th class="num">Oro</th></tr>${ORD.filter(r=>st[r]).map(r=>`<tr><td>${r}</td>${cel(st[r].sp)}${cel(st[r].tr)}${cel(st[r].oro)}</tr>`).join("")}</table>`:"";
  const infoSez=info(`<b>Fase del ciclo</b> di ogni economia, con la stessa regola per tutte. <b>Crescita</b>: in salita se l'indicatore anticipatore dell'OCSE (CLI) &egrave; pi&ugrave; alto di 3 mesi prima (Eurozona: media di Germania, Francia, Italia e Spagna pesata per il PIL). <b>Inflazione</b>: in salita se quella annua &egrave; pi&ugrave; alta di 6 mesi prima.<br><br>
-   <b>Ripresa</b> (Recovery): cresce, inflazione in calo. <b>Espansione</b> (Overheat): cresce, inflazione in salita. <b>Stagflazione</b>: rallenta, inflazione in salita. <b>Recessione</b> (Reflation): rallenta, inflazione in calo.<br><br>
+   <b>Ripresa</b> (Recovery): cresce, inflazione in calo. <b>Espansione</b> (Overheat): cresce, inflazione in salita. <b>Stagflazione</b>: rallenta, inflazione in salita. <b>Rallentamento</b> (Reflation): rallenta, inflazione in calo; non &egrave; una recessione del PIL. La crescita cambia direzione solo se l'indicatore OCSE si muove di oltre 0,1 punti in 3 mesi.<br><br>
    <b>Allarme recessione</b>: regola di Sahm, cio&egrave; la disoccupazione (media 3 mesi) salita di almeno 0,5 punti dal minimo dell'ultimo anno; per gli USA anche curva dei tassi invertita con spread delle aziende pi&ugrave; indebitate in salita.<br><br><b>PIL stimato</b> (solo USA): GDPNow della Fed di Atlanta, la crescita del trimestre in corso stimata in tempo reale (annualizzata). Si aggiorna con i dati della settimana; di solito si scosta dal PIL ufficiale di circa 1,7 punti.<br><br>
    ${tab?`<b>USA, com'&egrave; andata</b>: rendimento medio annuo del mese dopo, per fase, dal 1990 (oro dal 2004).${tab}`:""}
    <b>Solo contesto, non un segnale</b>: i mercati si muovono prima dei dati economici (in recessione l'S&amp;P 500 ha spesso gi&agrave; ripreso a salire). I portafogli seguono il filtro di trend sui prezzi.`,"qe-is");
@@ -116,10 +116,10 @@ try{(function(){
  //   "prima Stagflazione" (al passaggio del mouse: da quando). Solo se la fase confermata del registro e' quella mostrata.
  const prima=x=>{const s=D.stati&&D.stati.stati&&D.stati.stati["ciclo:"+x.id];if(!s||!s.prima||s.stato!=x.regime)return "";
   const d=s.dal||"";return `<small class="qe-da" title="${T("Fase confermata dal")} ${d.slice(8,10)}/${d.slice(5,7)}/${d.slice(0,4)}">${T("prima")} ${esc(T(s.prima))}</small>`;};
- const card=x=>{const f=FASI[x.regime];
+ const card=x=>{if(x.regime=="Recessione")x.regime="Rallentamento";const f=FASI[x.regime];
   return `<button type="button" class="qe-card${x.id==sel?" on":""}" data-id="${x.id}" aria-expanded="${x.id==sel}" aria-controls="qe-det" title="${x.id==sel?"Chiudi il dettaglio":"Apri il dettaglio"}">
    <span class="qe-cn">${bandiera(x.id)}<b>${esc(x.nome)}</b>${x.allarme?`<i class="qe-dot" title="Allarme recessione"></i>`:""}<svg class="qe-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
-   <span class="qe-fr"><span class="qe-chip ${f[1]}">${x.regime}</span>${prima(x)}</span>
+   <span class="qe-riga"><span class="qe-chip ${f[1]}">${x.regime}</span>${prima(x)}</span>
    <span class="qe-cs"><span>Crescita ${fr(x.cli,x.cli3,"bene",x.cresce)}</span><span>Inflazione ${fx(x.infl,1)}% ${fr(x.infl,x.infl6,"male",x.sale)}</span></span></button>`;};
  function dettaglio(x){const f=FASI[x.regime],b=borsa&&borsa.economie&&borsa.economie[x.id],nomiS=(borsa&&borsa.settori)||{};
   const ind=(nome,val,sotto,freccia)=>`<div class="qe-i"><small>${nome}</small><b>${val}${freccia||""}</b><span>${sotto}</span></div>`;

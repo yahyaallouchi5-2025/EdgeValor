@@ -14,7 +14,7 @@ DATI (FRED, mensili, escono con circa un mese di ritardo -> si usa l'ultimo mese
 REGOLE
   crescita SU    = produzione industriale sopra di 12 mesi prima  e  regola di Sahm sotto 0,5
   inflazione SU  = inflazione annua piu' alta di 6 mesi prima
-  -> Ripresa (crescita su, inflazione giu'), Espansione (su, su), Stagflazione (giu', su), Recessione (giu', giu')
+  -> Ripresa (crescita su, inflazione giu'), Espansione (su, su), Stagflazione (giu', su), Rallentamento (giu', giu')
   STATO DELL'INFLAZIONE (sotto il riquadro Inflazione): Deflazione (sotto zero), Disinflazione (in calo),
   Reflazione (in salita partendo da sotto il 2%), In salita (in salita partendo da sopra il 2%)
   regola di Sahm = media 3 mesi della disoccupazione meno il minimo delle medie 3 mesi dei 12 mesi prima
@@ -34,9 +34,9 @@ import os
 from .log import log
 
 # v7.20 nomi scelti da Ya (ciclo economico). Equivalenti nell'"Investment Clock" usato dagli analisti:
-#   Ripresa = Recovery, Espansione = Overheat, Stagflazione = Stagflation, Recessione = Reflation
+#   Ripresa = Recovery, Espansione = Overheat, Stagflazione = Stagflation, Rallentamento = Reflation
 REGIMI = {(True, False): "Ripresa", (True, True): "Espansione",
-          (False, True): "Stagflazione", (False, False): "Recessione"}
+          (False, True): "Stagflazione", (False, False): "Rallentamento"}   # v9.68: era "Recessione" (nome troppo forte: non e' una recessione del PIL)
 SAHM_SOGLIA = 0.5
 STORICO_DAL = "1990-01"
 

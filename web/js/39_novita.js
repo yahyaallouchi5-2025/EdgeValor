@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-28T12",t:"Aggiornamento Quadro economico",x:"La fase «Recessione» ora si chiama «Rallentamento»: crescita e inflazione in calo, non una recessione del PIL. La crescita cambia direzione solo oltre una soglia minima.",s:"sig",q:"#quadro"},
   {d:"2026-11-28T10",t:"Novità in due elenchi",x:"Mercati: i cambi di stato confermati (ciclo economico, clima, allarme recessione), con lo stato di prima. Piattaforma: gli aggiornamenti del terminale.",s:""},
   {d:"2026-11-27T23",t:"Nuova testata",x:"Su PC logo, ricerca, Novità, Guida, Assistenza, lingua e account sono in una barra in alto. La barra laterale resta per le schede e la tua watchlist.",s:""},
   {d:"2026-11-27T22",t:"Aggiornamento scheda grafico",x:"La posizione degli speculatori sotto il grafico copre ora 3 anni, con il dato reale di ogni settimana. Le candele giornaliere arrivano a 3 anni: la media a 200 giorni copre tutto il grafico.",s:""},

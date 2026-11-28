@@ -4823,5 +4823,5 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
 .nvchat[data-tab="m"] [data-g="p"],.nvchat[data-tab="p"] [data-g="m"]{display:none}
 .nvvuoto{margin:0;padding:18px 14px;border-radius:12px;border:1px dashed var(--line);text-align:center;font-size:13.5px;color:var(--mute)}
 /* v9.67 provenienza della fase sulla card del Quadro economico: "prima Stagflazione" accanto alla fase */
-.qe-fr{display:flex;align-items:center;gap:8px;min-width:0}
+.qe-riga{display:flex;align-items:center;gap:8px;min-width:0}   /* v9.68: si chiamava .qe-fr, lo stesso nome della freccia: corretta */
 .qe-da{font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
