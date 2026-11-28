@@ -44,6 +44,10 @@ ECONOMIE = [("usa", "USA", "USA", "US", "DXY"), ("eur", "Eurozona", None, "XM", 
             ("aus", "Australia", "AUS", "AU", "AUD"), ("can", "Canada", "CAN", "CA", "CAD")]
 # Eurozona = media dei 4 paesi piu' grandi, pesi = quota di PIL (circa, 2025): Germania, Francia, Italia, Spagna
 PESI_EUR = {"DEU": 0.39, "FRA": 0.27, "ITA": 0.20, "ESP": 0.14}
+# v9.72 (Ya, 28/11/2026) disoccupazione dell'EUROZONA: l'OCSE la pubblica gia' come aggregato "EA" nello stesso file
+#       degli altri paesi. Prima mancava: nella scheda Eurozona non c'era il dato e l'allarme (regola di Sahm) non
+#       poteva mai accendersi.
+UNE_EUR = "EA"
 OCSE = "https://sdmx.oecd.org/public/rest/data/"
 URL_CLI = OCSE + "OECD.SDD.STES,DSD_STES@DF_CLI,4.1/{paesi}.M.LI...AA...H?startPeriod={dal}&format=csvfile"
 URL_UNE = OCSE + "OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0/all?startPeriod={dal}&format=csvfile"
@@ -86,7 +90,7 @@ def scarica_cli(get=_get):
 def scarica_disoccupazione(get=_get, oggi=None):
     """{paese OCSE: {'AAAA-MM': %}}: tasso destagionalizzato, totale, 15 anni e piu', solo mensile (ultimi 3 anni)."""
     dal = ((oggi or datetime.now(timezone.utc).date()) - timedelta(days=3 * 366)).strftime("%Y-%m")
-    voluti, out = {e[2] for e in ECONOMIE if e[2]}, {}
+    voluti, out = {e[2] for e in ECONOMIE if e[2]} | {UNE_EUR}, {}      # v9.72 anche l'Eurozona (aggregato "EA")
     for r in _righe(get(URL_UNE.format(dal=dal))):
         if (r.get("REF_AREA") in voluti and r.get("MEASURE") == "UNE_LF_M" and r.get("ADJUSTMENT") == "Y"
                 and r.get("SEX") == "_T" and r.get("AGE") == "Y_GE15" and _MESE.match(r.get("TIME_PERIOD", ""))):
@@ -125,6 +129,8 @@ def aggiorna_cache(cartella, scarica=True, adesso=None):
     try:
         fresca = adesso - datetime.fromisoformat(cache.get("agg", "")) < timedelta(hours=RIFAI_ORE)
     except ValueError:
+        fresca = False
+    if UNE_EUR not in (cache.get("une") or {}):          # v9.72 cache di prima dell'Eurozona: si riscarica subito
         fresca = False
     if scarica and not fresca:
         for chiave, fn in (("cli", scarica_cli), ("une", scarica_disoccupazione), ("cpi", scarica_inflazione)):
@@ -277,7 +283,7 @@ def calcola(fred, cartella=None, scarica=True):
         if eid == "usa" and usa_fred:                # inflazione USA: stessa serie della card USA (FRED, piu' fresca)
             cpi_f = Q.colma(Q.mensile(fred.get("CPIAUCSL")))      # v9.71 ottobre 2025 mai pubblicato
             p = {m: (cpi_f[m] / cpi_f[Q.mm(m, -12)] - 1) * 100 for m in cpi_f if Q.mm(m, -12) in cpi_f} or p
-        u = Q.mensile(fred.get("UNRATE")) if eid == "usa" else (une.get(ocse) or {})
+        u = Q.mensile(fred.get("UNRATE")) if eid == "usa" else (une.get(UNE_EUR if eid == "eur" else ocse) or {})
         try:
             st = fase(c, p, u)
         except Exception as e:                       # un'economia con dati strani non toglie le altre

@@ -128,7 +128,32 @@ class TestBuchiNeiDati(unittest.TestCase):
 
     def test_anomalia_se_manca_un_numero(self):
         from cot_radar import controlli as C
-        self.assertEqual(C.schede({"economie": [{"id": "eur", "nome": "Eurozona", "infl": 4.0, "infl6": 3.0, "cli": 100.5}]}), [])
+        self.assertEqual(C.schede({"economie": [{"id": "eur", "nome": "Eurozona", "infl": 4.0, "infl6": 3.0, "cli": 100.5, "mese_disoc": "2026-09"}]}, oggi="2026-11"), [])
         a = C.schede({"economie": [{"id": "eur", "nome": "Eurozona", "infl": None, "infl6": 3.0, "cli": 100.5}]})
         self.assertEqual(a[0]["livello"], "ERROR")
         self.assertIn("inflazione", a[0]["messaggio"])
+
+
+class TestSchedeComplete(unittest.TestCase):
+    """v9.72 Eurozona con la disoccupazione; anomalia se un dato e' fermo o manca."""
+
+    def test_scarico_tiene_eurozona(self):
+        import cot_radar.economie as E
+        testa = "REF_AREA,MEASURE,ADJUSTMENT,SEX,AGE,TIME_PERIOD,OBS_VALUE\n"
+        righe = "EA,UNE_LF_M,Y,_T,Y_GE15,2026-09,6.5\nFRA,UNE_LF_M,Y,_T,Y_GE15,2026-09,8.5\nJPN,UNE_LF_M,Y,_T,Y_GE15,2026-09,2.4\n"
+        out = E.scarica_disoccupazione(get=lambda u: testa + righe)
+        self.assertEqual(out["EA"], {"2026-09": 6.5})
+        self.assertNotIn("FRA", out)
+
+    def test_dato_fermo(self):
+        from cot_radar import controlli as C
+        e = {"id": "gbr", "nome": "Regno Unito", "infl": 3.6, "infl6": 2.8, "cli": 101.0,
+             "mese_cli": "2026-10", "mese_cpi": "2026-10", "mese_disoc": "2026-08"}
+        self.assertEqual(C.schede({"economie": [e]}, oggi="2026-11"), [])
+        a = C.schede({"economie": [dict(e, mese_cpi="2026-06")]}, oggi="2026-11")
+        self.assertIn("inflazione ferma a 06/2026", a[0]["messaggio"])
+
+    def test_disoccupazione_assente(self):
+        from cot_radar import controlli as C
+        e = {"id": "eur", "nome": "Eurozona", "infl": 4.0, "infl6": 3.0, "cli": 100.5, "mese_cli": "2026-10", "mese_cpi": "2026-10"}
+        self.assertIn("disoccupazione assente", C.schede({"economie": [e]}, oggi="2026-11")[0]["messaggio"])

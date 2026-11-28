@@ -2067,7 +2067,7 @@ a.blhome{text-decoration:none;color:inherit;cursor:pointer}
 .qe-flag{width:24px;height:16px;border-radius:3px;flex:none;box-shadow:0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent)}
 .qe-dot{width:8px;height:8px;border-radius:50%;background:var(--s);margin-left:auto;box-shadow:0 0 8px var(--s)}
 .qe-chip{justify-self:start;font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;color:var(--qc);background:color-mix(in srgb,var(--qc) 14%,transparent)}
-.qe-cs{display:grid;gap:2px;font-size:11.5px;color:var(--ink2)}.qe-cs span{display:flex;align-items:center;gap:4px}
+.qe-cs{display:grid;gap:2px;font-size:11.5px;color:var(--ink2)}.qe-me{margin-left:auto;font-style:normal;font-size:10.5px;color:var(--mute);letter-spacing:.2px}.qe-cs span{display:flex;align-items:center;gap:4px}
 .qe-det{padding:18px 20px;animation:qeapri .25s ease-out;scroll-margin-top:12px}
 @keyframes qeapri{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.qe-det{animation:none}}

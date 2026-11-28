@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-28T16",t:"Aggiornamento Quadro economico",x:"Eurozona con la disoccupazione e l'allarme. Accanto a ogni dato c'è il mese a cui si riferisce: è l'ultimo pubblicato dalla fonte.",s:"sig",q:"#quadro"},
   {d:"2026-11-28T14",t:"Aggiornamento Quadro economico",x:"Inflazione USA di nuovo in scheda (3,9%) e fase corretta: Espansione. Mancava il mese di confronto, ottobre 2025, mai pubblicato.",s:"sig",q:"#quadro"},
   {d:"2026-11-28T12",t:"Aggiornamento Quadro economico",x:"La fase «Recessione» ora si chiama «Rallentamento»: crescita e inflazione in calo, non una recessione del PIL. La crescita cambia direzione solo oltre una soglia minima.",s:"sig",q:"#quadro"},
   {d:"2026-11-28T10",t:"Novità in due elenchi",x:"Mercati: i cambi di stato confermati (ciclo economico, clima, allarme recessione), con lo stato di prima. Piattaforma: gli aggiornamenti del terminale.",s:""},

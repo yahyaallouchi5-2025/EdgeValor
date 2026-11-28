@@ -13,7 +13,7 @@ Ogni controllo e' in un blocco try: anche se un controllo avesse un bug, gli alt
 """
 import math
 from collections import Counter
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 from .config import ASSETS, K_MIR, PRICES
 from .log import log
@@ -25,11 +25,26 @@ def _ok(x):
     return isinstance(x, (int, float)) and not math.isnan(x) and not math.isinf(x)
 
 
-def schede(quadro):
+# v9.72 DATI FERMI nelle schede del Quadro economico: eta' massima normale (in mesi, dal mese del dato a oggi) per ogni
+#   fonte. I dati macro escono con ritardo: l'indicatore OCSE e l'inflazione entro 2 mesi, la disoccupazione OCSE del
+#   Regno Unito anche dopo 3-4. Oltre questi limiti la fonte e' ferma o lo scarico non funziona: anomalia.
+ETA_MAX = {"mese_cli": ("crescita", 3), "mese_cpi": ("inflazione", 3), "mese_disoc": ("disoccupazione", 4)}
+
+
+def _eta(mese, oggi):
+    """Mesi tra 'AAAA-MM' del dato e 'AAAA-MM' di oggi. None se il mese non e' leggibile."""
+    try:
+        return (int(oggi[:4]) - int(mese[:4])) * 12 + int(oggi[5:7]) - int(mese[5:7])
+    except (TypeError, ValueError, IndexError):
+        return None
+
+
+def schede(quadro, oggi=None):
     """v9.71 (Ya, 28/11/2026: "non voglio piu' vedere n/d in nessuna scheda, al massimo mi arriva l'anomalia").
     Controlla i numeri che il Quadro economico mostra in pagina: uno vuoto diventa un'anomalia per l'amministratore
     (registro e sorveglianza), mentre la scheda nasconde la riga. -> [{"livello", "fonte", "messaggio"}]"""
     trovati = []
+    oggi = oggi or datetime.now(timezone.utc).strftime("%Y-%m")
     for e in (quadro or {}).get("economie") or []:
         vuoti = [n for k, n in (("infl", "inflazione"), ("infl6", "inflazione di 6 mesi fa"), ("cli", "crescita")) if not _ok(e.get(k))]
         if e.get("id") == "usa" and not _ok(e.get("curva")):
@@ -37,6 +52,18 @@ def schede(quadro):
         if vuoti:
             trovati.append({"livello": "ERROR", "fonte": "Quadro economico",
                             "messaggio": f"{e.get('nome')}: dato mancante in scheda ({', '.join(vuoti)})"})
+            log.error("[controllo Quadro economico] %s", trovati[-1]["messaggio"])
+        fermi = []
+        for k, (nome, limite) in ETA_MAX.items():
+            eta = _eta(e.get(k), oggi) if e.get(k) else None
+            if eta is not None and eta > limite:
+                fermi.append(f"{nome} ferma a {e[k][5:7]}/{e[k][:4]} ({eta} mesi)")
+        if fermi:
+            trovati.append({"livello": "ERROR", "fonte": "Quadro economico",
+                            "messaggio": f"{e.get('nome')}: dato non aggiornato ({', '.join(fermi)})"})
+            log.error("[controllo Quadro economico] %s", trovati[-1]["messaggio"])
+        if not e.get("mese_disoc"):                      # v9.72 ogni scheda deve avere la disoccupazione
+            trovati.append({"livello": "ERROR", "fonte": "Quadro economico", "messaggio": f"{e.get('nome')}: disoccupazione assente"})
             log.error("[controllo Quadro economico] %s", trovati[-1]["messaggio"])
     return trovati
 

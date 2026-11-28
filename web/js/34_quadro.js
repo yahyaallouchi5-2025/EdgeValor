@@ -50,7 +50,7 @@ try{(function(){
  const info=(t,cl="")=>`<details class="info ${cl}"><summary title="Come si legge" aria-label="Come si legge">i</summary><div>${t}</div></details>`;
  const st=E.storico,cel=x=>x?`<td class="num ${x[0]>=0?"up":"down"}">${pc(x[0])}</td>`:`<td class="num">n/d</td>`;
  const tab=st?`<table class="qe-tab"><tr><th>Fase</th><th class="num">S&amp;P 500</th><th class="num">Treasury</th><th class="num">Oro</th></tr>${ORD.filter(r=>st[r]).map(r=>`<tr><td>${r}</td>${cel(st[r].sp)}${cel(st[r].tr)}${cel(st[r].oro)}</tr>`).join("")}</table>`:"";
- const infoSez=info(`<b>Fase del ciclo</b> di ogni economia, con la stessa regola per tutte. <b>Crescita</b>: in salita se l'indicatore anticipatore dell'OCSE (CLI) &egrave; pi&ugrave; alto di 3 mesi prima (Eurozona: media di Germania, Francia, Italia e Spagna pesata per il PIL). <b>Inflazione</b>: in salita se quella annua &egrave; pi&ugrave; alta di 6 mesi prima.<br><br>
+ const infoSez=info(`<b>Fase del ciclo</b> di ogni economia, con la stessa regola per tutte. <b>Crescita</b>: in salita se l'indicatore anticipatore dell'OCSE (CLI) &egrave; pi&ugrave; alto di 3 mesi prima (Eurozona: media di Germania, Francia, Italia e Spagna pesata per il PIL). <b>Inflazione</b>: in salita se quella annua &egrave; pi&ugrave; alta di 6 mesi prima. Accanto a ogni dato c'&egrave; il <b>mese</b> a cui si riferisce: i dati economici escono con uno o due mesi di ritardo, e quello mostrato &egrave; l'ultimo pubblicato dalla fonte.<br><br>
    <b>Ripresa</b> (Recovery): cresce, inflazione in calo. <b>Espansione</b> (Overheat): cresce, inflazione in salita. <b>Stagflazione</b>: rallenta, inflazione in salita. <b>Rallentamento</b> (Reflation): rallenta, inflazione in calo; non &egrave; una recessione del PIL. La crescita cambia direzione solo se l'indicatore OCSE si muove di oltre 0,1 punti in 3 mesi.<br><br>
    <b>Allarme recessione</b>: regola di Sahm, cio&egrave; la disoccupazione (media 3 mesi) salita di almeno 0,5 punti dal minimo dell'ultimo anno; per gli USA anche curva dei tassi invertita con spread delle aziende pi&ugrave; indebitate in salita.<br><br><b>PIL stimato</b> (solo USA): GDPNow della Fed di Atlanta, la crescita del trimestre in corso stimata in tempo reale (annualizzata). Si aggiorna con i dati della settimana; di solito si scosta dal PIL ufficiale di circa 1,7 punti.<br><br>
    ${tab?`<b>USA, com'&egrave; andata</b>: rendimento medio annuo del mese dopo, per fase, dal 1990 (oro dal 2004).${tab}`:""}
@@ -116,21 +116,25 @@ try{(function(){
  //   "prima Stagflazione" (al passaggio del mouse: da quando). Solo se la fase confermata del registro e' quella mostrata.
  const prima=x=>{const s=D.stati&&D.stati.stati&&D.stati.stati["ciclo:"+x.id];if(!s||!s.prima||s.stato!=x.regime)return `<small class="qe-da"></small>`;   // v9.69 riga vuota: su telefono tutte le card restano alte uguali
   const d=s.dal||"";return `<small class="qe-da" title="${T("Fase confermata dal")} ${d.slice(8,10)}/${d.slice(5,7)}/${d.slice(0,4)}">${T("prima")} ${esc(T(s.prima))}</small>`;};
+ // v9.72 MESE DEL DATO accanto a ogni numero ("ott", "set"): i dati macro escono con ritardo e non tutti insieme;
+ //   cosi' si vede che e' l'ultimo pubblicato dalla fonte, non un dato fermo. Nel dettaglio il mese e' con l'anno.
+ const MS=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+ const ms=m=>m?`<em class="qe-me">${T(MS[+m.slice(5,7)-1]||"")}</em>`:"",msa=m=>m?`${T(MS[+m.slice(5,7)-1]||"")} ${m.slice(0,4)} &middot; `:"";
  const card=x=>{if(x.regime=="Recessione")x.regime="Rallentamento";const f=FASI[x.regime];
   return `<button type="button" class="qe-card${x.id==sel?" on":""}" data-id="${x.id}" aria-expanded="${x.id==sel}" aria-controls="qe-det" title="${x.id==sel?"Chiudi il dettaglio":"Apri il dettaglio"}">
    <span class="qe-cn">${bandiera(x.id)}<b>${esc(x.nome)}</b>${x.allarme?`<i class="qe-dot" title="Allarme recessione"></i>`:""}<svg class="qe-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
    <span class="qe-riga"><span class="qe-chip ${f[1]}">${x.regime}</span>${prima(x)}</span>
-   <span class="qe-cs"><span>Crescita ${fr(x.cli,x.cli3,"bene",x.cresce)}</span>${x.infl==null?"":`<span>Inflazione ${fx(x.infl,1)}% ${fr(x.infl,x.infl6,"male",x.sale)}</span>`}</span></button>`;};
+   <span class="qe-cs"><span>Crescita ${fr(x.cli,x.cli3,"bene",x.cresce)}${ms(x.mese_cli)}</span>${x.infl==null?"":`<span>Inflazione ${fx(x.infl,1)}% ${fr(x.infl,x.infl6,"male",x.sale)}${ms(x.mese_cpi)}</span>`}</span></button>`;};
  function dettaglio(x){const f=FASI[x.regime],b=borsa&&borsa.economie&&borsa.economie[x.id],nomiS=(borsa&&borsa.settori)||{};
   const ind=(nome,val,sotto,freccia)=>`<div class="qe-i"><small>${nome}</small><b>${val}${freccia||""}</b><span>${sotto}</span></div>`;
   const mappa=`<div class="qe-mappa" role="img" aria-label="Fase: ${x.regime}"><span class="qe-ax qe-ay">Crescita &#9650;</span>
     ${ORD.map(r=>`<div class="qe-c ${FASI[r][1]}${r==x.regime?" on":""}"><b>${r}</b>${r==x.regime?'<i class="cd-fr" aria-hidden="true">&#9660;</i>':""}</div>`).join("")}
     <span class="qe-ax qe-ax2">Inflazione &#9654;</span></div>`;
   // v7.64 "100 = media" spostato nel fumetto (i) dell intestazione: le schede non vanno a capo
-  const tiles=[ind("Anticipatore OCSE",fx(x.cli,1),`3 mesi fa ${fx(x.cli3,1)}`,fr(x.cli,x.cli3,"bene")),
+  const tiles=[ind("Anticipatore OCSE",fx(x.cli,1),`${msa(x.mese_cli)}3 mesi fa ${fx(x.cli3,1)}`,fr(x.cli,x.cli3,"bene")),
    // v9.71 un numero vuoto non si mostra mai ("n/d"): la riga sparisce e l'anomalia arriva all'amministratore (controlli.schede)
-   x.infl==null?"":ind("Inflazione",fx(x.infl,1)+"%",`<em class="qe-ti">${x.tipo_infl}</em> &middot; 6 mesi fa ${fx(x.infl6,1)}%`,fr(x.infl,x.infl6,"male"))];
-  if(x.disoc!=null)tiles.push(ind("Disoccupazione",fx(x.disoc,1)+"%",x.sahm!=null?`Sahm ${fx(x.sahm,2)} su 0,50`:"",""));
+   x.infl==null?"":ind("Inflazione",fx(x.infl,1)+"%",`${msa(x.mese_cpi)}<em class="qe-ti">${x.tipo_infl}</em> &middot; 6 mesi fa ${fx(x.infl6,1)}%`,fr(x.infl,x.infl6,"male"))];
+  if(x.disoc!=null)tiles.push(ind("Disoccupazione",fx(x.disoc,1)+"%",msa(x.mese_disoc)+(x.sahm!=null?`Sahm ${fx(x.sahm,2)} su 0,50`:""),""));
   if(x.curva!=null)tiles.push(ind("Curva 10-2 anni",(x.curva>0?"+":"")+fx(x.curva,2),x.curva<0?"invertita":"normale",""));
   // v8.35 GDPNow (solo USA): stima in tempo reale del PIL del trimestre in corso; spiegazione nel fumetto (i) in alto
   if(x.gdpnow)tiles.push(ind("PIL stimato",(x.gdpnow.v>0?"+":"")+fx(x.gdpnow.v,1)+"%",`${esc(x.gdpnow.trim)} &middot; GDPNow`,""));
