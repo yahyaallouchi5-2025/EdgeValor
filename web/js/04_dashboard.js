@@ -14,6 +14,8 @@ try{
  // v8.09 Basic: i segnali sono cifrati, la card usa i conteggi lasciati in chiaro da premium.py (D.cotsum)
  if(!tutti.length&&D.cotsum){su=D.cotsum.su;giu=D.cotsum.giu;strong=D.cotsum.forti;}
  const r=D.market?D.market.risk:null;                       // -100 (paura) ... +100 (fiducia)
+ // v9.67 provenienza del clima (registro degli stati, D.stati): "Paura dal 25/11 · prima Neutro", solo a cambio confermato
+ const sc=D.stati&&D.stati.stati&&D.stati.stati.clima,climaPrima=sc&&sc.prima&&sc.dal?`${esc(sc.stato)} dal ${sc.dal.slice(8,10)}/${sc.dal.slice(5,7)} &middot; prima ${esc(sc.prima)}`:"";
  const [rl,rc]=r==null?["n/d","var(--mute)"]:r>=30?["FIDUCIA","var(--b)"]:r<=-30?["PAURA","var(--s)"]:["NEUTRO","var(--warn)"];
  const po=D.port,cot=D.sources[0]||{};
  const GG=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"],MM=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
@@ -37,7 +39,7 @@ try{
      <path d="M12 66 A54 54 0 0 1 120 66" fill="none" stroke="#121d31" stroke-width="12" stroke-linecap="round"/><path d="M12 66 A54 54 0 0 1 120 66" fill="none" stroke="url(#kzarco)" stroke-width="12" stroke-linecap="round" opacity=".9"/>
      <g class="kzago" style="transform:rotate(${ang}deg)"><line x1="66" y1="66" x2="66" y2="22" stroke="#f1f5fb" stroke-width="3.5" stroke-linecap="round"/></g><circle cx="66" cy="66" r="6" fill="#f1f5fb"/></svg>
      <div class="kzestremi"><span class="p">PAURA</span><span class="f">FIDUCIA</span></div></div><div class="kzstato">${rl}</div></div>
-   <div class="kzn" title="Misurato su paura (VIX), rischio delle obbligazioni e tassi, ultime 4 settimane">Paura (VIX), obbligazioni e tassi</div></a>
+   <div class="kzn" title="Misurato su paura (VIX), rischio delle obbligazioni e tassi, ultime 4 settimane">${climaPrima||"Paura (VIX), obbligazioni e tassi"}</div></a>
   <a class="kz kz3" href="#port" data-vai="port" title="Apri i Portafogli">${testa("rot","Prossima rotazione","Quando si aggiornano i portafogli?")}
    <div class="kzcd" data-cd="rot"></div><div class="kzprog"><i data-pr="rot"></i></div><div class="kzquando"><b>${rd}</b>${rotA?" &middot; ore 9:00":""}</div></a>
   <a class="kz kz4" href="#assets" data-vai="assets" title="Vedi la forza di ogni strumento">${testa("cot","Nuovi dati COT","Quando arrivano i dati nuovi?")}

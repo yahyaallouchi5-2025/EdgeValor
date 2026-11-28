@@ -4812,3 +4812,16 @@ svg.sk-fr{width:9px;height:9px;flex:none;fill:#7d8aa0;transition:transform .2s}
    Nel cassetto restano: ricerca, Il mio spazio (watchlist, invita amici), Telegram, stato dei dati, profilo.
    Sul PC e' il contrario: il menu orizzontale non c'e' e le schede stanno solo nella barra laterale. */
 @media (max-width:900px){.side.v2 .snavg{display:none}}
+
+/* v9.67 NOVITA' IN DUE ELENCHI (39b_novita_chat.js): schede "Mercati" e "Piattaforma" sotto la testata del pannello */
+.nvtab{display:flex;gap:6px;padding:10px 12px 0}
+.nvtab button{flex:1;height:34px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--ink2);font:650 13px system-ui;cursor:pointer;
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:background .15s,border-color .15s,color .15s}
+.nvtab button:hover{background:var(--soft);color:var(--ink)}
+.nvtab button[aria-selected="true"]{background:color-mix(in srgb,var(--acc) 16%,transparent);border-color:color-mix(in srgb,var(--acc) 55%,var(--line));color:var(--ink)}
+.nvtab em{font-style:normal;min-width:18px;height:18px;padding:0 5px;border-radius:99px;display:inline-grid;place-items:center;font:800 11px system-ui;color:#04211e;background:var(--acc)}
+.nvchat[data-tab="m"] [data-g="p"],.nvchat[data-tab="p"] [data-g="m"]{display:none}
+.nvvuoto{margin:0;padding:18px 14px;border-radius:12px;border:1px dashed var(--line);text-align:center;font-size:13.5px;color:var(--mute)}
+/* v9.67 provenienza della fase sulla card del Quadro economico: "prima Stagflazione" accanto alla fase */
+.qe-fr{display:flex;align-items:center;gap:8px;min-width:0}
+.qe-da{font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

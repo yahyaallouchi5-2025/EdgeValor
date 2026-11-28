@@ -10,6 +10,7 @@
  const NOVITA=[
   // v8.64 regola di Ya (21/11/2026): ogni scheda lavorata va nelle novita' con un messaggio semplice "Aggiornamento scheda X"
   // v8.73 d con l'ora ("AAAA-MM-GGTHH"): una seconda novita' nello stesso giorno risulta nuova anche per chi ha visto la prima
+  {d:"2026-11-28T10",t:"Novità in due elenchi",x:"Mercati: i cambi di stato confermati (ciclo economico, clima, allarme recessione), con lo stato di prima. Piattaforma: gli aggiornamenti del terminale.",s:""},
   {d:"2026-11-27T23",t:"Nuova testata",x:"Su PC logo, ricerca, Novità, Guida, Assistenza, lingua e account sono in una barra in alto. La barra laterale resta per le schede e la tua watchlist.",s:""},
   {d:"2026-11-27T22",t:"Aggiornamento scheda grafico",x:"La posizione degli speculatori sotto il grafico copre ora 3 anni, con il dato reale di ogni settimana. Le candele giornaliere arrivano a 3 anni: la media a 200 giorni copre tutto il grafico.",s:""},
   {d:"2026-11-27T20",t:"Nuovo pannello Invita amici",x:"Il tuo link personale, quanti amici si sono iscritti e quanti si sono abbonati, e i mesi di Premium che hai guadagnato. Chi si iscrive con il tuo link prova Premium per 14 giorni.",s:""},
@@ -63,29 +64,23 @@
   {d:"2026-11-17",t:"Nuova scheda Bitcoin",x:"Bussola macro (Premium) e termometro del sentiment: cosa muove Bitcoin, con grafici.",s:"btc",h:"mercati"},
   {d:"2026-11-17",t:"Assistenza",x:"Abbonamento, segnalazioni e call live con il team, con il numero della richiesta.",s:""},
 ];
- // v8.40 CAMBI DI STATO DEI MERCATI nelle novita' (idea di Ya, 20/11/2026): solo cambi CONFERMATI (vedi modalita.py),
- //   per 30 giorni dalla conferma. "Mostrami" apre la Dashboard, il dettaglio USA e illumina la modalita' di mercato.
- try{const m=D.economie&&D.economie.modalita,NM={PESSIMISMO:"Pessimismo",NORMALE:"Normale",ECCESSO:"Eccesso"};
-  if(m&&m.conf&&m.prima&&(Date.now()-new Date(m.conf+"T12:00:00"))/864e5<=30)
-   NOVITA.push({d:m.conf,t:`Modalità di mercato: ${NM[m.prima]} → ${NM[m.modo]}`,
-    x:`Confermata dopo ${m.n||7} giorni di borsa di fila (dal ${m.da.slice(8,10)}/${m.da.slice(5,7)}). Solo contesto, non un segnale.`,
-    s:"sig",q:".mm-fasi",lab:"Modalità di mercato",apri:'#quadro .qe-card[data-id="usa"]:not(.on)',cambio:1});
-  // v8.44 fase del ciclo economico (per economia, confermata dopo 2 mesi: economie.py) e ciclo del debito USA
-  //   (confermato dopo 2 trimestri di fila). Solo l'avviso aspetta la conferma: la scheda mostra sempre la fase di oggi.
-  const E=D.economie||{},vic=d=>(Date.now()-new Date(d+"T12:00:00"))/864e5<=75,mm1=m=>{let[a,b]=m.split("-").map(Number);b++;if(b>12){a++;b=1;}return a+"-"+String(b).padStart(2,"0")+"-01";};
-  (E.economie||[]).forEach(x=>{const c=x.cambio;if(!c)return;const d=mm1(c.mese);if(!vic(d))return;
-   NOVITA.push({d,t:`Ciclo economico ${x.nome}: ${c.prima} → ${c.dopo}`,x:`Fase confermata per 2 mesi di fila. Solo contesto, non un segnale.`,
-    s:"sig",q:".qe-mappa",lab:"Ciclo economico "+x.nome,apri:`#quadro .qe-card[data-id="${x.id}"]:not(.on)`,cambio:1});});
-  const db=E.debito,CDN=["Espansione","Bolla","Picco","Crisi","Riduzione del debito"];
-  if(db&&db.storia&&db.storia.length>2){const S=db.storia;let cur=null,serie=0,ult=null;
-   S.forEach(([q,k],i)=>{serie=i&&S[i-1][1]==k?serie+1:1;if(k!==cur&&serie>=2){if(cur!==null)ult={prima:cur,dopo:k,i,q};cur=k;}});
-   if(ult&&ult.i>=S.length-2){const [a,t]=ult.q.split("-T"),d=a+"-"+String((+t-1)*3+1).padStart(2,"0")+"-01";
-    NOVITA.push({d,t:`Ciclo del debito: ${CDN[ult.prima]} → ${CDN[ult.dopo]}`,x:`Fase confermata per 2 trimestri di fila. Solo contesto, non un segnale.`,
-     s:"sig",q:".cd-fasi:not(.mm-fasi)",lab:"Ciclo del debito",apri:'#quadro .qe-card[data-id="usa"]:not(.on)',cambio:1});}}
+ // v9.67 CAMBI DI STATO DEI MERCATI (Ya, 28/11/2026): arrivano dal REGISTRO UNICO del backend (cot_radar/stati.py -> D.stati.cambi),
+ //   gia' confermati e con la data del giorno della conferma. Qui si scrive solo il testo. Le regole stanno nel registro:
+ //   prima erano ricalcolate qui nel browser (blocco v8.40/v8.44, tolto) e la data era quella del mese del dato.
+ //   "Mostrami" apre la Dashboard e illumina l'elemento. cambio:1 = voce dell'elenco "Mercati" (39b_novita_chat.js).
+ try{const QE=id=>`#quadro .qe-card[data-id="${id}"]:not(.on)`;
+  const COME={ciclo:c=>({x:"Fase confermata per 2 mesi di fila. Solo contesto, non un segnale.",q:".qe-mappa",apri:QE(c.k.split(":")[1])}),
+   allarme:c=>({x:"Regola sulla disoccupazione (Sahm). Solo contesto, non un segnale.",q:".qe-det",apri:QE(c.k.split(":")[1])}),
+   modalita:()=>({x:"Confermata dopo 7 giorni di borsa di fila. Solo contesto, non un segnale.",q:".mm-fasi",apri:QE("usa")}),
+   debito:()=>({x:"Fase confermata per 2 trimestri di fila. Solo contesto, non un segnale.",q:".cd-fasi:not(.mm-fasi)",apri:QE("usa")}),
+   clima:()=>({x:"Confermato dopo 3 giorni di fila. Solo contesto, non un segnale.",q:".kz2"})};
+  ((D.stati&&D.stati.cambi)||[]).forEach(c=>{const f=COME[c.gruppo];if(!f)return;const m=f(c);
+   NOVITA.push({d:c.d,t:`${c.nome}: ${c.prima} → ${c.dopo}`,x:m.x,s:"sig",q:m.q,lab:c.nome,apri:m.apri,cambio:1});});
   NOVITA.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:(b.cambio||0)-(a.cambio||0));}catch(e){}   // a parita' di data prima i mercati
- // v8.67 (Ya, 22/11/2026): al massimo 10 novita'. Dall'11esima esce la piu' vecchia, in ciclo continuo
- //   (l'elenco e' gia' ordinato dalla piu' recente: si tengono le prime 10).
- const MAX_NOVITA=10;NOVITA.splice(MAX_NOVITA);
+ // v9.67 DUE ELENCHI, ognuno con il suo limite: 10 voci "Mercati" e 10 "Piattaforma". Prima il limite era unico (10)
+ //   e i nostri aggiornamenti spingevano fuori i cambi dei mercati (v8.67).
+ const MAX_NOVITA=10;{const m=NOVITA.filter(n=>n.cambio).slice(0,MAX_NOVITA),p=NOVITA.filter(n=>!n.cambio).slice(0,MAX_NOVITA);
+  NOVITA.length=0;NOVITA.push(...m,...p);NOVITA.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:(b.cambio||0)-(a.cambio||0));}
  window.EB_NOVITA=NOVITA;                 // v8.06: la usa anche la chat delle novita' (39b_novita_chat.js)
  const btn=document.getElementById("novapri");if(!btn)return;
  const punto=btn.querySelector(".novpunto"),pf=document.getElementById("pfapri");

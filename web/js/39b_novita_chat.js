@@ -28,13 +28,20 @@
  // --- chat ---
  let chat=null;
  function apri(){if(chat)return chiudi();
+  // v9.67 DUE ELENCHI: "Mercati" (cambi di stato dal registro del backend) e "Piattaforma" (i nostri aggiornamenti).
+  //   Si apre sull'elenco che ha la voce non letta piu' recente; senza novita', su Mercati se ha voci.
+  const nM=N.filter(n=>n.cambio&&n.d>vista).length,nP=N.filter(n=>!n.cambio&&n.d>vista).length,prima=N.find(n=>n.d>vista);
+  const tab=prima?(prima.cambio?"m":"p"):(N.some(n=>n.cambio)?"m":"p");
   chat=document.createElement("div");chat.className="nvchat";chat.setAttribute("role","dialog");chat.setAttribute("aria-label","Novità");
   chat.innerHTML=`<div class="nvtesta"><span class="nvav">${STELLA}</span><div><b>Novità</b><small>Aggiornamenti di EdgeValor</small></div>
    <button type="button" class="nvx" aria-label="Chiudi">&#x2715;</button></div>
-   <div class="nvcorpo">${N.slice(0,10).map((n,i)=>`<div class="nvmsg${n.d>vista?" nvnew":""}" style="--i:${i}">
-    <div class="nvmeta"><time>${gg(n.d)}</time>${n.d>vista?'<em>Nuovo</em>':""}${n.p?'<em class="p">Premium</em>':""}${n.cambio?'<em class="c">Mercati</em>':""}</div>
+   <div class="nvtab" role="tablist">${[["m","Mercati",nM],["p","Piattaforma",nP]].map(([k,t,n])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${k==tab}">${t}${n?`<em>${n}</em>`:""}</button>`).join("")}</div>
+   <div class="nvcorpo">${N.some(n=>n.cambio)?"":`<p class="nvvuoto" data-g="m">Nessun cambio di stato negli ultimi 60 giorni.</p>`}${N.map((n,i)=>`<div class="nvmsg${n.d>vista?" nvnew":""}" data-g="${n.cambio?"m":"p"}" style="--i:${i}">
+    <div class="nvmeta"><time>${gg(n.d)}</time>${n.d>vista?'<em>Nuovo</em>':""}${n.p?'<em class="p">Premium</em>':""}</div>
     <b>${esc(n.t)}</b><p>${esc(n.x)}</p>${n.s?`<button type="button" class="nvvai" data-i="${i}">Mostrami <span aria-hidden="true">→</span></button>`:""}</div>`).join("")}</div>`;
   document.body.appendChild(chat);vicino();requestAnimationFrame(()=>chat.classList.add("on"));fab.classList.add("aperto");
+  chat.dataset.tab=tab;
+  chat.querySelectorAll(".nvtab button").forEach(b=>b.onclick=()=>{chat.dataset.tab=b.dataset.tab;chat.querySelectorAll(".nvtab button").forEach(x=>x.setAttribute("aria-selected",x==b));chat.querySelector(".nvcorpo").scrollTop=0;});
   chat.querySelector(".nvx").onclick=chiudi;
   chat.querySelectorAll(".nvvai").forEach(b=>b.onclick=()=>{const n=N[+b.dataset.i];chiudi();mostra(n);});
   vista=N[0].d;try{localStorage.setItem("ebNovita",vista);}catch(e){}segna();

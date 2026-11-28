@@ -336,6 +336,16 @@ def build(data_source=load_all, demo=False, sito=False):
                 quadro_pag["modalita"] = mo
     except Exception:
         log.warning("modalita' di mercato non calcolata:\n%s", traceback.format_exc())
+    # v9.67 REGISTRO UNICO DEI CAMBI DI STATO (stati.py): ciclo economico, allarme recessione, modalita', debito, clima,
+    # politica dei tassi. Per ognuno: stato, da quando, stato di prima. Isolato: se fallisce mancano solo "prima -> dopo".
+    stati_pag = stati_prem = None
+    try:
+        from . import stati
+        stati_pag, stati_prem = stati.aggiorna(
+            storico.CARTELLA if (os.path.isdir(storico.CARTELLA) and not demo) else None,
+            quadro=quadro_pag, market=market, carry=carry_pag)
+    except Exception:
+        log.warning("registro degli stati non aggiornato:\n%s", traceback.format_exc())
     # v8.50 COSTO / GUADAGNO DEL RINNOVO DEI FUTURE sulle materie prime (rinnovo.py): solo informativo. Isolato.
     rinnovo_pag = None
     try:
@@ -390,7 +400,7 @@ def build(data_source=load_all, demo=False, sito=False):
             "stag": stag, "stag_meta": stag_meta, "reg": reg, "bt": bt, "cmp": cmp_pag, "vol": vol, "tat": tat, "port": port, "fore": fore,
             "carry": carry_pag, "carry_st": carry_st, "btcmacro": btcmacro, "btcsent": btcsent, "crypto": crypto_pag, "paesi": paesi_pag, "categorie": cat_pag, "economie": quadro_pag, "rinnovo": rinnovo_pag, "sconto_sp": sconto_pag,
             "tv": {k: {"s": v[0], "inv": v[1]} for k, v in TV_SYMBOLS.items()}, "tvp": TV_PAIRS,
-            "neutri7": neutri7(reg, t0_utc)}
+            "neutri7": neutri7(reg, t0_utc), "stati": stati_pag}
     # "stato" pubblico = solo esito e fonti; "admin" = segnaposto che main.py sostituisce con il registro
     # completo (cifrato sul sito, in chiaro sul PC). Vedi cot_radar/admin.py
     # JSON compatto (senza spazi dopo virgole e due punti): stessa informazione, pagina piu' leggera
@@ -402,7 +412,8 @@ def build(data_source=load_all, demo=False, sito=False):
         data.pop("bt")
         # v9.62 posizione degli speculatori settimana per settimana (3 anni): serve solo al grafico, va nel file a richiesta
         pos = {k: a.pop("pos") for k, a in assets.items() if isinstance(a, dict) and "pos" in a}
-        verifica = clean({"reg": data.pop("reg"), "cmp": data.pop("cmp"), "carry_st": data.pop("carry_st"), "pos": pos})
+        verifica = clean({"reg": data.pop("reg"), "cmp": data.pop("cmp"), "carry_st": data.pop("carry_st"), "pos": pos,
+                          "stati": stati_prem})        # v9.67 stati Premium (politica dei tassi): prima -> dopo
         data["verifica"] = "verifica.json?v=" + datetime.now().strftime("%Y%m%d%H%M")
     # v7.93 DATI PREMIUM (premium.py): sul sito escono cifrati; senza chiave del database resta solo la parte Basic
     blocco = None

@@ -147,6 +147,11 @@ def main(argv):
         # (dati sospetti = possibili segnali finti). Vedi cot_radar/registro.py
         if stato["esito"] != "critico":
             registro.salva()
+            try:                                     # v9.67 registro dei cambi di stato (stesse regole: solo se approvato)
+                from cot_radar import stati
+                stati.salva()
+            except Exception as e:
+                log.warning("registro degli stati non salvato: %s", e)
             try:                                     # v8.72 test in avanti contro (stesse regole del registro)
                 from cot_radar import prova_contro
                 prova_contro.salva()

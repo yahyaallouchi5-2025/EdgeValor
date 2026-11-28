@@ -112,10 +112,14 @@ try{(function(){
  // v7.22d: il dettaglio (mappa, indicatori, ciambelle) si apre SOLO al click su una card; un secondo click lo chiude
  let sel=null;
  let borsa=null;                                           // top.json "economie": arriva dopo, se c'e'
+ // v9.67 PROVENIENZA della fase (registro unico dei cambi di stato, cot_radar/stati.py -> D.stati): accanto alla fase
+ //   "prima Stagflazione" (al passaggio del mouse: da quando). Solo se la fase confermata del registro e' quella mostrata.
+ const prima=x=>{const s=D.stati&&D.stati.stati&&D.stati.stati["ciclo:"+x.id];if(!s||!s.prima||s.stato!=x.regime)return "";
+  const d=s.dal||"";return `<small class="qe-da" title="${T("Fase confermata dal")} ${d.slice(8,10)}/${d.slice(5,7)}/${d.slice(0,4)}">${T("prima")} ${esc(T(s.prima))}</small>`;};
  const card=x=>{const f=FASI[x.regime];
   return `<button type="button" class="qe-card${x.id==sel?" on":""}" data-id="${x.id}" aria-expanded="${x.id==sel}" aria-controls="qe-det" title="${x.id==sel?"Chiudi il dettaglio":"Apri il dettaglio"}">
    <span class="qe-cn">${bandiera(x.id)}<b>${esc(x.nome)}</b>${x.allarme?`<i class="qe-dot" title="Allarme recessione"></i>`:""}<svg class="qe-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
-   <span class="qe-chip ${f[1]}">${x.regime}</span>
+   <span class="qe-fr"><span class="qe-chip ${f[1]}">${x.regime}</span>${prima(x)}</span>
    <span class="qe-cs"><span>Crescita ${fr(x.cli,x.cli3,"bene",x.cresce)}</span><span>Inflazione ${fx(x.infl,1)}% ${fr(x.infl,x.infl6,"male",x.sale)}</span></span></button>`;};
  function dettaglio(x){const f=FASI[x.regime],b=borsa&&borsa.economie&&borsa.economie[x.id],nomiS=(borsa&&borsa.settori)||{};
   const ind=(nome,val,sotto,freccia)=>`<div class="qe-i"><small>${nome}</small><b>${val}${freccia||""}</b><span>${sotto}</span></div>`;
