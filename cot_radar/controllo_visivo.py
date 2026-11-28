@@ -11,7 +11,8 @@ COSA FA (workflow controllo-visivo.yml, ogni giorno e a mano)
     3) TESTI SOVRAPPOSTI: due testi visibili nella stessa card che si coprono (colonne disallineate, etichette
        una sopra l'altra);
     4) RISCHIO SFARFALLIO: animazioni infinite che non usano solo transform/opacity (filtri, ombre, bordi, colori
-       animati costringono il browser a ridisegnare: e' la causa dello sfarfallio della card Black Friday, v9.19)
+       animati costringono il browser a ridisegnare: e' la causa dello sfarfallio della card Black Friday, v9.19);
+    5) v9.78 DATI MANCANTI: ogni "n/d" visibile (un dato che non e' arrivato), con il titolo della card.
   Se trova qualcosa il giro FALLISCE: la sorveglianza (ogni ora) lo vede tra i giri falliti e manda l'email privata
   al fondatore; l'elenco dei problemi e' nel riepilogo del giro su GitHub (Actions -> Controllo visivo).
   Nessun utente vede nulla.
@@ -78,6 +79,12 @@ CONTROLLO = r"""(dove)=>{const out=[],W=innerWidth;
   if(area<2500&&male.every(p=>/^(boxShadow|backgroundColor|color)$/.test(p)))continue;
   const nome=(an.animationName||an.id||"animazione")+":"+male.join(",");
   if(male.length&&!visti.has(nome)){visti.add(nome);out.push(`animazione infinita che ridisegna (${male.join(", ")}): ${an.animationName||"senza nome"} su ${el.className&&el.className.baseVal===undefined?String(el.className).split(" ")[0]:el.tagName}`);}}
+ // 5) v9.78 (Ya, 28/11/2026: "non voglio piu' vedere n/d in nessun dato, nessuna scheda: al massimo mi arriva
+ //    l'anomalia") ogni "n/d" visibile e' un dato che non e' arrivato: si segnala con il titolo della card
+ const nd=new Map();for(const [tn,r,t] of testi){if(!/(^|[^a-z])n\/d([^a-z]|$)/i.test(t))continue;const c=tn.parentElement.closest(".card,section,table,.fc,[class*=card]")||document.body;
+  const ti=(c.querySelector("h2,h3,h4,.titolo,summary")||{}).textContent||"";const k=(ti.trim().replace(/\s+/g," ").slice(0,40)||c.id||c.className||"pagina");
+  nd.set(k,(nd.get(k)||0)+1);}
+ for(const [k,v] of nd)out.push(`dato mancante "n/d" (${v}) in: ${k}`);
  return out.map(p=>dove+": "+p);}"""
 
 
